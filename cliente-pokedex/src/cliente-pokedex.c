@@ -11,6 +11,9 @@
 #include "cliente-pokedex.h"
 
 int main(void) {
-	puts("!!!Hello World!!!"); /* prints !!!Hello World!!! */
+
+	ip_pokedex = string_new();
+	puerto_pokedex = 0;
+
 	return EXIT_SUCCESS;
 }

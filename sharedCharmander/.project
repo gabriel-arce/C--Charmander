@@ -1,10 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <projectDescription>
-	<name>cliente-pokedex</name>
+	<name>sharedCharmander</name>
 	<comment></comment>
 	<projects>
 		<project>commons</project>
-		<project>sharedCharmander</project>
 	</projects>
 	<buildSpec>
 		<buildCommand>

@@ -10,5 +10,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <shared_configs.h>
+#include <shared_sockets.h>
 
 #endif /* ENTRENADOR_H_ */

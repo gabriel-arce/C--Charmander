@@ -9,7 +9,12 @@
  */
 
 #include "mapa.h"
-int main(void) {
-	puts("!!!Hello World!!!"); /* prints !!!Hello World!!! */
+
+int main(int argc, char ** argv) {
+
+	if (chequear_argumentos(argc, 3)) {
+		return EXIT_FAILURE;
+	}
+
 	return EXIT_SUCCESS;
 }

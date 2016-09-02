@@ -10,5 +10,9 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <commons/string.h>
+
+char * ip_pokedex;
+int puerto_pokedex;
 
 #endif /* CLIENTE_POKEDEX_H_ */
