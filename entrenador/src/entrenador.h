@@ -40,7 +40,7 @@ t_metadata_entrenador * metadata;
 
 t_mapa * crear_mapa(char * nombre_mapa);
 t_metadata_entrenador * crear_metadata();
-int leer_metadata(char * metada_path);
+int leer_metadata_mapa(char * metada_path);
 void imprimir_metadata();
 int conectarse_a_un_mapa(int puerto, char * ip);
 int enviar_datos_a_mapa(int socket, char simbolo, char * nombre);

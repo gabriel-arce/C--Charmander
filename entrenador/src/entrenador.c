@@ -28,14 +28,14 @@ t_metadata_entrenador * crear_metadata() {
 	return metadata;
 }
 
-int leer_metadata(char * metada_path) {
+int leer_metadata_mapa(char * metada_path) {
 	metadata = crear_metadata();
 
 	t_config * conf_file = config_create(metada_path);
 
-	metadata->nombre = string_duplicate(getStringProperty(conf_file, "nombre"));
+	metadata->nombre = getStringProperty(conf_file, "nombre");
 
-	metadata->simbolo = (char) string_duplicate(getStringProperty(conf_file, "simbolo"))[0];
+	metadata->simbolo = (char) getStringProperty(conf_file, "simbolo")[0];
 
 	t_list * hoja_de_viaje = getListProperty(conf_file, "hojaDeViaje");
 

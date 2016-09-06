@@ -10,6 +10,37 @@
 
 #include "mapa.h"
 
+void leer_metadata_mapa(char * metadata_path) {
+	t_config * conf_file = config_create(metadata_path);
+
+	metadata = malloc(sizeof(t_metadata_mapa));
+	metadata->planificador = malloc(sizeof(t_planificador));
+
+	metadata->tiempoChequeoDeadlock = getIntProperty(conf_file, "TiempoChequeoDeadlock");
+	metadata->batalla = (bool) getIntProperty(conf_file, "Batalla");
+
+	metadata->planificador->algth = getStringProperty(conf_file, "algoritmo");
+	metadata->planificador->quantum = getIntProperty(conf_file, "quantum");
+	metadata->planificador->retardo_turno = getIntProperty(conf_file, "retardo");
+
+	metadata->ip = getStringProperty(conf_file, "IP");
+	metadata->puerto = getIntProperty(conf_file, "Puerto");
+
+	free(conf_file);
+}
+
+void imprimir_metada() {
+	printf("\n<<<METADA DEL MAPA>>>\n");
+	printf("tiempo de chequeo de DL: %d\n", metadata->tiempoChequeoDeadlock);
+	printf("batalla: %d\n", metadata->batalla);
+	printf("algoritmo: %s\n", metadata->planificador->algth);
+	printf("quantum: %d\n", metadata->planificador->quantum);
+	printf("retardo: %d\n", metadata->planificador->retardo_turno);
+	printf("IP: %s\n", metadata->ip);
+	printf("puerto: %d\n", metadata->puerto);
+	printf("\n");
+}
+
 void crear_archivo_log() {
 	logger = log_create(LOG_FILE, "MAPA log file", true, LOG_LEVEL_TRACE);
 	log_info(logger, "MAPA iniciado.");

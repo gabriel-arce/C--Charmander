@@ -23,16 +23,19 @@
 #define LOG_FILE "log_mapa.log"
 #define TOTAL_ARGS 3
 
-typedef enum _planificador_algth {
-	AP_ROUND_ROBIN = 1,
-	AP_SRDF = 2
-} t_planificador_algth;
-
 typedef struct {
-	t_planificador_algth algth;
+	char * algth;
 	int quantum;
 	int retardo_turno;
 } t_planificador;
+
+typedef struct {
+	int tiempoChequeoDeadlock;
+	t_planificador * planificador;
+	bool batalla;
+	char * ip;
+	int puerto;
+} t_metadata_mapa;
 
 typedef struct {
 	char simbolo_entrenador;
@@ -40,6 +43,7 @@ typedef struct {
 	int socket;
 } t_sesion_entrenador;
 
+t_metadata_mapa * metadata;
 int socket_servidor;
 t_log * logger;
 pthread_t hilo_planificador;
@@ -47,6 +51,8 @@ pthread_t hilo_servidor;
 pthread_mutex_t mutex_servidor;
 t_list * entrenadores_conectados;
 
+void leer_metadata_mapa(char * metadata_path);
+void imprimir_metada();
 void crear_archivo_log();
 void inicializar_semaforos();
 void destruir_semaforos();

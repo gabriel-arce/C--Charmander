@@ -15,7 +15,7 @@ int main(int argc, char ** argv) {
 		return EXIT_FAILURE;
 	}
 
-	leer_metadata(argv[2]);
+	leer_metadata_mapa(argv[2]);
 	imprimir_metadata();
 
 	/*

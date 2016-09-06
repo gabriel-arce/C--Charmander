@@ -13,6 +13,9 @@ int main(int argc, char ** argv) {
 		return EXIT_FAILURE;
 	}
 
+	leer_metadata_mapa(argv[2]);
+	imprimir_metada();
+
 	socket_servidor = -1;
 	inicializar_variables();
 	inicializar_semaforos();
