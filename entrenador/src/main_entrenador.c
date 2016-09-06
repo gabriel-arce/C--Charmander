@@ -9,11 +9,14 @@
 
 int main(int argc, char ** argv) {
 
-	my_socket = -1;
+	socket_entrenador = -1;
 
-	if (!chequear_argumentos(argc, 3)) {
+	if (!chequear_argumentos(argc, TOTAL_ARGS)) {
 		return EXIT_FAILURE;
 	}
+
+	leer_metadata(argv[2]);
+	imprimir_metadata();
 
 	/*
 	 *  lo que tenga *** vuela despues
@@ -22,9 +25,9 @@ int main(int argc, char ** argv) {
 	int puerto_ejemplo = 9000; //***
 	char * ip_ejemplo = string_duplicate("127.0.0.1"); //***
 
-	my_socket = conectarse_a_un_mapa(puerto_ejemplo, ip_ejemplo);
+	socket_entrenador = conectarse_a_un_mapa(puerto_ejemplo, ip_ejemplo);
 
-	if (my_socket < 0) {
+	if (socket_entrenador < 0) {
 		return EXIT_FAILURE;
 	} else {
 		puts("Me conecte al mapa"); //***
@@ -33,9 +36,9 @@ int main(int argc, char ** argv) {
 	srand(time(NULL));
 	int random_number = rand();
 
-	enviar_datos_a_mapa(my_socket, random_number, argv[1]);
+	enviar_datos_a_mapa(socket_entrenador, random_number, argv[1]);
 
-	close(my_socket);
+	close(socket_entrenador);
 	free(ip_ejemplo);
 
 	return EXIT_SUCCESS;

@@ -21,6 +21,7 @@
 #include <netinet/in.h>
 
 #define LOG_FILE "log_mapa.log"
+#define TOTAL_ARGS 3
 
 typedef enum _planificador_algth {
 	AP_ROUND_ROBIN = 1,
