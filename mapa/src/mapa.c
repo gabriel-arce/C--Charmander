@@ -56,15 +56,23 @@ void destruir_semaforos() {
 
 void inicializar_variables() {
 	entrenadores_conectados = list_create();
+	cola_de_listos = list_create();
+	lista_de_recursos = list_create();
 }
 
 void destruir_variables() {
 	list_destroy_and_destroy_elements(entrenadores_conectados, (void *) entrenador_destroyer);
+	list_destroy(cola_de_listos);
+	list_destroy_and_destroy_elements(lista_de_recursos, (void *) recurso_destroyer);
 }
 
 void entrenador_destroyer(t_sesion_entrenador * e) {
 	free(e->nombre_entrenador);
 	free(e);
+}
+
+void recurso_destroyer(t_recurso * r) {
+	//TODO una vez definido el tema de los recursos y las colas de bloqueados codear el destroyer
 }
 
 void run_trainer_server() {
@@ -127,8 +135,17 @@ void run_trainer_server() {
 			continue;
 		}
 
-		pthread_t subhilo_entrenador;
-		pthread_create(&subhilo_entrenador, NULL, (void *) atiende_entrenador, (void *) new_trainer_sesion);
+		//sacar despues...
+		printf("\nSe conecto %s en el socket %d con el simbolo %c\n",
+				new_trainer_sesion->nombre_entrenador,
+				new_trainer_sesion->socket,
+				new_trainer_sesion->simbolo_entrenador);
+		//................
+
+		list_add(entrenadores_conectados, new_trainer_sesion);
+
+		//manda a listos al entrenador
+		list_add(cola_de_listos, new_trainer_sesion);
 
 		pthread_mutex_unlock(&mutex_servidor);
 	}
@@ -159,20 +176,6 @@ t_sesion_entrenador * recibir_datos_entrenador(int socket_entrenador) {
 	return trainer_sesion;
 }
 
-void atiende_entrenador(void * args) {
-	t_sesion_entrenador * sesion_entrenador = (t_sesion_entrenador *) args;
-
-	printf("\nSe conecto %s en el socket %d con el simbolo %c\n",
-			sesion_entrenador->nombre_entrenador, sesion_entrenador->socket,
-			sesion_entrenador->simbolo_entrenador);
-
-	//fumo porro y meto caño con el pikachu
-
-	while(1) {
-
-	}
-}
-
 void run_scheduler_thread() {
 	/*
 	 * TODO Plantear diseño de hilos y estructuras
@@ -188,4 +191,11 @@ t_sesion_entrenador * buscar_entrenador_por_simbolo(char symbol_expected) {
 	entrenador = list_find(entrenadores_conectados, (void *) find_trainer);
 
 	return entrenador;
+}
+
+t_recurso * buscar_recurso_por_id(/* id */) {
+	//TODO definir el recurso y su id
+	t_recurso * recurso = NULL;
+
+	return recurso;
 }

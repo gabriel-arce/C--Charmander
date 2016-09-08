@@ -43,6 +43,11 @@ typedef struct {
 	int socket;
 } t_sesion_entrenador;
 
+typedef struct {
+	//id del recurso
+	t_list * cola_de_bloqueados;
+} t_recurso;
+
 t_metadata_mapa * metadata;
 int socket_servidor;
 t_log * logger;
@@ -51,6 +56,10 @@ pthread_t hilo_servidor;
 pthread_mutex_t mutex_servidor;
 t_list * entrenadores_conectados;
 
+t_list * cola_de_listos;
+t_list * lista_de_recursos; //t_recurso
+
+//****Variables & stuff
 void leer_metadata_mapa(char * metadata_path);
 void imprimir_metada();
 void crear_archivo_log();
@@ -58,15 +67,18 @@ void inicializar_semaforos();
 void destruir_semaforos();
 void inicializar_variables();
 void destruir_variables();
+
+//****Conection and threads ****
 void run_trainer_server();
 void run_scheduler_thread();
-void atiende_entrenador(void * args);
 t_sesion_entrenador * recibir_datos_entrenador(int socket_entrenador);
 
 //****Destroyers****
 void entrenador_destroyer(t_sesion_entrenador * e);
+void recurso_destroyer(t_recurso * r);
 
 //****Buscadores****
-t_sesion_entrenador * buscar_entrenador_por_simbolo(char symbol_expected);
+t_sesion_entrenador * buscar_entrenador_por_simbolo(char expected_symbol);
+t_recurso * buscar_recurso_por_id(/* id */);
 
 #endif /* MAPA_H_ */
