@@ -49,6 +49,7 @@ int nivel;
 
 
 char* metadata_path;
+char* nombreEntrenador;
 int socket_entrenador;
 t_metadata_entrenador * metadata;
 t_posicion * ubicacionActual;

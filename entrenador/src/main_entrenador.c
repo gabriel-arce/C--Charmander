@@ -16,6 +16,7 @@ int main(int argc, char ** argv) {
 		return EXIT_FAILURE;
 	}
 
+	nombreEntrenador = argv[1];
 	metadata_path = argv[2];
 
 		inicializarEntrenador();

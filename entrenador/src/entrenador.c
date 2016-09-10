@@ -28,7 +28,7 @@ t_metadata_entrenador * crear_metadata() {
 	return metadata;
 }
 
-int leer_metadata_mapa(char * metada_path) {
+int leer_metadata_mapa(char * metada_path) {							//TODO Hay que cambiarlo para que busque la ruta exacta
 	metadata = crear_metadata();
 
 	t_config * conf_file = config_create(metada_path);
@@ -343,6 +343,7 @@ void muerteEntrenador(){
 			desconectarseDeMapa();
 			finalizarEntrenador();
 			inicializarSinmuertesNiReintentos();
+			conectarseConSiguienteMapa();
 			contestaConOtroCaracter = false;
 			break;
 
