@@ -9,7 +9,7 @@
 
 int main(int argc, char ** argv) {
 
-	if (!chequear_argumentos(argc, TOTAL_ARGS)) {
+	if (chequear_argumentos(argc, TOTAL_ARGS) == -1) {
 		return EXIT_FAILURE;
 	}
 
@@ -18,7 +18,14 @@ int main(int argc, char ** argv) {
 
 	printf("\nCliente Pokedex en el directorio de montaje: %s\n", directorio_montaje);
 
+	socket_pokedex = conectar_con_servidor_pkdx();
 
+	while (1) {
+		char message[1000];
+		scanf("%s", message);
+
+		send(socket_pokedex, message, strlen(message), 0);
+	}
 
 	return EXIT_SUCCESS;
 }

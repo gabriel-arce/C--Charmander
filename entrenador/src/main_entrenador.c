@@ -36,7 +36,7 @@ int main(int argc, char ** argv) {
 	srand(time(NULL));
 	int random_number = rand();
 
-	enviar_datos_a_mapa(socket_entrenador, random_number, argv[1]);
+	enviar_datos_a_mapa(socket_entrenador, metadata->simbolo, metadata->nombre);
 
 	close(socket_entrenador);
 	free(ip_ejemplo);

@@ -10,6 +10,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <shared_configs.h>
 #include <commons/log.h>
 #include <commons/collections/list.h>
@@ -22,6 +23,8 @@
 
 #define LOG_FILE "log_mapa.log"
 #define TOTAL_ARGS 3
+#define PORT 9000
+#define IP "127.0.0.1"
 
 typedef struct {
 	char * algth;

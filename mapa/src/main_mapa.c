@@ -9,7 +9,7 @@
 
 int main(int argc, char ** argv) {
 
-	if (!chequear_argumentos(argc, TOTAL_ARGS)) {
+	if (chequear_argumentos(argc, TOTAL_ARGS) == -1) {
 		return EXIT_FAILURE;
 	}
 

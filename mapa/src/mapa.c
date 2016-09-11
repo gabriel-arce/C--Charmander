@@ -77,77 +77,154 @@ void recurso_destroyer(t_recurso * r) {
 
 void run_trainer_server() {
 
-	void catch_error(int result) {
-		if (result == -1)
-			exit(EXIT_FAILURE);
-	}
+	/* master file descriptor list */
+	fd_set master_fdset;
+	/* temp file descriptor list for select() */
+	fd_set read_fds;
 
+	/* server address */
+	struct sockaddr_in serveraddr;
+	/* client address */
+	struct sockaddr_in clientaddr;
+
+	/* maximum file descriptor number */
+	int fdmax;
+
+	/* listening socket descriptor */
+	int listener;
+
+	/* newly accept()ed socket descriptor */
+	int newfd;
+
+	/* buffer for client data */
+	char buf[1024];
+
+	int nbytes;
+
+	/* for setsockopt() SO_REUSEADDR, below */
 	int optval = 1;
+	int addrlen;
+	int i, j;
 
-	//*** TODO esto vuelva despues
-	int port = 9000;
-	char * ip_server = string_duplicate("127.0.0.1");
-	//***
+	/* clear the master and temp sets */
+	FD_ZERO(&master_fdset);
+	FD_ZERO(&read_fds);
 
-	//creo el socket de escucha
-	socket_servidor = crearSocket();
-	catch_error(socket_servidor);
+	/* get the listener */
+	if ((listener = socket(AF_INET, SOCK_STREAM, 0)) == -1)	{
+		perror("Server-socket() error");
+		exit(1);
+	}
+	printf("Server-socket() is OK...\n");
 
-	//bindeo a un puerto e ip
-	catch_error(bindearSocket(socket_servidor, port, ip_server));
+	/*"address already in use" error message */
+	if (setsockopt(listener, SOL_SOCKET, SO_REUSEADDR, &optval, sizeof(int)) == -1) {
+		perror("Server-setsockopt() error");
+		exit(1);
+	}
+	printf("Server-setsockopt() is OK...\n");
 
-	//me pongo en escucha
-	catch_error(escucharEn(socket_servidor));
+	/* bind */
+	serveraddr.sin_family = AF_INET;
+	serveraddr.sin_addr.s_addr = INADDR_ANY;
+	serveraddr.sin_port = htons(PORT);
 
-	//creo la direccion del cliente
-	struct sockaddr_in direccion_cliente;
-	unsigned int addrlen = sizeof(struct sockaddr_in);
-	int socket_nuevo = -1;
+	memset(&(serveraddr.sin_zero), '\0', 8);
 
-	while (true) {
-		pthread_mutex_lock(&mutex_servidor);
+	if (bind(listener, (struct sockaddr *) &serveraddr, sizeof(serveraddr)) == -1) {
+		perror("Server-bind() error");
+		exit(1);
+	}
+	printf("Server-bind() is OK...\n");
 
-		socket_nuevo = accept(socket_servidor, (struct sockaddr *) &direccion_cliente, &addrlen);
+	/* listen */
+	if (listen(listener, 10) == -1) {
+		perror("Server-listen() error lol!");
+		exit(1);
+	}
+	printf("Server-listen() is OK...\n");
 
-		if (socket_nuevo == -1) {
-			printf("\n[ERROR] Error en el accept\n");
-			pthread_mutex_unlock(&mutex_servidor);
-			continue;
+	/* add the listener to the master set */
+	FD_SET(listener, &master_fdset);
+
+	/* keep track of the biggest file descriptor */
+	fdmax = listener;
+
+	/* loop for new entries */
+	while(1) {
+
+		read_fds = master_fdset;
+
+		if (select(fdmax + 1, &read_fds, NULL, NULL, NULL) == -1) {
+			perror("Server-select() error");
+			exit(1);
 		}
 
-		setsockopt(socket_nuevo, SOL_SOCKET, SO_REUSEADDR, &optval, sizeof(optval));
+		/*run through the existing connections looking for data to be read*/
+		for (i = 0; i <= fdmax; i++) {
 
-		int id = recibir_handshake(socket_nuevo);
+			if (FD_ISSET(i, &read_fds)) {
 
-		if (id != 1) {
-			printf("\n[ERROR] Se conecto alguien desconocido\n");
-			close(socket_nuevo);
-			pthread_mutex_unlock(&mutex_servidor);
-			continue;
+				/* we got one... */
+				if (i == listener) {
+
+					/* handle new connections */
+					addrlen = sizeof(clientaddr);
+
+					if ((newfd = accept(listener, (struct sockaddr *) &clientaddr, (socklen_t *) &addrlen)) == -1) {
+						perror("Server-accept() error");
+					} else {
+
+						printf("Server-accept() is OK...\n");
+
+						FD_SET(newfd, &master_fdset); /* add to master set */
+
+						if (newfd > fdmax)
+							fdmax = newfd;
+
+						printf("New connection from %s on socket %d\n",
+								inet_ntoa(clientaddr.sin_addr), newfd);
+					}
+
+				} else {
+
+					/* handle data from a client */
+
+					if ((nbytes = recv(i, buf, sizeof(buf), 0)) <= 0) {
+
+						/* got error or connection closed by client */
+						if (nbytes == 0)
+							/* connection closed */
+							printf("Socket %d disconnected\n", i);
+						else
+							/* just an error occurs */
+							perror("recv() error");
+
+						/* close it... */
+						close(i);
+
+						/* remove from master set */
+						FD_CLR(i, &master_fdset);
+
+					} else {
+						/* we got some data from a client*/
+//						for (j = 0; j <= fdmax; j++) {
+//
+//							/* send to everyone! */
+//							if (FD_ISSET(j, &master)) {
+//
+//								/* except the listener and ourselves */
+//								if (j != listener && j != i) {
+//									if (send(j, buf, nbytes, 0) == -1)
+//										perror("send() error");
+//								}
+//							}
+//						}
+
+					}
+				}
+			}
 		}
-
-		t_sesion_entrenador * new_trainer_sesion = recibir_datos_entrenador(socket_nuevo);
-
-		if (new_trainer_sesion == NULL) {
-			printf("\n[ERROR] No se pudo recibir corrctamente los datos del entrenador\n");
-			close(socket_nuevo);
-			pthread_mutex_unlock(&mutex_servidor);
-			continue;
-		}
-
-		//sacar despues...
-		printf("\nSe conecto %s en el socket %d con el simbolo %c\n",
-				new_trainer_sesion->nombre_entrenador,
-				new_trainer_sesion->socket,
-				new_trainer_sesion->simbolo_entrenador);
-		//................
-
-		list_add(entrenadores_conectados, new_trainer_sesion);
-
-		//manda a listos al entrenador
-		list_add(cola_de_listos, new_trainer_sesion);
-
-		pthread_mutex_unlock(&mutex_servidor);
 	}
 }
 
@@ -166,9 +243,12 @@ t_sesion_entrenador * recibir_datos_entrenador(int socket_entrenador) {
 
 	trainer_sesion->socket = socket_entrenador;
 
+	int simbolo = 0;
+
 	int offset = 0;
-	memcpy(&(trainer_sesion->simbolo_entrenador), data_buffer + offset, sizeof(char));
-	offset += sizeof(char);
+	memcpy(&(simbolo), data_buffer + offset, sizeof(char));
+	trainer_sesion->simbolo_entrenador = (char) simbolo;
+	offset += sizeof(int);
 	int name_size = data_buffer_size - offset;
 	trainer_sesion->nombre_entrenador = malloc(sizeof(char) * name_size);
 	memcpy(trainer_sesion->nombre_entrenador, data_buffer + offset, name_size);
@@ -180,6 +260,18 @@ void run_scheduler_thread() {
 	/*
 	 * TODO Plantear diseño de hilos y estructuras
 	 */
+	int entrenadores_listos = 0;
+
+	while (true) {
+
+		entrenadores_listos = list_size(cola_de_listos);
+
+		if (entrenadores_listos > 0) {
+//			run_algorithm(algorithm);
+		} else {
+			continue;
+		}
+	}
 }
 
 t_sesion_entrenador * buscar_entrenador_por_simbolo(char symbol_expected) {

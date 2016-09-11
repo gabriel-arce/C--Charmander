@@ -13,7 +13,7 @@
 int conectar_con_servidor_pkdx() {
 	int socket_fd = -1;
 
-	socket_fd = clienteDelServidor(ip_pokedex, puerto_pokedex);
+	socket_fd = clienteDelServidor(IP, PORT);
 
 	return socket_fd;
 }
