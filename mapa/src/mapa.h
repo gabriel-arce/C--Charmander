@@ -25,6 +25,7 @@
 #define TOTAL_ARGS 3
 #define PORT 9000
 #define IP "127.0.0.1"
+#define _ID_HANDSHAKE 1
 
 typedef struct {
 	char * algth;
@@ -74,7 +75,9 @@ void destruir_variables();
 //****Conection and threads ****
 void run_trainer_server();
 void run_scheduler_thread();
-t_sesion_entrenador * recibir_datos_entrenador(int socket_entrenador);
+void trainer_handler(int socket, fd_set * fdset);
+int procesar_nuevo_entrenador(int socket_entrenador, int buffer_size);
+t_sesion_entrenador * recibir_datos_entrenador(int socket_entrenador, int buffer_size);
 
 //****Destroyers****
 void entrenador_destroyer(t_sesion_entrenador * e);

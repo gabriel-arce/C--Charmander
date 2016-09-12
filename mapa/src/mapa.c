@@ -96,15 +96,12 @@ void run_trainer_server() {
 	/* newly accept()ed socket descriptor */
 	int newfd;
 
-	/* buffer for client data */
-	char buf[1024];
-
 	int nbytes;
 
 	/* for setsockopt() SO_REUSEADDR, below */
 	int optval = 1;
 	int addrlen;
-	int i, j;
+	int i;
 
 	/* clear the master and temp sets */
 	FD_ZERO(&master_fdset);
@@ -189,51 +186,101 @@ void run_trainer_server() {
 				} else {
 
 					/* handle data from a client */
-
-					if ((nbytes = recv(i, buf, sizeof(buf), 0)) <= 0) {
-
-						/* got error or connection closed by client */
-						if (nbytes == 0)
-							/* connection closed */
-							printf("Socket %d disconnected\n", i);
-						else
-							/* just an error occurs */
-							perror("recv() error");
-
-						/* close it... */
-						close(i);
-
-						/* remove from master set */
-						FD_CLR(i, &master_fdset);
-
-					} else {
-						/* we got some data from a client*/
-//						for (j = 0; j <= fdmax; j++) {
+					//MAKE A HANDLE FUNCTION AND CALL IT HERE!!!!*****
+					trainer_handler(i, &master_fdset);
+//					if ((nbytes = recv(i, buff, 1, 0)) <= 0) {
 //
-//							/* send to everyone! */
-//							if (FD_ISSET(j, &master)) {
+//						/* got error or connection closed by client */
+//						if (nbytes == 0)
+//							/* connection closed */
+//							printf("Socket %d disconnected\n", i);
+//						else
+//							/* just an error occurs */
+//							perror("recv() error");
 //
-//								/* except the listener and ourselves */
-//								if (j != listener && j != i) {
-//									if (send(j, buf, nbytes, 0) == -1)
-//										perror("send() error");
+//						/* close it... */
+//						close(i);
+//
+//						/* remove from master set */
+//						FD_CLR(i, &master_fdset);
+//
+//					} else {
+//						/* we got some data from a client*/
+//						int id_op = 1;
+//						printf("%s", (char *) buff);
+//						int result;
+//						switch (id_op) {
+//							case _ID_HANDSHAKE:
+//								result = procesar_nuevo_entrenador(i);
+//
+//								if (result == -1) {
+//									close(i);
+//									FD_CLR(i, &master_fdset);
 //								}
-//							}
+//
+//								break;
+//							default:
+//								break;
 //						}
-
-					}
+//					}
 				}
 			}
 		}
 	}
 }
 
-t_sesion_entrenador * recibir_datos_entrenador(int socket_entrenador) {
+void trainer_handler(int socket, fd_set * fdset) {
+	pthread_mutex_lock(&mutex_servidor);
 
-	int data_buffer_size = 0;
+	int buffer_size = sizeof(t_header);
+	void * buffer_in = malloc(buffer_size);
 
-	if (recv(socket_entrenador, &data_buffer_size, sizeof(int), 0) <= 0)
-		return NULL;
+	int nbytes_recv = recv(socket, buffer_in, buffer_size, 0);
+
+	if (nbytes_recv <= 0) {
+		if (nbytes_recv == 0)
+			printf("Socket %d disconnected\n", socket);
+
+		if (nbytes_recv < 0)
+			printf("recv error\n");
+
+		close(socket);
+		FD_CLR(socket, fdset);
+		pthread_mutex_unlock(&mutex_servidor);
+	}
+
+	t_header * header = deserializar_header(buffer_in);
+
+	switch (header->identificador) {
+		case _ID_HANDSHAKE:
+			procesar_nuevo_entrenador(socket, header->tamanio);
+			break;
+		default:
+			break;
+	}
+
+	pthread_mutex_unlock(&mutex_servidor);
+}
+
+int procesar_nuevo_entrenador(int socket_entrenador, int buffer_size) {
+	t_sesion_entrenador * nuevo_entrenador = recibir_datos_entrenador(socket_entrenador, buffer_size);
+
+	if (nuevo_entrenador == NULL)
+		return -1;
+
+	printf("\nSe conecto %s en el socket %d con el simbolo %c\n",
+			nuevo_entrenador->nombre_entrenador, nuevo_entrenador->socket,
+			nuevo_entrenador->simbolo_entrenador);
+
+	list_add(entrenadores_conectados, nuevo_entrenador);
+
+	//manda a listos al entrenador
+	list_add(cola_de_listos, nuevo_entrenador);
+
+	return 0;
+}
+
+t_sesion_entrenador * recibir_datos_entrenador(int socket_entrenador, int data_buffer_size) {
 
 	void * data_buffer = malloc(data_buffer_size);
 	if (recv(socket_entrenador, data_buffer, data_buffer_size, 0) <= 0)
@@ -252,6 +299,8 @@ t_sesion_entrenador * recibir_datos_entrenador(int socket_entrenador) {
 	int name_size = data_buffer_size - offset;
 	trainer_sesion->nombre_entrenador = malloc(sizeof(char) * name_size);
 	memcpy(trainer_sesion->nombre_entrenador, data_buffer + offset, name_size);
+
+	free(data_buffer);
 
 	return trainer_sesion;
 }
