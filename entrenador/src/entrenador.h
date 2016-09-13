@@ -85,7 +85,6 @@ void verificarSiQuedanObjetivosEnMapa();
 void verificarNivelPokemon(t_pokemon * pokemon);
 void esperarTurno();
 void realizarAccion();
-void enviarFinalizacionDeTurno();
 bool estoyEnPokenest();
 void imprimirLogro();
 void batallaPokemon();
