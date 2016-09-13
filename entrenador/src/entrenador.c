@@ -233,6 +233,8 @@ void atraparPokemon(){
 
 	//TODO enviar a mapa que quiero atrapar
 
+	//escuchar y hay dos posibilidades, (deadlock y vuelvo a escuchar) o (pokemon y sigo la rutina)
+
 	//TODO podria recibir que hay un deadlock => batalla y return
 
 
@@ -300,9 +302,7 @@ void realizarAccion(){
 
 }
 
-void enviarFinalizacionDeTurno(){
-	//TODO enviar a nucleo que finalizo el turno
-}
+
 
 bool estoyEnPokenest() {
 

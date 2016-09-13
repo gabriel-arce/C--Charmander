@@ -20,6 +20,7 @@
 #include <pthread.h>
 #include <sys/types.h>
 #include <netinet/in.h>
+#include <commons/collections/queue.h>
 
 #define LOG_FILE "log_mapa.log"
 #define TOTAL_ARGS 3
@@ -57,12 +58,42 @@ typedef struct {
 	char simbolo_entrenador;
 	char * nombre_entrenador;
 	int socket;
+	t_posicion * posicion;
+	t_posicion * posicionObjetivo;
+	t_list * pokemonesCapturados;
+	int tiempoDeIngresoAlMapa;
+	int deadlocksInvolucrados;
+	int tiempoBloqueado;
 } t_sesion_entrenador;
 
 typedef struct {
 	//id del recurso
 	t_list * cola_de_bloqueados;
 } t_recurso;
+
+
+typedef struct {
+	int x;
+	int y;
+} t_posicion;
+
+typedef struct {
+	char* nombreArchivo;
+	char* nombre;
+	int nivel;
+	char* imagen;				//no se si es un char*
+} t_pokemon;
+
+typedef struct {
+	t_posicion * posicion;
+	char identificador;
+	t_list * pokemones;			//t_pokemon
+	t_queue * entrenadoresBloqueados;
+} t_pokenest;
+
+
+
+
 
 t_metadata_mapa * metadata;
 int socket_servidor;
@@ -74,6 +105,15 @@ t_list * entrenadores_conectados;
 
 t_list * cola_de_listos;
 t_list * lista_de_recursos; //t_recurso
+t_list listos;
+t_list pokenests;
+t_list finalizados;
+int tiempoChequeoInterbloqueo;
+bool batallasActivadas;
+enum algoritmoDePlanificacion;
+int quantum;
+int retardoEntreTurnos;
+char* nombreMapa;   //se setea con argumento en consola
 
 //****Variables & stuff
 void leer_metadata_mapa(char * metadata_path);
@@ -99,4 +139,8 @@ void recurso_destroyer(t_recurso * r);
 t_sesion_entrenador * buscar_entrenador_por_simbolo(char expected_symbol);
 t_recurso * buscar_recurso_por_id(/* id */);
 
+
+//***Funciones***
+
+void rutinaSeñales(int rutina);
 #endif /* MAPA_H_ */
