@@ -186,43 +186,7 @@ void run_trainer_server() {
 				} else {
 
 					/* handle data from a client */
-					//MAKE A HANDLE FUNCTION AND CALL IT HERE!!!!*****
 					trainer_handler(i, &master_fdset);
-//					if ((nbytes = recv(i, buff, 1, 0)) <= 0) {
-//
-//						/* got error or connection closed by client */
-//						if (nbytes == 0)
-//							/* connection closed */
-//							printf("Socket %d disconnected\n", i);
-//						else
-//							/* just an error occurs */
-//							perror("recv() error");
-//
-//						/* close it... */
-//						close(i);
-//
-//						/* remove from master set */
-//						FD_CLR(i, &master_fdset);
-//
-//					} else {
-//						/* we got some data from a client*/
-//						int id_op = 1;
-//						printf("%s", (char *) buff);
-//						int result;
-//						switch (id_op) {
-//							case _ID_HANDSHAKE:
-//								result = procesar_nuevo_entrenador(i);
-//
-//								if (result == -1) {
-//									close(i);
-//									FD_CLR(i, &master_fdset);
-//								}
-//
-//								break;
-//							default:
-//								break;
-//						}
-//					}
 				}
 			}
 		}
