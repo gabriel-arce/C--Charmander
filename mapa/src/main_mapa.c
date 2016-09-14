@@ -13,6 +13,7 @@ int main(int argc, char ** argv) {
 		return EXIT_FAILURE;
 	}
 
+	nombreMapa = string_duplicate(argv[1]);
 	leer_metadata_mapa(argv[2]);
 	imprimir_metada();
 

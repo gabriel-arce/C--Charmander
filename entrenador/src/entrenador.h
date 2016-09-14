@@ -20,6 +20,19 @@
 
 #define TOTAL_ARGS 3
 
+#define _ID_HANDSHAKE 1
+#define _TURNO_CONCEDIDO 2
+#define _UBICACION_POKENEST 3
+#define _MOVER_XY 4
+#define _CAPTURAR_PKM 5
+#define _OBJETIVO_CUMPLIDO 6
+#define _QUEDAN_OBJETIVOS 7
+#define _BATALLA 8
+#define _PKM_MAS_FUERTE 9
+#define _RESULTADO_BATALLA 10
+#define _DATOS_FINALES 11
+
+
 typedef struct {
 	char * nombre;
 	char simbolo;

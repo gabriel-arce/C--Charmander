@@ -279,7 +279,19 @@ void verificarNivelPokemon(t_pokemon * pokemon){
 
 void esperarTurno(){
 
-	//TODO esperar a que mapa ceda el turno
+	// esperar a que mapa ceda el turno
+	t_header * head_in = recibir_header(socket_entrenador);
+
+	if (head_in == NULL) {
+		perror("error en la recepcion del turno");
+		exit(EXIT_FAILURE);
+	}
+
+	if (head_in->identificador != _TURNO_CONCEDIDO) {
+		perror("error en el id del turno concedido");
+		exit(EXIT_FAILURE);
+	}
+
 
 }
 

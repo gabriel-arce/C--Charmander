@@ -17,10 +17,13 @@
 #include <sys/socket.h>
 #include <shared_serializacion.h>
 #include <shared_sockets.h>
+#include <shared_comunicaciones.h>
 #include <pthread.h>
 #include <sys/types.h>
 #include <netinet/in.h>
 #include <commons/collections/queue.h>
+#include <semaphore.h>
+#include <shared_semaforos.h>
 
 #define LOG_FILE "log_mapa.log"
 #define TOTAL_ARGS 3
@@ -40,8 +43,13 @@
 #define _RESULTADO_BATALLA 10
 #define _DATOS_FINALES 11
 
+typedef enum{
+	RR,
+	SRDF,
+} t_planificador_algthm;
+
 typedef struct {
-	char * algth;
+	t_planificador_algthm algth;
 	int quantum;
 	int retardo_turno;
 } t_planificador;
@@ -55,6 +63,11 @@ typedef struct {
 } t_metadata_mapa;
 
 typedef struct {
+	int x;
+	int y;
+} t_posicion;
+
+typedef struct {
 	char simbolo_entrenador;
 	char * nombre_entrenador;
 	int socket;
@@ -64,18 +77,8 @@ typedef struct {
 	int tiempoDeIngresoAlMapa;
 	int deadlocksInvolucrados;
 	int tiempoBloqueado;
+	bool bloqueado;
 } t_sesion_entrenador;
-
-typedef struct {
-	//id del recurso
-	t_list * cola_de_bloqueados;
-} t_recurso;
-
-
-typedef struct {
-	int x;
-	int y;
-} t_posicion;
 
 typedef struct {
 	char* nombreArchivo;
@@ -91,23 +94,18 @@ typedef struct {
 	t_queue * entrenadoresBloqueados;
 } t_pokenest;
 
-
-
-
-
 t_metadata_mapa * metadata;
 int socket_servidor;
 t_log * logger;
 pthread_t hilo_planificador;
 pthread_t hilo_servidor;
 pthread_mutex_t mutex_servidor;
+pthread_mutex_t mutex_planificador_turno;
 t_list * entrenadores_conectados;
+sem_t * semaforo_de_listos;
 
 t_list * cola_de_listos;
-t_list * lista_de_recursos; //t_recurso
-t_list listos;
-t_list pokenests;
-t_list finalizados;
+t_list * lista_de_pokenests; //t_pokenest
 int tiempoChequeoInterbloqueo;
 bool batallasActivadas;
 enum algoritmoDePlanificacion;
@@ -131,16 +129,21 @@ void trainer_handler(int socket, fd_set * fdset);
 int procesar_nuevo_entrenador(int socket_entrenador, int buffer_size);
 t_sesion_entrenador * recibir_datos_entrenador(int socket_entrenador, int buffer_size);
 
+//****Planificador****
+int run_algorithm();
+int correr_rr();
+int correr_srdf();
+int solicitar_turno(t_sesion_entrenador * entrenador);
+
 //****Destroyers****
 void entrenador_destroyer(t_sesion_entrenador * e);
-void recurso_destroyer(t_recurso * r);
+void pokenest_destroyer(t_pokenest * r);
 
 //****Buscadores****
 t_sesion_entrenador * buscar_entrenador_por_simbolo(char expected_symbol);
-t_recurso * buscar_recurso_por_id(/* id */);
-
+t_pokenest * buscar_pokenest_por_id(/* id */);
 
 //***Funciones***
+//void rutinaSeñales(int rutina);
 
-void rutinaSeñales(int rutina);
 #endif /* MAPA_H_ */

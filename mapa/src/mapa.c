@@ -19,7 +19,19 @@ void leer_metadata_mapa(char * metadata_path) {
 	metadata->tiempoChequeoDeadlock = getIntProperty(conf_file, "TiempoChequeoDeadlock");
 	metadata->batalla = (bool) getIntProperty(conf_file, "Batalla");
 
-	metadata->planificador->algth = getStringProperty(conf_file, "algoritmo");
+	char * algoritmo = getStringProperty(conf_file, "algoritmo");
+
+	if (string_equals_ignore_case(algoritmo, "RR")) {
+		metadata->planificador->algth = RR;
+	} else {
+		if (string_equals_ignore_case(algoritmo, "SRDF")) {
+			metadata->planificador->algth = SRDF;
+		} else {
+			perror("Algoritmo no reconocido");
+			exit(EXIT_FAILURE);
+		}
+	}
+
 	metadata->planificador->quantum = getIntProperty(conf_file, "quantum");
 	metadata->planificador->retardo_turno = getIntProperty(conf_file, "retardo");
 
@@ -33,8 +45,13 @@ void imprimir_metada() {
 	printf("\n<<<METADA DEL MAPA>>>\n");
 	printf("tiempo de chequeo de DL: %d\n", metadata->tiempoChequeoDeadlock);
 	printf("batalla: %d\n", metadata->batalla);
-	printf("algoritmo: %s\n", metadata->planificador->algth);
-	printf("quantum: %d\n", metadata->planificador->quantum);
+
+	if (metadata->planificador->algth == RR) {
+		printf("algoritmo: Round Robin , con quantum: %d\n", metadata->planificador->quantum);
+	} else {
+		printf("algoritmo: SRDF\n");
+	}
+
 	printf("retardo: %d\n", metadata->planificador->retardo_turno);
 	printf("IP: %s\n", metadata->ip);
 	printf("puerto: %d\n", metadata->puerto);
@@ -48,6 +65,12 @@ void crear_archivo_log() {
 
 void inicializar_semaforos() {
 	pthread_mutex_init(&mutex_servidor, 0);
+	pthread_mutex_init(&mutex_planificador_turno, 0);
+	semaforo_de_listos = crearSemaforo(0);
+	if (semaforo_de_listos == NULL) {
+		perror("error en la creacion de semaforos");
+		exit(EXIT_FAILURE);
+	}
 }
 
 void destruir_semaforos() {
@@ -57,13 +80,13 @@ void destruir_semaforos() {
 void inicializar_variables() {
 	entrenadores_conectados = list_create();
 	cola_de_listos = list_create();
-	lista_de_recursos = list_create();
+	lista_de_pokenests = list_create();
 }
 
 void destruir_variables() {
 	list_destroy_and_destroy_elements(entrenadores_conectados, (void *) entrenador_destroyer);
 	list_destroy(cola_de_listos);
-	list_destroy_and_destroy_elements(lista_de_recursos, (void *) recurso_destroyer);
+	list_destroy_and_destroy_elements(lista_de_pokenests, (void *) pokenest_destroyer);
 }
 
 void entrenador_destroyer(t_sesion_entrenador * e) {
@@ -71,7 +94,7 @@ void entrenador_destroyer(t_sesion_entrenador * e) {
 	free(e);
 }
 
-void recurso_destroyer(t_recurso * r) {
+void pokenest_destroyer(t_pokenest * r) {
 	//TODO una vez definido el tema de los recursos y las colas de bloqueados codear el destroyer
 }
 
@@ -201,6 +224,7 @@ void trainer_handler(int socket, fd_set * fdset) {
 
 	int nbytes_recv = recv(socket, buffer_in, buffer_size, 0);
 
+	//DESCONEXION DE UN ENTRENADOR
 	if (nbytes_recv <= 0) {
 		if (nbytes_recv == 0)
 			printf("Socket %d disconnected\n", socket);
@@ -215,6 +239,7 @@ void trainer_handler(int socket, fd_set * fdset) {
 
 	t_header * header = deserializar_header(buffer_in);
 
+	//OPERACIONES ENTRENADOR
 	switch (header->identificador) {
 		case _ID_HANDSHAKE:
 			procesar_nuevo_entrenador(socket, header->tamanio);
@@ -240,6 +265,8 @@ int procesar_nuevo_entrenador(int socket_entrenador, int buffer_size) {
 
 	//manda a listos al entrenador
 	list_add(cola_de_listos, nuevo_entrenador);
+
+	signalSemaforo(semaforo_de_listos);
 
 	return 0;
 }
@@ -270,21 +297,70 @@ t_sesion_entrenador * recibir_datos_entrenador(int socket_entrenador, int data_b
 }
 
 void run_scheduler_thread() {
-	/*
-	 * TODO Plantear diseño de hilos y estructuras
-	 */
-	int entrenadores_listos = 0;
 
 	while (true) {
-
-		entrenadores_listos = list_size(cola_de_listos);
-
-		if (entrenadores_listos > 0) {
-//			run_algorithm(algorithm);
-		} else {
-			continue;
-		}
+		waitSemaforo(semaforo_de_listos);  //Hacer un signal siempre y cuando vuelva a la cola de listos y no se bloquee
+		//corro el algoritmo
+		//TODO catchear el resultado de run_algorithm
+		if (run_algorithm() == EXIT_FAILURE)
+			break;
 	}
+}
+
+int run_algorithm() {
+
+	int result = -1;
+
+	switch (metadata->planificador->algth) {
+	case RR:
+		result = correr_rr();
+		break;
+	case SRDF:
+		result = correr_srdf();
+		break;
+	default:
+		break;
+	}
+
+	return result;
+}
+
+int solicitar_turno(t_sesion_entrenador * entrenador) {
+
+	if (entrenador->bloqueado)
+		return EXIT_FAILURE;
+
+	pthread_mutex_lock(&mutex_planificador_turno);
+
+	if (enviar_header(_TURNO_CONCEDIDO, 0, entrenador->socket) == -1)
+		return EXIT_FAILURE;
+
+	return EXIT_SUCCESS;
+}
+
+int correr_rr() {
+
+	int quantum = metadata->planificador->quantum;
+
+	t_sesion_entrenador * entrenador_listo = list_get(cola_de_listos, 0);
+
+	if (entrenador_listo == NULL)
+		return EXIT_FAILURE;
+
+	list_remove(cola_de_listos, 0);
+
+	while ( (quantum != 0) && (!(entrenador_listo->bloqueado)) ) {
+		if (solicitar_turno(entrenador_listo) == EXIT_FAILURE)
+			break;
+		quantum--;
+		pthread_mutex_lock(&mutex_planificador_turno);
+	}
+
+	return EXIT_SUCCESS;
+}
+
+int correr_srdf() {
+	return EXIT_SUCCESS;
 }
 
 t_sesion_entrenador * buscar_entrenador_por_simbolo(char symbol_expected) {
@@ -298,9 +374,9 @@ t_sesion_entrenador * buscar_entrenador_por_simbolo(char symbol_expected) {
 	return entrenador;
 }
 
-t_recurso * buscar_recurso_por_id(/* id */) {
+t_pokenest * buscar_pokenest_por_id(/* id */) {
 	//TODO definir el recurso y su id
-	t_recurso * recurso = NULL;
+	t_pokenest * recurso = NULL;
 
 	return recurso;
 }
