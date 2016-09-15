@@ -225,34 +225,63 @@ void avanzarHaciaElPokenest(){
 		if(movimientosRestantesEnY < 0) ubicacionActual->y -= 1;
 	}
 
-	//TODO informar movimiento al mapa
+	enviarUbicacionAMapa();
 }
 
-void atraparPokemon(){
-		t_pokemon * pokemonAtrapado;
+void enviarUbicacionAMapa(){
+	void* buffer_out = malloc(sizeof(t_posicion));
+	memcpy(buffer_out,&(ubicacionActual->x),4);
+	memcpy(buffer_out + 4,&(ubicacionActual->y),4);
 
-	//TODO enviar a mapa que quiero atrapar
+	send(socket_entrenador,buffer_out,sizeof(t_posicion),0);
+}
+void atraparPokemon(){
+		t_pokemon * pokemonAtrapado = malloc(sizeof(t_pokemon));
+
+		enviar_header(_CAPTURAR_PKM,0,socket_entrenador);
 
 	//escuchar y hay dos posibilidades, (deadlock y vuelvo a escuchar) o (pokemon y sigo la rutina)
 
-	//TODO podria recibir que hay un deadlock => batalla y return
+	t_header * header_in = recibir_header(socket_entrenador);
+	bool pokemonCapturadoOEntrenadorMuerto = false;
 
+	while (!pokemonCapturadoOEntrenadorMuerto) {
+		switch (header_in->identificador) {
+		case _CAPTURAR_PKM:
 
-	//Todo copiar archivo de pokemon y asignarlo a pokemonAtrapado
+			pokemonAtrapado->nombreArchivo = malloc(header_in->tamanio);
+			recv(socket_entrenador, pokemonAtrapado->nombreArchivo, header_in->tamanio,0);
+			//TODO copiar archivo, leerlo y cargar info del pokemon en pokemonAtrapado
 
-	list_add(pokemonesCapturados, pokemonAtrapado);
+			pokemonCapturadoOEntrenadorMuerto = true;
+			list_add(pokemonesCapturados, pokemonAtrapado);
 
-	verificarNivelPokemon(pokemonAtrapado);
-	verificarSiQuedanObjetivosEnMapa();
+			verificarNivelPokemon(pokemonAtrapado);
+			verificarSiQuedanObjetivosEnMapa();
+			pokenestLocalizada = false;
+			break;
 
-	pokenestLocalizada = false;
+		case _BATALLA:
+			pokemonCapturadoOEntrenadorMuerto = batallaPokemon();
+			break;
 
+		default:
+			puts("identificador de header invalido");
+			exit(EXIT_FAILURE);
+			break;
+		}
+	}
 }
 
 void verificarSiQuedanObjetivosEnMapa(){
 	if(queue_size(mapaActual->objetivos) == 0){
-			//TODO avisar a mapa que se cumplio objetivo
-			//TODO copiar medalla
+			enviar_header(_OBJETIVO_CUMPLIDO,0,socket_entrenador);
+
+			t_header * header = recibir_header(socket_entrenador);
+
+			//TODO mapa envia una estructura con los tiempos y la ruta de la medalla
+			//TODO sumar tiempos y copiar medalla
+
 			desconectarseDeMapa();
 			queue_pop(metadata->viaje);
 
@@ -262,10 +291,10 @@ void verificarSiQuedanObjetivosEnMapa(){
 			else{
 				conectarseConSiguienteMapa();
 			}
-			//TODO informar que ya termine el mapa
 		}
 	else{
-		//TODO informar a mapa que tengo mas objetivos
+
+		enviar_header(_QUEDAN_OBJETIVOS,0,socket_entrenador);
 	}
 }
 
@@ -328,14 +357,35 @@ bool estoyEnPokenest() {
 }
 
 void imprimirLogro(){
-	//TODO imprimir por pantalla el logro
+
+	puts("******--------******");
+	puts("Te has convertido en un maestro pokemon!");
+	printf("El tiempo total de tu aventura fue de: %f segundos \n ", tiempoDeJuego);
+	printf("Pasaste %f segundos bloqueado \n", tiempoBloqueado);
+	printf("Estuviste involucrado en %d deadlocks \n", deadlocksInvolucrados);
+	printf("Has muerto %d veces \n", cantidadDeMuertes);
+
 }
 
-void batallaPokemon(){
-	//TODO enviar a mapa pokemonMasFuerte
-	//TODO recibo si vivo o muero
+bool batallaPokemon(){ 					//retorna true si muere
 
-	muerteEntrenador();
+	enviar_header(_PKM_MAS_FUERTE, sizeof(t_pokemon), socket_entrenador);
+	//TODO enviar pokemonMasFuerte
+
+	t_header * header = recibir_header(socket_entrenador); //mapa envia si entrenador gana la batalla o no
+
+	if (header->identificador != _RESULTADO_BATALLA) {
+
+		puts("identificador de header desconocido");
+
+	} else {
+
+		if (header->tamanio == 0) {
+			muerteEntrenador();
+			return true;
+		}
+	}
+	return false;
 }
 
 void muerteEntrenador(){
