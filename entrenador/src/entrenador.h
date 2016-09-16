@@ -73,6 +73,9 @@ int cantidadDeMuertes;
 t_pokemon * pokemonMasFuerte;
 bool pokenestLocalizada;
 bool finDelJuego;
+float tiempoBloqueado;
+int deadlocksInvolucrados;
+float tiempoDeJuego;
 
 
 
@@ -100,12 +103,13 @@ void esperarTurno();
 void realizarAccion();
 bool estoyEnPokenest();
 void imprimirLogro();
-void batallaPokemon();
+bool batallaPokemon();
 void muerteEntrenador();
 void desconectarseDeMapa();
 void finalizarEntrenador();
 void destruirHojaDeViaje();
 void rutina(int signal);
+void enviarUbicacionAMapa();
 
 
 #endif /* ENTRENADOR_H_ */
