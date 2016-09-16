@@ -14,6 +14,7 @@ int main(int argc, char ** argv) {
 	}
 
 	nombreMapa = string_duplicate(argv[1]);
+	ruta_directorio = string_duplicate(argv[2]);
 	leer_metadata_mapa(argv[2]);
 	imprimir_metada();
 

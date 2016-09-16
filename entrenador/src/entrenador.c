@@ -156,7 +156,7 @@ void inicializarEntrenador(){
 void inicializarSinmuertesNiReintentos(){
 
 	socket_entrenador = -1;
-	ubicacionProximaPokenest = NULL;
+	ubicacionProximaPokenest = malloc(sizeof(t_posicion));
 	pokemonesCapturados = list_create();
 	pokemonMasFuerte = NULL;
 	finDelJuego = false;
@@ -206,6 +206,23 @@ void solicitarUbicacionDelProximoPokenest(){
 
 void enviarSolicitudUbicacionPokenest(char id_pokemon){
 	//TODO enviar a mapa
+	enviar_header(_UBICACION_POKENEST, (int) id_pokemon, mapaActual->socket);
+
+	int tamanio_coord = sizeof(t_posicion);
+	void * coordenadas = malloc(tamanio_coord);
+
+	if(recv(mapaActual->socket, coordenadas, tamanio_coord, 0) < 0) {
+		perror("Error en el recv de _UBICACION_POKENEST");
+		pokenestLocalizada = false;
+	}
+
+	memcpy(&(ubicacionProximaPokenest->x), coordenadas, 4);
+	memcpy(&(ubicacionProximaPokenest->y), coordenadas + 4, 4);
+
+	if ((ubicacionProximaPokenest->x == -1)||(ubicacionProximaPokenest->y == -1)) {
+		perror("Error en las coordenadas recibidas");
+		pokenestLocalizada = false;
+	}
 
 	//TODO asignar ubicaciones a ubicacionProximaPokenest
 	pokenestLocalizada = true;

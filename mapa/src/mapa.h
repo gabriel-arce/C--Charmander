@@ -24,6 +24,7 @@
 #include <commons/collections/queue.h>
 #include <semaphore.h>
 #include <shared_semaforos.h>
+#include <time.h>
 
 #define LOG_FILE "log_mapa.log"
 #define TOTAL_ARGS 3
@@ -60,6 +61,7 @@ typedef struct {
 	bool batalla;
 	char * ip;
 	int puerto;
+	char * medallaArchivo;
 } t_metadata_mapa;
 
 typedef struct {
@@ -74,10 +76,12 @@ typedef struct {
 	t_posicion * posicion;
 	t_posicion * posicionObjetivo;
 	t_list * pokemonesCapturados;
-	int tiempoDeIngresoAlMapa;
+	time_t tiempoDeIngresoAlMapa;
 	int deadlocksInvolucrados;
-	int tiempoBloqueado;
+	time_t momentoBloqueado;
+	float tiempoBloqueado;
 	bool bloqueado;
+	bool objetivo_cumplido;
 } t_sesion_entrenador;
 
 typedef struct {
@@ -90,6 +94,7 @@ typedef struct {
 typedef struct {
 	t_posicion * posicion;
 	char identificador;
+	char * nombre;
 	t_list * pokemones;			//t_pokemon
 	t_queue * entrenadoresBloqueados;
 } t_pokenest;
@@ -112,6 +117,7 @@ enum algoritmoDePlanificacion;
 int quantum;
 int retardoEntreTurnos;
 char* nombreMapa;   //se setea con argumento en consola
+char * ruta_directorio;
 
 //****Variables & stuff
 void leer_metadata_mapa(char * metadata_path);
@@ -141,9 +147,15 @@ void pokenest_destroyer(t_pokenest * r);
 
 //****Buscadores****
 t_sesion_entrenador * buscar_entrenador_por_simbolo(char expected_symbol);
-t_pokenest * buscar_pokenest_por_id(/* id */);
+t_sesion_entrenador * buscar_entrenador_por_socket(int expected_fd);
+t_pokenest * buscar_pokenest_por_id(char id);
+t_pokenest * buscar_pokenest_por_ubicacion(int x, int y);
 
 //***Funciones***
 //void rutinaSeñales(int rutina);
+int enviar_ubicacion_pokenest(int socket, char id_pokenest);
+int avanzar_posicion_entrenador(int socket, int buffer_size);
+int atrapar_pokemon(int socket);
+bool esta_en_pokenest(t_sesion_entrenador * entrenador);
 
 #endif /* MAPA_H_ */
