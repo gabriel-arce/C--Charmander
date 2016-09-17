@@ -1,0 +1,1 @@
+osada.o: ../osada.c
