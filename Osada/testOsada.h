@@ -18,7 +18,6 @@
 #include <commons/bitarray.h>
 #include <fcntl.h>
 
-
 #define BLOCK_SIZE										64
 #define FILETABLE											1024
 #define OSADA_FILENAME_LENGTH	17

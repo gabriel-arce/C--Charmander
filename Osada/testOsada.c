@@ -163,7 +163,8 @@ void mostrarInfoFS(){
 }
 
 void mapearArchivo(){
-	hdr = (char *) mmap((caddr_t)0, fileStat.st_size, PROT_READ|PROT_WRITE, MAP_FILE|MAP_SHARED, in, 0);
+
+	hdr = mmap((caddr_t)0, fileStat.st_size, PROT_READ|PROT_WRITE, MAP_FILE|MAP_SHARED, in, 0);
 
 	if(hdr == MAP_FAILED){
 		perror("mmap header");
@@ -184,6 +185,8 @@ void levantarDatosGenerales(){
 	printf("Tabla de archivos:\t\t%d bloques\n", FILETABLE);
 	printf("Tabla de asignaciones:\t%d bloques\n", assignTable);
 	printf("Cantidad de bloques de datos:\t%d bloques\n\n", dataBlocks);
+
+
 
 }
 
@@ -207,21 +210,31 @@ void 	levantarHeader(){
 }
 
 void levantarBitmap(){
-	char *bitmap = NULL;
+	int i;
 
 	if(hdr != MAP_FAILED){
 		titulo(Bitmap);
 
-		bitmap = (hdr + BLOCK_SIZE)[bitmapSize];
+		//char *bitmap = &hdr[BLOCK_SIZE]);
+		char *bitmap = hdr + BLOCK_SIZE;
 
 		t_bitarray *bitVector = bitarray_create(bitmap, bitmapSize);
 
-		Bool valor = bitarray_test_bit(bitVector, 5);		//Valor deberia devolver 1 o True..
+		Bool valor 	= bitarray_test_bit(bitVector, 2015);		//Valor deberia devolver 1 o True..
+		Bool valor2	= bitarray_test_bit(bitVector, 2016);		//Valor2 deberia devolver 0 o False..
 
 		maximoBit	= bitarray_get_max_bit(bitVector);
 
+		printf("BitMap size: %zu\n", bitVector->size);
 		printf("Max Bit: %d\n", maximoBit );
 		(maximoBit / 8 == bitmapSize) ? printf("Cantidad de bits correcta\n\n") : printf("Cantidad de bits incorrecta\n\n");
+
+		char buffer[8];
+
+		for (i=0;i<= bitVector->size;i++){
+			printf("%d\n", *((bitVector->bitarray)+i)); //imprimimos los valores del puntero.
+			snprintf(buffer, "%d", *((bitVector->bitarray)+i));
+		}
 	}
 
 }
@@ -230,9 +243,18 @@ void levantarTablaArchivos(){
 	titulo(TablaArchivos);
 
 	if( hdr != MAP_FAILED){
-		memcpy(&osada_file, hdr, sizeof(osada_file));
 
-		for(int i = 0; i < MAX_FILES; i++){
+		char *filetable = hdr + (BLOCK_SIZE * (1 + bitmapSize));
+
+		osada_file = &hdr[BLOCK_SIZE * (1 + bitmapSize)];
+		printf("Estado: %s\n", osada_file->state);
+		printf("Nombre del archivo: %s\n", osada_file->fname);
+		printf("Bloque padre: %d\n", osada_file->parent_directory);
+		printf("Tamanio del archivo: %d\n", osada_file->file_size);
+		printf("Fecha ultima modificacion: %d\n", osada_file->lastmod);
+		printf("Bloque inicial: %d\n", osada_file->first_block);
+
+/*		for(int i = 0; i < MAX_FILES; i++){
 			osada_filetable[i] = (t_osada_file *)(osada_file + i);
 			printf("Estado: %s\n", osada_file->state);
 			printf("Nombre del archivo: %s\n", osada_file->fname);
@@ -240,7 +262,7 @@ void levantarTablaArchivos(){
 			printf("Tamanio del archivo: %d\n", osada_file->file_size);
 			printf("Fecha ultima modificacion: %d\n", osada_file->lastmod);
 			printf("Bloque inicial: %d\n", osada_file->first_block);
-		}
+		}*/
 	}
 
 }
@@ -256,3 +278,6 @@ void levantarBloquesDeDatos(){
 		titulo(BloqueDeDatos);
 	}
 }
+
+
+
