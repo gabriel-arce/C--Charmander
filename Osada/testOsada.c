@@ -211,6 +211,7 @@ void 	levantarHeader(){
 
 void levantarBitmap(){
 	int i;
+	Bool valor;
 
 	if(hdr != MAP_FAILED){
 		titulo(Bitmap);
@@ -220,20 +221,27 @@ void levantarBitmap(){
 
 		t_bitarray *bitVector = bitarray_create(bitmap, bitmapSize);
 
-		Bool valor 	= bitarray_test_bit(bitVector, 2015);		//Valor deberia devolver 1 o True..
-		Bool valor2	= bitarray_test_bit(bitVector, 2016);		//Valor2 deberia devolver 0 o False..
-
 		maximoBit	= bitarray_get_max_bit(bitVector);
+
 
 		printf("BitMap size: %zu\n", bitVector->size);
 		printf("Max Bit: %d\n", maximoBit );
 		(maximoBit / 8 == bitmapSize) ? printf("Cantidad de bits correcta\n\n") : printf("Cantidad de bits incorrecta\n\n");
 
-		char buffer[8];
+		for (i=0;i<= osada_header.bloquesFS;i++){
+			if ((i % 8) == 0)
+				printf("%s", "|" );
 
-		for (i=0;i<= bitVector->size;i++){
-			printf("%d\n", *((bitVector->bitarray)+i)); //imprimimos los valores del puntero.
-			snprintf(buffer, "%d", *((bitVector->bitarray)+i));
+			valor = bitarray_test_bit(bitVector, i);
+			switch(valor){
+				case Verdadero: {
+					printf("%d", 1);
+					break;}
+				case Falso: {
+					printf("%d", 0);
+					break;
+				}
+			}
 		}
 	}
 
@@ -246,23 +254,20 @@ void levantarTablaArchivos(){
 
 		char *filetable = hdr + (BLOCK_SIZE * (1 + bitmapSize));
 
-		osada_file = &hdr[BLOCK_SIZE * (1 + bitmapSize)];
-		printf("Estado: %s\n", osada_file->state);
-		printf("Nombre del archivo: %s\n", osada_file->fname);
-		printf("Bloque padre: %d\n", osada_file->parent_directory);
-		printf("Tamanio del archivo: %d\n", osada_file->file_size);
-		printf("Fecha ultima modificacion: %d\n", osada_file->lastmod);
-		printf("Bloque inicial: %d\n", osada_file->first_block);
+		osada_file = malloc(sizeof(t_osada_file));
 
-/*		for(int i = 0; i < MAX_FILES; i++){
-			osada_filetable[i] = (t_osada_file *)(osada_file + i);
+		//char *bitmap = &hdr[BLOCK_SIZE]);
+
+		for(int i = 0; i < MAX_FILES; i++){
+			memcpy(filetable + i, osada_file, sizeof(t_osada_file));
+			//osada_filetable[i] = (t_osada_file *)(osada_file + i);
 			printf("Estado: %s\n", osada_file->state);
 			printf("Nombre del archivo: %s\n", osada_file->fname);
 			printf("Bloque padre: %d\n", osada_file->parent_directory);
 			printf("Tamanio del archivo: %d\n", osada_file->file_size);
 			printf("Fecha ultima modificacion: %d\n", osada_file->lastmod);
 			printf("Bloque inicial: %d\n", osada_file->first_block);
-		}*/
+		}
 	}
 
 }
