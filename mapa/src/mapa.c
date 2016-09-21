@@ -735,3 +735,32 @@ int procesar_objetivo_cumplido(t_sesion_entrenador * entrenador) {
 
 	return EXIT_SUCCESS;
 }
+
+t_pokemon * recibirPokemon(int socket){
+
+	t_header * header_in = recibir_header(socket);
+
+	void* buffer_in = malloc(header_in->tamanio);
+
+	recv(socket,buffer_in,header_in->tamanio,0);
+
+	t_pokemon * pokemon = deserializarPokemon(buffer_in);
+	return pokemon;
+}
+
+t_pokemon * deserializarPokemon(void* pokemonSerializado){
+
+	t_pokemon * pokemon = malloc(sizeof(t_pokemon));
+
+		int nombreSize;
+		int nombreArchivoSize;
+
+		memcpy(&nombreSize,pokemonSerializado,4);
+		memcpy(&nombreArchivoSize,pokemonSerializado + 4, 4);
+
+		memcpy(&pokemon->nivel,pokemonSerializado + 8, 4);
+		memcpy(pokemon->nombre, pokemonSerializado + 12, nombreSize);
+		memcpy(pokemon->nombreArchivo, pokemonSerializado + 12 + nombreSize, nombreArchivoSize);
+
+		return pokemon;
+}

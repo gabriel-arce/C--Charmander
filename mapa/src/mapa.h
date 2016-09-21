@@ -123,7 +123,7 @@ char* nombreMapa;   //se setea con argumento en consola
 char * ruta_directorio;
 
 //****Variables & stuff
-void leer_metadata_mapa(char * metadata_path);
+void leer_metadata_entrenador(char * metadata_path);
 void imprimir_metada();
 void crear_archivo_log();
 void inicializar_semaforos();
@@ -161,5 +161,11 @@ int enviar_ubicacion_pokenest(int socket, char id_pokenest);
 int avanzar_posicion_entrenador(int socket, int buffer_size);
 int atrapar_pokemon(int socket);
 bool esta_en_pokenest(t_sesion_entrenador * entrenador);
+
+//***Envios y serializaciones***
+t_pokemon * recibirPokemon(int socket);
+t_pokemon * deserializarPokemon(void* pokemonSerializado);
+
+
 
 #endif /* MAPA_H_ */
