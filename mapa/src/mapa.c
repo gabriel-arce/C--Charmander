@@ -15,7 +15,7 @@ void leer_metadata_mapa(char * metadata_path) {
 	char * ruta = string_duplicate(metadata_path);
 	string_append(&ruta, "Mapas/");
 	string_append(&ruta, nombreMapa);
-	string_append(&ruta, "/metadata/metadata.conf");
+	string_append(&ruta, "/metadata.conf");
 
 	t_config * conf_file = config_create(ruta);
 
@@ -71,6 +71,7 @@ void crear_archivo_log() {
 }
 
 void inicializar_semaforos() {
+
 	pthread_mutex_init(&mutex_servidor, 0);
 	pthread_mutex_init(&mutex_planificador_turno, 0);
 	semaforo_de_listos = crearSemaforo(0);
@@ -82,6 +83,8 @@ void inicializar_semaforos() {
 
 void destruir_semaforos() {
 	pthread_mutex_destroy(&mutex_servidor);
+	pthread_mutex_destroy(&mutex_planificador_turno);
+	destruirSemaforo(semaforo_de_listos);
 }
 
 void inicializar_variables() {
@@ -105,6 +108,120 @@ void pokenest_destroyer(t_pokenest * r) {
 	//TODO una vez definido el tema de los recursos y las colas de bloqueados codear el destroyer
 }
 
+void cargar_pokenests() {
+	char * dir_pokenests = string_new();
+	string_append(&dir_pokenests, ruta_directorio);
+	string_append(&dir_pokenests, "Mapas/");
+	string_append(&dir_pokenests, nombreMapa);
+	string_append(&dir_pokenests, "/PokeNests");
+
+	DIR * d = opendir(dir_pokenests);
+
+	if (!d) {
+		fprintf(stderr, "Cannot open directory '%s': %s\n", dir_pokenests,
+				strerror(errno));
+		exit(EXIT_FAILURE);
+	}
+
+	// iterate the pokenest folders
+	while (1) {
+		struct dirent * entry;
+		const char * d_name;
+
+		entry = readdir(d);
+		if (!entry)
+			break;
+
+		d_name = entry->d_name;
+
+		if (entry->d_type & DT_DIR) {
+
+			if (strcmp(d_name, "..") != 0 && strcmp(d_name, ".") != 0) {
+				int path_length;
+				char path[PATH_MAX];
+
+				path_length = snprintf(path, PATH_MAX, "%s/%s", dir_pokenests,
+						d_name);
+				if (path_length >= PATH_MAX) {
+					fprintf(stderr, "Path length has got too long.\n");
+					exit(EXIT_FAILURE);
+				}
+
+				//now create the logical pokenest
+				t_pokenest * pknst = malloc(sizeof(t_pokenest));
+				pknst->nombre = string_duplicate(d_name);
+				pknst->entrenadoresBloqueados = queue_create();
+				pknst->pokemones = list_create();
+				pknst->posicion = malloc(sizeof(t_posicion));
+
+				//read its files
+				DIR * d_pknst = opendir(path);
+				while(1) {
+					struct dirent * f_pknst = readdir(d_pknst);
+
+					if (!f_pknst)
+						break;
+
+					if ( (f_pknst->d_type & DT_DIR ) || (strcmp(f_pknst->d_name, "..") == 0) || (strcmp(f_pknst->d_name, ".") == 0) )
+						continue;
+
+					char path_f_pknst[PATH_MAX];
+
+					snprintf(path_f_pknst, PATH_MAX, "%s/%s", path, f_pknst->d_name);
+
+					// if its the metadata go on
+					if ( string_equals_ignore_case(f_pknst->d_name, "metadata") ) {
+
+						t_config * m_pknst = config_create(path_f_pknst);
+
+						//TODO aun no logro entender donde esta el error para leer el identificador
+						pknst->identificador = (char) atoi( getStringProperty(m_pknst, "Identificador") );
+
+						char * posicion = getStringProperty(m_pknst, "Posicion");
+						char ** _x_y = string_split(posicion, ";");
+
+						pknst->posicion->x = atoi( _x_y[0] );
+						pknst->posicion->y = atoi( _x_y[1] );
+
+						pknst->tipo = getStringProperty(m_pknst, "Tipo");
+
+						free(posicion);
+						free(_x_y[0]);
+						free(_x_y[1]);
+						free(_x_y);
+						free(m_pknst);
+
+						continue;
+					}
+
+					// else its a pokemon
+					t_config * dat_pkm = config_create(path_f_pknst);
+
+					t_pokemon * pkm = malloc(sizeof(t_pokemon));
+					pkm->nombre = string_duplicate(d_name);
+					pkm->nombreArchivo = string_duplicate(f_pknst->d_name);
+					pkm->nivel = getIntProperty(dat_pkm, "Nivel");
+
+					list_add(pknst->pokemones, pkm);
+
+					free(dat_pkm);
+				}
+			}
+		}
+	}
+
+	/* Release everything. */
+	if (closedir(d)) {
+		fprintf(stderr, "Could not close '%s': %s\n", dir_pokenests,
+				strerror(errno));
+		exit(EXIT_FAILURE);
+	}
+
+	free(dir_pokenests);
+}
+
+// ****************************************************************************************************
+
 void run_trainer_server() {
 
 	/* master file descriptor list */
@@ -125,8 +242,6 @@ void run_trainer_server() {
 
 	/* newly accept()ed socket descriptor */
 	int newfd;
-
-	int nbytes;
 
 	/* for setsockopt() SO_REUSEADDR, below */
 	int optval = 1;
@@ -407,7 +522,7 @@ t_sesion_entrenador * buscar_entrenador_por_simbolo(char symbol_expected) {
 }
 
 t_pokenest * buscar_pokenest_por_id(char id) {
-	//TODO definir el recurso y su id
+
 	t_pokenest * pokenest = NULL;
 
 	bool find_pokenest(t_pokenest * pkn) {

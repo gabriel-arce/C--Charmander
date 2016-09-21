@@ -17,14 +17,20 @@ int main(int argc, char ** argv) {
 	ruta_directorio = string_duplicate(argv[2]);
 	leer_metadata_mapa(argv[2]);
 	imprimir_metada();
+	cargar_pokenests();
 
 	socket_servidor = -1;
 	inicializar_variables();
 	inicializar_semaforos();
 	//crear_archivo_log();
 
+	//pthread_create(&hilo_planificador, NULL, (void *) run_scheduler_thread, NULL);
 	pthread_create(&hilo_servidor, NULL, (void *) run_trainer_server, NULL);
+
+	//pthread_join(hilo_planificador, NULL);
 	pthread_join(hilo_servidor, NULL);
+
+	//pthread_detach(hilo_planificador);
 	pthread_detach(hilo_servidor);
 
 	destruir_semaforos();

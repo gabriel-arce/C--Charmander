@@ -25,6 +25,8 @@
 #include <semaphore.h>
 #include <shared_semaforos.h>
 #include <time.h>
+#include <dirent.h>
+#include <unistd.h>
 
 #define LOG_FILE "log_mapa.log"
 #define TOTAL_ARGS 3
@@ -97,6 +99,7 @@ typedef struct {
 	char * nombre;
 	t_list * pokemones;			//t_pokemon
 	t_queue * entrenadoresBloqueados;
+	char * tipo;
 } t_pokenest;
 
 t_metadata_mapa * metadata;
@@ -127,6 +130,7 @@ void inicializar_semaforos();
 void destruir_semaforos();
 void inicializar_variables();
 void destruir_variables();
+void cargar_pokenests();
 
 //****Conection and threads ****
 void run_trainer_server();

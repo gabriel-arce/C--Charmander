@@ -29,7 +29,7 @@ t_metadata_entrenador * crear_metadata() {
 	return metadata;
 }
 
-int leer_metadata_mapa(char * metada_path) {							//TODO Hay que cambiarlo para que busque la ruta exacta
+int leer_metadata_entrenador(char * metada_path) {							//TODO Hay que cambiarlo para que busque la ruta exacta
 	metadata = crear_metadata();
 
 	t_config * conf_file = config_create(metada_path);
@@ -164,7 +164,7 @@ void inicializarSinmuertesNiReintentos(){
 }
 void cargarMetadata(){
 
-	leer_metadata_mapa(metadata_path);
+	leer_metadata_entrenador(metadata_path);
 	imprimir_metadata();
 }
 
