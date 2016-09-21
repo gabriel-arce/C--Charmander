@@ -138,6 +138,10 @@ void rutina(int signal){
 
 		case SIGTERM:
 			metadata->vidas -= 1;
+
+			if(metadata->vidas < 0){
+				muerteEntrenador();    //TODO ver que pasa si justo se activa la señal en algun momento critico
+			}
 			break;
 
 		default: puts("Codigo de señal invalida");
@@ -164,8 +168,17 @@ void inicializarSinmuertesNiReintentos(){
 }
 void cargarMetadata(){
 
-	leer_metadata_mapa(metadata_path);
+	char * ruta = string_new();
+	ruta = string_duplicate(metadata_path);
+
+	string_append(&ruta,"Entrenadores/");
+	string_append(&ruta,nombreEntrenador);
+	string_append(&ruta,"/");
+
+	leer_metadata_mapa(ruta);
 	imprimir_metadata();
+
+	free(ruta);
 }
 
 void conectarseConSiguienteMapa(){
@@ -205,7 +218,7 @@ void solicitarUbicacionDelProximoPokenest(){
 }
 
 void enviarSolicitudUbicacionPokenest(char id_pokemon){
-	//TODO enviar a mapa
+
 	enviar_header(_UBICACION_POKENEST, (int) id_pokemon, mapaActual->socket);
 
 	int tamanio_coord = sizeof(t_posicion);
@@ -216,16 +229,15 @@ void enviarSolicitudUbicacionPokenest(char id_pokemon){
 		pokenestLocalizada = false;
 	}
 
-	memcpy(&(ubicacionProximaPokenest->x), coordenadas, 4);
-	memcpy(&(ubicacionProximaPokenest->y), coordenadas + 4, 4);
-
 	if ((ubicacionProximaPokenest->x == -1)||(ubicacionProximaPokenest->y == -1)) {
 		perror("Error en las coordenadas recibidas");
 		pokenestLocalizada = false;
 	}
-
-	//TODO asignar ubicaciones a ubicacionProximaPokenest
+	else{
+	memcpy(&(ubicacionProximaPokenest->x), coordenadas, 4);
+	memcpy(&(ubicacionProximaPokenest->y), coordenadas + 4, 4);
 	pokenestLocalizada = true;
+	}
 }
 
 void avanzarHaciaElPokenest(){
@@ -268,6 +280,7 @@ void atraparPokemon(){
 
 			pokemonAtrapado->nombreArchivo = malloc(header_in->tamanio);
 			recv(socket_entrenador, pokemonAtrapado->nombreArchivo, header_in->tamanio,0);
+
 			//TODO copiar archivo, leerlo y cargar info del pokemon en pokemonAtrapado
 
 			pokemonCapturadoOEntrenadorMuerto = true;
@@ -387,7 +400,9 @@ void imprimirLogro(){
 bool batallaPokemon(){ 					//retorna true si muere
 
 	enviar_header(_PKM_MAS_FUERTE, sizeof(t_pokemon), socket_entrenador);
-	//TODO enviar pokemonMasFuerte
+
+	enviarPokemon(pokemonMasFuerte,  socket_entrenador);
+
 
 	t_header * header = recibir_header(socket_entrenador); //mapa envia si entrenador gana la batalla o no
 
@@ -451,7 +466,7 @@ void muerteEntrenador(){
 
 void desconectarseDeMapa(){
 
-	//TODO desconectarse de  mapa
+	close(socket_entrenador);  //cierra la conexion?
 	//TODO borrar pokemones de directorio
 	list_clean(pokemonesCapturados);
 	pokenestLocalizada = false;
@@ -475,3 +490,33 @@ void destruirHojaDeViaje(t_mapa * mapa){
 	queue_destroy(mapa->objetivos);
 }
 
+void enviarPokemon(t_pokemon * pokemon, int socket){
+
+	int pokemonSerializadoSize = (sizeof(pokemon->nivel)) + (string_length(pokemon->nombre)) + (string_length(pokemon->nombreArchivo)) + (2 * (sizeof(int)));
+
+	void * pokemonSerializado = serializarPokemon(pokemonMasFuerte);
+
+	enviar_header(_PKM_MAS_FUERTE, pokemonSerializadoSize,socket);
+
+	send(socket,pokemonSerializado,pokemonSerializadoSize,0);
+
+}
+
+void * serializarPokemon(t_pokemon * pokemon){
+
+	int nombreSize = (string_length(pokemon->nombre));
+	int nombreArchivoSize = (string_length(pokemon->nombreArchivo));
+
+	int pokemonSerializadoSize = (sizeof(pokemon->nivel)) + nombreSize + nombreArchivoSize + (2 * (sizeof(int)));
+
+	void* pokemonSerializado = malloc(pokemonSerializadoSize);
+
+
+	memcpy(pokemonSerializado,&nombreSize,sizeof(int));
+	memcpy(pokemonSerializado + 4,&nombreArchivoSize , sizeof(int));
+	memcpy(pokemonSerializado + 8,&(pokemon->nivel) , sizeof(int));
+	memcpy(pokemonSerializado + 12, pokemon->nombre, nombreSize);
+	memcpy(pokemonSerializado + 12 + nombreSize, pokemon->nombreArchivo, nombreArchivoSize);
+
+	return pokemonSerializado;
+}

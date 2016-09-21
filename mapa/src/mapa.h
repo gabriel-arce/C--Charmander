@@ -158,4 +158,10 @@ int avanzar_posicion_entrenador(int socket, int buffer_size);
 int atrapar_pokemon(int socket);
 bool esta_en_pokenest(t_sesion_entrenador * entrenador);
 
+//***Envios y serializaciones***
+t_pokemon * recibirPokemon(int socket);
+t_pokemon * deserializarPokemon(void* pokemonSerializado);
+
+
+
 #endif /* MAPA_H_ */

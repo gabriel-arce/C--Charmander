@@ -110,6 +110,7 @@ void finalizarEntrenador();
 void destruirHojaDeViaje();
 void rutina(int signal);
 void enviarUbicacionAMapa();
-
+void enviarPokemon(t_pokemon * pokemon, int socket);
+void * serializarPokemon(t_pokemon * pokemon);
 
 #endif /* ENTRENADOR_H_ */
