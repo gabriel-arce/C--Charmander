@@ -174,8 +174,8 @@ void cargar_pokenests() {
 
 						t_config * m_pknst = config_create(path_f_pknst);
 
-						//TODO aun no logro entender donde esta el error para leer el identificador
-						pknst->identificador = (char) atoi( getStringProperty(m_pknst, "Identificador") );
+						char * id = getStringProperty(m_pknst, "Identificador");
+						pknst->identificador = (char) id[0];
 
 						char * posicion = getStringProperty(m_pknst, "Posicion");
 						char ** _x_y = string_split(posicion, ";");
@@ -555,6 +555,8 @@ t_sesion_entrenador * buscar_entrenador_por_socket(int expected_fd) {
 	return entrenador;
 }
 
+//**********************************************************************************************
+
 int enviar_ubicacion_pokenest(int socket, char id_pokenest) {
 
 	int _on_error() {
@@ -742,9 +744,16 @@ t_pokemon * recibirPokemon(int socket){
 
 	void* buffer_in = malloc(header_in->tamanio);
 
-	recv(socket,buffer_in,header_in->tamanio,0);
+	if (recv(socket,buffer_in,header_in->tamanio,0) < 0) {
+		free(buffer_in);
+		return NULL;
+	}
 
 	t_pokemon * pokemon = deserializarPokemon(buffer_in);
+
+	free(header_in);
+	free(buffer_in);
+
 	return pokemon;
 }
 
@@ -752,15 +761,19 @@ t_pokemon * deserializarPokemon(void* pokemonSerializado){
 
 	t_pokemon * pokemon = malloc(sizeof(t_pokemon));
 
-		int nombreSize;
-		int nombreArchivoSize;
+	int nombreSize;
+	int nombreArchivoSize;
 
-		memcpy(&nombreSize,pokemonSerializado,4);
-		memcpy(&nombreArchivoSize,pokemonSerializado + 4, 4);
+	memcpy(&nombreSize, pokemonSerializado, 4);
+	memcpy(&nombreArchivoSize, pokemonSerializado + 4, 4);
 
-		memcpy(&pokemon->nivel,pokemonSerializado + 8, 4);
-		memcpy(pokemon->nombre, pokemonSerializado + 12, nombreSize);
-		memcpy(pokemon->nombreArchivo, pokemonSerializado + 12 + nombreSize, nombreArchivoSize);
+	pokemon->nombre = (char *) malloc(sizeof(char) * nombreSize);
+	pokemon->nombreArchivo = (char *) malloc(sizeof(char) * nombreArchivoSize);
 
-		return pokemon;
+	memcpy(&pokemon->nivel, pokemonSerializado + 8, 4);
+	memcpy(pokemon->nombre, pokemonSerializado + 12, nombreSize);
+	memcpy(pokemon->nombreArchivo, pokemonSerializado + 12 + nombreSize,
+			nombreArchivoSize);
+
+	return pokemon;
 }

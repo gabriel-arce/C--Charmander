@@ -161,6 +161,7 @@ int enviar_ubicacion_pokenest(int socket, char id_pokenest);
 int avanzar_posicion_entrenador(int socket, int buffer_size);
 int atrapar_pokemon(int socket);
 bool esta_en_pokenest(t_sesion_entrenador * entrenador);
+int procesar_objetivo_cumplido(t_sesion_entrenador * entrenador);
 
 //***Envios y serializaciones***
 t_pokemon * recibirPokemon(int socket);
