@@ -29,7 +29,7 @@ t_metadata_entrenador * crear_metadata() {
 	return metadata;
 }
 
-int leer_metadata_entrenador(char * metada_path) {							//TODO Hay que cambiarlo para que busque la ruta exacta
+int leer_metadata_entrenador(char * metada_path) {
 	metadata = crear_metadata();
 
 	t_config * conf_file = config_create(metada_path);
@@ -307,7 +307,7 @@ void atraparPokemon(){
 			pokemonAtrapado->nombreArchivo = malloc(header_in->tamanio);
 			recv(socket_entrenador, pokemonAtrapado->nombreArchivo, header_in->tamanio,0);
 
-			//TODO copiar archivo, leerlo y cargar info del pokemon en pokemonAtrapado
+			copiarPokemon(pokemonAtrapado);
 
 			pokemonCapturadoOEntrenadorMuerto = true;
 			list_add(pokemonesCapturados, pokemonAtrapado);
@@ -336,8 +336,8 @@ void verificarSiQuedanObjetivosEnMapa(){
 			t_header * header = recibir_header(socket_entrenador);
 
 			//TODO mapa envia una estructura con los tiempos y la ruta de la medalla
-			//TODO sumar tiempos y copiar medalla
-
+			//TODO sumar tiempos
+			copiarMedalla();
 			desconectarseDeMapa();
 			queue_pop(metadata->viaje);
 
@@ -553,3 +553,55 @@ void * serializarPokemon(t_pokemon * pokemon){
 
 	return pokemonSerializado;
 }
+
+//TODO Reemplazar por funcion de juli
+
+/*
+void copiarPokemon(t_pokemon * pokemonAtrapado){
+
+	char* comando = malloc(sizeof(char) * 100);
+	char* rutaDirDeBill = string_duplicate(metadata_path);
+
+	string_append(&rutaDirDeBill,"Entrenadores/");
+	string_append(&rutaDirDeBill,nombreEntrenador);
+	string_append(&rutaDirDeBill,"/Dir de Bill");
+
+	sprintf(comando, "cp %s %s", pokemonAtrapado->nombreArchivo ,rutaDirDeBill );
+
+	system(comando);
+
+	//TODO falta copiar el nombre (talvez hacer un define con los char identificadores)
+	t_config * conf_file = config_create(pokemonAtrapado->nombreArchivo);
+
+	pokemonAtrapado->nivel = getIntProperty(conf_file, "Nivel");
+	free(conf_file);
+	free(comando);
+
+}
+
+void copiarMedalla(){
+
+	char* comando = malloc(sizeof(char) * 100);
+	char* rutaDirDeMedalla = string_duplicate(metadata_path);
+	char* rutaDirDeBill = string_duplicate(metadata_path);
+
+	string_append(&rutaDirDeMedalla,"Mapas/");
+	string_append(&rutaDirDeMedalla,mapaActual->nombre_mapa);
+	string_append(&rutaDirDeMedalla,"/medalla-[");
+	string_append(&rutaDirDeMedalla,mapaActual->nombre_mapa);
+	string_append(&rutaDirDeMedalla,"].jpg");
+
+
+	string_append(&rutaDirDeBill,"Entrenadores/");
+	string_append(&rutaDirDeBill,nombreEntrenador);
+	string_append(&rutaDirDeBill,"/Dir de Bill");
+
+	sprintf(comando, "cp %s %s", rutaDirDeMedalla , rutaDirDeBill );
+
+	system(comando);
+
+	free(comando);
+	free(rutaDirDeBill);
+	free(rutaDirDeMedalla);
+}
+*/

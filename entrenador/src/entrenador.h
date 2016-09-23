@@ -113,5 +113,7 @@ void rutina(int signal);
 void enviarUbicacionAMapa();
 void enviarPokemon(t_pokemon * pokemon, int socket);
 void * serializarPokemon(t_pokemon * pokemon);
+void copiarPokemon(t_pokemon * pokemonAtrapado);
+void copiarMedalla();
 
 #endif /* ENTRENADOR_H_ */
