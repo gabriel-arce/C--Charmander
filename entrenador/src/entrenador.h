@@ -88,6 +88,7 @@ int leer_metadata_entrenador(char * metada_path);
 void imprimir_metadata();
 int conectarse_a_un_mapa(int puerto, char * ip);
 int enviar_datos_a_mapa(int socket, char simbolo, char * nombre);
+void cargar_mapa();
 
 void inicializarEntrenador();
 void inicializarSinmuertesNiReintentos();

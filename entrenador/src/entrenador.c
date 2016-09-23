@@ -172,7 +172,7 @@ void cargarMetadata(){
 
 	string_append(&ruta,"Entrenadores/");
 	string_append(&ruta,nombreEntrenador);
-	string_append(&ruta,"/");
+	string_append(&ruta,"/metadata/metadata");
 
 	leer_metadata_entrenador(ruta);
 
@@ -184,11 +184,16 @@ void cargarMetadata(){
 void conectarseConSiguienteMapa(){
 
 	mapaActual = queue_peek(metadata->viaje);
-//
-//	socket_entrenador = conectarse_a_un_mapa(mapaActual->puerto,
-//			mapaActual->ip);
 
-	socket_entrenador = conectarse_a_un_mapa(9000, "127.0.0.1");
+	if (mapaActual == NULL) {
+		printf("\nerror\n");
+		exit(1);
+	}
+
+	cargar_mapa();
+
+	socket_entrenador = conectarse_a_un_mapa(mapaActual->puerto,
+			mapaActual->ip);
 
 	if (socket_entrenador < 0) {
 
@@ -208,26 +213,44 @@ void conectarseConSiguienteMapa(){
 	}
 }
 
+void cargar_mapa() {
+	char * ruta_del_mapa = string_duplicate(metadata_path);
+	string_append(&(ruta_del_mapa), "Mapas/");
+	string_append(&(ruta_del_mapa), mapaActual->nombre_mapa);
+	string_append(&(ruta_del_mapa), "/metadata.conf");
+
+	t_config * m_mapa = config_create(ruta_del_mapa);
+
+	mapaActual->ip = string_duplicate(getStringProperty(m_mapa, "IP"));
+	mapaActual->puerto = getIntProperty(m_mapa, "Puerto");
+
+	free(ruta_del_mapa);
+	free(m_mapa);
+}
+
 void solicitarUbicacionDelProximoPokenest(){
-	char id_pokemon;							//talvez hay que usar char*
+	char * id_pokemon;							//talvez hay que usar char*
 
 	id_pokemon = queue_pop(mapaActual->objetivos);
 
-	enviarSolicitudUbicacionPokenest(id_pokemon);
+	enviarSolicitudUbicacionPokenest(id_pokemon[0]);
 
 }
 
 void enviarSolicitudUbicacionPokenest(char id_pokemon){
 
-	enviar_header(_UBICACION_POKENEST, (int) id_pokemon, mapaActual->socket);
+	enviar_header(_UBICACION_POKENEST, (int) id_pokemon, socket_entrenador);
 
 	int tamanio_coord = sizeof(t_posicion);
 	void * coordenadas = malloc(tamanio_coord);
 
-	if(recv(mapaActual->socket, coordenadas, tamanio_coord, 0) < 0) {
+	if(recv(socket_entrenador, coordenadas, tamanio_coord, 0) < 0) {
 		perror("Error en el recv de _UBICACION_POKENEST");
 		pokenestLocalizada = false;
 	}
+
+	memcpy(&(ubicacionProximaPokenest->x), coordenadas, 4);
+	memcpy(&(ubicacionProximaPokenest->y), coordenadas + 4, 4);
 
 	if ((ubicacionProximaPokenest->x == -1)||(ubicacionProximaPokenest->y == -1)) {
 		perror("Error en las coordenadas recibidas");
@@ -258,6 +281,9 @@ void avanzarHaciaElPokenest(){
 }
 
 void enviarUbicacionAMapa(){
+
+	enviar_header(_MOVER_XY, sizeof(t_posicion), socket_entrenador);
+
 	void* buffer_out = malloc(sizeof(t_posicion));
 	memcpy(buffer_out,&(ubicacionActual->x),4);
 	memcpy(buffer_out + 4,&(ubicacionActual->y),4);
@@ -329,6 +355,10 @@ void verificarSiQuedanObjetivosEnMapa(){
 }
 
 void verificarNivelPokemon(t_pokemon * pokemon){
+
+	if (pokemonMasFuerte == NULL)
+		pokemonMasFuerte = pokemon;
+
 	if(pokemon->nivel > pokemonMasFuerte->nivel){
 
 		pokemonMasFuerte = pokemon;
@@ -351,22 +381,25 @@ void esperarTurno(){
 		exit(EXIT_FAILURE);
 	}
 
-
+	puts("Turno concedido");
 }
 
 void realizarAccion(){
 
 	if(!pokenestLocalizada){
+		puts("solicitar ubicacion");
 		solicitarUbicacionDelProximoPokenest();
 		return;
 	}
 
 	if(estoyEnPokenest()){
+		puts("atrapar pokemon");
 		atraparPokemon();
 		return;
 	}
 
 	if(!estoyEnPokenest()){
+		puts("avanzar");
 		avanzarHaciaElPokenest();
 		return;
 	}

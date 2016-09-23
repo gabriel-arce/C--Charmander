@@ -157,7 +157,7 @@ t_pokenest * buscar_pokenest_por_ubicacion(int x, int y);
 
 //***Funciones***
 //void rutinaSeñales(int rutina);
-int enviar_ubicacion_pokenest(int socket, char id_pokenest);
+int enviar_ubicacion_pokenest(int socket, int id_pokenest);
 int avanzar_posicion_entrenador(int socket, int buffer_size);
 int atrapar_pokemon(int socket);
 bool esta_en_pokenest(t_sesion_entrenador * entrenador);

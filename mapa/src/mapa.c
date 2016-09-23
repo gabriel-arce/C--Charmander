@@ -206,6 +206,8 @@ void cargar_pokenests() {
 
 					free(dat_pkm);
 				}
+
+				list_add(lista_de_pokenests, pknst);
 			}
 		}
 	}
@@ -367,12 +369,15 @@ void trainer_handler(int socket, fd_set * fdset) {
 			procesar_nuevo_entrenador(socket, header->tamanio);
 			break;
 		case _UBICACION_POKENEST:
-			enviar_ubicacion_pokenest(socket, (char) header->tamanio);
+			puts("Ubicacion pokenest");
+			enviar_ubicacion_pokenest(socket, header->tamanio);
 			break;
 		case _MOVER_XY:
+			puts("Mover entrenador");
 			avanzar_posicion_entrenador(socket, header->tamanio);
 			break;
 		case _CAPTURAR_PKM:
+			puts("Atrapar pokemon");
 			atrapar_pokemon(socket);
 			break;
 		default:
@@ -430,6 +435,9 @@ t_sesion_entrenador * recibir_datos_entrenador(int socket_entrenador, int data_b
 	trainer_sesion->posicion = malloc(sizeof(t_posicion));
 	trainer_sesion->posicion->x = 0;
 	trainer_sesion->posicion->y = 0;
+	trainer_sesion->posicionObjetivo = malloc(sizeof(t_posicion));
+	trainer_sesion->posicionObjetivo->x = 0;
+	trainer_sesion->posicionObjetivo->y = 0;
 	trainer_sesion->momentoBloqueado = 0;
 	trainer_sesion->tiempoBloqueado = 0;
 	time(&(trainer_sesion->tiempoDeIngresoAlMapa));
@@ -495,7 +503,7 @@ int correr_rr() {
 		if (solicitar_turno(entrenador_listo) == EXIT_FAILURE)
 			break;
 		quantum--;
-		pthread_mutex_lock(&mutex_planificador_turno);
+		//pthread_mutex_lock(&mutex_planificador_turno);
 	}
 
 	if ( (!(entrenador_listo->bloqueado)) && (!(entrenador_listo->objetivo_cumplido)) ) {
@@ -557,7 +565,7 @@ t_sesion_entrenador * buscar_entrenador_por_socket(int expected_fd) {
 
 //**********************************************************************************************
 
-int enviar_ubicacion_pokenest(int socket, char id_pokenest) {
+int enviar_ubicacion_pokenest(int socket, int id_pokenest) {
 
 	int _on_error() {
 		t_posicion * pos_error = malloc(sizeof(t_posicion));
@@ -598,6 +606,7 @@ int enviar_ubicacion_pokenest(int socket, char id_pokenest) {
 	entrenador->posicionObjetivo->y = pokenest->posicion->y;
 
 	pthread_mutex_unlock(&mutex_planificador_turno);
+
 
 	return EXIT_SUCCESS;
 }
@@ -731,6 +740,8 @@ int procesar_objetivo_cumplido(t_sesion_entrenador * entrenador) {
 	//tiempo bloqueado
 	//cuantos dl
 	//tiempo total en el mapa
+
+	//!!
 
 	enviar_header(_DATOS_FINALES, datos_size, entrenador->socket);
 	send(entrenador->socket, datos, datos_size, 0);
