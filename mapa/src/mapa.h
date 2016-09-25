@@ -27,6 +27,7 @@
 #include <time.h>
 #include <dirent.h>
 #include <unistd.h>
+#include <signal.h>
 
 #define LOG_FILE "log_mapa.log"
 #define TOTAL_ARGS 3
@@ -45,6 +46,7 @@
 #define _PKM_MAS_FUERTE 9
 #define _RESULTADO_BATALLA 10
 #define _DATOS_FINALES 11
+#define _RESULTADO_OPERACION 12
 
 typedef enum{
 	RR,
@@ -84,7 +86,7 @@ typedef struct {
 	float tiempoBloqueado;
 	bool bloqueado;
 	bool objetivo_cumplido;
-} t_sesion_entrenador;
+} t_entrenador;
 
 typedef struct {
 	char* nombreArchivo;
@@ -117,56 +119,62 @@ t_list * lista_de_pokenests; //t_pokenest
 int tiempoChequeoInterbloqueo;
 bool batallasActivadas;
 enum algoritmoDePlanificacion;
-int quantum;
 int retardoEntreTurnos;
 char* nombreMapa;   //se setea con argumento en consola
 char * ruta_directorio;
 
+bool keep_running;
+t_entrenador * entrenador_corriendo;
+fd_set master_fdset;
+int quantum_actual;
+
 //****Variables & stuff
-void leer_metadata_entrenador(char * metadata_path);
-void imprimir_metada();
+void leer_metadata_mapa(char * metadata_path);
+void imprimir_metadata();
 void crear_archivo_log();
 void inicializar_semaforos();
 void destruir_semaforos();
 void inicializar_variables();
 void destruir_variables();
 void cargar_pokenests();
+void cargar_medalla();
+void imprimir_pokenests();
+void signal_handler(int signal);
 
 //****Conection and threads ****
 void run_trainer_server();
 void run_scheduler_thread();
-void trainer_handler(int socket, fd_set * fdset);
 int procesar_nuevo_entrenador(int socket_entrenador, int buffer_size);
-t_sesion_entrenador * recibir_datos_entrenador(int socket_entrenador, int buffer_size);
+t_entrenador * recibir_datos_entrenador(int socket_entrenador, int buffer_size);
+int desconexion_entrenador(int socket, int nbytes_recv);
 
 //****Planificador****
 int run_algorithm();
 int correr_rr();
 int correr_srdf();
-int solicitar_turno(t_sesion_entrenador * entrenador);
+int trainer_handler(t_entrenador * entrenador);
+int enviar_ubicacion_pokenest(t_entrenador * entrenador, int id_pokenest);
+int avanzar_posicion_entrenador(t_entrenador * entrenador, int buffer_size);
+int atrapar_pokemon(t_entrenador * entrenador);
 
 //****Destroyers****
-void entrenador_destroyer(t_sesion_entrenador * e);
+void entrenador_destroyer(t_entrenador * e);
 void pokenest_destroyer(t_pokenest * r);
+void destruir_metadata();
 
 //****Buscadores****
-t_sesion_entrenador * buscar_entrenador_por_simbolo(char expected_symbol);
-t_sesion_entrenador * buscar_entrenador_por_socket(int expected_fd);
+t_entrenador * buscar_entrenador_por_simbolo(char expected_symbol);
+t_entrenador * buscar_entrenador_por_socket(int expected_fd);
 t_pokenest * buscar_pokenest_por_id(char id);
 t_pokenest * buscar_pokenest_por_ubicacion(int x, int y);
 
 //***Funciones***
-//void rutinaSeñales(int rutina);
-int enviar_ubicacion_pokenest(int socket, int id_pokenest);
-int avanzar_posicion_entrenador(int socket, int buffer_size);
-int atrapar_pokemon(int socket);
-bool esta_en_pokenest(t_sesion_entrenador * entrenador);
-int procesar_objetivo_cumplido(t_sesion_entrenador * entrenador);
+bool esta_en_pokenest(t_entrenador * entrenador);
+int procesar_objetivo_cumplido(t_entrenador * entrenador);
 
 //***Envios y serializaciones***
 t_pokemon * recibirPokemon(int socket);
 t_pokemon * deserializarPokemon(void* pokemonSerializado);
-
 
 
 #endif /* MAPA_H_ */

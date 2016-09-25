@@ -32,6 +32,10 @@ void * serializar_header(int id, int size) {
 }
 
 t_header * deserializar_header(void * buffer) {
+
+	if (buffer == NULL)
+		return NULL;
+
 	t_header * header = malloc(sizeof(t_header));
 
 	memcpy(&(header->identificador), buffer, 1);

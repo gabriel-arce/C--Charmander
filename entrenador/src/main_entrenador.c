@@ -22,9 +22,27 @@ int main(int argc, char ** argv) {
 	inicializarEntrenador();
 	conectarseConSiguienteMapa();
 
+	t_header * header = NULL;
+
+	realizarAccion();
+
 	while (!finDelJuego) {
-		esperarTurno();
+		//esperarTurno();
+
+		header = recibir_header(socket_entrenador);
+		if (header->identificador != _RESULTADO_OPERACION) {
+			free(header);
+			break;
+		} else {
+			if (header->tamanio == EXIT_FAILURE) {
+				free(header);
+				break;
+			}
+		}
+
 		realizarAccion();
+
+		free(header);
 	}
 
 	imprimirLogro();

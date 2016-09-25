@@ -217,7 +217,7 @@ void cargar_mapa() {
 	char * ruta_del_mapa = string_duplicate(metadata_path);
 	string_append(&(ruta_del_mapa), "Mapas/");
 	string_append(&(ruta_del_mapa), mapaActual->nombre_mapa);
-	string_append(&(ruta_del_mapa), "/metadata.conf");
+	string_append(&(ruta_del_mapa), "/metadata");
 
 	t_config * m_mapa = config_create(ruta_del_mapa);
 
@@ -307,7 +307,7 @@ void atraparPokemon(){
 			pokemonAtrapado->nombreArchivo = malloc(header_in->tamanio);
 			recv(socket_entrenador, pokemonAtrapado->nombreArchivo, header_in->tamanio,0);
 
-			copiarPokemon(pokemonAtrapado);
+			//copiarPokemon(pokemonAtrapado);
 
 			pokemonCapturadoOEntrenadorMuerto = true;
 			list_add(pokemonesCapturados, pokemonAtrapado);
@@ -337,7 +337,7 @@ void verificarSiQuedanObjetivosEnMapa(){
 
 			//TODO mapa envia una estructura con los tiempos y la ruta de la medalla
 			//TODO sumar tiempos
-			copiarMedalla();
+			//copiarMedalla();
 			desconectarseDeMapa();
 			queue_pop(metadata->viaje);
 

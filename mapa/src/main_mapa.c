@@ -9,6 +9,8 @@
 
 int main(int argc, char ** argv) {
 
+	signal(SIGUSR2, signal_handler);
+
 	if (chequear_argumentos(argc, TOTAL_ARGS) == -1) {
 		return EXIT_FAILURE;
 	}
@@ -19,8 +21,9 @@ int main(int argc, char ** argv) {
 	nombreMapa = string_duplicate(argv[1]);
 	ruta_directorio = string_duplicate(argv[2]);
 	leer_metadata_mapa(argv[2]);
-	imprimir_metada();
+	imprimir_metadata();
 	cargar_pokenests();
+	//imprimir_pokenests();
 
 	socket_servidor = -1;
 	//crear_archivo_log();
