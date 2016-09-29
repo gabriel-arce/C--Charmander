@@ -24,6 +24,8 @@
 #include <fcntl.h>
 #include <stddef.h>
 #include <commons/log.h>
+#include <sys/stat.h>
+#include <sys/mman.h>
 
 #define TOTAL_ARGS 2
 #define PORT 9000
@@ -66,11 +68,13 @@ int socket_pokedex;
 FILE *in;
 struct stat fileStat;
 t_log *logger;
+char *hdr;
 
 
 void mostrarAyuda();
 void mostrarMensajeDeError( Error );
 void crear_logger();
+void cerrarDisco();
 
 int validar(int argc, char **argv);
 

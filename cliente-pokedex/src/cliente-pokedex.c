@@ -26,6 +26,12 @@ int main(int argc, char **argv){
 	//Validar
 	validar(argc, argv);
 
+	//Mapear disco
+	mapearDisco();
+
+	//Cerrar disco
+	cerrarDisco();
+
 	struct fuse_args args = FUSE_ARGS_INIT(argc, argv);
 
 	operaciones.getattr		= tomar_atributos;
@@ -121,6 +127,7 @@ void mostrarMensajeDeError(Error e){
 			break;
 
 		case ErrorMmap:
+			perror("mmap");
 			printf("Error al mapear estructura..\n\n");
 			log_debug(logger, "Error al mapear estructura..\n\n");
 			break;
@@ -456,6 +463,7 @@ static int escribir ( const char *path, const char *buffer, size_t tamanio, off_
 
 }
 
+
 static int borrar_directorio ( const char *path ){
 	return 0;
 }
@@ -474,4 +482,17 @@ static int crear_directorio( const char *path, mode_t modo){
 
 static int tomar_atributos_extendidos(const char *path, const char *nombre, char *valor, size_t tamanio){
 	return 0;
+}
+
+void mapearDisco(){
+
+	hdr = mmap((caddr_t)0, fileStat.st_size, PROT_READ|PROT_WRITE, MAP_FILE|MAP_SHARED, in, 0);
+
+	if(hdr == MAP_FAILED){
+		mostrarMensajeDeError(ErrorMmap);
+	}
+}
+
+void cerrarDisco(){
+	close(in);
 }
