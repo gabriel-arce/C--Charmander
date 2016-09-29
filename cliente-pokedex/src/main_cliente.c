@@ -6,6 +6,7 @@
  */
 
 #include "cliente-pokedex.h"
+/*
 
 static int pkdx_getattr( const char * path, struct stat * st ) {
 
@@ -85,3 +86,4 @@ int main(int argc, char ** argv) {
 
 	return fuse_main(argc, argv, &pkdx_fuse_operations, NULL);
 }
+*/
