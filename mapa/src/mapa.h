@@ -115,6 +115,7 @@ t_list * entrenadores_conectados;
 sem_t * semaforo_de_listos;
 
 t_list * cola_de_listos;
+t_list * cola_de_prioridad_SRDF;
 t_list * lista_de_pokenests; //t_pokenest
 int tiempoChequeoInterbloqueo;
 bool batallasActivadas;
@@ -156,6 +157,10 @@ int trainer_handler(t_entrenador * entrenador);
 int enviar_ubicacion_pokenest(t_entrenador * entrenador, int id_pokenest);
 int avanzar_posicion_entrenador(t_entrenador * entrenador, int buffer_size);
 int atrapar_pokemon(t_entrenador * entrenador);
+t_entrenador * calcularSRDF();
+bool entrenadorMasCercaDePokenest();
+int calcularDistanciaAPokenest(t_entrenador* entrenador);
+void agregarEntrenadorAListos(t_entrenador * nuevo_entrenador);
 
 //****Destroyers****
 void entrenador_destroyer(t_entrenador * e);
