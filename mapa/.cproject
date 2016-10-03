@@ -40,6 +40,8 @@
 								</option>
 								<option id="gnu.c.link.option.libs.380720439" name="Libraries (-l)" superClass="gnu.c.link.option.libs" valueType="libs">
 									<listOptionValue builtIn="false" value="sharedCharmander"/>
+									<listOptionValue builtIn="false" value="nivel-gui"/>
+									<listOptionValue builtIn="false" value="curses"/>
 									<listOptionValue builtIn="false" value="pthread"/>
 									<listOptionValue builtIn="false" value="commons"/>
 								</option>

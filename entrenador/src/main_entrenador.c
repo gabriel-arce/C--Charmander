@@ -27,7 +27,6 @@ int main(int argc, char ** argv) {
 	realizarAccion();
 
 	while (!finDelJuego) {
-		//esperarTurno();
 
 		header = recibir_header(socket_entrenador);
 		if (header->identificador != _RESULTADO_OPERACION) {

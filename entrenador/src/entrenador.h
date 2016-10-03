@@ -101,7 +101,6 @@ void avanzarHaciaElPokenest();
 void atraparPokemon();
 void verificarSiQuedanObjetivosEnMapa();
 void verificarNivelPokemon(t_pokemon * pokemon);
-void esperarTurno();
 void realizarAccion();
 bool estoyEnPokenest();
 void imprimirLogro();

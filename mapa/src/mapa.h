@@ -28,6 +28,9 @@
 #include <dirent.h>
 #include <unistd.h>
 #include <signal.h>
+#include <nivel.h>
+#include <tad_items.h>
+#include <curses.h>
 
 #define LOG_FILE "log_mapa.log"
 #define TOTAL_ARGS 3
@@ -47,6 +50,9 @@
 #define _RESULTADO_BATALLA 10
 #define _DATOS_FINALES 11
 #define _RESULTADO_OPERACION 12
+
+#define __FILAS 100
+#define __COLUMNAS 100
 
 typedef enum{
 	RR,
@@ -111,6 +117,7 @@ pthread_t hilo_planificador;
 pthread_t hilo_servidor;
 pthread_mutex_t mutex_servidor;
 pthread_mutex_t mutex_planificador_turno;
+pthread_mutex_t mutex_gui;
 t_list * entrenadores_conectados;
 sem_t * semaforo_de_listos;
 
@@ -127,6 +134,10 @@ bool keep_running;
 t_entrenador * entrenador_corriendo;
 fd_set master_fdset;
 int quantum_actual;
+
+//variables de la GUI
+t_list * items_mapa;
+
 
 //****Variables & stuff
 void leer_metadata_mapa(char * metadata_path);
@@ -161,6 +172,9 @@ int atrapar_pokemon(t_entrenador * entrenador);
 void entrenador_destroyer(t_entrenador * e);
 void pokenest_destroyer(t_pokenest * r);
 void destruir_metadata();
+void item_destroyer(void * item);
+// ....
+void pokemon_remover(t_pokemon * pkm, t_list * list);
 
 //****Buscadores****
 t_entrenador * buscar_entrenador_por_simbolo(char expected_symbol);
