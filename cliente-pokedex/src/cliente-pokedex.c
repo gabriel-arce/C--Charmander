@@ -32,6 +32,9 @@ int main(int argc, char **argv){
 	//Cerrar disco
 	cerrarDisco();
 
+	//Conectar con el servidor
+	conectar_con_servidor_pkdx();
+
 	struct fuse_args args = FUSE_ARGS_INIT(argc, argv);
 
 	operaciones.getattr		= tomar_atributos;
@@ -473,7 +476,9 @@ static int crear_archivo(const char *path, mode_t modo, struct fuse_file_info *f
 }
 
 static int verificar_acceso(const char *path, int mask){
-	return 0;
+	struct fuse_context *context = fuse_get_context();
+	void *privado = context->private_data;
+	return privado != NULL;
 }
 
 static int crear_directorio( const char *path, mode_t modo){

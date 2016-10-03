@@ -428,11 +428,25 @@ int procesar_nuevo_entrenador(int socket_entrenador, int buffer_size) {
 	list_add(entrenadores_conectados, nuevo_entrenador);
 
 	//manda a listos al entrenador
-	list_add(cola_de_listos, nuevo_entrenador);
+	agregarEntrenadorAListos(nuevo_entrenador);
+
+
+	return 0;
+}
+
+void agregarEntrenadorAListos(t_entrenador * nuevo_entrenador){
+
+	switch (metadata->planificador->algth) {
+	case RR:
+		list_add(cola_de_listos, nuevo_entrenador);
+		break;
+	case SRDF:
+		list_add(cola_de_prioridad_SRDF, nuevo_entrenador);
+		break;
+	}
 
 	signalSemaforo(semaforo_de_listos);
 
-	return 0;
 }
 
 t_entrenador * recibir_datos_entrenador(int socket_entrenador, int data_buffer_size) {
@@ -562,18 +576,71 @@ int correr_rr() {
 	// Verifico si el entrenador vuelve a la cola de listos
 	if ( (!(entrenador_listo->bloqueado)) && (!(entrenador_listo->objetivo_cumplido)) && (result != EXIT_FAILURE) ) {
 		entrenador_corriendo = NULL;
-		list_add(cola_de_listos, entrenador_listo);
-
-		signalSemaforo(semaforo_de_listos);
+		agregarEntrenadorAListos(entrenador_listo);
 	}
 
 	return EXIT_SUCCESS;
 }
 
 int correr_srdf() {
+	int result;
+
+	if(list_size(cola_de_prioridad_SRDF)  > 0){
+
+		entrenador_corriendo = list_get(cola_de_prioridad_SRDF,0);
+		list_remove(cola_de_prioridad_SRDF,0);
+
+		//Entrenador pide ubicacion de pokenest
+		result = trainer_handler(entrenador_corriendo);   //¿hacer algo con result?
+		//Lo agrego a la cola de listos posta
+		list_add(cola_de_listos, entrenador_corriendo);
+	}
+
+	else{
+		entrenador_corriendo = calcularSRDF();
+
+		while(1){
+
+			if ((entrenador_corriendo->bloqueado) || (entrenador_corriendo->objetivo_cumplido) ){
+				break;
+			}
+			else{
+				result = trainer_handler(entrenador_corriendo);
+			}
+		}
+	}
+
+	entrenador_corriendo = NULL;
 
 	return EXIT_SUCCESS;
 }
+
+t_entrenador * calcularSRDF(){
+
+	t_entrenador * entrenadorConMenorDistancia;
+
+	list_sort(cola_de_listos, (void*) entrenadorMasCercaDePokenest);
+
+	entrenadorConMenorDistancia = list_get(cola_de_listos,0);
+
+	return entrenadorConMenorDistancia;
+
+}
+
+bool entrenadorMasCercaDePokenest(t_entrenador * entrenador_cerca, t_entrenador * entrenador_mas_cerca){
+	return ( calcularDistanciaAPokenest(entrenador_cerca) < calcularDistanciaAPokenest(entrenador_mas_cerca));
+
+}
+
+int calcularDistanciaAPokenest(t_entrenador* entrenador){
+
+	int movimientosRestantesEnX = abs(entrenador->posicionObjetivo->x - entrenador->posicion->x);
+	int movimientosRestantesEnY = abs(entrenador->posicionObjetivo->y - entrenador->posicion->y);
+
+	return (movimientosRestantesEnX + movimientosRestantesEnY);
+}
+
+
 
 int trainer_handler(t_entrenador * entrenador) {
 
