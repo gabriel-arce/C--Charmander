@@ -50,23 +50,6 @@ void leer_metadata_mapa(char * metadata_path) {
 	free(ruta);
 }
 
-void imprimir_metadata() {
-	printf("\n<<<METADA DEL MAPA>>>\n");
-	printf("tiempo de chequeo de DL: %d\n", metadata->tiempoChequeoDeadlock);
-	printf("batalla: %d\n", metadata->batalla);
-
-	if (metadata->planificador->algth == RR) {
-		printf("algoritmo: Round Robin , con quantum: %d\n", metadata->planificador->quantum);
-	} else {
-		printf("algoritmo: SRDF\n");
-	}
-
-	printf("retardo: %d\n", metadata->planificador->retardo_turno);
-	printf("IP: %s\n", metadata->ip);
-	printf("puerto: %d\n", metadata->puerto);
-	printf("\n");
-}
-
 void cargar_medalla() {
 	char * ruta_medalla = string_duplicate(ruta_directorio);
 	string_append(&ruta_medalla, nombreMapa);
@@ -82,74 +65,6 @@ void cargar_medalla() {
 void crear_archivo_log() {
 	logger = log_create(LOG_FILE, "MAPA log file", true, LOG_LEVEL_TRACE);
 	log_info(logger, "MAPA iniciado.");
-}
-
-void inicializar_semaforos() {
-
-	pthread_mutex_init(&mutex_gui, 0);
-	pthread_mutex_init(&mutex_servidor, 0);
-	pthread_mutex_init(&mutex_planificador_turno, 0);
-	semaforo_de_listos = crearSemaforo(0);
-	if (semaforo_de_listos == NULL) {
-		perror("error en la creacion de semaforos");
-		exit(EXIT_FAILURE);
-	}
-}
-
-void destruir_semaforos() {
-	pthread_mutex_destroy(&mutex_gui);
-	pthread_mutex_destroy(&mutex_servidor);
-	pthread_mutex_destroy(&mutex_planificador_turno);
-	destruirSemaforo(semaforo_de_listos);
-}
-
-void inicializar_variables() {
-	entrenadores_conectados = list_create();
-	cola_de_listos = list_create();
-	lista_de_pokenests = list_create();
-	quantum_actual = 0;
-	keep_running = false;
-	entrenador_corriendo = NULL;
-	items_mapa = list_create();
-}
-
-void destruir_variables() {
-	list_destroy_and_destroy_elements(entrenadores_conectados, (void *) entrenador_destroyer);
-	list_destroy(cola_de_listos);
-	list_destroy_and_destroy_elements(lista_de_pokenests, (void *) pokenest_destroyer);
-	list_destroy_and_destroy_elements(items_mapa, (void *) item_destroyer);
-
-	free(nombreMapa);
-	free(ruta_directorio);
-}
-
-void entrenador_destroyer(t_entrenador * e) {
-	free(e->nombre_entrenador);
-	free(e);
-}
-
-void pokenest_destroyer(t_pokenest * r) {
-	//TODO una vez definido el tema de los recursos y las colas de bloqueados codear el destroyer
-}
-
-void item_destroyer(void * item) {
-
-	ITEM_NIVEL * i = (ITEM_NIVEL *) item;
-
-	BorrarItem(items_mapa, i->id);
-}
-
-void pokemon_remover(t_pokemon * pkm, t_list * list) {
-	int i;
-
-	for( i = 0; i < list_size(list); i++ ) {
-		t_pokemon * p = list_get(list, i);
-
-		if (string_equals_ignore_case(p->nombreArchivo, pkm->nombreArchivo))
-			break;
-	}
-
-	list_remove(list, i);
 }
 
 void cargar_pokenests() {
@@ -251,6 +166,8 @@ void cargar_pokenests() {
 					free(dat_pkm);
 				}
 
+				// <<------ END OF PROCESSING A NEW POKENEST
+				ordenar_pokemons(pknst->pokemones);
 				list_add(lista_de_pokenests, pknst);
 				//Interfaz grafica
 //				CrearCaja(items_mapa, pknst->identificador, pknst->posicion->x,
@@ -267,19 +184,6 @@ void cargar_pokenests() {
 	}
 
 	free(dir_pokenests);
-}
-
-void imprimir_pokenests() {
-	void pknst_printer(t_pokenest * pknst) {
-		printf("\nPokenest : %s\n", pknst->nombre);
-		printf("Ubicacion: ( %d; %d )\n", pknst->posicion->x, pknst->posicion->y);
-		printf("Pokemons: \n");
-		void pkm_printer(t_pokemon * pkm) {
-			printf("%s\n", pkm->nombreArchivo);
-		}
-		list_iterate(pknst->pokemones, (void *) pkm_printer);
-	}
-	list_iterate(lista_de_pokenests, (void *) pknst_printer);
 }
 
 // ****************************************************************************************************
@@ -428,8 +332,8 @@ int procesar_nuevo_entrenador(int socket_entrenador, int buffer_size) {
 	list_add(entrenadores_conectados, nuevo_entrenador);
 
 	//manda a listos al entrenador
-	agregarEntrenadorAListos(nuevo_entrenador);
-
+	//agregarEntrenadorAListos(nuevo_entrenador);
+	list_add(cola_de_listos, nuevo_entrenador);
 
 	return 0;
 }
@@ -484,6 +388,7 @@ t_entrenador * recibir_datos_entrenador(int socket_entrenador, int data_buffer_s
 	trainer_sesion->tiempoBloqueado = 0;
 	time(&(trainer_sesion->tiempoDeIngresoAlMapa));
 	trainer_sesion->objetivo_cumplido = false;
+	trainer_sesion->conoce_ubicacion = false;
 
 	//Interfaz grafica
 //	pthread_mutex_lock(&mutex_gui);
@@ -575,44 +480,98 @@ int correr_rr() {
 
 	// Verifico si el entrenador vuelve a la cola de listos
 	if ( (!(entrenador_listo->bloqueado)) && (!(entrenador_listo->objetivo_cumplido)) && (result != EXIT_FAILURE) ) {
-		entrenador_corriendo = NULL;
-		agregarEntrenadorAListos(entrenador_listo);
-	}
-
-	return EXIT_SUCCESS;
-}
-
-int correr_srdf() {
-	int result;
-
-	if(list_size(cola_de_prioridad_SRDF)  > 0){
-
-		entrenador_corriendo = list_get(cola_de_prioridad_SRDF,0);
-		list_remove(cola_de_prioridad_SRDF,0);
-
-		//Entrenador pide ubicacion de pokenest
-		result = trainer_handler(entrenador_corriendo);   //¿hacer algo con result?
-		//Lo agrego a la cola de listos posta
-		list_add(cola_de_listos, entrenador_corriendo);
-	}
-
-	else{
-		entrenador_corriendo = calcularSRDF();
-
-		while(1){
-
-			if ((entrenador_corriendo->bloqueado) || (entrenador_corriendo->objetivo_cumplido) ){
-				break;
-			}
-			else{
-				result = trainer_handler(entrenador_corriendo);
-			}
-		}
+		list_add(cola_de_listos, entrenador_listo);
+		signalSemaforo(semaforo_de_listos);
+//		agregarEntrenadorAListos(entrenador_listo);
 	}
 
 	entrenador_corriendo = NULL;
 
 	return EXIT_SUCCESS;
+}
+
+//int correr_srdf() {
+//	int result;
+//
+//	if(list_size(cola_de_prioridad_SRDF)  > 0){
+//
+//		entrenador_corriendo = list_get(cola_de_prioridad_SRDF,0);
+//		list_remove(cola_de_prioridad_SRDF,0);
+//
+//		//Entrenador pide ubicacion de pokenest
+//		result = trainer_handler(entrenador_corriendo);   //¿hacer algo con result?
+//		//Lo agrego a la cola de listos posta
+//		list_add(cola_de_listos, entrenador_corriendo);
+//	}
+//
+//	else{
+//		entrenador_corriendo = calcularSRDF();
+//
+//		while(1){
+//
+//			if ((entrenador_corriendo->bloqueado) || (entrenador_corriendo->objetivo_cumplido) ){
+//				break;
+//			}
+//			else{
+//				result = trainer_handler(entrenador_corriendo);
+//			}
+//		}
+//	}
+//
+//	entrenador_corriendo = NULL;
+//
+//	return EXIT_SUCCESS;
+//}
+
+int correr_srdf() {
+	int cantidad_en_listos = list_size(cola_de_listos);
+	int i;
+	int result = EXIT_SUCCESS;
+	keep_running = true;
+
+	void una_operacion(t_entrenador * ent) {
+		result = trainer_handler(ent);
+		enviar_header(_RESULTADO_OPERACION, result, ent->socket);
+
+		if (result == EXIT_FAILURE) {
+			keep_running = false;
+		}
+	}
+
+	// Paso 1: Atiedo una sola operacion de a aquellos que no
+	// conozcan su distancia a la proxima pokenest
+	for (i = 0; i < cantidad_en_listos; i++) {
+		t_entrenador * e = list_get(cola_de_listos, i);
+
+		if ( !(e->conoce_ubicacion) ) {
+			una_operacion(e);
+		}
+	}
+
+	// Paso 2: Si ya no hay entrenador sin conocer su proxima ubicacion
+	// ordeno la cola de listos segun el calculo de distancias y saco el primero
+	t_entrenador * entrenador = calcularSRDF();
+	entrenador_corriendo = entrenador;
+
+	while (keep_running) {
+		if ( (entrenador->bloqueado) || (entrenador->objetivo_cumplido) ) {
+			keep_running = false;
+			break;
+		} else {
+			una_operacion(entrenador);
+		}
+	}
+
+	entrenador_corriendo = NULL;
+
+	// Verifico si el entrenador vuelve a la cola de listos
+	if ( (!(entrenador->bloqueado)) && (!(entrenador->objetivo_cumplido)) && (result != EXIT_FAILURE) ) {
+//		agregarEntrenadorAListos(entrenador);
+		list_add(cola_de_listos, entrenador);
+		signalSemaforo(semaforo_de_listos);
+	}
+
+	return result;
 }
 
 t_entrenador * calcularSRDF(){
@@ -639,8 +598,6 @@ int calcularDistanciaAPokenest(t_entrenador* entrenador){
 
 	return (movimientosRestantesEnX + movimientosRestantesEnY);
 }
-
-
 
 int trainer_handler(t_entrenador * entrenador) {
 
@@ -763,6 +720,8 @@ int enviar_ubicacion_pokenest(t_entrenador * entrenador, int id_pokenest) {
 	entrenador->posicionObjetivo->x = pokenest->posicion->x;
 	entrenador->posicionObjetivo->y = pokenest->posicion->y;
 
+	entrenador->conoce_ubicacion = true;
+
 	return EXIT_SUCCESS;
 }
 
@@ -856,6 +815,8 @@ int atrapar_pokemon(t_entrenador * entrenador) {
 			return _on_error();
 		}
 
+		entrenador->conoce_ubicacion = false;
+
 		t_header * header = recibir_header(entrenador->socket);
 
 		if (header == NULL) {
@@ -888,14 +849,9 @@ int atrapar_pokemon(t_entrenador * entrenador) {
 	}
 
 	quantum_actual = 0;
+	keep_running = false;
 
 	return EXIT_SUCCESS;
-}
-
-bool esta_en_pokenest(t_entrenador * entrenador) {
-
-	return (bool) ((entrenador->posicion->x == entrenador->posicionObjetivo->x)
-			&& (entrenador->posicion->y == entrenador->posicionObjetivo->y));
 }
 
 int procesar_objetivo_cumplido(t_entrenador * entrenador) {
@@ -920,105 +876,12 @@ int procesar_objetivo_cumplido(t_entrenador * entrenador) {
 	return EXIT_SUCCESS;
 }
 
-t_pokemon * recibirPokemon(int socket){
-
-	t_header * header_in = recibir_header(socket);
-
-	void* buffer_in = malloc(header_in->tamanio);
-
-	if (recv(socket,buffer_in,header_in->tamanio,0) < 0) {
-		free(buffer_in);
-		return NULL;
-	}
-
-	t_pokemon * pokemon = deserializarPokemon(buffer_in);
-
-	free(header_in);
-	free(buffer_in);
-
-	return pokemon;
-}
-
-t_pokemon * deserializarPokemon(void* pokemonSerializado){
-
-	t_pokemon * pokemon = malloc(sizeof(t_pokemon));
-
-	int nombreSize;
-	int nombreArchivoSize;
-
-	memcpy(&nombreSize, pokemonSerializado, 4);
-	memcpy(&nombreArchivoSize, pokemonSerializado + 4, 4);
-
-	pokemon->nombre = (char *) malloc(sizeof(char) * nombreSize);
-	pokemon->nombreArchivo = (char *) malloc(sizeof(char) * nombreArchivoSize);
-
-	memcpy(&pokemon->nivel, pokemonSerializado + 8, 4);
-	memcpy(pokemon->nombre, pokemonSerializado + 12, nombreSize);
-	memcpy(pokemon->nombreArchivo, pokemonSerializado + 12 + nombreSize,
-			nombreArchivoSize);
-
-	return pokemon;
-}
-
 //**********************************************************************************
-
-t_entrenador * buscar_entrenador_por_simbolo(char symbol_expected) {
-	t_entrenador * entrenador = NULL;
-
-	bool find_trainer(t_entrenador * s_t) {
-		return (s_t->simbolo_entrenador == symbol_expected);
-	}
-	entrenador = list_find(entrenadores_conectados, (void *) find_trainer);
-
-	return entrenador;
-}
-
-t_pokenest * buscar_pokenest_por_id(char id) {
-
-	t_pokenest * pokenest = NULL;
-
-	bool find_pokenest(t_pokenest * pkn) {
-		return (pkn->identificador == id);
-	}
-	pokenest = list_find(lista_de_pokenests, (void *) find_pokenest);
-
-	return pokenest;
-}
-
-t_pokenest * buscar_pokenest_por_ubicacion(int x, int y) {
-	t_pokenest * pknest = NULL;
-
-	bool find_pokenest2(t_pokenest * pkn) {
-		return ( (pkn->posicion->x == x)&&(pkn->posicion->y == y) );
-	}
-	pknest = list_find(lista_de_pokenests, (void *) find_pokenest2);
-
-	return pknest;
-}
-
-t_entrenador * buscar_entrenador_por_socket(int expected_fd) {
-	t_entrenador * entrenador = NULL;
-
-	bool find_trainer2(t_entrenador * s_t) {
-		return (s_t->socket == expected_fd);
-	}
-	entrenador = list_find(entrenadores_conectados, (void *) find_trainer2);
-
-	return entrenador;
-}
-
-//**********************************************************************************************
-
-void destruir_metadata() {
-	free(metadata->ip);
-	free(metadata->medallaArchivo);
-	free(metadata->planificador);
-	free(metadata);
-}
 
 void signal_handler(int signal) {
 	if (signal == SIGUSR2) {
 		keep_running = false;
+		quantum_actual = 0;
 		destruir_metadata();
 		leer_metadata_mapa(ruta_directorio);
 		imprimir_metadata();

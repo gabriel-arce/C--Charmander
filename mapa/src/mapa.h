@@ -92,6 +92,7 @@ typedef struct {
 	float tiempoBloqueado;
 	bool bloqueado;
 	bool objetivo_cumplido;
+	bool conoce_ubicacion;
 } t_entrenador;
 
 typedef struct {
@@ -190,6 +191,7 @@ t_pokenest * buscar_pokenest_por_ubicacion(int x, int y);
 //***Funciones***
 bool esta_en_pokenest(t_entrenador * entrenador);
 int procesar_objetivo_cumplido(t_entrenador * entrenador);
+void ordenar_pokemons(t_list * pokemons);
 
 //***Envios y serializaciones***
 t_pokemon * recibirPokemon(int socket);
