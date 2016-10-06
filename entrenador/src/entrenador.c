@@ -134,18 +134,23 @@ void rutina(int signal){
 
 		case SIGUSR1:
 			metadata->vidas += 1;
+			puts("Se ha quitado una vida al entrenador");
 			break;
 
 		case SIGTERM:
-			metadata->vidas -= 1;
-
-			if(metadata->vidas < 0){
-				muerteEntrenador();    //TODO ver que pasa si justo se activa la señal en algun momento critico
+			if(metadata->vidas > 0){
+				metadata->vidas -= 1;
+				puts("Se ha agregado una vida al entrenador");
+			}
+			else{
+				puts("No es posible quitarle una vida al entrenador");
 			}
 			break;
 
 		default: puts("Codigo de señal invalida");
 	}
+
+	printf("El entrenador tiene: %d vidas \n", metadata->vidas);
 }
 
 //-------------------Funciones
