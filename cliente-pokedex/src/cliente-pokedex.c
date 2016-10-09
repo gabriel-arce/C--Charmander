@@ -472,13 +472,16 @@ static int borrar_directorio ( const char *path ){
 }
 
 static int crear_archivo(const char *path, mode_t modo, struct fuse_file_info *fi){
-	return 0;
+	struct fuse_context *context = fuse_get_context();
+
+	int i = fuse_fs_create(path, modo, context->uid, context->gid);
+
+	return i;
 }
 
 static int verificar_acceso(const char *path, int mask){
 	struct fuse_context *context = fuse_get_context();
-	void *privado = context->private_data;
-	return privado != NULL;
+	return fuse_fs_access(path,context->uid, context->gid);
 }
 
 static int crear_directorio( const char *path, mode_t modo){
