@@ -7,7 +7,19 @@
 
 #include "servidor-pokedex.h"
 
-int main(void) {
-	puts("!!!Hello World!!!"); /* prints !!!Hello World!!! */
-	return EXIT_SUCCESS;
+int main(int argc, char **argv) {
+
+	//Validar
+	validar();
+
+	//Crear Log
+	crearLog();
+
+	//Crear semaforos
+	crearSemaforos();
+
+	//Crear servidor
+	pthread_create(&pIDServer, NULL, (void *)crearServer, NULL);
+	pthread_join(pIDServer, NULL);
+
 }
