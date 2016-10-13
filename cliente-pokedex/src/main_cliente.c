@@ -87,3 +87,10 @@ int main(int argc, char ** argv) {
 	return fuse_main(argc, argv, &pkdx_fuse_operations, NULL);
 }
 */
+
+int main(int argc, char ** argv) {
+
+	socket_pokedex = conectar_con_servidor_pkdx();
+
+	return EXIT_SUCCESS;
+}
