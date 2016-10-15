@@ -239,7 +239,6 @@ void solicitarUbicacionDelProximoPokenest(){
 	id_pokemon = queue_pop(mapaActual->objetivos);
 
 	enviarSolicitudUbicacionPokenest(id_pokemon[0]);
-
 }
 
 void enviarSolicitudUbicacionPokenest(char id_pokemon){
@@ -261,11 +260,10 @@ void enviarSolicitudUbicacionPokenest(char id_pokemon){
 		perror("Error en las coordenadas recibidas");
 		pokenestLocalizada = false;
 	}
-	else{
-	memcpy(&(ubicacionProximaPokenest->x), coordenadas, 4);
-	memcpy(&(ubicacionProximaPokenest->y), coordenadas + 4, 4);
+
 	pokenestLocalizada = true;
-	}
+
+	free(coordenadas);
 }
 
 void avanzarHaciaElPokenest(){
@@ -283,6 +281,8 @@ void avanzarHaciaElPokenest(){
 	}
 
 	enviarUbicacionAMapa();
+
+	recibir_header(socket_entrenador);
 }
 
 void enviarUbicacionAMapa(){
@@ -295,10 +295,11 @@ void enviarUbicacionAMapa(){
 
 	send(socket_entrenador,buffer_out,sizeof(t_posicion),0);
 }
-void atraparPokemon(){
-		t_pokemon * pokemonAtrapado = malloc(sizeof(t_pokemon));
 
-		enviar_header(_CAPTURAR_PKM,0,socket_entrenador);
+void atraparPokemon(){
+	t_pokemon * pokemonAtrapado = malloc(sizeof(t_pokemon));
+
+	enviar_header(_CAPTURAR_PKM,0,socket_entrenador);
 
 	//escuchar y hay dos posibilidades, (deadlock y vuelvo a escuchar) o (pokemon y sigo la rutina)
 
@@ -316,6 +317,8 @@ void atraparPokemon(){
 
 			pokemonCapturadoOEntrenadorMuerto = true;
 			list_add(pokemonesCapturados, pokemonAtrapado);
+
+			puts("pkm capturado");
 
 			verificarNivelPokemon(pokemonAtrapado);
 			verificarSiQuedanObjetivosEnMapa();
@@ -338,7 +341,7 @@ void verificarSiQuedanObjetivosEnMapa(){
 	if(queue_size(mapaActual->objetivos) == 0){
 			enviar_header(_OBJETIVO_CUMPLIDO,0,socket_entrenador);
 
-			t_header * header = recibir_header(socket_entrenador);
+			//t_header * header = recibir_header(socket_entrenador);
 
 			//TODO mapa envia una estructura con los tiempos y la ruta de la medalla
 			//TODO sumar tiempos

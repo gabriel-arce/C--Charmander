@@ -90,6 +90,14 @@ int main(int argc, char ** argv) {
 
 int main(int argc, char ** argv) {
 
+	if (chequear_argumentos(argc, TOTAL_ARGS) == -1)
+		return EXIT_FAILURE;
+
+	directorio_montaje = string_duplicate(argv[1]);
+
+	if (set_datos_conexion() == -1)
+		return -1;
+
 	socket_pokedex = conectar_con_servidor_pkdx();
 
 	return EXIT_SUCCESS;

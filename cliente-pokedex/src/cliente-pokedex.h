@@ -28,8 +28,6 @@
 #include <sys/mman.h>
 
 #define TOTAL_ARGS 2
-#define PORT 5000
-#define IP "127.0.0.1"
 
 #define DEFAULT_FILE_PATH "/"
 

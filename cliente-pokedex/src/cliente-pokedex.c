@@ -10,10 +10,25 @@
 
 #include "cliente-pokedex.h"
 
+int set_datos_conexion() {
+	char * ip_env = getenv("IP");
+	char * port_env = getenv("PUERTO");
+
+	if ((ip_env == NULL)||(port_env == NULL)) {
+		printf("\n[ERROR]: No existen las variables de entorno\n");
+		return -1;
+	}
+
+	ip_pokedex = string_duplicate(ip_env);
+	puerto_pokedex = atoi(port_env);
+
+	return 0;
+}
+
 int conectar_con_servidor_pkdx() {
 	int socket_fd = -1;
 
-	socket_fd = clienteDelServidor(IP, PORT);
+	socket_fd = clienteDelServidor(ip_pokedex, puerto_pokedex);
 
 	return socket_fd;
 }
