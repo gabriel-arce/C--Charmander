@@ -275,12 +275,17 @@ void levantarTablaArchivos(){
 void levantarTablaAsignaciones(int in){
 	if( hdr != MAP_FAILED){
 		titulo(TablaAsignaciones);
+
+		memcpy(osada_assignTable, (hdr + (osada_header->inicioTablaAsignacion )), BLOCK_SIZE * (sizeof (int)));
 	}
 }
 
 void levantarBloquesDeDatos(){
 	if( hdr != MAP_FAILED){
 		titulo(BloqueDeDatos);
+
+
+		memcpy(osada_blockData; (hdr + (osada_header->inicioTablaAsignacion ) + BLOCK_SIZE * (sizeof (int))), (osada_header->bloquesDatos)));
 	}
 }
 

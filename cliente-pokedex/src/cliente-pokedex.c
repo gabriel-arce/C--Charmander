@@ -20,18 +20,6 @@ int conectar_con_servidor_pkdx() {
 
 int main(int argc, char **argv){
 
-	//Crear Log
-	crear_logger();
-
-	//Validar
-	validar(argc, argv);
-
-	//Mapear disco
-	mapearDisco();
-
-	//Cerrar disco
-	cerrarDisco();
-
 	//Conectar con el servidor
 	conectar_con_servidor_pkdx();
 
@@ -42,20 +30,15 @@ int main(int argc, char **argv){
 	operaciones.open			= abrir;
 	operaciones.read				= leer;
 	operaciones.destroy		= limpiar;
-	operaciones.mknod		= crear_nodo;
 	operaciones.unlink			= borrar_archivo;
 	operaciones.rename	 	= renombrar;
 	operaciones.truncate	= cambiar_tamano;
 	operaciones.write    		= escribir;
-	//TODO Falta definir las siguientes funciones..
 	operaciones.rmdir			= borrar_directorio;
 	operaciones.mkdir			= crear_directorio;
 	operaciones.create			= crear_archivo;
-	operaciones.getxattr	= tomar_atributos_extendidos;
-	operaciones.access		= verificar_acceso;
 
 	return fuse_main ( args.argc, args.argv, &operaciones, NULL);
-
 
 }
 
@@ -168,6 +151,10 @@ static int tomar_atributos ( const char *path, struct stat *stbuf ){
 
 static int leer_directorio ( const char *path, void *buf, fuse_fill_dir_t filler, off_t offset, struct fuse_file_info *fi ){
 	t_listaArchivos *actual = ListaArchivos;
+
+	//send servidor -> accion
+
+	//receive servidor -> archivos y dir
 
 	//Raiz
 	if(strcmp(path, "/") == 0){
