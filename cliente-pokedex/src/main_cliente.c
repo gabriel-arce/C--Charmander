@@ -87,3 +87,18 @@ int main(int argc, char ** argv) {
 	return fuse_main(argc, argv, &pkdx_fuse_operations, NULL);
 }
 */
+
+int main(int argc, char ** argv) {
+
+	if (chequear_argumentos(argc, TOTAL_ARGS) == -1)
+		return EXIT_FAILURE;
+
+	directorio_montaje = string_duplicate(argv[1]);
+
+	if (set_datos_conexion() == -1)
+		return -1;
+
+	socket_pokedex = conectar_con_servidor_pkdx();
+
+	return EXIT_SUCCESS;
+}

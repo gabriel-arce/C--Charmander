@@ -10,6 +10,7 @@
 
 #include "cliente-pokedex.h"
 
+<<<<<<< HEAD
 int conectar_con_servidor_pkdx() {
 	int socket_fd = -1;
 
@@ -22,9 +23,21 @@ int main(int argc, char **argv){
 
 	//Conectar con el servidor
 	conectar_con_servidor_pkdx();
+=======
+int set_datos_conexion() {
+	char * ip_env = getenv("IP");
+	char * port_env = getenv("PUERTO");
 
-	struct fuse_args args = FUSE_ARGS_INIT(argc, argv);
+	if ((ip_env == NULL)||(port_env == NULL)) {
+		printf("\n[ERROR]: No existen las variables de entorno\n");
+		return -1;
+	}
+>>>>>>> 0f5f9195f613f578981f8815898e6709cc4c3735
 
+	ip_pokedex = string_duplicate(ip_env);
+	puerto_pokedex = atoi(port_env);
+
+<<<<<<< HEAD
 	operaciones.getattr		= tomar_atributos;
 	operaciones.readdir		= leer_directorio;
 	operaciones.open			= abrir;
@@ -37,10 +50,62 @@ int main(int argc, char **argv){
 	operaciones.rmdir			= borrar_directorio;
 	operaciones.mkdir			= crear_directorio;
 	operaciones.create			= crear_archivo;
-
-	return fuse_main ( args.argc, args.argv, &operaciones, NULL);
-
+=======
+	return 0;
 }
+>>>>>>> 0f5f9195f613f578981f8815898e6709cc4c3735
+
+int conectar_con_servidor_pkdx() {
+	int socket_fd = -1;
+
+<<<<<<< HEAD
+=======
+	socket_fd = clienteDelServidor(ip_pokedex, puerto_pokedex);
+
+	return socket_fd;
+>>>>>>> 0f5f9195f613f578981f8815898e6709cc4c3735
+}
+
+//int main(int argc, char **argv){
+//
+//	//Crear Log
+//	crear_logger();
+//
+//	//Validar
+//	validar(argc, argv);
+//
+//	//Mapear disco
+//	mapearDisco();
+//
+//	//Cerrar disco
+//	cerrarDisco();
+//
+//	//Conectar con el servidor
+//	conectar_con_servidor_pkdx();
+//
+//	struct fuse_args args = FUSE_ARGS_INIT(argc, argv);
+//
+//	operaciones.getattr		= tomar_atributos;
+//	operaciones.readdir		= leer_directorio;
+//	operaciones.open			= abrir;
+//	operaciones.read				= leer;
+//	operaciones.destroy		= limpiar;
+//	operaciones.mknod		= crear_nodo;
+//	operaciones.unlink			= borrar_archivo;
+//	operaciones.rename	 	= renombrar;
+//	operaciones.truncate	= cambiar_tamano;
+//	operaciones.write    		= escribir;
+//	//TODO Falta definir las siguientes funciones..
+//	operaciones.rmdir			= borrar_directorio;
+//	operaciones.mkdir			= crear_directorio;
+//	operaciones.create			= crear_archivo;
+//	operaciones.getxattr	= tomar_atributos_extendidos;
+//	operaciones.access		= verificar_acceso;
+//
+//	return fuse_main ( args.argc, args.argv, &operaciones, NULL);
+//
+//
+//}
 
 
 

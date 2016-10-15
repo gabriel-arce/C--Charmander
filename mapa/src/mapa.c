@@ -234,8 +234,8 @@ void run_trainer_server() {
 
 	/* bind */
 	serveraddr.sin_family = AF_INET;
-	serveraddr.sin_addr.s_addr = INADDR_ANY;
-	serveraddr.sin_port = htons(PORT);
+	serveraddr.sin_addr.s_addr = inet_addr(metadata->ip);
+	serveraddr.sin_port = htons(metadata->puerto);
 
 	memset(&(serveraddr.sin_zero), '\0', 8);
 
@@ -247,7 +247,7 @@ void run_trainer_server() {
 
 	/* listen */
 	if (listen(listener, 10) == -1) {
-		perror("Server-listen() error lol!");
+		perror("Server-listen() error");
 		exit(1);
 	}
 	printf("Server-listen() is OK...\n");
@@ -283,7 +283,7 @@ void run_trainer_server() {
 						perror("Server-accept() error");
 					} else {
 
-						pthread_mutex_lock(&mutex_servidor);
+						//pthread_mutex_lock(&mutex_servidor);
 
 //						printf("Server-accept() is OK...\n");
 
@@ -304,7 +304,7 @@ void run_trainer_server() {
 							FD_CLR(newfd, &read_fds);
 						}
 
-						pthread_mutex_unlock(&mutex_servidor);
+						//pthread_mutex_unlock(&mutex_servidor);
 
 					}
 
@@ -334,6 +334,7 @@ int procesar_nuevo_entrenador(int socket_entrenador, int buffer_size) {
 	//manda a listos al entrenador
 	//agregarEntrenadorAListos(nuevo_entrenador);
 	list_add(cola_de_listos, nuevo_entrenador);
+	signalSemaforo(semaforo_de_listos);
 
 	return 0;
 }
@@ -461,8 +462,6 @@ int correr_rr() {
 		}
 
 		result = trainer_handler(entrenador_listo);
-
-		enviar_header(_RESULTADO_OPERACION, result, entrenador_listo->socket);
 
 		if (result == EXIT_FAILURE) {
 			keep_running = false;
@@ -615,12 +614,15 @@ int trainer_handler(t_entrenador * entrenador) {
 	//OPERACIONES ENTRENADOR
 	switch (header->identificador) {
 		case _UBICACION_POKENEST:
+			puts("ubicacion pknst");
 			enviar_ubicacion_pokenest(entrenador, header->tamanio);
 			break;
 		case _MOVER_XY:
+			puts("mover");
 			avanzar_posicion_entrenador(entrenador, header->tamanio);
 			break;
 		case _CAPTURAR_PKM:
+			puts("capturar pkm");
 			atrapar_pokemon(entrenador);
 			break;
 		default:
@@ -710,17 +712,17 @@ int enviar_ubicacion_pokenest(t_entrenador * entrenador, int id_pokenest) {
 	memcpy(coordenadas, &(pokenest->posicion->x), 4);
 	memcpy(coordenadas + 4, &(pokenest->posicion->y), 4);
 
-	if (send(entrenador->socket, coordenadas, sizeof(t_posicion), 0) < 0)
-		return _on_error();
-
-	free(coordenadas);
-
 //	sleep(metadata->planificador->retardo_turno);
 
 	entrenador->posicionObjetivo->x = pokenest->posicion->x;
 	entrenador->posicionObjetivo->y = pokenest->posicion->y;
 
 	entrenador->conoce_ubicacion = true;
+
+	if (send(entrenador->socket, coordenadas, sizeof(t_posicion), 0) < 0)
+		return _on_error();
+
+	free(coordenadas);
 
 	return EXIT_SUCCESS;
 }
@@ -732,6 +734,7 @@ int avanzar_posicion_entrenador(t_entrenador * entrenador, int buffer_size) {
 	int _on_error() {
 		keep_running = false;
 		quantum_actual = 0;
+		enviar_header(_RESULTADO_OPERACION, 0, entrenador->socket);
 		return EXIT_FAILURE;
 	}
 
@@ -757,6 +760,8 @@ int avanzar_posicion_entrenador(t_entrenador * entrenador, int buffer_size) {
 
 	free(buffer_in);
 	free(movimiento);
+
+	enviar_header(_RESULTADO_OPERACION, 1, entrenador->socket);
 
 	return EXIT_SUCCESS;
 }
@@ -831,6 +836,7 @@ int atrapar_pokemon(t_entrenador * entrenador) {
 				entrenador->objetivo_cumplido = false;
 				break;
 			case _OBJETIVO_CUMPLIDO:
+				printf("objetivo cumplido de %s\n", entrenador->nombre_entrenador);
 				procesar_objetivo_cumplido(entrenador);
 				break;
 			default:

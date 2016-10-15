@@ -24,20 +24,20 @@ int main(int argc, char ** argv) {
 
 	t_header * header = NULL;
 
-	realizarAccion();
+	//realizarAccion();
 
 	while (!finDelJuego) {
 
-		header = recibir_header(socket_entrenador);
-		if (header->identificador != _RESULTADO_OPERACION) {
-			free(header);
-			break;
-		} else {
-			if (header->tamanio == EXIT_FAILURE) {
-				free(header);
-				break;
-			}
-		}
+//		header = recibir_header(socket_entrenador);
+//		if (header->identificador != _RESULTADO_OPERACION) {
+//			free(header);
+//			break;
+//		} else {
+//			if (header->tamanio == EXIT_FAILURE) {
+//				free(header);
+//				break;
+//			}
+//		}
 
 		realizarAccion();
 

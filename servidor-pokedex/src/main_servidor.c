@@ -12,6 +12,9 @@ int main(int argc, char **argv) {
 	//Validar
 	validar();
 
+	//Inicializar Variables globales
+	inicializarVariables();
+
 	//Crear Log
 	crearLog();
 
@@ -22,4 +25,7 @@ int main(int argc, char **argv) {
 	pthread_create(&pIDServer, NULL, (void *)crearServer, NULL);
 	pthread_join(pIDServer, NULL);
 
+	pthread_detach(pIDServer);
+
+	return EXIT_SUCCESS;
 }

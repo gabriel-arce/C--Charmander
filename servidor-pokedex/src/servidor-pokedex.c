@@ -14,112 +14,92 @@ void validar(){
 
 }
 
+void inicializarVariables() {
+	server_on = true;
+	clientes_conectados = list_create();
+}
+
 void crearLog(){
 	logger = log_create(NOMBRE_LOG, NOMBRE_PROG, 0, LOG_LEVEL_INFO);
 	log_info(logger, "Iniciando cliente pokedex...");
 }
 
 void crearSemaforos(){
+	pthread_mutex_init(&mutex_servidor, 0);
+}
+
+void destruirSemaforos() {
+	pthread_mutex_destroy(&mutex_servidor);
+}
+
+void crearServer() {
+
+	int optval = 1;
+
+	fd_servidor = crearSocket();
+
+	if (fd_servidor == -1)
+		exit(EXIT_FAILURE);
+
+	if ( bindearSocket(fd_servidor, PUERTO, IP) == -1 )
+		exit(EXIT_FAILURE);
+
+	if ( escucharEn(fd_servidor) == -1 )
+		exit(EXIT_FAILURE);
+
+	struct sockaddr_in direccion_cliente;
+	unsigned int addrlen = sizeof(struct sockaddr_in);
+	int new_fd;
+
+	while(server_on) {
+		pthread_mutex_lock(&mutex_servidor);
+
+		new_fd = accept(fd_servidor, (struct sockaddr *) &direccion_cliente, &addrlen);
+
+		if (new_fd == -1) {
+			pthread_mutex_unlock(&mutex_servidor);
+			continue;
+		}
+
+		setsockopt(new_fd, SOL_SOCKET, SO_REUSEADDR, &optval, sizeof(optval));
+
+		printf("\nNueva conexion de un cliente en el socket: %d\n", new_fd);
+
+		t_sesion_cliente * nuevo_cliente = crearSesionCliente(new_fd);
+
+		pthread_t subhilo_cliente;
+
+		pthread_create(&subhilo_cliente, NULL, (void *) serverCliente, (void *) nuevo_cliente);
+
+		//TODO en que momento le envia el punto de montaje????
+
+		pthread_mutex_unlock(&mutex_servidor);
+	}
 
 }
 
-void crearServer(){
-	int fdmax; // número máximo de descriptores de fichero
-	int listener; // descriptor de socket a la escucha
-	int newfd; // descriptor de socket de nueva conexión aceptada
-	int nbytes;
-	int yes=1; // para setsockopt() SO_REUSEADDR, más abajo
-	int i;
+t_sesion_cliente * crearSesionCliente(int cli_socket) {
+	t_sesion_cliente * nueva_sesion_cliente = malloc(sizeof(t_sesion_cliente));
 
-	fd_set readset;
-	sigset_t mask, orig_mask;
+	nueva_sesion_cliente->socket_cliente = cli_socket;
 
-	FD_ZERO(&master); // borra los conjuntos maestro y temporal
-	FD_ZERO(&read_fds);
+	return nueva_sesion_cliente;
+}
 
-	// obtener socket a la escucha
-	if ((listener = crearSocket()) == -1)
-		exit(1);
+void * serverCliente(void * args) {
+	t_sesion_cliente * cliente = (t_sesion_cliente *) args;
 
-	// estado del Fd para bind
-	if (setsockopt(listener, SOL_SOCKET, SO_REUSEADDR, &yes,sizeof(int)) == -1)	{
-		perror("setsockopt");
-		exit(1);
-	}
+	bool client_is_connected = true;
+	pthread_mutex_t mutex_cliente = PTHREAD_MUTEX_INITIALIZER;
 
-	// enlazar
-	if (bindearSocket(listener,PUERTO, IP) == -1)
-		exit(1);
+	//TODO definir interfaces y protocolos de comunicacion con los clientes pkdx
+	while (client_is_connected) {
 
-	// escuchar
-	if (escucharEn(listener) == -1)
-		exit(1);
-
-	//Nos aseguramos de que pselect no sea interrumpido por señales
-	sigemptyset(&mask);
-	sigaddset (&mask, SIGUSR1);
-	sigaddset (&mask, SIGUSR2);
-	sigaddset (&mask, SIGPOLL);
-
-	if (sigprocmask(SIG_BLOCK, &mask, &orig_mask) < 0) {
-		perror ("sigprocmask Fallo");
+		pthread_mutex_lock(&mutex_cliente);
+		//recv + switch
+		pthread_mutex_unlock(&mutex_cliente);
 
 	}
 
-	// añadir listener al conjunto maestro
-	FD_SET(listener, &master);
-
-	fdmax = listener; // por ahora es éste
-	// bucle principal
-	while(1)	{
-
-		read_fds = master; // cópialo
-		if (pselect (fdmax+1,&read_fds, NULL, NULL, NULL, NULL) == -1){
-			perror("select");
-			exit(1);
-		}
-
-		// explorar conexiones existentes en busca de datos que leer
-		for(i = 0; i <= fdmax; i++){
-			if (FD_ISSET(i, &read_fds))
-			{ // ¡¡tenemos datos!!
-				if (i == listener){
-					// gestionar nuevas conexiones
-					if ((newfd = aceptarEntrantes(listener)) == -1)
-						perror("accept");
-
-					else {
-						FD_SET(newfd, &master); // añadir al conjunto maestro
-
-						if (newfd > fdmax) // actualizar el máximo
-							fdmax = newfd;
-					}
-				} else {
-					// gestionar datos de un cliente
-					if ((nbytes = recv(i, buffer, sizeof(buffer), 0)) <= 0){
-						// error o conexión cerrada por el cliente
-
-						if (nbytes == 0)
-							// conexión cerrada
-							printf("selectserver: socket %d desconectado\n", i);
-
-						else
-							perror("recv");
-
-						close(i); // ¡Hasta luego!
-
-						FD_CLR(i, &master); // eliminar del conjunto maestro
-					}
-
-					else {
-					// tenemos datos de algún cliente
-						if (FD_ISSET(i, &master))	{
-							//TODO Resolver esta parte..
-						}
-					}
-				}
-
-			}
-		}
-	}
+	return EXIT_SUCCESS;
 }
