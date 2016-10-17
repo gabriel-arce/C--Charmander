@@ -44,19 +44,6 @@ typedef enum{
 	OtroError,
 } Error;
 
-typedef struct {
-	char *nombre;											//Nombre del archivo
-	char *path;													//Nombre real
-	struct stat info;										//Estructura stat del archivo
-	struct listaArchivos *siguiente;		//Siguiente nodo
-} t_listaArchivos;
-
-
-
-
-t_listaArchivos *ListaArchivos;
-
-static struct fuse_operations operaciones;
 
 char * ip_pokedex;
 int puerto_pokedex;
@@ -93,5 +80,23 @@ static int crear_archivo(const char *path, mode_t modo, struct fuse_file_info *f
 static int crear_directorio( const char *path, mode_t modo);
 static int tomar_atributos_extendidos(const char *path, const char *nombre, char *valor, size_t tamanio);
 static int verificar_acceso(const char *path, int mask);
+
+
+//Mapeo operaciones Fuse
+
+static struct fuse_operations operaciones_fuse = {
+			.getattr		= tomar_atributos,
+			.readdir		= leer_directorio,
+			.open			= abrir,
+			.read			= leer,
+			.destroy		= limpiar,
+			.unlink			= borrar_archivo,
+			.rename	 		= renombrar,
+			.truncate		= cambiar_tamano,
+			.write    		= escribir,
+			.rmdir			= borrar_directorio,
+			.mkdir			= crear_directorio,
+			.create			= crear_archivo,
+};
 
 #endif /* CLIENTE_POKEDEX_H_ */

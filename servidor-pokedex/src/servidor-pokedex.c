@@ -10,6 +10,8 @@
 
 #include "servidor-pokedex.h"
 
+
+//------------Server
 void validar(){
 
 }
@@ -100,6 +102,12 @@ void * serverCliente(void * args) {
 		pthread_mutex_unlock(&mutex_cliente);
 
 	}
+
+
+//------------------File System
+
+
+
 
 	return EXIT_SUCCESS;
 }

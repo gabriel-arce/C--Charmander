@@ -9,6 +9,7 @@
 
 int main(int argc, char **argv) {
 
+
 	//Validar
 	validar();
 
@@ -21,11 +22,16 @@ int main(int argc, char **argv) {
 	//Crear semaforos
 	crearSemaforos();
 
+	//TODO Mapear disco
+
 	//Crear servidor
 	pthread_create(&pIDServer, NULL, (void *)crearServer, NULL);
 	pthread_join(pIDServer, NULL);
 
 	pthread_detach(pIDServer);
+
+
+	//TODO A la espera de alguna accion
 
 	return EXIT_SUCCESS;
 }

@@ -134,17 +134,13 @@ void rutina(int signal){
 
 		case SIGUSR1:
 			metadata->vidas += 1;
-			puts("Se ha quitado una vida al entrenador");
+			puts("Se ha agregado una vida al entrenador");
 			break;
 
 		case SIGTERM:
-			if(metadata->vidas > 0){
-				metadata->vidas -= 1;
-				puts("Se ha agregado una vida al entrenador");
-			}
-			else{
-				puts("No es posible quitarle una vida al entrenador");
-			}
+
+			muereEntrenador = true;
+			puts("Se ha quitado una vida al entrenador");
 			break;
 
 		default: puts("Codigo de señal invalida");
@@ -234,7 +230,7 @@ void cargar_mapa() {
 }
 
 void solicitarUbicacionDelProximoPokenest(){
-	char * id_pokemon;							//talvez hay que usar char*
+	char * id_pokemon;
 
 	id_pokemon = queue_pop(mapaActual->objetivos);
 
@@ -436,7 +432,8 @@ bool batallaPokemon(){ 					//retorna true si muere
 	} else {
 
 		if (header->tamanio == 0) {
-			muerteEntrenador();
+			puts("El entrenador ha perdido una batalla pokemon");
+			muereEntrenador = true;
 			return true;
 		}
 	}
@@ -445,11 +442,13 @@ bool batallaPokemon(){ 					//retorna true si muere
 
 void muerteEntrenador(){
 	cantidadDeMuertes += 1;
-	puts("El entrenador a muerto debido a que perdio una batalla pokemon");
+	puts("El entrenador a muerto");
 
 	if(metadata->vidas > 0){
 		metadata->vidas -= 1;
 		desconectarseDeMapa();
+		//Se reconecta al mismo mapa
+		conectarseConSiguienteMapa();
 	}
 	else{
 		char  respuesta;

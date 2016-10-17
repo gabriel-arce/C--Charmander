@@ -10,20 +10,12 @@
 
 #include "cliente-pokedex.h"
 
-<<<<<<< HEAD
-int conectar_con_servidor_pkdx() {
-	int socket_fd = -1;
-
-	socket_fd = clienteDelServidor(IP, PORT);
-
-	return socket_fd;
-}
 
 int main(int argc, char **argv){
 
 	//Conectar con el servidor
 	conectar_con_servidor_pkdx();
-=======
+
 int set_datos_conexion() {
 	char * ip_env = getenv("IP");
 	char * port_env = getenv("PUERTO");
@@ -32,40 +24,25 @@ int set_datos_conexion() {
 		printf("\n[ERROR]: No existen las variables de entorno\n");
 		return -1;
 	}
->>>>>>> 0f5f9195f613f578981f8815898e6709cc4c3735
+
 
 	ip_pokedex = string_duplicate(ip_env);
 	puerto_pokedex = atoi(port_env);
 
-<<<<<<< HEAD
-	operaciones.getattr		= tomar_atributos;
-	operaciones.readdir		= leer_directorio;
-	operaciones.open			= abrir;
-	operaciones.read				= leer;
-	operaciones.destroy		= limpiar;
-	operaciones.unlink			= borrar_archivo;
-	operaciones.rename	 	= renombrar;
-	operaciones.truncate	= cambiar_tamano;
-	operaciones.write    		= escribir;
-	operaciones.rmdir			= borrar_directorio;
-	operaciones.mkdir			= crear_directorio;
-	operaciones.create			= crear_archivo;
-=======
 	return 0;
 }
->>>>>>> 0f5f9195f613f578981f8815898e6709cc4c3735
+
 
 int conectar_con_servidor_pkdx() {
 	int socket_fd = -1;
 
-<<<<<<< HEAD
-=======
 	socket_fd = clienteDelServidor(ip_pokedex, puerto_pokedex);
 
 	return socket_fd;
->>>>>>> 0f5f9195f613f578981f8815898e6709cc4c3735
 }
 
+
+/*
 //int main(int argc, char **argv){
 //
 //	//Crear Log
@@ -556,3 +533,4 @@ void mapearDisco(){
 void cerrarDisco(){
 	close(in);
 }
+*/

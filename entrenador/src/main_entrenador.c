@@ -41,6 +41,8 @@ int main(int argc, char ** argv) {
 
 		realizarAccion();
 
+		if(muereEntrenador) muerteEntrenador();
+
 		free(header);
 	}
 
