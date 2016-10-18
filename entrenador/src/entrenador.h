@@ -77,7 +77,7 @@ bool finDelJuego;
 float tiempoBloqueado;
 int deadlocksInvolucrados;
 float tiempoDeJuego;
-bool muereEntrenador = false;
+bool muereEntrenador;
 
 
 

@@ -165,6 +165,7 @@ void inicializarSinmuertesNiReintentos(){
 	pokemonesCapturados = list_create();
 	pokemonMasFuerte = NULL;
 	finDelJuego = false;
+	muereEntrenador = false;
 	ubicacionActual = malloc(sizeof(t_posicion));
 }
 void cargarMetadata(){
@@ -441,6 +442,7 @@ bool batallaPokemon(){ 					//retorna true si muere
 }
 
 void muerteEntrenador(){
+	muereEntrenador = false;
 	cantidadDeMuertes += 1;
 	puts("El entrenador a muerto");
 
