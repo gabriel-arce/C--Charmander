@@ -526,24 +526,6 @@ void enviarPokemon(t_pokemon * pokemon, int socket){
 
 }
 
-void * serializarPokemon(t_pokemon * pokemon){
-
-	int nombreSize = (string_length(pokemon->nombre));
-	int nombreArchivoSize = (string_length(pokemon->nombreArchivo));
-
-	int pokemonSerializadoSize = (sizeof(pokemon->nivel)) + nombreSize + nombreArchivoSize + (2 * (sizeof(int)));
-
-	void* pokemonSerializado = malloc(pokemonSerializadoSize);
-
-
-	memcpy(pokemonSerializado,&nombreSize,sizeof(int));
-	memcpy(pokemonSerializado + 4,&nombreArchivoSize , sizeof(int));
-	memcpy(pokemonSerializado + 8,&(pokemon->nivel) , sizeof(int));
-	memcpy(pokemonSerializado + 12, pokemon->nombre, nombreSize);
-	memcpy(pokemonSerializado + 12 + nombreSize, pokemon->nombreArchivo, nombreArchivoSize);
-
-	return pokemonSerializado;
-}
 
 //TODO Reemplazar por funcion de juli
 

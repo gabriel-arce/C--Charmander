@@ -64,21 +64,14 @@ int puerto_pokedex;
 char * directorio_montaje;
 int socket_pokedex;
 
-FILE *in;
 struct stat fileStat;
-t_log *logger;
-char *hdr;
 
 
-void mostrarAyuda();
-void mostrarMensajeDeError( Error );
-void crear_logger();
-void cerrarDisco();
 int validar(int argc, char **argv);
 int conectar_con_servidor_pkdx();
 void* enviarOperacionAServidor(int operacion, void* buffer_out);
 
-//-------Operaciones
+//-------Operaciones file system
 static int tomar_atributos ( const char *path, struct stat *stbuf );
 static int leer_directorio ( const char *path, void *buf, fuse_fill_dir_t filler, off_t offset, struct fuse_file_info *fi );
 static int abrir ( const char *path, struct fuse_file_info *fi );

@@ -13,6 +13,7 @@
 #include <shared_configs.h>
 #include <shared_sockets.h>
 #include <shared_comunicaciones.h>
+#include <shared_serializacion.h>
 #include <commons/collections/list.h>
 #include <commons/collections/queue.h>
 #include <signal.h>
@@ -54,12 +55,6 @@ typedef struct {
 	int x;
 	int y;
 } t_posicion;
-
-typedef struct {
-	char* nombreArchivo;
-	char* nombre;
-	int nivel;
-} t_pokemon;
 
 
 char* metadata_path;
@@ -113,7 +108,6 @@ void destruirHojaDeViaje();
 void rutina(int signal);
 void enviarUbicacionAMapa();
 void enviarPokemon(t_pokemon * pokemon, int socket);
-void * serializarPokemon(t_pokemon * pokemon);
 void copiarPokemon(t_pokemon * pokemonAtrapado);
 void copiarMedalla();
 

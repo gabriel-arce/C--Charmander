@@ -185,7 +185,7 @@ void* enviarOperacionAServidor(int operacion, void* buffer_out){
 //	operaciones.rename	 	= renombrar;
 //	operaciones.truncate	= cambiar_tamano;
 //	operaciones.write    		= escribir;
-//	//TODO Falta definir las siguientes funciones..
+//	//Falta definir las siguientes funciones..
 //	operaciones.rmdir			= borrar_directorio;
 //	operaciones.mkdir			= crear_directorio;
 //	operaciones.create			= crear_archivo;

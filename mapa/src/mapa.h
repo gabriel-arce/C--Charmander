@@ -95,12 +95,6 @@ typedef struct {
 	bool conoce_ubicacion;
 } t_entrenador;
 
-typedef struct {
-	char* nombreArchivo;
-	char* nombre;
-	int nivel;
-	char* imagen;				//no se si es un char*
-} t_pokemon;
 
 typedef struct {
 	t_posicion * posicion;
