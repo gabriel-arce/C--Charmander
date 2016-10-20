@@ -17,7 +17,7 @@ int main(int argc, char ** argv) {
 	}
 
 	nombreEntrenador = string_duplicate(argv[1]);
-	metadata_path = string_duplicate(argv[2]);
+	pokedex_path = string_duplicate(argv[2]);
 
 	inicializarEntrenador();
 	conectarseConSiguienteMapa();
@@ -45,6 +45,7 @@ int main(int argc, char ** argv) {
 	}
 
 	imprimirLogro();
+	finalizarEntrenador();
 
 	close(socket_entrenador);
 

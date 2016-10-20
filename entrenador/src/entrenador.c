@@ -105,6 +105,12 @@ int conectarse_a_un_mapa(int puerto, char * ip) {
 
 	socket_fd = clienteDelServidor(ip, puerto);
 
+	if (socket_fd == -1) {
+		perror("Error al intentar conectarse a un mapa");
+		limpiar_pokemons_en_directorio();
+		exit(EXIT_FAILURE);
+	}
+
 	return socket_fd;
 }
 
@@ -157,7 +163,12 @@ void rutina(int signal){
 
 void inicializarEntrenador(){
 	cargarMetadata();
+	setRutaMedallas();
+	setRutaDirDeBill();
 	cantidadDeMuertes = 0;
+	tiempoDeJuego = 0;
+	tiempoBloqueado = 0;
+	deadlocksInvolucrados = 0;
 	metadata->reintentos = 0;
 	inicializarSinmuertesNiReintentos();
 }
@@ -173,11 +184,9 @@ void inicializarSinmuertesNiReintentos(){
 }
 void cargarMetadata(){
 
-	char * ruta = string_duplicate(metadata_path);
+	char * ruta = string_duplicate(pokedex_path);
 
-	string_append(&ruta,"Entrenadores/");
-	string_append(&ruta,nombreEntrenador);
-	string_append(&ruta,"/metadata/metadata");
+	string_append_with_format(&ruta, "Entrenadores/%s/metadata/metadata", nombreEntrenador);
 
 	leer_metadata_entrenador(ruta);
 
@@ -219,10 +228,8 @@ void conectarseConSiguienteMapa(){
 }
 
 void cargar_mapa() {
-	char * ruta_del_mapa = string_duplicate(metadata_path);
-	string_append(&(ruta_del_mapa), "Mapas/");
-	string_append(&(ruta_del_mapa), mapaActual->nombre_mapa);
-	string_append(&(ruta_del_mapa), "/metadata");
+	char * ruta_del_mapa = string_duplicate(pokedex_path);
+	string_append_with_format(&ruta_del_mapa, "Mapas/%s/metadata", mapaActual->nombre_mapa);
 
 	t_config * m_mapa = config_create(ruta_del_mapa);
 
@@ -298,6 +305,7 @@ void enviarUbicacionAMapa(){
 
 void atraparPokemon(){
 	t_pokemon * pokemonAtrapado = malloc(sizeof(t_pokemon));
+	pokemonAtrapado->mapa = mapaActual->socket;
 
 	enviar_header(_CAPTURAR_PKM,0,socket_entrenador);
 
@@ -310,19 +318,25 @@ void atraparPokemon(){
 		switch (header_in->identificador) {
 		case _CAPTURAR_PKM:
 
-			pokemonAtrapado->nombreArchivo = malloc(header_in->tamanio);
-			recv(socket_entrenador, pokemonAtrapado->nombreArchivo, header_in->tamanio,0);
+			puts("pkm capturado");
 
-			//copiarPokemon(pokemonAtrapado);
+			char * ruta = (char *) malloc(header_in->tamanio + 1);
+			memset(ruta, '\0', header_in->tamanio);
+			recv(socket_entrenador, ruta, header_in->tamanio, 0);
+			memset(ruta + header_in->tamanio, '\0', 1);
+
+			pokemonAtrapado->nombreArchivo = generar_ruta_archivo(ruta);
+
+			copiarPokemon(ruta, pokemonAtrapado);
 
 			pokemonCapturadoOEntrenadorMuerto = true;
 			list_add(pokemonesCapturados, pokemonAtrapado);
 
-			puts("pkm capturado");
-
 			verificarNivelPokemon(pokemonAtrapado);
 			verificarSiQuedanObjetivosEnMapa();
 			pokenestLocalizada = false;
+
+			free(ruta);
 			break;
 
 		case _BATALLA:
@@ -335,31 +349,106 @@ void atraparPokemon(){
 			break;
 		}
 	}
+
+	free(header_in);
 }
 
 void verificarSiQuedanObjetivosEnMapa(){
-	if(queue_size(mapaActual->objetivos) == 0){
-			enviar_header(_OBJETIVO_CUMPLIDO,0,socket_entrenador);
+	if (queue_size(mapaActual->objetivos) == 0) {
+		enviar_header(_OBJETIVO_CUMPLIDO, 0, socket_entrenador);
 
-			//t_header * header = recibir_header(socket_entrenador);
+		t_header * header = recibir_header(socket_entrenador);
+		void * datos = malloc(header->tamanio);
+		recv(socket_entrenador, datos, header->tamanio, 0);
 
-			//TODO mapa envia una estructura con los tiempos y la ruta de la medalla
-			//TODO sumar tiempos
-			//copiarMedalla();
-			desconectarseDeMapa();
-			queue_pop(metadata->viaje);
+		procesarDatos(datos);
+		free(datos);
+		free(header);
 
-			if(queue_size(metadata->viaje) == 0){
-				finDelJuego = true;
-			}
-			else{
-				conectarseConSiguienteMapa();
-			}
+		copiarMedalla();
+		desconectarseDeMapa();
+		queue_pop(metadata->viaje);
+
+		if (queue_size(metadata->viaje) == 0) {
+			finDelJuego = true;
+		} else {
+			conectarseConSiguienteMapa();
 		}
-	else{
+	} else {
 
-		enviar_header(_QUEDAN_OBJETIVOS,0,socket_entrenador);
+		enviar_header(_QUEDAN_OBJETIVOS, 0, socket_entrenador);
 	}
+}
+
+void procesarDatos(void * datos) {
+	int tiempo_en_el_mapa = 0;
+	int tiempo_bloqueado = 0;
+	int dls_involucrado = 0;
+
+	int offset = sizeof(double);
+	memcpy(&(tiempo_en_el_mapa), datos, offset);
+	memcpy(&(tiempo_bloqueado), datos + offset, offset);
+	offset += sizeof(double);
+	memcpy(&(dls_involucrado), datos + offset, sizeof(int));
+
+	tiempoDeJuego += tiempo_en_el_mapa;
+	tiempoBloqueado += tiempo_bloqueado;
+	deadlocksInvolucrados += dls_involucrado;
+}
+
+void setRutaMedallas() {
+	rutaMedallas = string_duplicate(pokedex_path);
+	string_append_with_format(&rutaMedallas, "Entrenadores/%s/medallas/", nombreEntrenador);
+}
+
+void copiarMedalla() {
+	char * ruta_medalla = string_duplicate(pokedex_path);
+	string_append_with_format(&(ruta_medalla), "Mapas/%s/medalla-%s.jpg",
+			mapaActual->nombre_mapa, mapaActual->nombre_mapa);
+
+	copiar_archivo(ruta_medalla, rutaMedallas);
+
+	free(ruta_medalla);
+}
+
+void copiarPokemon(char * ruta_pkm, t_pokemon * pokemonAtrapado){
+
+	copiar_archivo(ruta_pkm, rutaDirDeBill);
+
+	t_config * conf_file = config_create(ruta_pkm);
+
+	pokemonAtrapado->nombre = obtener_nombre_pokemon(ruta_pkm);
+	pokemonAtrapado->nivel = getIntProperty(conf_file, "Nivel");
+
+	free(conf_file);
+}
+
+char * obtener_nombre_pokemon(char * ruta) {
+	char * nombre;
+
+	char ** split = string_split(ruta, "/");
+	int i = 0;
+
+	while (!(string_equals_ignore_case(split[i], "PokeNests"))) {
+		i++;
+	}
+
+	nombre = string_duplicate(split[i + 1]);
+
+	i = 0;
+	while (split[i] != NULL) {
+		free(split[i]);
+		i++;
+	}
+	free(split);
+
+	return nombre;
+}
+
+void setRutaDirDeBill() {
+	rutaDirDeBill = string_duplicate(pokedex_path);
+	//TODO cuidado cuando tengamos el fs posta
+	string_append_with_format(&rutaDirDeBill, "Entrenadores/%s/Dir-de-Bill/", nombreEntrenador);
 }
 
 void verificarNivelPokemon(t_pokemon * pokemon){
@@ -489,14 +578,48 @@ void muerteEntrenador(){
 
 void desconectarseDeMapa(){
 
-	close(socket_entrenador);  //cierra la conexion?
-	//TODO borrar pokemones de directorio
+//	close(socket_entrenador);
+	limpiar_pokemons_en_directorio();
+	//TODO Falta hacer un especial_free por cada pokemon
 	list_clean(pokemonesCapturados);
 	pokenestLocalizada = false;
 
 }
 
+void rm_pokemon(char * dir_pkm) {
+	char * comando = string_duplicate("rm -f ");
+	string_append(&(comando), dir_pkm);
+
+	system(comando);
+
+	free(comando);
+}
+
+void limpiar_pokemons_en_directorio() {
+	int i;
+	int pkms = list_size(pokemonesCapturados);
+
+	for (i = 0; i < pkms; i++) {
+		t_pokemon * p = list_get(pokemonesCapturados, i);
+
+		if (p->mapa == mapaActual->socket)
+			rm_pokemon(p->nombreArchivo);
+	}
+}
+
+void rm_de_medallas() {
+	char * comando = string_duplicate("rm -r ");
+	string_append(&(comando), rutaMedallas);
+	string_append(&(comando), "*");
+
+	system(comando);
+
+	free(comando);
+}
+
 void finalizarEntrenador(){
+
+	//rm_de_medallas();
 	free(metadata->nombre);
 	free(ubicacionActual);
 	queue_destroy_and_destroy_elements(metadata->viaje, (void*) destruirHojaDeViaje);
@@ -544,54 +667,37 @@ void * serializarPokemon(t_pokemon * pokemon){
 	return pokemonSerializado;
 }
 
-//TODO Reemplazar por funcion de juli
-
-/*
-void copiarPokemon(t_pokemon * pokemonAtrapado){
-
-	char* comando = malloc(sizeof(char) * 100);
-	char* rutaDirDeBill = string_duplicate(metadata_path);
-
-	string_append(&rutaDirDeBill,"Entrenadores/");
-	string_append(&rutaDirDeBill,nombreEntrenador);
-	string_append(&rutaDirDeBill,"/Dir de Bill");
-
-	sprintf(comando, "cp %s %s", pokemonAtrapado->nombreArchivo ,rutaDirDeBill );
-
-	system(comando);
-
-	//TODO falta copiar el nombre (talvez hacer un define con los char identificadores)
-	t_config * conf_file = config_create(pokemonAtrapado->nombreArchivo);
-
-	pokemonAtrapado->nivel = getIntProperty(conf_file, "Nivel");
-	free(conf_file);
-	free(comando);
-
-}
-
-void copiarMedalla(){
-
-	char* comando = malloc(sizeof(char) * 100);
-	char* rutaDirDeMedalla = string_duplicate(metadata_path);
-	char* rutaDirDeBill = string_duplicate(metadata_path);
-
-	string_append(&rutaDirDeMedalla,"Mapas/");
-	string_append(&rutaDirDeMedalla,mapaActual->nombre_mapa);
-	string_append(&rutaDirDeMedalla,"/medalla-[");
-	string_append(&rutaDirDeMedalla,mapaActual->nombre_mapa);
-	string_append(&rutaDirDeMedalla,"].jpg");
-
-
-	string_append(&rutaDirDeBill,"Entrenadores/");
-	string_append(&rutaDirDeBill,nombreEntrenador);
-	string_append(&rutaDirDeBill,"/Dir de Bill");
-
-	sprintf(comando, "cp %s %s", rutaDirDeMedalla , rutaDirDeBill );
+void copiar_archivo(char * source, char * destination) {
+	char * comando = string_new();
+	string_append_with_format(&comando, "cp %s %s", source, destination);
 
 	system(comando);
 
 	free(comando);
-	free(rutaDirDeBill);
-	free(rutaDirDeMedalla);
 }
-*/
+
+char * generar_ruta_archivo(char * ruta) {
+	char * path;
+
+	path = string_duplicate(rutaDirDeBill);
+
+	//desarmo la ruta para sacar el nombre de archivo
+	char ** aux = string_split(ruta, "/");
+
+	int i = 0;
+	while (aux[i] != NULL) {
+		i++;
+	}
+
+	string_append(&path, aux[i -1]);
+
+	i = 0;
+	while (aux[i] != NULL) {
+		free(aux[i]);
+		i++;
+	}
+
+	free(aux);
+
+	return path;
+}

@@ -59,10 +59,11 @@ typedef struct {
 	char* nombreArchivo;
 	char* nombre;
 	int nivel;
+	int mapa;
 } t_pokemon;
 
 
-char* metadata_path;
+char* pokedex_path;
 char* nombreEntrenador;
 int socket_entrenador;
 t_metadata_entrenador * metadata;
@@ -74,10 +75,11 @@ int cantidadDeMuertes;
 t_pokemon * pokemonMasFuerte;
 bool pokenestLocalizada;
 bool finDelJuego;
-float tiempoBloqueado;
+double tiempoBloqueado;
 int deadlocksInvolucrados;
-float tiempoDeJuego;
-
+double tiempoDeJuego;
+char * rutaMedallas;
+char * rutaDirDeBill;
 
 
 
@@ -113,7 +115,16 @@ void rutina(int signal);
 void enviarUbicacionAMapa();
 void enviarPokemon(t_pokemon * pokemon, int socket);
 void * serializarPokemon(t_pokemon * pokemon);
-void copiarPokemon(t_pokemon * pokemonAtrapado);
+void copiarPokemon(char * ruta_pkm, t_pokemon * pokemonAtrapado);
 void copiarMedalla();
+void procesarDatos(void * datos);
+void setRutaMedallas();
+void setRutaDirDeBill();
+void rm_pokemon(char * dir_pkm);
+void limpiar_pokemons_en_directorio();
+void rm_de_medallas();
+void copiar_archivo(char * source, char * destination);
+char * obtener_nombre_pokemon(char * ruta);
+char * generar_ruta_archivo(char * ruta);
 
 #endif /* ENTRENADOR_H_ */
