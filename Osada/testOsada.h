@@ -100,6 +100,9 @@ t_osada_file *osada_filetable[FILETABLE];
 t_osada_file *osada_file;
 t_osada_hdr osada_header;
 char *osada_bitmap;
+int *osada_assignTable;
+int *osada_blockData;
+
 
 
 int *asignaciones;

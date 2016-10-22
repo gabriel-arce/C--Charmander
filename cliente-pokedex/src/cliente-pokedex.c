@@ -10,6 +10,8 @@
 
 #include "cliente-pokedex.h"
 
+//----Conexion
+
 int set_datos_conexion() {
 	char * ip_env = getenv("IP");
 	char * port_env = getenv("PUERTO");
@@ -19,11 +21,13 @@ int set_datos_conexion() {
 		return -1;
 	}
 
+
 	ip_pokedex = string_duplicate(ip_env);
 	puerto_pokedex = atoi(port_env);
 
 	return 0;
 }
+
 
 int conectar_con_servidor_pkdx() {
 	int socket_fd = -1;
@@ -33,6 +37,125 @@ int conectar_con_servidor_pkdx() {
 	return socket_fd;
 }
 
+//----Operaciones  (return 1(ok) o 0(fail))
+
+static int tomar_atributos ( const char *path, struct stat* stbuf ){
+	void* buffer_out;
+	//TODO serializar en buffer_out
+
+	void* buffer_in = enviarOperacionAServidor(_tomarAtributos, buffer_out);
+
+	//TODO deserealizar buffer y llenar stbuf
+
+}
+
+static int leer_directorio ( const char *path, void *buf, fuse_fill_dir_t filler, off_t offset, struct fuse_file_info *fi ){
+	void* buffer_out;
+	//TODO serializar en buffer_out
+
+	void* buffer_in = enviarOperacionAServidor(_leerDirectorio, buffer_out);
+
+	//TODO deserealizar buffer y llenar buf
+
+}
+
+static int leer ( const char *path, char *buf, size_t size, off_t offset, struct fuse_file_info *fi ){
+	void* buffer_out;
+	//TODO serializar en buffer_out
+
+	void* buffer_in = enviarOperacionAServidor(_leer, buffer_out);
+
+	//TODO deserealizar buffer y llenar buf
+}
+
+static int abrir ( const char *path, struct fuse_file_info *fi ){
+	void* buffer_out;
+	//TODO serializar en buffer_out
+
+	void* buffer_in = enviarOperacionAServidor(_abrir, buffer_out);
+
+}
+
+static void limpiar ( void *datos ){
+	void* buffer_out;
+	//TODO serializar en buffer_out
+
+	void* buffer_in = enviarOperacionAServidor(_limpiar, buffer_out);
+}
+
+static int borrar_archivo ( const char *path ){
+	void* buffer_out;
+	//TODO serializar en buffer_out
+
+	void* buffer_in = enviarOperacionAServidor(_borrarArchivo, buffer_out);
+}
+
+static int renombrar ( const char *viejo, const char *nuevo ){
+	void* buffer_out;
+	//TODO serializar en buffer_out
+
+	void* buffer_in = enviarOperacionAServidor(_renombrar, buffer_out);
+}
+
+static int cambiar_tamano ( const char *path, off_t tamanio ){
+	void* buffer_out;
+	//TODO serializar en buffer_out
+
+	void* buffer_in = enviarOperacionAServidor(_cambiarTamanio, buffer_out);
+}
+
+static int escribir ( const char *path, const char *buf, size_t tamanio, off_t offset, struct fuse_file_info *nada ){
+	void* buffer_out;
+	//TODO serializar en buffer_out
+
+	void* buffer_in = enviarOperacionAServidor(_escribir, buffer_out);
+}
+
+static int borrar_directorio ( const char *path ){
+	void* buffer_out;
+	//TODO serializar en buffer_out
+
+	void* buffer_in = enviarOperacionAServidor(_borrarDirectorio, buffer_out);
+}
+
+static int crear_archivo(const char *path, mode_t modo, struct fuse_file_info *fi){
+	void* buffer_out;
+	//TODO serializar en buffer_out
+
+	void* buffer_in = enviarOperacionAServidor(_crearArchivo, buffer_out);
+}
+
+static int crear_directorio( const char *path, mode_t modo){
+	void* buffer_out;
+	//TODO serializar en buffer_out
+
+	void* buffer_in = enviarOperacionAServidor(_crearDirectorio, buffer_out);
+
+}
+
+
+//----- Otras Funciones
+
+void* enviarOperacionAServidor(int operacion, void* buffer_out){
+	t_header * header_in = malloc(sizeof(t_header));
+	int  tamanio_buffer_out;
+
+	memcpy(&tamanio_buffer_out,buffer_out, sizeof(int));
+
+	//Envio que operacion ejecutar junto con los parametros que necesita
+	enviar_header(operacion,tamanio_buffer_out, socket_pokedex);
+	send(socket_pokedex,buffer_out,tamanio_buffer_out,0);
+
+	//Recibo el buffer_in
+	header_in = recibir_header(socket_pokedex);
+	void * buffer_in = malloc(header_in->tamanio);
+	recv(socket_pokedex,buffer_in,header_in->tamanio,0);
+
+	free(header_in);
+
+	return buffer_in;
+}
+/*
 //int main(int argc, char **argv){
 //
 //	//Crear Log
@@ -62,7 +185,7 @@ int conectar_con_servidor_pkdx() {
 //	operaciones.rename	 	= renombrar;
 //	operaciones.truncate	= cambiar_tamano;
 //	operaciones.write    		= escribir;
-//	//TODO Falta definir las siguientes funciones..
+//	//Falta definir las siguientes funciones..
 //	operaciones.rmdir			= borrar_directorio;
 //	operaciones.mkdir			= crear_directorio;
 //	operaciones.create			= crear_archivo;
@@ -183,6 +306,10 @@ static int tomar_atributos ( const char *path, struct stat *stbuf ){
 
 static int leer_directorio ( const char *path, void *buf, fuse_fill_dir_t filler, off_t offset, struct fuse_file_info *fi ){
 	t_listaArchivos *actual = ListaArchivos;
+
+	//send servidor -> accion
+
+	//receive servidor -> archivos y dir
 
 	//Raiz
 	if(strcmp(path, "/") == 0){
@@ -519,3 +646,4 @@ void mapearDisco(){
 void cerrarDisco(){
 	close(in);
 }
+*/

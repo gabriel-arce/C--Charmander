@@ -100,5 +100,8 @@ int main(int argc, char ** argv) {
 
 	socket_pokedex = conectar_con_servidor_pkdx();
 
+	//Inicializar Fuse
+	return fuse_main(argc,argv, &operaciones_fuse, NULL);
+
 	return EXIT_SUCCESS;
 }

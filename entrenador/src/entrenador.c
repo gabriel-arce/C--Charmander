@@ -140,17 +140,13 @@ void rutina(int signal){
 
 		case SIGUSR1:
 			metadata->vidas += 1;
-			puts("Se ha quitado una vida al entrenador");
+			puts("Se ha agregado una vida al entrenador");
 			break;
 
 		case SIGTERM:
-			if(metadata->vidas > 0){
-				metadata->vidas -= 1;
-				puts("Se ha agregado una vida al entrenador");
-			}
-			else{
-				puts("No es posible quitarle una vida al entrenador");
-			}
+
+			muereEntrenador = true;
+			puts("Se ha quitado una vida al entrenador");
 			break;
 
 		default: puts("Codigo de señal invalida");
@@ -180,6 +176,7 @@ void inicializarSinmuertesNiReintentos(){
 	pokemonesCapturados = list_create();
 	pokemonMasFuerte = NULL;
 	finDelJuego = false;
+	muereEntrenador = false;
 	ubicacionActual = malloc(sizeof(t_posicion));
 }
 void cargarMetadata(){
@@ -241,7 +238,7 @@ void cargar_mapa() {
 }
 
 void solicitarUbicacionDelProximoPokenest(){
-	char * id_pokemon;							//talvez hay que usar char*
+	char * id_pokemon;
 
 	id_pokemon = queue_pop(mapaActual->objetivos);
 
@@ -305,7 +302,6 @@ void enviarUbicacionAMapa(){
 
 void atraparPokemon(){
 	t_pokemon * pokemonAtrapado = malloc(sizeof(t_pokemon));
-	pokemonAtrapado->mapa = mapaActual->socket;
 
 	enviar_header(_CAPTURAR_PKM,0,socket_entrenador);
 
@@ -525,7 +521,8 @@ bool batallaPokemon(){ 					//retorna true si muere
 	} else {
 
 		if (header->tamanio == 0) {
-			muerteEntrenador();
+			puts("El entrenador ha perdido una batalla pokemon");
+			muereEntrenador = true;
 			return true;
 		}
 	}
@@ -533,12 +530,15 @@ bool batallaPokemon(){ 					//retorna true si muere
 }
 
 void muerteEntrenador(){
+	muereEntrenador = false;
 	cantidadDeMuertes += 1;
-	puts("El entrenador a muerto debido a que perdio una batalla pokemon");
+	puts("El entrenador a muerto");
 
 	if(metadata->vidas > 0){
 		metadata->vidas -= 1;
 		desconectarseDeMapa();
+		//Se reconecta al mismo mapa
+		conectarseConSiguienteMapa();
 	}
 	else{
 		char  respuesta;
@@ -648,24 +648,6 @@ void enviarPokemon(t_pokemon * pokemon, int socket){
 
 }
 
-void * serializarPokemon(t_pokemon * pokemon){
-
-	int nombreSize = (string_length(pokemon->nombre));
-	int nombreArchivoSize = (string_length(pokemon->nombreArchivo));
-
-	int pokemonSerializadoSize = (sizeof(pokemon->nivel)) + nombreSize + nombreArchivoSize + (2 * (sizeof(int)));
-
-	void* pokemonSerializado = malloc(pokemonSerializadoSize);
-
-
-	memcpy(pokemonSerializado,&nombreSize,sizeof(int));
-	memcpy(pokemonSerializado + 4,&nombreArchivoSize , sizeof(int));
-	memcpy(pokemonSerializado + 8,&(pokemon->nivel) , sizeof(int));
-	memcpy(pokemonSerializado + 12, pokemon->nombre, nombreSize);
-	memcpy(pokemonSerializado + 12 + nombreSize, pokemon->nombreArchivo, nombreArchivoSize);
-
-	return pokemonSerializado;
-}
 
 void copiar_archivo(char * source, char * destination) {
 	char * comando = string_new();

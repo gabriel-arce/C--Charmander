@@ -20,9 +20,21 @@ typedef struct {
 	uint32_t tamanio;
 }__attribute__((packed)) t_header;
 
+typedef struct {
+	char* nombreArchivo;
+	char* nombre;
+	int nivel;
+	int mapa;
+	bool capturado;
+	char id_pokenest;
+} t_pokemon;
+
 t_header * crear_header(int id, int size);
 
 void * serializar_header(int id, int size);
 t_header * deserializar_header(void * buffer);
+
+void * serializarPokemon(t_pokemon * pokemon);
+t_pokemon * deserializarPokemon(void* pokemonSerializado);
 
 #endif /* SHARED_SERIALIZACION_H_ */

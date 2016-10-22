@@ -96,15 +96,6 @@ typedef struct {
 } t_entrenador;
 
 typedef struct {
-	char* nombreArchivo;
-	char* nombre;
-	int nivel;
-	char* imagen;				//no se si es un char*
-	bool capturado;
-	char id_pokenest;
-} t_pokemon;
-
-typedef struct {
 	t_posicion * posicion;
 	char identificador;
 	char * nombre;
@@ -204,6 +195,5 @@ t_pokemon * obtener_primer_no_capturado(t_pokenest * pokenest);
 
 //***Envios y serializaciones***
 t_pokemon * recibirPokemon(int socket);
-t_pokemon * deserializarPokemon(void* pokemonSerializado);
 
 #endif /* MAPA_H_ */
