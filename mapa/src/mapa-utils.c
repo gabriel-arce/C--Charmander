@@ -196,6 +196,18 @@ t_entrenador * buscar_entrenador_por_socket(int expected_fd) {
 	return entrenador;
 }
 
+ITEM_NIVEL * buscar_item_por_id(char id) {
+
+	ITEM_NIVEL * item;
+
+	bool find_item(ITEM_NIVEL * i) {
+		return (i->id == id);
+	}
+	item = list_find(items_mapa, (void *) find_item);
+
+	return item;
+}
+
 //**********************************************************************************************
 
 void destruir_metadata() {
@@ -207,4 +219,107 @@ void destruir_metadata() {
 
 void ordenar_pokemons(t_list * pokemons) {
 
+}
+
+int liberar_pokemons(t_entrenador * e) {
+
+	void free_pkm(t_pokemon * p) {
+		p->capturado = false;
+		//interfaz grafica
+		//incrementar_recurso(p->id_pokenest);
+	}
+	list_iterate(e->pokemonesCapturados, (void *) free_pkm);
+
+	list_clean(e->pokemonesCapturados);
+
+	return EXIT_SUCCESS;
+}
+
+int incrementar_recurso(char id_pokenest) {
+
+	pthread_mutex_lock(&mutex_gui);
+
+	ITEM_NIVEL * item = buscar_item_por_id(id_pokenest);
+
+	if (item == NULL)
+		return EXIT_FAILURE;
+
+	item->quantity++;
+
+	pthread_mutex_unlock(&mutex_gui);
+
+	return EXIT_SUCCESS;
+}
+
+void sacar_de_listos(t_entrenador * e) {
+	int listos = list_size(cola_de_listos);
+	int i;
+	for (i = 0; i < listos; i++) {
+		t_entrenador * e = list_get(cola_de_listos, i);
+
+		if (e->socket == e->socket) {
+			list_remove(cola_de_listos, i);
+			break;
+		}
+	}
+}
+
+void sacar_de_conectados(t_entrenador * e) {
+	int totales = list_size(entrenadores_conectados);
+	int i;
+
+	for (i = 0; i < totales; i++) {
+		t_entrenador * e = list_get(entrenadores_conectados, i);
+
+		if (e->socket == e->socket) {
+
+			if (e == entrenador_corriendo) {
+				keep_running = false;
+				entrenador_corriendo = NULL;
+				quantum_actual = 0;
+			}
+
+			list_remove(entrenadores_conectados, i);
+			break;
+		}
+	}
+}
+
+void sacar_de_bloqueados(t_entrenador * e) {
+	int i, j;
+	int pknsts = list_size(lista_de_pokenests);
+	int bloqueados = 0;
+	t_pokenest * pokenest = NULL;
+
+	for (i = 0; i < pknsts; i++) {
+		pokenest = list_get(lista_de_pokenests, i);
+
+		bloqueados = queue_size(pokenest->entrenadoresBloqueados);
+
+		for (j = 0; j < bloqueados; j++) {
+			t_entrenador * ent = list_get(pokenest->entrenadoresBloqueados->elements, j);
+
+			if (ent->simbolo_entrenador == e->simbolo_entrenador) {
+				list_remove(pokenest->entrenadoresBloqueados->elements, j);
+				break;
+			}
+		}
+	}
+}
+
+t_pokemon * obtener_primer_no_capturado(t_pokenest * pokenest) {
+	t_pokemon * pkm_capt = NULL;
+	int pokemons = list_size(pokenest->pokemones);
+	int i;
+
+	for(i = 0; i < pokemons; i++) {
+		t_pokemon * p = list_get(pokenest->pokemones, i);
+
+		if ( !(p->capturado) ) {
+			pkm_capt = p;
+			break;
+		}
+	}
+
+	return pkm_capt;
 }

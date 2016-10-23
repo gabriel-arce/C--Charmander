@@ -13,9 +13,7 @@
 void leer_metadata_mapa(char * metadata_path) {
 
 	char * ruta = string_duplicate(metadata_path);
-	string_append(&ruta, "Mapas/");
-	string_append(&ruta, nombreMapa);
-	string_append(&ruta, "/metadata");
+	string_append_with_format(&ruta, "Mapas/%s/metadata", nombreMapa);
 
 	t_config * conf_file = config_create(ruta);
 
@@ -52,10 +50,7 @@ void leer_metadata_mapa(char * metadata_path) {
 
 void cargar_medalla() {
 	char * ruta_medalla = string_duplicate(ruta_directorio);
-	string_append(&ruta_medalla, nombreMapa);
-	string_append(&ruta_medalla, "/medalla-");
-	string_append(&ruta_medalla, nombreMapa);
-	string_append(&ruta_medalla, ".jpg");
+	string_append_with_format(&ruta_medalla, "%s/medalla-%s.jpg", nombreMapa, nombreMapa);
 
 	metadata->medallaArchivo = string_duplicate(ruta_medalla);
 
@@ -64,15 +59,13 @@ void cargar_medalla() {
 
 void crear_archivo_log() {
 	logger = log_create(LOG_FILE, "MAPA log file", true, LOG_LEVEL_TRACE);
-	log_info(logger, "MAPA iniciado.");
+	log_info(logger, "MAPA %s iniciado.", nombreMapa);
 }
 
 void cargar_pokenests() {
 	char * dir_pokenests = string_new();
 	string_append(&dir_pokenests, ruta_directorio);
-	string_append(&dir_pokenests, "Mapas/");
-	string_append(&dir_pokenests, nombreMapa);
-	string_append(&dir_pokenests, "/PokeNests");
+	string_append_with_format(&dir_pokenests, "Mapas/%s/PokeNests", nombreMapa);
 
 	DIR * d = opendir(dir_pokenests);
 
@@ -160,6 +153,8 @@ void cargar_pokenests() {
 					pkm->nombre = string_duplicate(d_name);
 					pkm->nombreArchivo = string_duplicate(f_pknst->d_name);
 					pkm->nivel = getIntProperty(dat_pkm, "Nivel");
+					pkm->capturado = false;
+					pkm->id_pokenest = pknst->identificador;
 
 					list_add(pknst->pokemones, pkm);
 
@@ -223,14 +218,14 @@ void run_trainer_server() {
 		perror("Server-socket() error");
 		exit(1);
 	}
-	printf("Server-socket() is OK...\n");
+//	printf("Server-socket() is OK...\n");
 
 	/*"address already in use" error message */
 	if (setsockopt(listener, SOL_SOCKET, SO_REUSEADDR, &optval, sizeof(int)) == -1) {
 		perror("Server-setsockopt() error");
 		exit(1);
 	}
-	printf("Server-setsockopt() is OK...\n");
+	//printf("Server-setsockopt() is OK...\n");
 
 	/* bind */
 	serveraddr.sin_family = AF_INET;
@@ -243,14 +238,14 @@ void run_trainer_server() {
 		perror("Server-bind() error");
 		exit(1);
 	}
-	printf("Server-bind() is OK...\n");
+	//printf("Server-bind() is OK...\n");
 
 	/* listen */
 	if (listen(listener, 10) == -1) {
 		perror("Server-listen() error");
 		exit(1);
 	}
-	printf("Server-listen() is OK...\n");
+	//printf("Server-listen() is OK...\n");
 
 	/* add the listener to the master set */
 	FD_SET(listener, &master_fdset);
@@ -283,7 +278,7 @@ void run_trainer_server() {
 						perror("Server-accept() error");
 					} else {
 
-						//pthread_mutex_lock(&mutex_servidor);
+						pthread_mutex_lock(&mutex_servidor);
 
 //						printf("Server-accept() is OK...\n");
 
@@ -304,7 +299,7 @@ void run_trainer_server() {
 							FD_CLR(newfd, &read_fds);
 						}
 
-						//pthread_mutex_unlock(&mutex_servidor);
+						pthread_mutex_unlock(&mutex_servidor);
 
 					}
 
@@ -320,9 +315,9 @@ int procesar_nuevo_entrenador(int socket_entrenador, int buffer_size) {
 	if (nuevo_entrenador == NULL)
 		return -1;
 
-	printf("\nSe conecto %s en el socket %d con el simbolo %c\n",
-			nuevo_entrenador->nombre_entrenador, nuevo_entrenador->socket,
-			nuevo_entrenador->simbolo_entrenador);
+//	printf("\nSe conecto %s en el socket %d con el simbolo %c\n",
+//			nuevo_entrenador->nombre_entrenador, nuevo_entrenador->socket,
+//			nuevo_entrenador->simbolo_entrenador);
 
 //	Interfaz grafica
 //	pthread_mutex_lock(&mutex_gui);
@@ -489,39 +484,6 @@ int correr_rr() {
 	return EXIT_SUCCESS;
 }
 
-//int correr_srdf() {
-//	int result;
-//
-//	if(list_size(cola_de_prioridad_SRDF)  > 0){
-//
-//		entrenador_corriendo = list_get(cola_de_prioridad_SRDF,0);
-//		list_remove(cola_de_prioridad_SRDF,0);
-//
-//		//Entrenador pide ubicacion de pokenest
-//		result = trainer_handler(entrenador_corriendo);   //¿hacer algo con result?
-//		//Lo agrego a la cola de listos posta
-//		list_add(cola_de_listos, entrenador_corriendo);
-//	}
-//
-//	else{
-//		entrenador_corriendo = calcularSRDF();
-//
-//		while(1){
-//
-//			if ((entrenador_corriendo->bloqueado) || (entrenador_corriendo->objetivo_cumplido) ){
-//				break;
-//			}
-//			else{
-//				result = trainer_handler(entrenador_corriendo);
-//			}
-//		}
-//	}
-//
-//	entrenador_corriendo = NULL;
-//
-//	return EXIT_SUCCESS;
-//}
-
 int correr_srdf() {
 	int cantidad_en_listos = list_size(cola_de_listos);
 	int i;
@@ -609,20 +571,17 @@ int trainer_handler(t_entrenador * entrenador) {
 
 	//DESCONEXION DE UN ENTRENADOR
 	if (nbytes_recv <= 0)
-		return desconexion_entrenador(entrenador->socket, nbytes_recv);
+		return desconexion_entrenador(entrenador, nbytes_recv);
 
 	//OPERACIONES ENTRENADOR
 	switch (header->identificador) {
 		case _UBICACION_POKENEST:
-			puts("ubicacion pknst");
 			enviar_ubicacion_pokenest(entrenador, header->tamanio);
 			break;
 		case _MOVER_XY:
-			puts("mover");
 			avanzar_posicion_entrenador(entrenador, header->tamanio);
 			break;
 		case _CAPTURAR_PKM:
-			puts("capturar pkm");
 			atrapar_pokemon(entrenador);
 			break;
 		default:
@@ -634,55 +593,44 @@ int trainer_handler(t_entrenador * entrenador) {
 	return EXIT_SUCCESS;
 }
 
-int desconexion_entrenador(int socket, int nbytes_recv) {
+int desconexion_entrenador(t_entrenador * entrenador, int nbytes_recv) {
 	if (nbytes_recv == 0)
-		printf("Socket %d disconnected\n", socket);
+		log_trace(logger, "Se desconecto el entrenador %c en el socket %d", entrenador->simbolo_entrenador, entrenador->socket);
+
 
 	if (nbytes_recv < 0)
-		printf("recv error\n");
+		log_trace(logger, "Error en el recv desde el socket %d", entrenador->socket);
 
-	close(socket);
-	FD_CLR(socket, &master_fdset);
+	FD_CLR(entrenador->socket, &master_fdset);
+	close(entrenador->socket);
 
 	//lo saco de listos (si esta en la cola)
-	int listos = list_size(cola_de_listos);
-	int i;
-	for (i = 0; i < listos; i++) {
-		t_entrenador * e = list_get(cola_de_listos, i);
-
-		if (e->socket == socket) {
-			list_remove(cola_de_listos, i);
-			break;
-		}
-	}
+	sacar_de_listos(entrenador);
 
 	//lo saco de la lista de entrenadores conectados
-	int totales = list_size(entrenadores_conectados);
-	for (i = 0; i < totales; i++) {
-		t_entrenador * e = list_get(entrenadores_conectados, i);
+	sacar_de_conectados(entrenador);
 
-		if (e->socket == socket) {
-
-			if (e == entrenador_corriendo) {
-				keep_running = false;
-				entrenador_corriendo = NULL;
-				quantum_actual = 0;
-			}
-
-			list_remove(entrenadores_conectados, i);
-			break;
-		}
-	}
+	//fijarse a nivel pokenest las colas de bloqueados
+	sacar_de_bloqueados(entrenador);
 
 	//liberar pokemons capturados
-	//fijarse a nivel pokenest las colas de bloqueados
+	liberar_pokemons(entrenador);
+
+	//lo saco de la lista de elementos de la gui y la actualizo
+	//Interfaz grafica
+//	pthread_mutex_lock(&mutex_gui);
+//	BorrarItem(items_mapa, entrenador->simbolo_entrenador);
+//	nivel_gui_dibujar(items_mapa, nombreMapa);
+//	pthread_mutex_unlock(&mutex_gui);
+
+	entrenador_destroyer(entrenador);
 
 	return EXIT_FAILURE;
 }
 
 int enviar_ubicacion_pokenest(t_entrenador * entrenador, int id_pokenest) {
 
-	printf("%s %d >> Ubicacion Pokenest\n", entrenador->nombre_entrenador, entrenador->socket);
+//	printf("%s %d >> Ubicacion Pokenest\n", entrenador->nombre_entrenador, entrenador->socket);
 
 	int _on_error() {
 		t_posicion * pos_error = malloc(sizeof(t_posicion));
@@ -712,7 +660,7 @@ int enviar_ubicacion_pokenest(t_entrenador * entrenador, int id_pokenest) {
 	memcpy(coordenadas, &(pokenest->posicion->x), 4);
 	memcpy(coordenadas + 4, &(pokenest->posicion->y), 4);
 
-//	sleep(metadata->planificador->retardo_turno);
+	usleep(metadata->planificador->retardo_turno);
 
 	entrenador->posicionObjetivo->x = pokenest->posicion->x;
 	entrenador->posicionObjetivo->y = pokenest->posicion->y;
@@ -729,7 +677,7 @@ int enviar_ubicacion_pokenest(t_entrenador * entrenador, int id_pokenest) {
 
 int avanzar_posicion_entrenador(t_entrenador * entrenador, int buffer_size) {
 
-	printf("%s %d >> Avanzar Posicion\n", entrenador->nombre_entrenador, entrenador->socket);
+//	printf("%s %d >> Avanzar Posicion\n", entrenador->nombre_entrenador, entrenador->socket);
 
 	int _on_error() {
 		keep_running = false;
@@ -747,7 +695,7 @@ int avanzar_posicion_entrenador(t_entrenador * entrenador, int buffer_size) {
 	memcpy(&(movimiento->x), buffer_in, 4);
 	memcpy(&(movimiento->y), buffer_in + 4, 4);
 
-//	sleep(metadata->planificador->retardo_turno);
+	usleep(metadata->planificador->retardo_turno);
 
 	entrenador->posicion->x = movimiento->x;
 	entrenador->posicion->y = movimiento->y;
@@ -768,7 +716,7 @@ int avanzar_posicion_entrenador(t_entrenador * entrenador, int buffer_size) {
 
 int atrapar_pokemon(t_entrenador * entrenador) {
 
-	printf("%s %d >> Atrapar Pokemon\n", entrenador->nombre_entrenador, entrenador->socket);
+//	printf("%s %d >> Atrapar Pokemon\n", entrenador->nombre_entrenador, entrenador->socket);
 
 	int _on_error() {
 		keep_running = false;
@@ -785,15 +733,39 @@ int atrapar_pokemon(t_entrenador * entrenador) {
 	if (pokenest == NULL)
 		return _on_error();
 
-//	sleep(metadata->planificador->retardo_turno);
+	usleep(metadata->planificador->retardo_turno);
 
-	int stock_pokemons = list_size(pokenest->pokemones);
+	//obtengo el primer que no este capturado
+	t_pokemon * pkm_capt = obtener_primer_no_capturado(pokenest);
 
-	if ( stock_pokemons > 0) {
+	if ( pkm_capt != NULL ) {
+
+		pkm_capt->capturado = true;
+		list_add(entrenador->pokemonesCapturados, (void *) pkm_capt);
+
 		//si hay stock le envio la ruta del pokemon
-		t_pokemon * pokemon_capturado = list_get(pokenest->pokemones, 0);
-		list_remove(pokenest->pokemones, 0);
-		list_add(entrenador->pokemonesCapturados, (void *) pokemon_capturado);
+		char * ruta_pkm = string_duplicate(ruta_directorio);
+		string_append_with_format(&ruta_pkm, "Mapas/%s/PokeNests/%s/%s",
+				nombreMapa, pokenest->nombre, pkm_capt->nombreArchivo);
+
+		int ruta_length = string_length(ruta_pkm);
+
+		void * buff = malloc(ruta_length);
+		memset(buff, 0, ruta_length);
+		memcpy(buff, ruta_pkm, ruta_length);
+
+		enviar_header(_CAPTURAR_PKM, ruta_length, entrenador->socket);
+
+		if ( send(entrenador->socket, buff, ruta_length, 0) < 0 ) {
+			pokemon_remover(pkm_capt, entrenador->pokemonesCapturados);
+			list_add(pokenest->pokemones, pkm_capt);
+			return _on_error();
+		}
+
+		free(ruta_pkm);
+		free(buff);
+
+		entrenador->conoce_ubicacion = false;
 
 		//actualizo interfaz grafica
 //		pthread_mutex_lock(&mutex_gui);
@@ -801,32 +773,13 @@ int atrapar_pokemon(t_entrenador * entrenador) {
 //		nivel_gui_dibujar(items_mapa, nombreMapa);
 //		pthread_mutex_unlock(&mutex_gui);
 
-		char * ruta_pkm = string_new();
-
-		string_append(&(ruta_pkm), "Mapas/");
-		string_append(&(ruta_pkm), nombreMapa);
-		string_append(&(ruta_pkm), "/PokeNests/");
-		string_append(&(ruta_pkm), pokenest->nombre);
-		string_append(&(ruta_pkm), "/");
-		string_append(&(ruta_pkm), pokemon_capturado->nombreArchivo);
-
-		int ruta_length = string_length(ruta_pkm);
-
-		enviar_header(_CAPTURAR_PKM, ruta_length, entrenador->socket);
-
-		if ( send(entrenador->socket, ruta_pkm, ruta_length, 0) < 0 ) {
-			pokemon_remover(pokemon_capturado, entrenador->pokemonesCapturados);
-			list_add(pokenest->pokemones, pokemon_capturado);
-			return _on_error();
-		}
-
-		entrenador->conoce_ubicacion = false;
-
+		//Se pone en espera a que le responda el entrenador
 		t_header * header = recibir_header(entrenador->socket);
 
 		if (header == NULL) {
-			pokemon_remover(pokemon_capturado, entrenador->pokemonesCapturados);
-			list_add(pokenest->pokemones, pokemon_capturado);
+			pokemon_remover(pkm_capt, entrenador->pokemonesCapturados);
+			pkm_capt->capturado = false;
+			//incrementar_recurso(pokenest->identificador);
 			return _on_error();
 		}
 
@@ -836,7 +789,8 @@ int atrapar_pokemon(t_entrenador * entrenador) {
 				entrenador->objetivo_cumplido = false;
 				break;
 			case _OBJETIVO_CUMPLIDO:
-				printf("objetivo cumplido de %s\n", entrenador->nombre_entrenador);
+//				printf("objetivo cumplido de %s\n", entrenador->nombre_entrenador);
+				log_trace(logger, "El entrenador %c ha logrado su objetivo.", entrenador->simbolo_entrenador);
 				procesar_objetivo_cumplido(entrenador);
 				break;
 			default:
@@ -846,7 +800,10 @@ int atrapar_pokemon(t_entrenador * entrenador) {
 	} else {
 		//si no hay stock lo mando a bloqueados de ese pokenest
 
-		printf("NO HAY MAS POKEMONS, EL ENTRENADOR %s se bloqueó\n", entrenador->nombre_entrenador);
+//		printf("NO HAY MAS POKEMONS, EL ENTRENADOR %s se bloqueó\n", entrenador->nombre_entrenador);
+		log_trace(logger,
+				"El entrenador %c se quedo bloqueado en el pokenest %c",
+				entrenador->simbolo_entrenador, pokenest->identificador);
 
 		entrenador->bloqueado = true;
 		time(&(entrenador->momentoBloqueado));
@@ -861,23 +818,29 @@ int atrapar_pokemon(t_entrenador * entrenador) {
 }
 
 int procesar_objetivo_cumplido(t_entrenador * entrenador) {
-	//le envio la ruta de la medalla
-	//calculo los tiempos y se los envio
-
-	int datos_size = 0;
 
 	entrenador->objetivo_cumplido = true;
 
-	void * datos = malloc(datos_size);
+	//calculo los tiempos y se los envio
+	time_t tiempo_actual;
+	time(&(tiempo_actual));
+	double tiempo_tot_mapa = difftime(tiempo_actual, entrenador->tiempoDeIngresoAlMapa); //[seg]
+
+	int datos_size = 2*sizeof(double) + sizeof(int);
+
 	//datos:
+	//tiempo total en el mapa
 	//tiempo bloqueado
 	//cuantos dl
-	//tiempo total en el mapa
+	void * datos = malloc(datos_size);
+	memcpy(datos, &(tiempo_tot_mapa), sizeof(double));
+	memcpy(datos + sizeof(double), &(entrenador->tiempoBloqueado), sizeof(double));
+	memcpy(datos + 2*sizeof(double), &(entrenador->deadlocksInvolucrados), sizeof(int));
 
-	//!!
-//
-//	enviar_header(_DATOS_FINALES, datos_size, entrenador->socket);
-//	send(entrenador->socket, datos, datos_size, 0);
+	enviar_header(_DATOS_FINALES, datos_size, entrenador->socket);
+	send(entrenador->socket, datos, datos_size, 0);
+
+	desconexion_entrenador(entrenador, 0);
 
 	return EXIT_SUCCESS;
 }
@@ -886,10 +849,11 @@ int procesar_objetivo_cumplido(t_entrenador * entrenador) {
 
 void signal_handler(int signal) {
 	if (signal == SIGUSR2) {
+		pthread_mutex_lock(&mutex_planificador_turno);
 		keep_running = false;
 		quantum_actual = 0;
 		destruir_metadata();
 		leer_metadata_mapa(ruta_directorio);
-		imprimir_metadata();
+		pthread_mutex_unlock(&mutex_planificador_turno);
 	}
 }

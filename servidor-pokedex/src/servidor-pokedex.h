@@ -34,6 +34,20 @@
 #include <sys/mman.h>
 
 
+//-----Protocolo de mensajes
+#define _tomarAtributos 10
+#define _leerDirectorio 11
+#define _abrir 12
+#define _leer 13
+#define _limpiar 14
+#define _borrarArchivo 15
+#define _renombrar 16
+#define _cambiarTamanio 17
+#define _escribir 18
+#define _borrarDirectorio 19
+#define _crearArchivo 20
+#define _crearDirectorio 21
+//--
 
 #define NOMBRE_LOG	"ServerPokedex.log"
 #define NOMBRE_PROG	"servidor-pokedex"

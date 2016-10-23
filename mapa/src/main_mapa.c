@@ -26,14 +26,14 @@ int main(int argc, char ** argv) {
 	nombreMapa = string_duplicate(argv[1]);
 	ruta_directorio = string_duplicate(argv[2]);
 	leer_metadata_mapa(argv[2]);
-	imprimir_metadata();
+//	imprimir_metadata();
 	cargar_pokenests();
 	//imprimir_pokenests();
 
 	socket_servidor = -1;
-	//crear_archivo_log();
+	crear_archivo_log();
 
-	//nivel_gui_dibujar(items_mapa, nombreMapa);
+//	nivel_gui_dibujar(items_mapa, nombreMapa);
 
 	pthread_create(&hilo_planificador, NULL, (void *) run_scheduler_thread, NULL);
 	pthread_create(&hilo_servidor, NULL, (void *) run_trainer_server, NULL);
@@ -47,7 +47,7 @@ int main(int argc, char ** argv) {
 	destruir_semaforos();
 	destruir_variables();
 
-	//nivel_gui_terminar();
+	nivel_gui_terminar();
 
 	return EXIT_SUCCESS;
 }

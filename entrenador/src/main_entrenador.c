@@ -17,27 +17,14 @@ int main(int argc, char ** argv) {
 	}
 
 	nombreEntrenador = string_duplicate(argv[1]);
-	metadata_path = string_duplicate(argv[2]);
+	pokedex_path = string_duplicate(argv[2]);
 
 	inicializarEntrenador();
 	conectarseConSiguienteMapa();
 
 	t_header * header = NULL;
 
-	//realizarAccion();
-
 	while (!finDelJuego) {
-
-//		header = recibir_header(socket_entrenador);
-//		if (header->identificador != _RESULTADO_OPERACION) {
-//			free(header);
-//			break;
-//		} else {
-//			if (header->tamanio == EXIT_FAILURE) {
-//				free(header);
-//				break;
-//			}
-//		}
 
 		realizarAccion();
 
@@ -47,6 +34,7 @@ int main(int argc, char ** argv) {
 	}
 
 	imprimirLogro();
+	finalizarEntrenador();
 
 	close(socket_entrenador);
 

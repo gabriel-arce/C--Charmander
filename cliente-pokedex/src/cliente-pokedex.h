@@ -102,21 +102,13 @@ int puerto_pokedex;
 char * directorio_montaje;
 int socket_pokedex;
 
-FILE *in;
 struct stat fileStat;
-t_log *logger;
-char *hdr;
 
 
-void mostrarAyuda();
-void mostrarMensajeDeError( Error );
-void crear_logger();
-void cerrarDisco();
 int validar(int argc, char **argv);
 int conectar_con_servidor_pkdx();
 void* enviarOperacionAServidor(int operacion, void* buffer_out);
 int set_datos_conexion();
-
 
 
 //Mapeo operaciones Fuse

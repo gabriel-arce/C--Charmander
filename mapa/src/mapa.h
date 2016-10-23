@@ -89,18 +89,11 @@ typedef struct {
 	time_t tiempoDeIngresoAlMapa;
 	int deadlocksInvolucrados;
 	time_t momentoBloqueado;
-	float tiempoBloqueado;
+	double tiempoBloqueado;
 	bool bloqueado;
 	bool objetivo_cumplido;
 	bool conoce_ubicacion;
 } t_entrenador;
-
-typedef struct {
-	char* nombreArchivo;
-	char* nombre;
-	int nivel;
-	char* imagen;				//no se si es un char*
-} t_pokemon;
 
 typedef struct {
 	t_posicion * posicion;
@@ -153,13 +146,16 @@ void cargar_pokenests();
 void cargar_medalla();
 void imprimir_pokenests();
 void signal_handler(int signal);
+void sacar_de_listos(t_entrenador * e);
+void sacar_de_conectados(t_entrenador * e);
+void sacar_de_bloqueados(t_entrenador * e);
 
 //****Conection and threads ****
 void run_trainer_server();
 void run_scheduler_thread();
 int procesar_nuevo_entrenador(int socket_entrenador, int buffer_size);
 t_entrenador * recibir_datos_entrenador(int socket_entrenador, int buffer_size);
-int desconexion_entrenador(int socket, int nbytes_recv);
+int desconexion_entrenador(t_entrenador * entrenador, int nbytes_recv);
 
 //****Planificador****
 int run_algorithm();
@@ -187,15 +183,17 @@ t_entrenador * buscar_entrenador_por_simbolo(char expected_symbol);
 t_entrenador * buscar_entrenador_por_socket(int expected_fd);
 t_pokenest * buscar_pokenest_por_id(char id);
 t_pokenest * buscar_pokenest_por_ubicacion(int x, int y);
+ITEM_NIVEL * buscar_item_por_id(char id);
 
 //***Funciones***
 bool esta_en_pokenest(t_entrenador * entrenador);
 int procesar_objetivo_cumplido(t_entrenador * entrenador);
 void ordenar_pokemons(t_list * pokemons);
+int liberar_pokemons(t_entrenador * e);
+int incrementar_recurso(char id_pokenest);
+t_pokemon * obtener_primer_no_capturado(t_pokenest * pokenest);
 
 //***Envios y serializaciones***
 t_pokemon * recibirPokemon(int socket);
-t_pokemon * deserializarPokemon(void* pokemonSerializado);
-
 
 #endif /* MAPA_H_ */
