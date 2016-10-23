@@ -43,10 +43,10 @@ static int tomar_atributos ( const char *path, struct stat* stbuf ){
 	void* buffer_out;
 	//TODO serializar en buffer_out
 
-	void* buffer_in = enviarOperacionAServidor(_tomarAtributos, buffer_out);
+	//void* buffer_in = enviarOperacionAServidor(_tomarAtributos, buffer_out);
 
 	//TODO deserealizar buffer y llenar stbuf
-
+return 1;
 }
 
 static int leer_directorio ( const char *path, void *buf, fuse_fill_dir_t filler, off_t offset, struct fuse_file_info *fi ){

@@ -8,9 +8,7 @@
 #ifndef CLIENTE_POKEDEX_H_
 #define CLIENTE_POKEDEX_H_
 
-//#define FUSE_USE_VERSION 27
-#define _FILE_OFFSET_BITS		64
-#define FUSE_USE_VERSION		30
+#define CUSTOM_FUSE_OPT_KEY(t, p, v) { t, offsetof(struct t_runtime_options, p), v }
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -59,6 +57,46 @@ typedef enum{
 } Error;
 
 
+//------FUSE
+
+struct t_runtime_options
+{
+	char* welcome_msg;
+} runtime_options;
+
+enum {
+KEY_VERSION,
+KEY_HELP,
+};
+
+static struct fuse_opt fuse_options[] = {
+		// Este es un parametro definido por nosotros
+		CUSTOM_FUSE_OPT_KEY("--welcome-msg %s", welcome_msg, 0),
+	// Estos son parametros por defecto que ya tiene FUSE
+		FUSE_OPT_KEY("-V", KEY_VERSION),
+		FUSE_OPT_KEY("--version", KEY_VERSION),
+		FUSE_OPT_KEY("-h", KEY_HELP),
+		FUSE_OPT_KEY("--help", KEY_HELP),
+		FUSE_OPT_END,
+};
+
+//-------Operaciones
+static int tomar_atributos ( const char *path, struct stat *stbuf );
+static int leer_directorio ( const char *path, void *buf, fuse_fill_dir_t filler, off_t offset, struct fuse_file_info *fi );
+static int abrir ( const char *path, struct fuse_file_info *fi );
+static int leer ( const char *path, char *buf, size_t size, off_t offset, struct fuse_file_info *fi );
+static void limpiar ( void *datos );
+static int borrar_archivo ( const char *path );
+static int renombrar ( const char *viejo, const char *nuevo );
+static int cambiar_tamano ( const char *path, off_t tamanio );
+static int escribir ( const char *path, const char *buf, size_t tamanio, off_t offset, struct fuse_file_info *nada );
+static int borrar_directorio ( const char *path );
+static int crear_archivo(const char *path, mode_t modo, struct fuse_file_info *fi);
+static int crear_directorio( const char *path, mode_t modo);
+
+
+//------
+
 char * ip_pokedex;
 int puerto_pokedex;
 char * directorio_montaje;
@@ -77,20 +115,8 @@ void cerrarDisco();
 int validar(int argc, char **argv);
 int conectar_con_servidor_pkdx();
 void* enviarOperacionAServidor(int operacion, void* buffer_out);
+int set_datos_conexion();
 
-//-------Operaciones
-static int tomar_atributos ( const char *path, struct stat *stbuf );
-static int leer_directorio ( const char *path, void *buf, fuse_fill_dir_t filler, off_t offset, struct fuse_file_info *fi );
-static int abrir ( const char *path, struct fuse_file_info *fi );
-static int leer ( const char *path, char *buf, size_t size, off_t offset, struct fuse_file_info *fi );
-static void limpiar ( void *datos );
-static int borrar_archivo ( const char *path );
-static int renombrar ( const char *viejo, const char *nuevo );
-static int cambiar_tamano ( const char *path, off_t tamanio );
-static int escribir ( const char *path, const char *buf, size_t tamanio, off_t offset, struct fuse_file_info *nada );
-static int borrar_directorio ( const char *path );
-static int crear_archivo(const char *path, mode_t modo, struct fuse_file_info *fi);
-static int crear_directorio( const char *path, mode_t modo);
 
 
 //Mapeo operaciones Fuse
@@ -107,7 +133,6 @@ static struct fuse_operations operaciones_fuse = {
 			.write    		= escribir,
 			.rmdir			= borrar_directorio,
 			.mkdir			= crear_directorio,
-			.create			= crear_archivo,
 };
 
 #endif /* CLIENTE_POKEDEX_H_ */
