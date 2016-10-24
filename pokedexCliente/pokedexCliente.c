@@ -262,7 +262,47 @@ static int osada_write(const char *path, const char *buf, size_t size, off_t off
 	log_info(logCliente, "****************** FUSE: llamada a osada_write() *****************************" );
 	log_info(logCliente, "******************************************************************************" );
 
-	return 0;
+	log_info(logCliente, path);
+	log_info(logCliente, "Size: %d", size);
+
+	if ((strcmp(path, "/.Trash") != 0) && (strcmp(path, "/.Trash-1000") != 0) && (strcmp(path, " /.xdg-volume-info") != 0) && (strcmp(path, "/autorun.inf") != 0) && (strcmp(path, "/.xdg-volume-info") != 0))
+	{
+		int head = 0;
+
+		t_writebuf *pedido = malloc(sizeof(t_writebuf));
+		pedido->pathLen = strlen(path) + 1;
+		pedido->bufLen = strlen(buf) + 1;
+		pedido->size = size;
+		pedido->offset = offset;
+
+		void* paquete = NULL;
+
+		pthread_mutex_lock(&mutex_comunicacion);
+			enviarConProtocolo(*socketServidor, PEDIDO_WRITE, pedido);
+			//int enviarEstructuraWrite(int fdReceptor, int head, char* path, char* bufWrite, t_writebuf* mensaje)
+				enviarEstructuraWrite(*socketServidor, PEDIDO_WRITE, path, buf, pedido);
+			log_info(logCliente, "	Envie PEDIDO_READ");
+			paquete = recibirConProtocolo(*socketServidor,&head);
+		pthread_mutex_unlock(&mutex_comunicacion);
+		//free(pedido);
+
+		if (head == RESPUESTA_WRITE)
+		{
+			log_info(logCliente, "	Recibi RESPUESTA_WRITE %c", (char)paquete);
+		}
+		else if (head == ENOENTRY)
+		{
+			log_info(logCliente, "	Recibi respuesta ENOENT en osada_write....... ........ ..... ...... ..... .... .....");
+			//return -ENOENT; //ver este caso si igual devuelvo size o no
+		}
+		else
+		{
+			log_info(logCliente, "	No recibi RESPUESTA_WRITE en osada_white.... ....... ........ ....... ........ ..... ....");
+		}
+		free(paquete);
+	}
+
+	return size;
 }
 
 static int osada_mkdir(const char *path, mode_t mode)

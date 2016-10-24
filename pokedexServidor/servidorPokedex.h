@@ -75,7 +75,7 @@ void* procesarPedidoReaddir(char *path);
 void procesarPedidoRename(void *pedido, void *respuesta);
 void procesarPedidoRmdir(void *pedido, void *respuesta);
 void procesarPedidoUnlink(void *pedido, void *respuesta);
-void procesarPedidoWrite(void *pedido, void *respuesta);
+void* procesarPedidoWrite(void *buffer);
 void terminar();
 
 #endif /* SERVIDORPOKEDEX_H_ */
