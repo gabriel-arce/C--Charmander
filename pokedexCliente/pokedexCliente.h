@@ -37,6 +37,9 @@
 #define RESPUESTA_CREATE 31
 #define ENOENTRY 32
 
+#define PEDIDO_TRUNCATE 33
+#define RESPUESTA_TRUNCATE 34
+
 static int osada_create(const char *path, mode_t mode, struct fuse_file_info *fi);
 static int osada_getattr(const char *path, struct stat *stbuf);
 static int osada_mkdir(const char *path, mode_t mode);
@@ -44,8 +47,9 @@ static int osada_readdir(const char *path, void *buf, fuse_fill_dir_t filler, of
 static int osada_read(const char *path, char *buf, size_t size, off_t offset, struct fuse_file_info *fi);
 static int osada_rename(const char *path, const char *newpath);
 static int osada_rmdir(const char *path);
-static int osada_write(const char *path, const char *buf, size_t size, off_t offset, struct fuse_file_info *fi);
+static int osada_truncate(const char *path, off_t new_size);
 static int osada_unlink(const char *path);
+static int osada_write(const char *path, const char *buf, size_t size, off_t offset, struct fuse_file_info *fi);
 
 void printConectado();
 void printEncabezado();
@@ -71,6 +75,7 @@ static struct fuse_operations osada_oper = {
 //.rmdir = osada_rmdir,	//borrar un directorio
 //.rename = osada_rename,	//renombrar un archivo
 //.create = osada_create //crear y abrir un archivo
+//.truncate = osada_truncate //redimensionar archivo
 };
 
 enum {

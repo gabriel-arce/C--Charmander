@@ -30,6 +30,9 @@
 #define RESPUESTA_CREATE 31
 #define ENOENTRY 32
 
+#define PEDIDO_TRUNCATE 33
+#define RESPUESTA_TRUNCATE 34
+
 //colores para los prints en la consola
 #define RED   "\x1B[31m"
 #define GRN   "\x1B[32m"

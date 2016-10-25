@@ -36,6 +36,9 @@
 #define RESPUESTA_CREATE 31
 #define ENOENTRY 32
 
+#define PEDIDO_TRUNCATE 33
+#define RESPUESTA_TRUNCATE 34
+
 //funciones de disco
 void asignarOffsets();
 void descargar(uint32_t descriptorArchivo);
