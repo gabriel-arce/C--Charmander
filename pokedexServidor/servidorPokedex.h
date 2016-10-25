@@ -36,6 +36,9 @@
 #define RESPUESTA_CREATE 31
 #define ENOENTRY 32
 
+#define PEDIDO_TRUNCATE 33
+#define RESPUESTA_TRUNCATE 34
+
 //funciones de disco
 void asignarOffsets();
 void descargar(uint32_t descriptorArchivo);
@@ -75,7 +78,7 @@ void* procesarPedidoReaddir(char *path);
 void procesarPedidoRename(void *pedido, void *respuesta);
 void procesarPedidoRmdir(void *pedido, void *respuesta);
 void procesarPedidoUnlink(void *pedido, void *respuesta);
-void procesarPedidoWrite(void *pedido, void *respuesta);
+void* procesarPedidoWrite(void *buffer);
 void terminar();
 
 #endif /* SERVIDORPOKEDEX_H_ */

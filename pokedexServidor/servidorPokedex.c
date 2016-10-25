@@ -212,6 +212,25 @@ void atendercliente(int socket)
 					}
 					break;
 
+				case PEDIDO_WRITE:
+					printf( "\t procesando PEDIDO_WRITE\n" );
+
+					void *bufWrite = NULL;
+					bufWrite = recibirEstructuraWrite(socket, &head);
+
+					respuesta = procesarPedidoWrite(bufWrite);
+					if(respuesta != NULL)
+					{
+						enviarConProtocolo(socket, RESPUESTA_WRITE, respuesta);
+						printf("\t devolviendo RESPUESTA_WRITE \n");
+					}
+					else
+					{
+						enviarConProtocolo(socket, ENOENTRY, pedido);
+						printf("\t devolviendo respuesta ENOENTRY \n");
+					}
+					break;
+
 				default:
 					printf(RED "\n¿Porqué entre en default???, ¿tenia que enviar un handshake por segunda vez??? \n\n" RESET);
 					enviarConProtocolo(socket,HANDSHAKE, pedido);
@@ -460,11 +479,6 @@ void* procesarPedidoRead(void* buffer)//en construccion
 	return NULL;
 }
 
-void procesarPedidoWrite(void *pedido, void *respuesta)
-{
-
-}
-
 void procesarPedidoUnlink(void *pedido, void *respuesta)
 {
 
@@ -487,6 +501,54 @@ void procesarPedidoRename(void *pedido, void *respuesta)
 
 void procesarPedidoCreate(void *pedido, void *respuesta)
 {
+
+}
+
+void* procesarPedidoWrite(void *buffer)//en construccion
+{
+	int desplazamiento = 0;
+	size_t* size = malloc(sizeof(size_t));
+	off_t* offset = malloc(sizeof(off_t));
+	int* pathLen = malloc(sizeof(int));
+	int* bufLen = malloc(sizeof(int));
+
+	memcpy(size, buffer, sizeof(size_t));
+	desplazamiento += sizeof(size_t);
+	memcpy(offset, buffer + desplazamiento, sizeof(off_t));
+	desplazamiento += sizeof(off_t);
+	memcpy(pathLen, buffer + desplazamiento, sizeof(int));
+	desplazamiento += sizeof(int);
+	memcpy(bufLen, buffer + desplazamiento, sizeof(int));
+	desplazamiento += sizeof(int);
+
+	char* path = malloc(pathLen);
+	memcpy(path,  buffer + desplazamiento, *pathLen);
+	desplazamiento += *pathLen;
+	char* bufWrite = malloc(bufLen);
+	memcpy(bufWrite,  buffer + desplazamiento, *bufLen);
+
+	printf(CYN "\n\t En procesarPedidoWrite el size es: %d\n", *size);
+	printf( "\t En procesarPedidoWrite el offset es: %d\n", *offset);
+	printf( "\t En procesarPedidoWrite el pathlen es: %d\n", *pathLen);
+	printf( "\t En procesarPedidoWrite el bufLen es: %d\n", *bufLen);
+	printf( "\t En procesarPedidoWrite el path es: %s\n" RESET, path);
+
+	if (strcmp(path, "/pokemon.txt") == 0)
+	{
+		//llamar a funcion que escriba en el archivo
+		printf(GRN "Escribir en archivo un buffer de size: %d" RESET, *size);
+		void* respuesta = malloc(sizeof(char));
+		memcpy(respuesta, 'b', sizeof(char));
+		return respuesta;
+	}
+	else
+	{
+		printf(RED "\n\t No encontré el path, aca no queria entrar !!!!!\n" RESET);
+	}
+
+	//free(buffer);
+
+	return NULL;
 
 }
 

@@ -30,6 +30,9 @@
 #define RESPUESTA_CREATE 31
 #define ENOENTRY 32
 
+#define PEDIDO_TRUNCATE 33
+#define RESPUESTA_TRUNCATE 34
+
 //colores para los prints en la consola
 #define RED   "\x1B[31m"
 #define GRN   "\x1B[32m"
@@ -51,7 +54,19 @@ typedef struct
 }__attribute__((packed))
 t_stbuf;
 
-//para el  fuse en pedido read
+//para fuse en pedido write
+typedef struct
+{
+	size_t size;
+	off_t offset;
+	int pathLen;
+	int bufLen;
+
+}__attribute__((packed))
+t_writebuf;
+
+
+//para   fuse en pedido read
 typedef struct
 {
 	size_t size;
@@ -86,6 +101,12 @@ void * deserializar(int head, void * buffer, int tamanio);
 int enviarConProtocolo(int fdReceptor, int head, void *mensaje);
 void* recibirConProtocolo(int socketEmisor,int* head);
 int crearSocket(char ip[], char puerto[]);
+
 void* serializarPedidoGetatrr(t_stbuf* response, int tamanio);
 void* serializarPedidoRead(t_readbuf* response, char* path);
+void* recibirEstructuraRead(int socketEmisor,int* head);
+int enviarEstructuraRead(int fdReceptor, int head, char* path, t_readbuf* mensaje);
+void* recibirEstructuraWrite(int socketEmisor,int* head);
+void* serializarPedidoWrite(t_writebuf* response, char* path, char* bufWrite);
+int enviarEstructuraWrite(int fdReceptor, int head, char* path, char* bufWrite, t_writebuf* mensaje);
 #endif
