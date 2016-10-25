@@ -21,12 +21,13 @@ int main(int argc, char ** argv) {
 		return -1;
 	}
 
-
-	socket_pokedex = conectar_con_servidor_pkdx();
+	printEncabezado();
+	socketServidor = conectar_con_servidor_pkdx();
 
 	//Inicializar Fuse
+	PrintFuse();
 	struct fuse_args args = FUSE_ARGS_INIT(argc, argv);
-	return fuse_main(args.argc,args.argv, &operaciones_fuse, NULL);
+	return fuse_main(args.argc,args.argv, &osada_oper, NULL);
 
 	return EXIT_SUCCESS;
 }

@@ -31,7 +31,7 @@ int set_datos_conexion() {
 
 int conectar_con_servidor_pkdx() {
 	int socket_fd = -1;
-
+	pthread_mutex_init(&mutex_comunicacion,NULL);
 	socket_fd = clienteDelServidor(ip_pokedex, puerto_pokedex);
 
 	return socket_fd;
@@ -39,611 +39,322 @@ int conectar_con_servidor_pkdx() {
 
 //----Operaciones  (return 1(ok) o 0(fail))
 
-static int tomar_atributos ( const char *path, struct stat* stbuf ){
-	void* buffer_out;
-	//TODO serializar en buffer_out
+static int osada_getattr(const char *path, struct stat *stbuf)
+{
+	log_info(logCliente, "****************** FUSE: llamada a osada_getattr() ******************************" );
+	log_info(logCliente, path);
 
-	//void* buffer_in = enviarOperacionAServidor(_tomarAtributos, buffer_out);
+	memset(stbuf, 0, sizeof(struct stat));
 
-	//TODO deserealizar buffer y llenar stbuf
-return 1;
+//	//Si path es igual a "/" nos estan pidiendo los atributos del punto de montaje
+	if ((strcmp(path, "/.Trash") != 0) && (strcmp(path, "/.Trash-1000") != 0) && (strcmp(path, " /.xdg-volume-info") != 0) && (strcmp(path, "/autorun.inf") != 0) && (strcmp(path, "/.xdg-volume-info") != 0))
+	{
+		int head = 0;
+		t_stbuf *paquete = NULL;
+
+		pthread_mutex_lock(&mutex_comunicacion);
+			enviarConProtocolo(*socketServidor, PEDIDO_GETATTR, path);
+			log_info(logCliente, "	Envie PEDIDO_GETATTR");
+			paquete = (t_stbuf*)recibirConProtocolo(*socketServidor,&head);
+		pthread_mutex_unlock(&mutex_comunicacion);
+
+		if (head == RESPUESTA_GETATTR)
+		{
+//			memcpy(stbuf->st_size, paquete, sizeof(t_stbuf));
+			stbuf->st_mode = paquete->mode;
+			stbuf->st_nlink = paquete->nlink;
+			stbuf->st_size = paquete->size;
+
+			log_info(logCliente, "	Recibi RESPUESTA_GETATTR");
+			//log_info(logCliente, stbuf->st_size);
+
+			return 0;
+		}
+		else
+		{
+			log_info(logCliente, "	No recibi RESPUESTA_GETATTR");
+			return -ENOENT;
+		}
+	}
+	else
+	{
+		log_info(logCliente, "	Recibi ENOENT");
+		return -ENOENT;
+	}
 }
 
-static int leer_directorio ( const char *path, void *buf, fuse_fill_dir_t filler, off_t offset, struct fuse_file_info *fi ){
-	void* buffer_out;
-	//TODO serializar en buffer_out
+static int osada_readdir(const char *path, void *buf, fuse_fill_dir_t filler, off_t offset, struct fuse_file_info *fi)
+{
 
-	void* buffer_in = enviarOperacionAServidor(_leerDirectorio, buffer_out);
+	log_info(logCliente, "****************** FUSE: llamada a osada_readdir() ******************************" );
+	log_info(logCliente, path);
 
-	//TODO deserealizar buffer y llenar buf
+	int head = 0;
+	void *paquete = NULL;
+
+	pthread_mutex_lock(&mutex_comunicacion);
+		enviarConProtocolo(*socketServidor, PEDIDO_READDIR, path);
+		log_info(logCliente, "	Envie PEDIDO_READDIR");
+		paquete = recibirConProtocolo(*socketServidor,&head);
+	pthread_mutex_unlock(&mutex_comunicacion);
+
+	if (head == RESPUESTA_READDIR)
+	{
+		log_info(logCliente, "	Recibi RESPUESTA_READDIR");
+		log_info(logCliente, (char*)paquete);
+
+		char *token = malloc(strlen(paquete)+1);
+
+		token = strtok(paquete, "/");
+
+		while (token != NULL)
+		{
+			filler(buf, token, NULL, 0);
+
+			log_info(logCliente, (char*)token);
+			token = strtok(NULL, "/");
+		}
+
+		free(token);
+		free(paquete);
+		return 0;
+	}
+	else
+	{
+		log_info(logCliente, "	Recibi respuesta ENOENT");
+		return -ENOENT;
+	}
+}
+
+static int osada_read(const char *path, char *buf, size_t size, off_t offset, struct fuse_file_info *fi)
+{
+	// leer un archivo abierto
+	log_info(logCliente, "******************************************************************************" );
+	log_info(logCliente, "****************** FUSE: llamada a osada_read() ******************************" );
+	log_info(logCliente, "******************************************************************************" );
+
+	log_info(logCliente, path);
+	log_info(logCliente, "Size: %d", size);
+	//Si path es igual a "/" nos estan pidiendo los atributos del punto de montaje
+	if ((strcmp(path, "/.Trash") != 0) && (strcmp(path, "/.Trash-1000") != 0) && (strcmp(path, " /.xdg-volume-info") != 0) && (strcmp(path, "/autorun.inf") != 0) && (strcmp(path, "/.xdg-volume-info") != 0))
+	{
+		int head = 0;
+		t_readbuf *pedido = malloc(sizeof(t_readbuf));
+		pedido->pathLen = strlen(path) + 1;
+		pedido->size = size;
+		pedido->offset = offset;
+
+		char* paquete = NULL;
+
+		pthread_mutex_lock(&mutex_comunicacion);
+			enviarConProtocolo(*socketServidor, PEDIDO_READ, pedido);
+		    enviarEstructuraRead(*socketServidor, PEDIDO_READ, path, pedido);
+			log_info(logCliente, "	Envie PEDIDO_READ");
+			paquete =(char*) recibirConProtocolo(*socketServidor,&head);
+		pthread_mutex_unlock(&mutex_comunicacion);
+		//free(pedido);
+
+		if (head == RESPUESTA_READ)
+		{
+			memset(buf, 0, size);
+			memcpy(buf, paquete, strlen((char*)paquete) + 1);
+
+			log_info(logCliente, "	Recibi RESPUESTA_READ");
+		}
+		else if (head == ENOENTRY)
+		{
+			log_info(logCliente, "	Recibi respuesta ENOENT en osada_read....... ........ ..... ...... ..... .... .....");
+			//return -ENOENT; //ver este caso si igual devuelvo size o no
+		}
+		else
+		{
+			log_info(logCliente, "	No recibi RESPUESTA_READ en osada_read.... ....... ........ ....... ........ ..... ....");
+		}
+		free(paquete);
+	}
+
+	return size;
+}
+
+static int osada_write(const char *path, const char *buf, size_t size, off_t offset, struct fuse_file_info *fi)
+{
+	// escribir un archivo
+	log_info(logCliente, "******************************************************************************" );
+	log_info(logCliente, "****************** FUSE: llamada a osada_write() *****************************" );
+	log_info(logCliente, "******************************************************************************" );
+
+	return 0;
+}
+
+static int osada_mkdir(const char *path, mode_t mode)
+{
+	// crear un directorio
+	log_info(logCliente, "******************************************************************************" );
+	log_info(logCliente, "****************** FUSE: llamada a osada_mkdir() *****************************" );
+	log_info(logCliente, "******************************************************************************" );
+
+//	int head;
+//	void *mensaje = NULL;
+//
+//	enviarConProtocolo(socketServidor,PEDIDO_MKDIR, path);
+//	//recibir por socket un OK?
+//	mensaje = recibirConProtocolo(socketServidor,&head);
+//
+//	if (head == RESPUESTA_MKDIR)
+//	{
+//		//creo que no necesito recibir nada util, que a fuse no le importa nada
+//	}
+	return 0;
+}
+
+static int osada_rmdir(const char *path)
+{
+	// borrar un directorio
+	log_info(logCliente, "******************************************************************************" );
+	log_info(logCliente, "****************** FUSE: llamada a osada_mkdir() *****************************" );
+	log_info(logCliente, "******************************************************************************" );
+
+//	int head;
+//	void *mensaje = NULL;
+//
+//	enviarConProtocolo(socketServidor,PEDIDO_RMDIR, path);
+//	//recibir por socket un OK?
+//	mensaje = recibirConProtocolo(socketServidor,&head);
+//
+//	if (head == RESPUESTA_RMDIR)
+//	{
+//		//creo que no necesito recibir nada util, que a fuse no le importa nada
+//	}
+	return 0;
+}
+
+static int osada_rename(const char *path, const char *newpath)
+{
+	// renombrar un archivo
+	log_info(logCliente, "******************************************************************************" );
+	log_info(logCliente, "****************** FUSE: llamada a osada_rename() ****************************" );
+	log_info(logCliente, "******************************************************************************" );
+
+//	int head;
+//	void *mensaje = NULL;
+//	char *pedido = malloc(sizeof(path) + sizeof(newpath));
+//	//ver esto mejor
+//	memset(&pedido,0,(sizeof(path) + sizeof(newpath)));
+//	memcpy(&pedido, path, sizeof(path));
+//	memcpy(&pedido + sizeof(path), newpath, sizeof(newpath));
+//
+//	enviarConProtocolo(socketServidor,PEDIDO_RENAME, pedido);
+//	//recibir por socket un OK?
+//	mensaje = recibirConProtocolo(socketServidor,&head);
+//
+//	if (head == RESPUESTA_RENAME)
+//	{
+//		//creo que no necesito recibir nada util, que a fuse no le importa nada
+//	}
+	return 0;
+}
+
+static int osada_unlink(const char *path)
+{
+	// borrar un archivo
+	log_info(logCliente, "******************************************************************************" );
+	log_info(logCliente, "****************** FUSE: llamada a osada_unlink() ****************************" );
+	log_info(logCliente, "******************************************************************************" );
+
+//	int head;
+//	void *mensaje = NULL;
+//
+//	enviarConProtocolo(socketServidor,PEDIDO_UNLINK, path);
+//	//recibir por socket un OK?
+//	mensaje = recibirConProtocolo(socketServidor,&head);
+//
+//	if (head == RESPUESTA_UNLINK)
+//	{
+//		//creo que no necesito recibir nada util, que a fuse no le importa nada
+//	}
+	return 0;
+}
+
+static int osada_create(const char *path, mode_t mode, struct fuse_file_info *fi)
+{
+	// crear y abrir un archivo
+	log_info(logCliente, "******************************************************************************" );
+	log_info(logCliente, "****************** FUSE: llamada a osada_create() ****************************" );
+	log_info(logCliente, "******************************************************************************" );
+
+//	int head;
+//	void *mensaje = NULL;
+//
+//	enviarConProtocolo(socketServidor,PEDIDO_CREATE, path);
+//	//recibir por socket un OK?
+//	mensaje = recibirConProtocolo(socketServidor,&head);
+//
+//	if (head == RESPUESTA_CREATE)
+//	{
+//		//creo que no necesito recibir nada util, que a fuse no le importa nada
+//	}
+	return 0;
+}
+
+void printConectado()
+{
+	printf("\t Recibi mensaje handshake  del servidor\n\n");
+
+	log_info(logCliente, "	Recibi mensaje handshake  del servidor");
+	printf( "****************** " GRN "Se establecio la conexion con exito " RESET "***************************\n");
+	log_info(logCliente, "****************** Se establecio la conexion con exito *********************" );
+}
+
+void printEncabezado()
+{
+	printf(GRN "\n\n\nxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\n" RESET);
+	printf("**********************************************************************************\n");
+	printf("****************** " GRN "CLIENTE POKEDEX " RESET "***********************************************\n");
+	printf("**********************************************************************************\n\n\n");
+	printf("****************** Iniciando cliente...\n\n");
+	printf("****************** Creando archivo Log *******************************************\n");
+}
+
+void printErrorConexion()
+{
+	printf(RED "\n\n\n****************** No se pudo establecer la conexion con el servidor *************\n" RESET);
+	printf("****************** Terminando el programa ****************************************\n");
+	printf("**********************************************************************************\n\n\n");
+	log_info(logCliente, "****************** No se pudo establecer la conexion con el servidor *************" );
+	log_info(logCliente, "****************** Terminando el programa ****************************************" );
+	log_info(logCliente, "**********************************************************************************" );
 
 }
 
-static int leer ( const char *path, char *buf, size_t size, off_t offset, struct fuse_file_info *fi ){
-	void* buffer_out;
-	//TODO serializar en buffer_out
-
-	void* buffer_in = enviarOperacionAServidor(_leer, buffer_out);
-
-	//TODO deserealizar buffer y llenar buf
+void PrintFuse()
+{
+	printf( "****************** " GRN "Llamo a fuse main" RESET "  ********************************************\n");
+	log_info(logCliente, "****************** Llamo a fuse main  ********************************************" );
+	printf("**********************************************************************************\n\n\n");
 }
 
-static int abrir ( const char *path, struct fuse_file_info *fi ){
-	void* buffer_out;
-	//TODO serializar en buffer_out
-
-	void* buffer_in = enviarOperacionAServidor(_abrir, buffer_out);
-
+void printMensajeInesperado(int head)
+{
+	printf(YEL "\t Recibi mensaje: %d  del servidor\n\n" RESET, head);
+	log_info(logCliente, "	Recibi mensaje inesperado  del servidor");
 }
 
-static void limpiar ( void *datos ){
-	void* buffer_out;
-	//TODO serializar en buffer_out
-
-	void* buffer_in = enviarOperacionAServidor(_limpiar, buffer_out);
+void printServidorDesconectado()
+{
+	printf(RED "\n\n\n****************** El servidor cerro la conexion *********************************\n" RESET);
+	printf("****************** Terminando el programa ****************************************\n");
+	printf("**********************************************************************************\n\n\n");
+	log_info(logCliente, "****************** No se pudo establecer la conexion con el servidor *************" );
+	log_info(logCliente, "****************** Terminando el programa ****************************************" );
+	log_info(logCliente, "**********************************************************************************" );
 }
 
-static int borrar_archivo ( const char *path ){
-	void* buffer_out;
-	//TODO serializar en buffer_out
-
-	void* buffer_in = enviarOperacionAServidor(_borrarArchivo, buffer_out);
+void terminar()
+{
+	printf("Señal terminar");
+	exit(0);
 }
-
-static int renombrar ( const char *viejo, const char *nuevo ){
-	void* buffer_out;
-	//TODO serializar en buffer_out
-
-	void* buffer_in = enviarOperacionAServidor(_renombrar, buffer_out);
-}
-
-static int cambiar_tamano ( const char *path, off_t tamanio ){
-	void* buffer_out;
-	//TODO serializar en buffer_out
-
-	void* buffer_in = enviarOperacionAServidor(_cambiarTamanio, buffer_out);
-}
-
-static int escribir ( const char *path, const char *buf, size_t tamanio, off_t offset, struct fuse_file_info *nada ){
-	void* buffer_out;
-	//TODO serializar en buffer_out
-
-	void* buffer_in = enviarOperacionAServidor(_escribir, buffer_out);
-}
-
-static int borrar_directorio ( const char *path ){
-	void* buffer_out;
-	//TODO serializar en buffer_out
-
-	void* buffer_in = enviarOperacionAServidor(_borrarDirectorio, buffer_out);
-}
-
-static int crear_archivo(const char *path, mode_t modo, struct fuse_file_info *fi){
-	void* buffer_out;
-	//TODO serializar en buffer_out
-
-	void* buffer_in = enviarOperacionAServidor(_crearArchivo, buffer_out);
-}
-
-static int crear_directorio( const char *path, mode_t modo){
-	void* buffer_out;
-	//TODO serializar en buffer_out
-
-	void* buffer_in = enviarOperacionAServidor(_crearDirectorio, buffer_out);
-
-}
-
 
 //----- Otras Funciones
 
-void* enviarOperacionAServidor(int operacion, void* buffer_out){
-	t_header * header_in = malloc(sizeof(t_header));
-	int  tamanio_buffer_out;
 
-	memcpy(&tamanio_buffer_out,buffer_out, sizeof(int));
-
-	//Envio que operacion ejecutar junto con los parametros que necesita
-	enviar_header(operacion,tamanio_buffer_out, socket_pokedex);
-	send(socket_pokedex,buffer_out,tamanio_buffer_out,0);
-
-	//Recibo el buffer_in
-	header_in = recibir_header(socket_pokedex);
-	void * buffer_in = malloc(header_in->tamanio);
-	recv(socket_pokedex,buffer_in,header_in->tamanio,0);
-
-	free(header_in);
-
-	return buffer_in;
-}
-/*
-//int main(int argc, char **argv){
-//
-//	//Crear Log
-//	crear_logger();
-//
-//	//Validar
-//	validar(argc, argv);
-//
-//	//Mapear disco
-//	mapearDisco();
-//
-//	//Cerrar disco
-//	cerrarDisco();
-//
-//	//Conectar con el servidor
-//	conectar_con_servidor_pkdx();
-//
-//	struct fuse_args args = FUSE_ARGS_INIT(argc, argv);
-//
-//	operaciones.getattr		= tomar_atributos;
-//	operaciones.readdir		= leer_directorio;
-//	operaciones.open			= abrir;
-//	operaciones.read				= leer;
-//	operaciones.destroy		= limpiar;
-//	operaciones.mknod		= crear_nodo;
-//	operaciones.unlink			= borrar_archivo;
-//	operaciones.rename	 	= renombrar;
-//	operaciones.truncate	= cambiar_tamano;
-//	operaciones.write    		= escribir;
-//	//Falta definir las siguientes funciones..
-//	operaciones.rmdir			= borrar_directorio;
-//	operaciones.mkdir			= crear_directorio;
-//	operaciones.create			= crear_archivo;
-//	operaciones.getxattr	= tomar_atributos_extendidos;
-//	operaciones.access		= verificar_acceso;
-//
-//	return fuse_main ( args.argc, args.argv, &operaciones, NULL);
-//
-//
-//}
-
-
-
-void crear_logger(){
-	logger = log_create(NOMBRE_LOG, NOMBRE_PROG, 0, LOG_LEVEL_INFO);
-	log_info(logger, "Iniciando cliente pokedex...");
-}
-
-int validar(int argc, char **argv){
-
-	if ((in = open(argv[1], O_RDWR, 0777)) == -1){
-		mostrarMensajeDeError(NoSePudoAbrirIn);
-		return EXIT_FAILURE;
-	}
-
-	// Verifica sin argumentos
-	if (argc == 1){
-		mostrarAyuda();
-		return EXIT_SUCCESS;
-		}
-
-	// Verifica cantidad de argumentos
-	if(argc != 2){
-		mostrarMensajeDeError(CantidadArgumentosIncorrecta);
-		return EXIT_FAILURE;
-	}
-
-	// Stat del archivo
-	if ((stat(argv[1], &fileStat)) < 0){
-		mostrarMensajeDeError(ErrorStat);
-		return EXIT_FAILURE;
-	}
-
-	return EXIT_SUCCESS;
-}
-
-void mostrarAyuda(){
-	puts("Ayuda");
-}
-
-void mostrarMensajeDeError(Error e){
-	switch(e){
-		case CantidadArgumentosIncorrecta:
-			log_debug(logger, "Cantidad de argumentos incorrecta..");
-			break;
-
-		case NoSePudoAbrirIn:
-			puts("No se pudo abrir archivo de entrada..");
-			log_debug(logger, "No se pudo abrir archivo de entrada..");
-			break;
-
-		case ErrorEnLectura:
-			puts("Error en lectura..");
-			log_debug(logger, "Error en lectura..");
-			break;
-
-		case ErrorEnEscritura:
-			puts("Error en escritura..");
-			log_debug(logger, "Error en escritura..");
-			break;
-
-		case OtroError:
-			puts("Error desconocido..");
-			log_debug(logger, "Error desconocido..");
-			break;
-
-		case ErrorStat:
-			puts("Error al leer stat del archivo..");
-			log_debug(logger, "Error al leer stat del archivo..");
-			break;
-
-		case ErrorMmap:
-			perror("mmap");
-			printf("Error al mapear estructura..\n\n");
-			log_debug(logger, "Error al mapear estructura..\n\n");
-			break;
-
-	}
-}
-
-static int tomar_atributos ( const char *path, struct stat *stbuf ){
-	t_listaArchivos *actual = ListaArchivos;
-
-	//Raiz
-	if(strcmp(path, "/") == 0){
-		//Relleno la estructura con 0s
-		memset(stbuf, 0, sizeof( struct stat));
-		stbuf->st_mode	=	S_IFDIR	|	0777;
-		stbuf->st_nlink	=	2;
-		return 0;
-	}
-
-	while(actual){
-		//Otro directorio
-		if(strcmp(path, actual->nombre) == 0){
-			memcpy(stbuf, &actual->info, sizeof(struct stat));
-			return 0;
-		}
-
-		//Siguiente
-		actual = actual->siguiente;
-	}
-
-	//Si llego aca, no lo encontro..
-	return -ENOENT;
-
-}
-
-static int leer_directorio ( const char *path, void *buf, fuse_fill_dir_t filler, off_t offset, struct fuse_file_info *fi ){
-	t_listaArchivos *actual = ListaArchivos;
-
-	//send servidor -> accion
-
-	//receive servidor -> archivos y dir
-
-	//Raiz
-	if(strcmp(path, "/") == 0){
-		return -ENOENT;
-	}
-
-	filler(buf, ".", NULL, 0);		//Entrada para .
-	filler(buf, "..", NULL, 0);		//Entrada para ..
-
-	while(actual){
-		//Entrada de archivos
-		if((filler(buf, actual->nombre + 1, &actual->info, 0 )) == 1)
-			return 1;
-
-		//Siguiente
-		actual = actual->siguiente;
-	}
-
-	return 0;
-}
-
-static int abrir ( const char *path, struct fuse_file_info *fi ){
-	t_listaArchivos *actual = ListaArchivos;
-
-	//Recorrer lista
-	while(actual){
-		if((strcmp(path, actual->nombre)) == 0)
-			return 0;
-
-		//Siguiente
-		actual = actual->siguiente;
-	}
-
-	//Si llego hasta aca, error
-	return -ENOENT;
-
-}
-
-static int leer ( const char *path, char *buf, size_t size, off_t offset, struct fuse_file_info *fi ){
-	t_listaArchivos *actual = ListaArchivos;
-	int fd, leido;
-
-	//Recorrer lista
-	while(actual){
-		if((strcmp(path, actual->nombre)) == 0)
-			break;
-
-		//Siguiente
-		actual = actual->siguiente;
-	}
-
-	//Fin de lista y no encontro el archivo
-	if(!actual)
-		return -ENOENT;
-
-	//Abrir archivo
-	if ((fd = open( actual->path, O_RDONLY)) == -1)
-		return -ENOENT;
-
-	//Busco
-	lseek(fd, offset, SEEK_SET);
-
-	//Leo el archivo
-	leido = read(fd, buf, size);
-
-	//Cierro fd
-	close(fd);
-
-	return leido;
-
-}
-
-static void limpiar ( void *datos ){
-	t_listaArchivos *actual = ListaArchivos;
-	t_listaArchivos *anterior;
-
-	while(actual){
-		free( actual->nombre);
-		free( actual->path);
-
-		//Ir al siguiente
-		anterior = actual;
-		actual = anterior->siguiente;
-		free(anterior);
-	}
-
-}
-
-static int borrar_archivo ( const char *path ){
-	t_listaArchivos *actual			= ListaArchivos;
-	t_listaArchivos *anterior	= ListaArchivos;
-
-	while(actual){
-		if((strcmp(actual->nombre, path)) == 0)
-			break;
-
-		anterior = actual;
-		//Siguiente
-		actual = actual->siguiente;
-	}
-
-	if(!actual)
-		return -ENOENT;
-
-	if(anterior == actual)
-		ListaArchivos = actual->siguiente;		//apunta al siguiente elemento
-	else
-		anterior->siguiente = actual->siguiente;
-
-	//Libero
-	free( actual->nombre );
-	free( actual->path );
-	free( actual );
-
-	return 0;
-}
-
-
-
-static int renombrar ( const char *viejo, const char *nuevo ){
-	t_listaArchivos *actual = ListaArchivos;
-
-	while(actual){
-		if((strcmp(actual->nombre, viejo)) == 0)
-			break;
-
-		//Siguiente
-		actual = actual->siguiente;
-	}
-
-	//No se encontro..
-	if(!actual)
-		return -ENOENT;
-
-	//Elimino el nombre viejo
-	free( actual->nombre );
-
-	//Reservo para el nombre nuevo
-	if ((actual->nombre = malloc(strlen(nuevo) +1)) == NULL)
-		return EXIT_FAILURE;
-
-	//Copio nombre nuevo
-	strcpy(actual->nombre, nuevo);
-
-	return 0;
-}
-
-
-
-static int crear_nodo ( const char *path, mode_t modo, dev_t dispositivo ){
-	t_listaArchivos *actual			= ListaArchivos;
-	t_listaArchivos *anterior	= ListaArchivos;
-
-	while(actual){
-		if((strcmp(actual->nombre, path)) == 0)
-			return -EEXIST;
-
-		anterior = actual;
-		actual = actual->siguiente;
-	}
-
-	if(!ListaArchivos){		//Lista vacia
-		if ((ListaArchivos = malloc(sizeof (t_listaArchivos))) == NULL)
-			return EXIT_FAILURE;
-		actual = ListaArchivos;
-	}
-
-	else{
-		if ((anterior->siguiente = malloc(sizeof(t_listaArchivos))) == NULL)
-			return EXIT_FAILURE;
-		actual = anterior->siguiente;
-
-	}
-
-	//Reservo para el nombre
-	if ((actual->nombre = malloc(strlen(path) +1)) == NULL)
-		return EXIT_FAILURE;
-
-	//Copio nombre
-	strcpy(actual->nombre, path);
-
-	//Permisos
-	memset(&actual->info, 0, sizeof(struct stat));
-
-	actual->info.st_mode	= S_IFREG	|	0666;
-	actual->info.st_nlink		= 1;
-
-	//Configurar path y siguiente
-	actual->path			= NULL;
-	actual->siguiente	=	NULL;
-
-	return 0;
-
-}
-
-static int cambiar_tamano ( const char *path, off_t tamanio ){
-	t_listaArchivos *actual = ListaArchivos;
-	int ret;
-
-	while(actual){
-		if((strcmp(actual->nombre, path)) == 0)
-			break;
-
-		actual = actual->siguiente;
-	}
-
-	if(!actual)
-		return -ENOENT;
-
-	//Si no apunta a ningun lado?
-	if(actual->path == NULL)
-		return 0;
-
-	//Trunco
-	if ((ret = truncate( actual->path, tamanio)) == -1)
-		return -errno;
-
-	actual->info.st_size = tamanio;
-
-	return ret;
-
-}
-
-static int escribir ( const char *path, const char *buffer, size_t tamanio, off_t offset, struct fuse_file_info *nada ){
-	t_listaArchivos *actual = ListaArchivos;
-	int fd, cnt;
-
-	while(actual){
-		if((strcmp(actual->nombre, path)) == 0)
-			break;
-
-		actual = actual->siguiente;
-	}
-
-	if(!actual)
-		return -ENOENT;
-
-	if(actual->path == NULL){
-		char *ptr = strchr(buffer, '/');
-		struct stat datos;
-
-		//Si no tiene un /, no es un path.. puede ser que no sea absoluto
-		if(!ptr)
-			return -EINVAL;
-
-		//Sacar /n
-		ptr = strchr(buffer, '/n');
-		if(ptr){
-			*ptr = '\0';
-			tamanio--;
-		}
-
-		//Stat de archivo
-		if ((stat(buffer, &datos)) == -1)
-			return -errno;
-
-		//Archivo regular?
-		if( ! S_ISREG( datos.st_mode ))
-			return -EINVAL;
-
-		//Actualizar archivo
-		if ((actual->path = malloc(tamanio)) == -1)
-			return EXIT_FAILURE;
-
-		strncpy( actual->path, buffer, tamanio);
-
-		actual->info = datos;
-
-		return 0;
-	}
-
-	//Abrir archivo para escribir
-	if ((fd = open( actual->path, O_RDWR)) == -1)
-		return -errno;
-
-	//Posicionar
-	if ((lseek(fd, offset, SEEK_SET)) == -1){
-		close(fd);
-		return -EINVAL;
-	}
-
-	//Escribir
-	if ((cnt = write(fd, buffer, tamanio)) == -1){
-		close(fd);
-		return -errno;
-	}
-
-	//Cerrar archivo
-	close(fd);
-
-	//Actualizar tamanio de archivo
-	if (offset + tamanio > actual->info.st_size)
-		actual->info.st_size = offset + tamanio;
-
-	return cnt;
-
-}
-
-
-static int borrar_directorio ( const char *path ){
-	return 0;
-}
-
-static int crear_archivo(const char *path, mode_t modo, struct fuse_file_info *fi){
-	struct fuse_context *context = fuse_get_context();
-
-	int i = fuse_fs_create(path, modo, context->uid, context->gid);
-
-	return i;
-}
-
-static int verificar_acceso(const char *path, int mask){
-	struct fuse_context *context = fuse_get_context();
-	return fuse_fs_access(path,context->uid, context->gid);
-}
-
-static int crear_directorio( const char *path, mode_t modo){
-	return 0;
-}
-
-static int tomar_atributos_extendidos(const char *path, const char *nombre, char *valor, size_t tamanio){
-	return 0;
-}
-
-void mapearDisco(){
-
-	hdr = mmap((caddr_t)0, fileStat.st_size, PROT_READ|PROT_WRITE, MAP_FILE|MAP_SHARED, in, 0);
-
-	if(hdr == MAP_FAILED){
-		mostrarMensajeDeError(ErrorMmap);
-	}
-}
-
-void cerrarDisco(){
-	close(in);
-}
-*/
