@@ -14,12 +14,13 @@
 #include <commons/log.h>
 #include <signal.h>
 #include <pthread.h>
+#include <commons/collections/list.h>
 #include <shared_sockets.h>
 #include <shared_comunicaciones.h>
 #include <shared_semaforos.h>
+#include <shared_serializacion.h>
 #include <sys/socket.h>
 #include <sys/types.h>
-#include <commons/collections/list.h>
 #include <string.h>
 #include <sys/socket.h>
 #include <commons/string.h>
@@ -32,63 +33,67 @@
 #include <commons/log.h>
 #include <sys/stat.h>
 #include <sys/mman.h>
+#include "osada.h"
+#include <commons/string.h>
+#include <commons/log.h>
+#include <commons/config.h>
+#include <commons/collections/queue.h>
+#include <commons/collections/list.h>
+#include <commons/collections/dictionary.h>
+
 
 
 //-----Protocolo de mensajes
-#define _tomarAtributos 10
-#define _leerDirectorio 11
-#define _abrir 12
-#define _leer 13
-#define _limpiar 14
-#define _borrarArchivo 15
-#define _renombrar 16
-#define _cambiarTamanio 17
-#define _escribir 18
-#define _borrarDirectorio 19
-#define _crearArchivo 20
-#define _crearDirectorio 21
-//--
+#define PEDIDO_GETATTR 12
+#define PEDIDO_READDIR 13
+#define PEDIDO_OPEN 14
+#define PEDIDO_READ 15
+#define PEDIDO_WRITE 16
+#define PEDIDO_UNLINK 17
+#define PEDIDO_MKDIR 18
+#define PEDIDO_RMDIR 19
+#define PEDIDO_RENAME 20
+#define PEDIDO_CREATE 21
 
+#define RESPUESTA_GETATTR 22
+#define RESPUESTA_READDIR 23
+#define RESPUESTA_OPEN 24
+#define RESPUESTA_READ 25
+#define RESPUESTA_WRITE 26
+#define RESPUESTA_UNLINK 27
+#define RESPUESTA_MKDIR 28
+#define RESPUESTA_RMDIR 29
+#define RESPUESTA_RENAME 30
+#define RESPUESTA_CREATE 31
+#define ENOENTRY 32
+//--
 #define NOMBRE_LOG	"ServerPokedex.log"
 #define NOMBRE_PROG	"servidor-pokedex"
 #define PUERTO	5000
 #define IP "127.0.0.1"
 
+t_log logServidor;
+int	listenningSocket;
+pthread_mutex_t mutex_comunicacion;
 
-#define BLOCK_SIZE				64
-#define FILETABLE				1024
-#define OSADA_FILENAME_LENGTH	17
-#define MAX_FILES				2048
-#define HEADER_BLOCK			1
 
-//Estructuras OSADA
+//variables de disco
+char* disco;
+off_t tamanioArchivo;
+int32_t descriptorArchivo;
+osada_header oheader;
+int offsetBitmap;
+int offsetTablaArchivos;
+int offsetAsignaciones;
+int offsetDatos;
 
-typedef uint32_t osada_block_pointer;
-
-typedef struct{
-	unsigned char identificador[7];
-	uint8_t	version;
-	uint32_t bloquesFS;
-	uint32_t bloquesBitMap;
-	uint32_t inicioTablaAsignacion;
-	uint32_t bloquesDatos;
-	unsigned char relleno[40];
-} t_osada_hdr;
-
-typedef enum __attribute__((packed)) {
-    DELETED = '\0',
-    REGULAR = '\1',
-    DIRECTORY = '\2',
-} osada_file_state;
-
-typedef struct {
-	osada_file_state state;
-	unsigned char fname[OSADA_FILENAME_LENGTH];
-	uint16_t parent_directory;
-	uint32_t file_size;
-	uint32_t lastmod;
-	osada_block_pointer first_block;
-} t_osada_file;
+//borrar esto------------------------------------------------
+struct stat pikachuStat;
+struct stat squirtleStat;
+struct stat bulbasaurStat;
+int* pmap_pikachu;
+int* pmap_squirtle;
+int* pmap_bulbasaur;
 
 //Sesion
 
@@ -113,5 +118,47 @@ void crearServer();
 t_sesion_cliente * crearSesionCliente(int cli_socket);
 void * serverCliente(void * args);
 
+
+//funciones de disco
+void asignarOffsets();
+void descargar(uint32_t descriptorArchivo);
+void escribirBloque(uint32_t bloque, char* buf);
+void escribirArchivo(uint32_t posicion, char* buf);
+int existePath(char* path, uint16_t** pos);
+int existeDirectorio(unsigned char* token, uint16_t* padre, int* posicion);
+void inicializarDisco();
+void leerArchivo(uint32_t posicion, osada_file* buf);
+void leerAsignacion(uint32_t posicion, osada_file* buf);
+void leerBloque(uint32_t cantidadBloques, char* buf);
+void leerDato(uint32_t posicion, osada_file* buf);
+void leerHeader();
+int mapearDisco(char* path);
+void mostrarHeader(osada_header oheader);
+void* readdir(char* path);
+void leerTablaArchivos();
+void leerTablaAsignaciones();
+void leerTablaDatos();
+//estas no se si funcionan
+void* readFile(osada_file ofile, void *buffer);
+void* readData(int cant_blocks, int* fat_values, void *buffer);
+void* concatenate(void *buffer, int tamBuffer, void *tmpBuffer, int tamTmpBuffer, void* result);
+
+
+//funciones de servidor-------------------------------------------------
+void atendercliente(int socket);
+void* hiloComunicacion(void* arg);
+void printEncabezado();
+void printTerminar();
+void procesarPedidoCreate(void *pedido, void *respuesta);
+void* procesarPedidoGetatrr(char *path);
+void procesarPedidoMkdir(void *pedido, void *respuesta);
+void procesarPedidoOpen(void *pedido, void *respuesta);
+void* procesarPedidoRead(void *buffer);
+void* procesarPedidoReaddir(char *path);
+void procesarPedidoRename(void *pedido, void *respuesta);
+void procesarPedidoRmdir(void *pedido, void *respuesta);
+void procesarPedidoUnlink(void *pedido, void *respuesta);
+void procesarPedidoWrite(void *pedido, void *respuesta);
+void terminar();
 
 #endif /* SERVIDOR_POKEDEX_H_ */
