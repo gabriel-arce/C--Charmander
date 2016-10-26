@@ -16,7 +16,7 @@
 
 #define PEDIDO_GETATTR 12
 #define PEDIDO_READDIR 13
-#define PEDIDO_OPEN 14
+#define PEDIDO_TRUNCATE 14
 #define PEDIDO_READ 15
 #define PEDIDO_WRITE 16
 #define PEDIDO_UNLINK 17
@@ -27,7 +27,7 @@
 
 #define RESPUESTA_GETATTR 22
 #define RESPUESTA_READDIR 23
-#define RESPUESTA_OPEN 24
+#define RESPUESTA_TRUNCATE 24
 #define RESPUESTA_READ 25
 #define RESPUESTA_WRITE 26
 #define RESPUESTA_UNLINK 27
@@ -36,9 +36,6 @@
 #define RESPUESTA_RENAME 30
 #define RESPUESTA_CREATE 31
 #define ENOENTRY 32
-
-#define PEDIDO_TRUNCATE 33
-#define RESPUESTA_TRUNCATE 34
 
 static int osada_create(const char *path, mode_t mode, struct fuse_file_info *fi);
 static int osada_getattr(const char *path, struct stat *stbuf);
@@ -68,14 +65,14 @@ struct t_runtime_options
 static struct fuse_operations osada_oper = {
 .getattr = osada_getattr,	// obtener atributos
 .readdir = osada_readdir, // leer un directorio
-//.read = osada_read, // leer archivo
-//.write = osada_write, // escribir un archivo
-//.unlink = osada_unlink, // borrar un archivo
-//.mkdir = osada_mkdir,	// crear un directorio
-//.rmdir = osada_rmdir,	//borrar un directorio
-//.rename = osada_rename,	//renombrar un archivo
-//.create = osada_create //crear y abrir un archivo
-//.truncate = osada_truncate //redimensionar archivo
+.read = osada_read, // leer archivo
+.write = osada_write, // escribir un archivo
+.unlink = osada_unlink, // borrar un archivo
+.mkdir = osada_mkdir,	// crear un directorio
+.rmdir = osada_rmdir,	//borrar un directorio
+.rename = osada_rename,	//renombrar un archivo
+.create = osada_create, //crear y abrir un archivo
+.truncate = osada_truncate, //redimensionar archivo
 };
 
 enum {

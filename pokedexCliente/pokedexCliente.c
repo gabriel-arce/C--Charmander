@@ -1,10 +1,10 @@
 
 /*
- * pokedexCliente.c
- *
- *  Created on: 17/9/2016
- *      Author: Guadalupe
- */
+* fuseCodemon.c
+*
+*  Created on: 17/9/2016
+*      Author: utnso
+*/
 #include <comunicacion.h>
 #include <commons/log.h>
 #include <commons/collections/queue.h>
@@ -40,6 +40,7 @@
 int* socketServidor;
 t_log* logCliente;
 
+char* puntoDeMontaje;
 char mensaje[6] = "\0";
 //char* ip;
 //char* puerto;
@@ -56,9 +57,6 @@ int main(int argc, char *argv[])
 //	ip = getenv("SERVER_HOST");
 //	puerto = getenv("SERVER_PORT");
 	struct fuse_args args = FUSE_ARGS_INIT(argc, argv);
-
-	// puntoDeMontaje = malloc(strlen(argv[argc-1]));
-	// strncpy(puntoDeMontaje,argv[argc-1],strlen(argv[argc-1]));
 
 	int head=0;
 	void *mensajeHSK = NULL;
@@ -146,11 +144,11 @@ static int osada_create(const char *path, mode_t mode, struct fuse_file_info *fi
 	}
 	else if (head == ENOENTRY)
 	{
-		log_info(logCliente, "	Recibi respuesta ENOENT en osada_mkdir....... ........ ..... ...... ..... .... .....");
+		log_info(logCliente, "	Recibi respuesta ENOENT en osada_create....... ........ ..... ...... ..... .... .....");
 	}
 	else
 	{
-		log_info(logCliente, "	No recibi RESPUESTA_CREATE en osada_mkdir.... ....... ........ ....... ........ ..... ....");
+		log_info(logCliente, "	No recibi RESPUESTA_CREATE en osada_create.... ....... ........ ....... ........ ..... ....");
 	}
 	free(paquete);
 
@@ -171,7 +169,7 @@ static int osada_getattr(const char *path, struct stat *stbuf)
 
 		pthread_mutex_lock(&mutex_comunicacion);
 			enviarConProtocolo(*socketServidor, PEDIDO_GETATTR, path);
-			log_info(logCliente, "	Envie PEDIDO_GETATTR");
+			//log_info(logCliente, "	Envie PEDIDO_GETATTR");
 			paquete = (t_stbuf*)recibirConProtocolo(*socketServidor,&head);
 		pthread_mutex_unlock(&mutex_comunicacion);
 
@@ -184,9 +182,9 @@ static int osada_getattr(const char *path, struct stat *stbuf)
 			log_info(logCliente, "	Recibi RESPUESTA_GETATTR");
 			return 0;
 		}
-		else
+		else if(head == ENOENT)
 		{
-			log_info(logCliente, "	No recibi RESPUESTA_GETATTR");
+			log_info(logCliente, "	Recibi ENOENT");
 			return -ENOENT;
 		}
 	}
@@ -262,7 +260,7 @@ static int osada_readdir(const char *path, void *buf, fuse_fill_dir_t filler, of
 		{
 			filler(buf, token, NULL, 0);
 
-			log_info(logCliente, (char*)token);
+		//	log_info(logCliente, (char*)token);
 			token = strtok(NULL, "/");
 		}
 
@@ -280,50 +278,50 @@ static int osada_readdir(const char *path, void *buf, fuse_fill_dir_t filler, of
 static int osada_read(const char *path, char *buf, size_t size, off_t offset, struct fuse_file_info *fi)
 {
 	// leer un archivo abierto
-	log_info(logCliente, "******************************************************************************" );
-	log_info(logCliente, "****************** FUSE: llamada a osada_read() ******************************" );
-	log_info(logCliente, "******************************************************************************" );
+		log_info(logCliente, "******************************************************************************" );
+		log_info(logCliente, "****************** FUSE: llamada a osada_read() ******************************" );
+		log_info(logCliente, "******************************************************************************" );
 
-	log_info(logCliente, path);
-	log_info(logCliente, "Size: %d", size);
+		log_info(logCliente, path);
+		log_info(logCliente, "Size: %d", size);
 
-	if ((strcmp(path, "/.Trash") != 0) && (strcmp(path, "/.Trash-1000") != 0) && (strcmp(path, " /.xdg-volume-info") != 0) && (strcmp(path, "/autorun.inf") != 0) && (strcmp(path, "/.xdg-volume-info") != 0))
-	{
-		int head = 0;
-		t_readbuf *pedido = malloc(sizeof(t_readbuf));
-		pedido->pathLen = strlen(path) + 1;
-		pedido->size = size;
-		pedido->offset = offset;
-
-		char* paquete = NULL;
-
-		pthread_mutex_lock(&mutex_comunicacion);
-			enviarConProtocolo(*socketServidor, PEDIDO_READ, pedido);
-				enviarEstructuraRead(*socketServidor, PEDIDO_READ, path, pedido);
-			log_info(logCliente, "	Envie PEDIDO_READ");
-			paquete =(char*) recibirConProtocolo(*socketServidor,&head);
-		pthread_mutex_unlock(&mutex_comunicacion);
-		//free(pedido);
-
-		if (head == RESPUESTA_READ)
+		if ((strcmp(path, "/.Trash") != 0) && (strcmp(path, "/.Trash-1000") != 0) && (strcmp(path, " /.xdg-volume-info") != 0) && (strcmp(path, "/autorun.inf") != 0) && (strcmp(path, "/.xdg-volume-info") != 0))
 		{
-			memset(buf, 0, size);
-			memcpy(buf, paquete, strlen((char*)paquete) + 1);
+			int head = 0;
+			t_readbuf *pedido = malloc(sizeof(t_readbuf));
+			pedido->pathLen = strlen(path) + 1;
+			pedido->size = size;
+			pedido->offset = offset;
 
-			log_info(logCliente, "	Recibi RESPUESTA_READ");
-		}
-		else if (head == ENOENTRY)
-		{
-			log_info(logCliente, "	Recibi respuesta ENOENT en osada_read....... ........ ..... ...... ..... .... .....");
-		}
-		else
-		{
-			log_info(logCliente, "	No recibi RESPUESTA_READ en osada_read.... ....... ........ ....... ........ ..... ....");
-		}
-		free(paquete);
-	}
+			char* paquete = NULL;
 
-	return size;
+			pthread_mutex_lock(&mutex_comunicacion);
+				enviarConProtocolo(*socketServidor, PEDIDO_READ, pedido);
+					enviarEstructuraRead(*socketServidor, PEDIDO_READ, path, pedido);
+				log_info(logCliente, "	Envie PEDIDO_READ");
+				paquete =(char*) recibirConProtocolo(*socketServidor,&head);
+			pthread_mutex_unlock(&mutex_comunicacion);
+			//free(pedido);
+
+			if (head == RESPUESTA_READ)
+			{
+				memset(buf, 0, size);
+				memcpy(buf, paquete, strlen((char*)paquete) + 1);
+
+				log_info(logCliente, "	Recibi RESPUESTA_READ");
+			}
+			else if (head == ENOENTRY)
+			{
+				log_info(logCliente, "	Recibi respuesta ENOENT en osada_read....... ........ ..... ...... ..... .... .....");
+			}
+			else
+			{
+				log_info(logCliente, "	No recibi RESPUESTA_READ en osada_read.... ....... ........ ....... ........ ..... ....");
+			}
+			free(paquete);
+		}
+
+		return size;
 }
 
 static int osada_rename(const char *path, const char *newpath)
@@ -357,11 +355,11 @@ static int osada_rename(const char *path, const char *newpath)
 	}
 	else if (head == ENOENTRY)
 	{
-		log_info(logCliente, "	Recibi respuesta ENOENT en osada_rmdir....... ........ ..... ...... ..... .... .....");
+		log_info(logCliente, "	Recibi respuesta ENOENT en osada_rename....... ........ ..... ...... ..... .... .....");
 	}
 	else
 	{
-		log_info(logCliente, "	No recibi RESPUESTA_RENAME en osada_rmdir.... ....... ........ ....... ........ ..... ....");
+		log_info(logCliente, "	No recibi RESPUESTA_RENAME en osada_rename.... ....... ........ ....... ........ ..... ....");
 	}
 	free(paquete);
 
@@ -372,7 +370,7 @@ static int osada_rmdir(const char *path)
 {
 	// borrar un directorio
 	log_info(logCliente, "******************************************************************************" );
-	log_info(logCliente, "****************** FUSE: llamada a osada_mkdir() *****************************" );
+	log_info(logCliente, "****************** FUSE: llamada a osada_rmdir() *****************************" );
 	log_info(logCliente, "******************************************************************************" );
 
 	log_info(logCliente, path);
@@ -381,8 +379,8 @@ static int osada_rmdir(const char *path)
 	void* paquete = NULL;
 
 	pthread_mutex_lock(&mutex_comunicacion);
-		enviarConProtocolo(*socketServidor, PEDIDO_MKDIR, path);
-		log_info(logCliente, "	Envie PEDIDO_MKDIR");
+		enviarConProtocolo(*socketServidor, PEDIDO_RMDIR, path);
+		log_info(logCliente, "	Envie PEDIDO_RMDIR");
 		paquete = recibirConProtocolo(*socketServidor, &head);
 	pthread_mutex_unlock(&mutex_comunicacion);
 
@@ -468,11 +466,11 @@ static int osada_unlink(const char *path)
 	}
 	else if (head == ENOENTRY)
 	{
-		log_info(logCliente, "	Recibi respuesta ENOENT en osada_truncate....... ........ ..... ...... ..... .... .....");
+		log_info(logCliente, "	Recibi respuesta ENOENT en osada_unlink....... ........ ..... ...... ..... .... .....");
 	}
 	else
 	{
-		log_info(logCliente, "	No recibi RESPUESTA_UNLINK en osada_truncate.... ....... ........ ....... ........ ..... ....");
+		log_info(logCliente, "	No recibi RESPUESTA_UNLINK en osada_unlink.... ....... ........ ....... ........ ..... ....");
 	}
 	free(paquete);
 
@@ -504,7 +502,7 @@ static int osada_write(const char *path, const char *buf, size_t size, off_t off
 		pthread_mutex_lock(&mutex_comunicacion);
 			enviarConProtocolo(*socketServidor, PEDIDO_WRITE, pedido);
 				enviarEstructuraWrite(*socketServidor, PEDIDO_WRITE, path, buf, pedido);
-			log_info(logCliente, "	Envie PEDIDO_READ");
+			log_info(logCliente, "	Envie PEDIDO_WRITE");
 			paquete = recibirConProtocolo(*socketServidor,&head);
 		pthread_mutex_unlock(&mutex_comunicacion);
 		//free(pedido);
@@ -584,6 +582,5 @@ void printServidorDesconectado()
 void terminar()
 {
 	printf("Señal terminar");
-	//execl("umount","", puntoDeMontaje, NULL);
 	exit(0);
 }

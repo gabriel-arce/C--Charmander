@@ -210,14 +210,31 @@ int calcularTamanioMensaje(int head, void* mensaje)
 			break;
 
 		case PEDIDO_UNLINK:
+			tamanio = strlen((char*) mensaje) + 1;
 			break;
+
 		case PEDIDO_MKDIR:
+		  tamanio = strlen((char*) mensaje) + 1;
 			break;
+
 		case PEDIDO_RMDIR:
+			tamanio = strlen((char*) mensaje) + 1;
 			break;
+
 		case PEDIDO_RENAME:
+		  tamanio = strlen((char*) mensaje) + 1;
 			break;
+
 		case PEDIDO_CREATE:
+		  tamanio = strlen((char*) mensaje) + 1;
+			break;
+
+		case PEDIDO_TRUNCATE:
+			tamanio = strlen((char*) mensaje) + 1;
+			break;
+
+		case RESPUESTA_TRUNCATE:
+			tamanio = sizeof(off_t);
 			break;
 
 		case RESPUESTA_WRITE:
@@ -225,14 +242,23 @@ int calcularTamanioMensaje(int head, void* mensaje)
 			break;
 
 		case RESPUESTA_UNLINK:
+			tamanio = sizeof(char);
 			break;
+
 		case RESPUESTA_MKDIR:
+			tamanio = sizeof(char);
 			break;
+
 		case RESPUESTA_RMDIR:
+			tamanio = sizeof(char);
 			break;
+
 		case RESPUESTA_RENAME:
+			tamanio = sizeof(char);
 			break;
+
 		case RESPUESTA_CREATE:
+			tamanio = sizeof(char);
 			break;
 
 		case ENOENTRY:
@@ -351,30 +377,18 @@ void* serializar(int head, void* mensaje, int tamanio)
 			break;
 
 		case PEDIDO_UNLINK:
-			break;
 		case PEDIDO_MKDIR:
-			break;
 		case PEDIDO_RMDIR:
-			break;
 		case PEDIDO_RENAME:
-			break;
 		case PEDIDO_CREATE:
-			break;
-
 		case RESPUESTA_WRITE:
+		case RESPUESTA_UNLINK:
+		case RESPUESTA_MKDIR:
+		case RESPUESTA_RMDIR:
+		case RESPUESTA_RENAME:
+		case RESPUESTA_CREATE:
 			buffer = malloc(tamanio);
 			memcpy(buffer, mensaje, tamanio);
-			break;
-
-		case RESPUESTA_UNLINK:
-			break;
-		case RESPUESTA_MKDIR:
-			break;
-		case RESPUESTA_RMDIR:
-			break;
-		case RESPUESTA_RENAME:
-			break;
-		case RESPUESTA_CREATE:
 			break;
 
 		case ENOENTRY:
@@ -438,30 +452,18 @@ void * deserializar(int head, void * buffer, int tamanio)
 			break;
 
 		case PEDIDO_UNLINK:
-			break;
 		case PEDIDO_MKDIR:
-			break;
 		case PEDIDO_RMDIR:
-			break;
 		case PEDIDO_RENAME:
-			break;
 		case PEDIDO_CREATE:
-			break;
-
 		case RESPUESTA_WRITE:
+		case RESPUESTA_UNLINK:
+		case RESPUESTA_MKDIR:
+		case RESPUESTA_RMDIR:
+		case RESPUESTA_RENAME:
+		case RESPUESTA_CREATE:
 			mensaje = malloc(tamanio);
 			memcpy(mensaje, buffer, tamanio);
-			break;
-
-		case RESPUESTA_UNLINK:
-			break;
-		case RESPUESTA_MKDIR:
-			break;
-		case RESPUESTA_RMDIR:
-			break;
-		case RESPUESTA_RENAME:
-			break;
-		case RESPUESTA_CREATE:
 			break;
 
 		case ENOENTRY:

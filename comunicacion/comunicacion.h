@@ -9,7 +9,7 @@
 #define ERROR -1
 #define PEDIDO_GETATTR 12
 #define PEDIDO_READDIR 13
-#define PEDIDO_OPEN 14
+#define PEDIDO_TRUNCATE 14
 #define PEDIDO_READ 15
 #define PEDIDO_WRITE 16
 #define PEDIDO_UNLINK 17
@@ -20,7 +20,7 @@
 
 #define RESPUESTA_GETATTR 22
 #define RESPUESTA_READDIR 23
-#define RESPUESTA_OPEN 24
+#define RESPUESTA_TRUNCATE 24
 #define RESPUESTA_READ 25
 #define RESPUESTA_WRITE 26
 #define RESPUESTA_UNLINK 27
@@ -29,9 +29,6 @@
 #define RESPUESTA_RENAME 30
 #define RESPUESTA_CREATE 31
 #define ENOENTRY 32
-
-#define PEDIDO_TRUNCATE 33
-#define RESPUESTA_TRUNCATE 34
 
 //colores para los prints en la consola
 #define RED   "\x1B[31m"
@@ -64,7 +61,6 @@ typedef struct
 
 }__attribute__((packed))
 t_writebuf;
-
 
 //para   fuse en pedido read
 typedef struct
