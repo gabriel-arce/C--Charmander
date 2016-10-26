@@ -26,26 +26,44 @@ void imprimir_metadata() {
 
 void inicializar_semaforos() {
 
+	void on_error_sem(sem_t * s) {
+		if (s == NULL)
+			exit(EXIT_FAILURE);
+	}
+
 	pthread_mutex_init(&mutex_gui, 0);
 	pthread_mutex_init(&mutex_servidor, 0);
 	pthread_mutex_init(&mutex_planificador_turno, 0);
+	pthread_mutex_init(&mutex_cola_listos, 0);
+	pthread_mutex_init(&cola_de_bloqueados, 0);
+	pthread_mutex_init(&cola_de_prioridad_SRDF, 0);
+	pthread_mutex_init(&mutex_entrenadores, 0);
+	pthread_mutex_init(&mutex_log, 0);
+	pthread_mutex_init(&mutex_pokenests, 0);
 	semaforo_de_listos = crearSemaforo(0);
-	if (semaforo_de_listos == NULL) {
-		perror("error en la creacion de semaforos");
-		exit(EXIT_FAILURE);
-	}
+	on_error_sem(semaforo_de_listos);
+	semaforo_de_bloqueados = crearSemaforo(0);
+	on_error_sem(semaforo_de_bloqueados);
 }
 
 void destruir_semaforos() {
 	pthread_mutex_destroy(&mutex_gui);
 	pthread_mutex_destroy(&mutex_servidor);
 	pthread_mutex_destroy(&mutex_planificador_turno);
+	pthread_mutex_destroy(&mutex_cola_bloqueados);
+	pthread_mutex_destroy(&mutex_cola_listos);
+	pthread_mutex_destroy(&mutex_cola_prioridadSRDF);
+	pthread_mutex_destroy(&mutex_entrenadores);
+	pthread_mutex_destroy(&mutex_log);
+	pthread_mutex_destroy(&mutex_pokenests);
 	destruirSemaforo(semaforo_de_listos);
+	destruirSemaforo(semaforo_de_bloqueados);
 }
 
 void inicializar_variables() {
 	entrenadores_conectados = list_create();
 	cola_de_listos = list_create();
+	cola_de_bloqueados = list_create();
 	lista_de_pokenests = list_create();
 	quantum_actual = 0;
 	keep_running = false;
@@ -252,6 +270,9 @@ int incrementar_recurso(char id_pokenest) {
 }
 
 void sacar_de_listos(t_entrenador * e) {
+
+	pthread_mutex_lock(&mutex_cola_listos);
+
 	int listos = list_size(cola_de_listos);
 	int i;
 	for (i = 0; i < listos; i++) {
@@ -262,9 +283,14 @@ void sacar_de_listos(t_entrenador * e) {
 			break;
 		}
 	}
+
+	pthread_mutex_unlock(&mutex_cola_listos);
 }
 
 void sacar_de_conectados(t_entrenador * e) {
+
+	pthread_mutex_lock(&(mutex_entrenadores));
+
 	int totales = list_size(entrenadores_conectados);
 	int i;
 
@@ -283,28 +309,32 @@ void sacar_de_conectados(t_entrenador * e) {
 			break;
 		}
 	}
+
+	pthread_mutex_unlock(&(mutex_entrenadores));
 }
 
 void sacar_de_bloqueados(t_entrenador * e) {
-	int i, j;
-	int pknsts = list_size(lista_de_pokenests);
-	int bloqueados = 0;
-	t_pokenest * pokenest = NULL;
 
-	for (i = 0; i < pknsts; i++) {
-		pokenest = list_get(lista_de_pokenests, i);
+	pthread_mutex_lock(&mutex_cola_bloqueados);
 
-		bloqueados = queue_size(pokenest->entrenadoresBloqueados);
+	int i;
+	int n = list_size(cola_de_bloqueados);
+	t_bloqueado * b;
+	bool encontro = false;
 
-		for (j = 0; j < bloqueados; j++) {
-			t_entrenador * ent = list_get(pokenest->entrenadoresBloqueados->elements, j);
+	for (i = 0; i < n; i++) {
+		b = list_get(cola_de_bloqueados, i);
 
-			if (ent->simbolo_entrenador == e->simbolo_entrenador) {
-				list_remove(pokenest->entrenadoresBloqueados->elements, j);
-				break;
-			}
+		if (b->entrenador->simbolo_entrenador == e->simbolo_entrenador) {
+			encontro = true;
+			break;
 		}
 	}
+
+	if (encontro)
+		list_remove(cola_de_bloqueados, i);
+
+	pthread_mutex_unlock(&mutex_cola_bloqueados);
 }
 
 t_pokemon * obtener_primer_no_capturado(t_pokenest * pokenest) {
@@ -322,4 +352,52 @@ t_pokemon * obtener_primer_no_capturado(t_pokenest * pokenest) {
 	}
 
 	return pkm_capt;
+}
+
+int enviar_ruta_pkm(char * ruta, int socket) {
+
+	int ruta_length = string_length(ruta);
+
+	void * buff = malloc(ruta_length);
+	memset(buff, 0, ruta_length);
+	memcpy(buff, ruta, ruta_length);
+
+	if (enviar_header(_CAPTURAR_PKM, ruta_length, socket) < 0)
+		return -1;
+
+	if (send(socket, buff, ruta_length, 0) < 0)
+		return -1;
+
+	free(buff);
+	free(ruta);
+
+	return EXIT_SUCCESS;
+}
+
+int agregar_a_cola(t_entrenador * entrenador, t_list * cola, pthread_mutex_t mutex) {
+	bool esta_en_lista(t_entrenador * e) {
+		return (e->simbolo_entrenador == entrenador->simbolo_entrenador);
+	}
+
+	int result = 0;
+
+	pthread_mutex_lock(&mutex);
+	bool ya_esta_en_cola = list_any_satisfy(cola, (void *) esta_en_lista);
+
+	if (!ya_esta_en_cola)
+		list_add(cola, entrenador);
+	else
+		result = -1;
+	pthread_mutex_unlock(&mutex);
+
+	return result;
+}
+
+t_entrenador * pop_entrenador() {
+
+	pthread_mutex_lock(&mutex_cola_listos);
+	t_entrenador * e = list_remove(cola_de_listos, 0);
+	pthread_mutex_unlock(&mutex_cola_listos);
+
+	return e;
 }

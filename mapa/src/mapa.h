@@ -93,6 +93,7 @@ typedef struct {
 	bool bloqueado;
 	bool objetivo_cumplido;
 	bool conoce_ubicacion;
+	pthread_mutex_t mutex_entrenador;
 } t_entrenador;
 
 typedef struct {
@@ -104,25 +105,37 @@ typedef struct {
 	char * tipo;
 } t_pokenest;
 
+typedef struct {
+	t_entrenador * entrenador;
+	t_pokenest * pokenest;
+} t_bloqueado;
+
 t_metadata_mapa * metadata;
 int socket_servidor;
 t_log * logger;
 pthread_t hilo_planificador;
 pthread_t hilo_servidor;
+pthread_t hilo_bloqueados;
+pthread_t hilo_deadlock;
 pthread_mutex_t mutex_servidor;
 pthread_mutex_t mutex_planificador_turno;
 pthread_mutex_t mutex_gui;
 t_list * entrenadores_conectados;
 sem_t * semaforo_de_listos;
+sem_t * semaforo_de_bloqueados;
+pthread_mutex_t mutex_cola_listos;
+pthread_mutex_t mutex_cola_bloqueados;
+pthread_mutex_t mutex_entrenadores;
+pthread_mutex_t mutex_cola_prioridadSRDF;
+pthread_mutex_t mutex_log;
+pthread_mutex_t mutex_pokenests;
 
-t_list * cola_de_listos;
+t_list * cola_de_listos; //t_entrenador
+t_list * cola_de_bloqueados; //t_bloqueado
 t_list * cola_de_prioridad_SRDF;
 t_list * lista_de_pokenests; //t_pokenest
-int tiempoChequeoInterbloqueo;
-bool batallasActivadas;
-enum algoritmoDePlanificacion;
-int retardoEntreTurnos;
-char* nombreMapa;   //se setea con argumento en consola
+
+char * nombreMapa;   //se setea con argumento en consola
 char * ruta_directorio;
 
 bool keep_running;
@@ -156,6 +169,7 @@ void run_scheduler_thread();
 int procesar_nuevo_entrenador(int socket_entrenador, int buffer_size);
 t_entrenador * recibir_datos_entrenador(int socket_entrenador, int buffer_size);
 int desconexion_entrenador(t_entrenador * entrenador, int nbytes_recv);
+void atender_bloqueados();
 
 //****Planificador****
 int run_algorithm();
@@ -168,7 +182,7 @@ int atrapar_pokemon(t_entrenador * entrenador);
 t_entrenador * calcularSRDF();
 bool entrenadorMasCercaDePokenest();
 int calcularDistanciaAPokenest(t_entrenador* entrenador);
-void agregarEntrenadorAListos(t_entrenador * nuevo_entrenador);
+int intentar_capturar_pokemon(t_bloqueado * bloqueado);
 
 //****Destroyers****
 void entrenador_destroyer(t_entrenador * e);
@@ -192,8 +206,14 @@ void ordenar_pokemons(t_list * pokemons);
 int liberar_pokemons(t_entrenador * e);
 int incrementar_recurso(char id_pokenest);
 t_pokemon * obtener_primer_no_capturado(t_pokenest * pokenest);
+int generar_captura(t_entrenador * entrenador, t_pokenest * pokenest, t_pokemon * pokemon);
+void agregar_a_cola(t_entrenador * entrenador, t_list * cola, pthread_mutex_t mutex);
+t_entrenador * pop_entrenador();
 
 //***Envios y serializaciones***
 t_pokemon * recibirPokemon(int socket);
+int enviar_ruta_pkm(char * ruta, int socket);
+
+//***Deadlock y bloqueo***
 
 #endif /* MAPA_H_ */
