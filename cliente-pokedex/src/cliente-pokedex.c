@@ -13,7 +13,7 @@
 //----Conexion
 
 int set_datos_conexion() {
-	char * ip_env = getenv("IP");
+	/*char * ip_env = getenv("IP");
 	char * port_env = getenv("PUERTO");
 
 	if ((ip_env == NULL)||(port_env == NULL)) {
@@ -24,7 +24,7 @@ int set_datos_conexion() {
 
 	ip_pokedex = string_duplicate(ip_env);
 	puerto_pokedex = atoi(port_env);
-
+*/
 	return 0;
 }
 
@@ -32,14 +32,14 @@ int set_datos_conexion() {
 int conectar_con_servidor_pkdx() {
 	int socket_fd = -1;
 	pthread_mutex_init(&mutex_comunicacion,NULL);
-	socket_fd = clienteDelServidor(ip_pokedex, puerto_pokedex);
+	socket_fd = clienteDelServidor("127.0.0.1", 5000);
 
 	return socket_fd;
 }
 
 //----Operaciones  (return 1(ok) o 0(fail))
 
-static int osada_getattr(const char *path, struct stat *stbuf)
+  int osada_getattr(const char *path, struct stat *stbuf)
 {
 	log_info(logCliente, "****************** FUSE: llamada a osada_getattr() ******************************" );
 	log_info(logCliente, path);
@@ -83,7 +83,7 @@ static int osada_getattr(const char *path, struct stat *stbuf)
 	}
 }
 
-static int osada_readdir(const char *path, void *buf, fuse_fill_dir_t filler, off_t offset, struct fuse_file_info *fi)
+ int osada_readdir(const char *path, void *buf, fuse_fill_dir_t filler, off_t offset, struct fuse_file_info *fi)
 {
 
 	log_info(logCliente, "****************** FUSE: llamada a osada_readdir() ******************************" );
@@ -354,7 +354,4 @@ void terminar()
 	printf("Señal terminar");
 	exit(0);
 }
-
-//----- Otras Funciones
-
 

@@ -36,6 +36,7 @@ void destruirSemaforos() {
 
 void crearServer() {
 
+
 	int optval = 1;
 
 	fd_servidor = crearSocket();
@@ -94,18 +95,18 @@ void * serverCliente(void * args) {
 	bool client_is_connected = true;
 	pthread_mutex_t mutex_cliente = PTHREAD_MUTEX_INITIALIZER;
 
-	//TODO definir interfaces y protocolos de comunicacion con los clientes pkdx
-	while (client_is_connected) {
 
-		pthread_mutex_lock(&mutex_cliente);
-		//recv + switch
-		pthread_mutex_unlock(&mutex_cliente);
 
-	}
 
+		atendercliente(cliente->socket_cliente);
+
+
+
+	return EXIT_SUCCESS;
+}
 
 //------------------File System
-
+/*
 	void* hiloComunicacion(void* arg)
 	{
 		int head;
@@ -142,7 +143,7 @@ void * serverCliente(void * args) {
 			}
 		}
 	}
-
+*/
 	void atendercliente(int socket)
 	{
 		int continuar = 1;
@@ -227,6 +228,7 @@ void * serverCliente(void * args) {
 			{
 				printf(YEL "\n******** Se desconecto el cliente %d, buscando uno nuevo para atender ******\n" RESET, socket);
 				continuar = 0;
+				//TODO  cerrar hilo
 			}
 
 		}//fin while
@@ -823,6 +825,3 @@ void * serverCliente(void * args) {
 
 	}
 
-
-	return EXIT_SUCCESS;
-}

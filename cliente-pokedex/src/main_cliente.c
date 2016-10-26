@@ -8,7 +8,8 @@
 #include "cliente-pokedex.h"
 
 
-int main(int argc, char ** argv) {
+int main(int argc, char *argv[]) {
+
 
 	if (chequear_argumentos(argc, TOTAL_ARGS) == -1)
 		return EXIT_FAILURE;
@@ -20,6 +21,9 @@ int main(int argc, char ** argv) {
 		puts("No se pudo establecer la conexion con el servidor");
 		return -1;
 	}
+	//creo log
+	logCliente = log_create("logPokedex", "Pokedex", false, LOG_LEVEL_DEBUG);
+	log_info(logCliente, "****************** Creando archivo Log *******************************************" );
 
 	printEncabezado();
 	socketServidor = conectar_con_servidor_pkdx();
@@ -27,7 +31,7 @@ int main(int argc, char ** argv) {
 	//Inicializar Fuse
 	PrintFuse();
 	struct fuse_args args = FUSE_ARGS_INIT(argc, argv);
+
 	return fuse_main(args.argc,args.argv, &osada_oper, NULL);
 
-	return EXIT_SUCCESS;
 }

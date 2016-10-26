@@ -14,13 +14,13 @@
 #include <commons/log.h>
 #include <signal.h>
 #include <pthread.h>
+#include <commons/collections/list.h>
 #include <shared_sockets.h>
 #include <shared_comunicaciones.h>
 #include <shared_semaforos.h>
 #include <shared_serializacion.h>
 #include <sys/socket.h>
 #include <sys/types.h>
-#include <commons/collections/list.h>
 #include <string.h>
 #include <sys/socket.h>
 #include <commons/string.h>
@@ -74,7 +74,7 @@
 
 t_log logServidor;
 int	listenningSocket;
-pthread_mutex_t mutex_comunicacion  = PTHREAD_MUTEX_INITIALIZER;
+pthread_mutex_t mutex_comunicacion;
 
 
 //variables de disco

@@ -89,9 +89,9 @@ static struct fuse_opt fuse_options[] = {
 
 //-------Operaciones
 static int osada_create(const char *path, mode_t mode, struct fuse_file_info *fi);
-static int osada_getattr(const char *path, struct stat *stbuf);
+  int osada_getattr(const char *path, struct stat *stbuf);
 static int osada_mkdir(const char *path, mode_t mode);
-static int osada_readdir(const char *path, void *buf, fuse_fill_dir_t filler, off_t offset, struct fuse_file_info *fi);
+  int osada_readdir(const char *path, void *buf, fuse_fill_dir_t filler, off_t offset, struct fuse_file_info *fi);
 static int osada_read(const char *path, char *buf, size_t size, off_t offset, struct fuse_file_info *fi);
 static int osada_rename(const char *path, const char *newpath);
 static int osada_rmdir(const char *path);
@@ -148,5 +148,6 @@ static struct fuse_operations osada_oper = {
 //.rename = osada_rename,	//renombrar un archivo
 //.create = osada_create //crear y abrir un archivo
 };
+
 
 #endif /* CLIENTE_POKEDEX_H_ */
