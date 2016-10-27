@@ -38,7 +38,6 @@
 
 #include "osada.h"
 #include "servidorPokedex.h"
-#include "disco.c"
 
 //colores para los prints en la consola
 #define RED   "\x1B[31m"
@@ -371,125 +370,66 @@ void printEncabezado()
 void* procesarPedidoGetatrr(char *path)
 {
 	printf("\t path: %s\n", path);
-	void *respuesta = NULL;
+	return getAttr(path);
 
-	t_stbuf* stbuf = malloc(sizeof( t_stbuf));
-	memset(stbuf, 0, sizeof( t_stbuf));
-
-	if (strcmp(path, "/") == 0)
-	{
-		stbuf->mode = S_IFDIR | 0755;
-		stbuf->nlink = 2;
-		stbuf->size = 0;
-	}
-	else if (strcmp(path, "/pikachu") == 0)
-	{
-		stbuf->mode = S_IFDIR | 0755;
-		stbuf->nlink = 2;
-		stbuf->size = 0;
-	}
-	else if (strcmp(path, "/squirtle") == 0)
-	{
-		stbuf->mode = S_IFDIR | 0755;
-		stbuf->nlink = 2;
-		stbuf->size = 0;
-	}
-	else if (strcmp(path, "/bulbasaur") == 0)
-	{
-		stbuf->mode = S_IFDIR | 0755;
-		stbuf->nlink = 2;
-		stbuf->size = 0;
-	}
-	else if (strcmp(path, "/pokemon.txt") == 0)
-	{
-		stbuf->mode = S_IFREG | 0444;
-		stbuf->nlink = 1;
-		stbuf->size = 144;
-	}
-	else if (strcmp(path, "/pikachu/pika-chu.mp4") == 0)
-	{
-		stbuf->mode = S_IFREG | 0444;
-		stbuf->nlink = 1;
-		stbuf->size = pikachuStat.st_size;
-	}
-	else if (strcmp(path, "/squirtle/vamo a calmarno.jpg") == 0)
-	{
-		stbuf->mode = S_IFREG | 0444;
-		stbuf->nlink = 1;
-		stbuf->size = squirtleStat.st_size;
-	}
-	else if (strcmp(path, "/bulbasaur/bulbasaur.mp3") == 0)
-	{
-		stbuf->mode = S_IFREG | 0444;
-		stbuf->nlink = 1;
-		stbuf->size = bulbasaurStat.st_size;
-	}
-	else if (strcmp(path, "/pepito.txt") == 0)
-	{
-		stbuf->mode = S_IFREG | 0444;
-		stbuf->nlink = 1;
-		stbuf->size = 5;
-	}
-	else
-	{
-		printf(YEL "\n\t Path no encontrado \n" RESET);
-		free(stbuf);
-		return NULL;
-	}
-
-	respuesta = malloc(sizeof(t_stbuf));
-	memset(respuesta, 0, sizeof(t_stbuf));
-	memcpy(respuesta, stbuf, sizeof(t_stbuf));
-
-	free(stbuf);
-
-	return respuesta;
+//	void *respuesta = NULL;
+//	t_stbuf* stbuf = malloc(sizeof( t_stbuf));
+//	memset(stbuf, 0, sizeof( t_stbuf));
+//
+//	if (strcmp(path, "/") == 0)
+//	{
+//		stbuf->mode = S_IFDIR | 0755;
+//		stbuf->nlink = 2;
+//		stbuf->size = 0;
+//	}
+//	else if (strcmp(path, "/bulbasaur") == 0)
+//	{
+//		stbuf->mode = S_IFDIR | 0755;
+//		stbuf->nlink = 2;
+//		stbuf->size = 0;
+//	}
+//	else if (strcmp(path, "/pokemon.txt") == 0)
+//	{
+//		stbuf->mode = S_IFREG | 0444;
+//		stbuf->nlink = 1;
+//		stbuf->size = 144;
+//	}
+//	else
+//	{
+//		printf(YEL "\n\t Path no encontrado \n" RESET);
+//		free(stbuf);
+//		return NULL;
+//	}
+//	respuesta = malloc(sizeof(t_stbuf));
+//	memset(respuesta, 0, sizeof(t_stbuf));
+//	memcpy(respuesta, stbuf, sizeof(t_stbuf));
+//
+//	free(stbuf);
+	//return respuesta; //getAttr(path);
 }
 
 void* procesarPedidoReaddir(char *path)
 {
 	printf("\t path: %s\n", path);
-	void *respuesta = NULL;
+//	void *respuesta = NULL;
 
-	if (strcmp(path, "/") == 0)
-	{
-		char* archivos = "pikachu/squirtle/bulbasaur/pokemon.txt/pepito.txt/";
-		respuesta = malloc(strlen(archivos)+1);
-		memset(respuesta, 0, strlen(archivos)+1);
-		memcpy(respuesta, archivos, strlen(archivos)+1);
-		//free(archivos);
-	}
-	else if (strcmp(path, "/pikachu") == 0)
-	{
-		char* archivos = "pika-chu.mp4/";
-		respuesta = malloc(strlen(archivos)+1);
-		memset(respuesta, 0, strlen(archivos)+1);
-		memcpy(respuesta, archivos, strlen(archivos)+1);
-		//free(archivos);
-	}
-	else if (strcmp(path, "/squirtle") == 0)
-	{
-		char* archivos = "vamo a calmarno.jpg/";
-		respuesta = malloc(strlen(archivos)+1);
-		memset(respuesta, 0, strlen(archivos)+1);
-		memcpy(respuesta, archivos, strlen(archivos)+1);
-		//free(archivos);
-	}
-	else if (strcmp(path, "/bulbasaur") == 0)
-	{
-		char* archivos = "bulbasaur.mp3/";
-		respuesta = malloc(strlen(archivos)+1);
-		memset(respuesta, 0, strlen(archivos)+1);
-		memcpy(respuesta, archivos,strlen(archivos)+1);
-		//free(archivos);
-	}
-	else
-	{
-		printf(YEL "\n\t Path no encontrado \n" RESET);
-		return NULL;
-	}
-
-	return respuesta;
+	//char* archivosEnDirectorio = readdir(path);
+	return readdir(path);
+//	if (strcmp(path, "/") == 0)
+//	{
+//		char* archivos = "pikachu/squirtle/bulbasaur/pokemon.txt/pepito.txt/";
+//		respuesta = malloc(strlen(archivos)+1);
+//		memset(respuesta, 0, strlen(archivos)+1);
+//		memcpy(respuesta, archivos, strlen(archivos)+1);
+//		//free(archivos);
+//	}
+//	else
+//	{
+//		printf(YEL "\n\t Path no encontrado \n" RESET);
+//		return NULL;
+//	}
+//
+//	return respuesta;
 }
 
 void* procesarPedidoRead(void* buffer)//en construccion
@@ -738,13 +678,14 @@ void escribirArchivo(uint32_t posicion, char* buf)
 	memcpy(disco + offsetTablaArchivos + (posicion * sizeof(osada_file)), buf, sizeof(osada_file));
 }
 
-int existePath(char* path, uint16_t** pos)
+int existePath(char* path, uint16_t* pos)
 {
 	int i;
 	int existe = 1;
-	uint16_t* padre;
+	uint16_t padre;
 	padre = 65535;
-	printf( "path %s\n", path);
+	//printf( "path %s\n", path);
+
 	char *token = malloc(strlen(path)+1);
 	char *pathRecibido = malloc(strlen(path)+1);
 
@@ -753,14 +694,17 @@ int existePath(char* path, uint16_t** pos)
 
 	while ((token != NULL) && (existe != 0))
 	{
-		existe = existeDirectorio(token, &padre,&(*pos));
+	//	printf(CYN "token: %s\n" RESET, token);
+		existe = existeDirectorio(token, &padre, pos);
 		token = strtok(NULL, "/");
 	}
 	//free(pathRecibido);
 	if (existe == 0)
 	{
+		printf(YEL "\t NO EXISTE PATH: %s\n" RESET, path);
 		return 0;//no existe
 	}
+	printf(CYN "\t EXISTE PATH: %s, POSICION:%d\n" RESET, path, padre);
 	return 1;
 }
 
@@ -771,21 +715,23 @@ int existeDirectorio(unsigned char* token, uint16_t* padre, int* posicion)
 
 		for(i=0; i< 2048; i++)
 		{
-			*posicion=i;
+			*posicion = i;
 			leerArchivo(i, &archivo);
-			if (strcmp(archivo.fname, token) == 0)
+
+//    	printf(GRN "	archivo.fname: %s\n", archivo.fname);
+//    	printf("	token: %s" RESET, token);
+
+			if ((strcmp(archivo.fname, token) == 0) && (archivo.state != 0))
 			{
+				//printf(YEL "TOKEN IGUAL FNAME!!!!\n" RESET);
 				if (archivo.parent_directory == *padre)
 				{
 				*padre = i;
-				}
-			if (archivo.state == 2)
-			{
 				return 1;
 			}
 			}
 		}
-		printf(YEL "recorrió toda la tabla de archivos y salió sin encontrar\n" RESET);
+	// printf(YEL "recorrió toda la tabla de archivos y salió sin encontrar\n" RESET);
 
 		return 0;
 }
@@ -796,27 +742,12 @@ void inicializarDisco()
 	mapearDisco("basic.bin"); //mapearDisco("challenge.bin");
 	leerHeader();
 	asignarOffsets();
-	//leerTablaArchivos();
-//---------------------------------------------
-
-//mas adelante borrar esto y leer los archivos de osada----------------------
-//	char* path = "/directorio";
+//	leerTablaArchivos();
+//
+//////mas adelante borrar esto
+//	char* path = "/directorio/subdirectorio";
 //	char* archivosEnDirectorio = readdir(path);
-
-	//pikachu
-	int fd_pikachu;
-	//fd_pikachu= open("/home/utnso/fuse_pokemon/pika-chu.mp4",O_RDWR);
-	fd_pikachu= open("/fuse_pokemon/pika-chu.mp4",O_RDWR);
-	fstat(fd_pikachu,&pikachuStat);
-	pmap_pikachu= mmap(0, pikachuStat.st_size, PROT_READ | PROT_WRITE, MAP_SHARED, fd_pikachu, 0);
-
-	//bulbasaur
-	int fd_bulbasaur;
-	//fd_bulbasaur= open("/home/utnso/fuse_pokemon/bulbasaur.mp3",O_RDWR);
-	fd_bulbasaur= open("/fuse_pokemon/bulbasaur.mp3",O_RDWR);
-	fstat(fd_bulbasaur,&bulbasaurStat);
-	pmap_bulbasaur= mmap(0, bulbasaurStat.st_size, PROT_READ | PROT_WRITE, MAP_SHARED, fd_bulbasaur, 0);
-
+//	 getAttr(path);
 }
 
 void leerArchivo(uint32_t posicion, osada_file* buf)
@@ -887,6 +818,52 @@ void mostrarHeader(osada_header oheader)
 		printf("                     Data size: %d blocks \n \n", oheader.data_blocks);
 }
 
+void* getAttr(char* path)
+{
+	osada_file archivo;
+		int pos = 0;
+		int existe = 1;
+//   printf(GRN "path: %s\n" RESET, path);
+		if (strcmp(path, "/") == 0)
+		{
+		t_stbuf* stbuf = malloc(sizeof(t_stbuf));
+		stbuf->mode = S_IFDIR | 0755;
+		stbuf->nlink = 2;
+		stbuf->size = 0;
+		return stbuf;
+		}
+	// printf(GRN "path: %s\n" RESET, path);
+	if (existePath(path, &pos))
+	{
+		leerArchivo(pos, &archivo);
+//		printf(GRN "es archivo: %s\n" RESET, archivo.fname);
+//		printf(GRN " archivo.parent_directory: %d, pos: %d\n" RESET,  archivo.parent_directory, pos);
+//		printf(GRN "archivo.state: %d\n" RESET, archivo.state);
+
+		if (archivo.state != 0)
+		{
+			t_stbuf* stbuf = malloc(sizeof( t_stbuf));
+			if (archivo.state == 2)//si es un directorio
+			{
+				stbuf->mode = S_IFDIR | 0755;
+				stbuf->nlink = 2;
+				stbuf->size = 0;
+			}
+			else
+			{
+				stbuf->mode = S_IFREG | 0444;
+				stbuf->nlink = 1;
+				stbuf->size = archivo.file_size;
+			}
+
+			//printf(CYN "Encontre archivo: %s\n" RESET, archivo.fname);
+			return stbuf;
+		}
+	}
+
+	return NULL;
+}
+
 /* para procesar pedido readdir(),
 * recibo un path de fuse y chequeo que exista
 * si existe armo una cadena con los nombres de todos los archivos y directorios contenidos en ese path */
@@ -895,12 +872,21 @@ void* readdir(char* path)
 	osada_file archivo;
 	unsigned char* seleccionado;
 	char* buffer = NULL;
-	int* pos;
+	int pos;
 		int i;
+		int existe = 1;
 		int contadorArchivosEnPath = 0;
 
-	int existe = existePath(path, &pos);
+		if (strcmp(path, "/") == 0)
+		{
+			pos = 65535;
+		}
+		else
+		{
+			existe = existePath(path, &pos);
+		}
 
+	//printf(CYN "POS: %d !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n" RESET, pos);
 	if (existe != 0) //si el path es valido busco cuantos archivos contiene para dimensionar la respuesta
 	{
 		for(i=0; i< 2048; i++)
@@ -910,17 +896,17 @@ void* readdir(char* path)
 			if ((pos == archivo.parent_directory) && (archivo.state != 0))
 			{
 				contadorArchivosEnPath++;
-				printf(CYN "Contar archivo: %s\n" RESET, archivo.fname);
+				//printf(CYN "Contar archivo: %s\n" RESET, archivo.fname);
 			}
 		}
 	}
 	else
 	{
-		printf(YEL "no hay archivos para devolver, el path no existe \n" RESET);
+		//printf(YEL "No hay archivos para devolver, el path no existe \n" RESET);
 		return NULL;
 	}
 
-	printf("Cantidad de archivos en path: %d\n", contadorArchivosEnPath);
+	printf("\t Cantidad de archivos en path: %d\n", contadorArchivosEnPath);
 
 	buffer = malloc(contadorArchivosEnPath * ((sizeof(char) * OSADA_FILENAME_LENGTH) + 1));//le sumo 1 para agregar el caracter centinela despues de cada fname
 	memset(buffer, 0, contadorArchivosEnPath * ((sizeof(char) * OSADA_FILENAME_LENGTH) + 1));
@@ -933,10 +919,10 @@ void* readdir(char* path)
 		{
 			strcat(buffer, archivo.fname);
 			strcat(buffer, "/");
-						printf(CYN "archivo pedido: %s\n" RESET, archivo.fname);
+				//   printf(CYN "archivo pedido: %s\n" RESET, archivo.fname);
 		}
 	}
-		printf("La cadena de archivos para enviar al cliente es: %s\n", buffer);
+		printf("\t Archivos en path: %s\n", buffer);
 
 	return buffer;
 }
@@ -947,10 +933,11 @@ void leerTablaArchivos()
 		osada_file archivo;
 		int i;
 		printf("tabla de archivos\n");
+		printf("    Archivo.fname  parent_directory  file_size  state\n");
 		for(i=0; i< 15; i++)
 		{
 			leerArchivo(i, &archivo);
-			printf("%s\t %d\t %d\t %d\n", archivo.fname, archivo.parent_directory, archivo.file_size, archivo.state);
+			printf("%17s\t %8d\t %4d\t %4d\n", archivo.fname, archivo.parent_directory, archivo.file_size, archivo.state);
 //       if(i<7)//sacar esto, esta solo para probar el escribir archivos
 //       {
 //    	   strcpy(archivo.fname,"Me modificaron");

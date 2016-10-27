@@ -41,7 +41,7 @@ void asignarOffsets();
 void descargar(uint32_t descriptorArchivo);
 void escribirBloque(uint32_t bloque, char* buf);
 void escribirArchivo(uint32_t posicion, char* buf);
-int existePath(char* path, uint16_t** pos);
+int existePath(char* path, uint16_t* pos);
 int existeDirectorio(unsigned char* token, uint16_t* padre, int* posicion);
 void inicializarDisco();
 void leerArchivo(uint32_t posicion, osada_file* buf);
@@ -49,12 +49,15 @@ void leerAsignacion(uint32_t posicion, osada_file* buf);
 void leerBloque(uint32_t cantidadBloques, char* buf);
 void leerDato(uint32_t posicion, osada_file* buf);
 void leerHeader();
-int mapearDisco(char* path);
-void mostrarHeader(osada_header oheader);
-void* readdir(char* path);
 void leerTablaArchivos();
 void leerTablaAsignaciones();
 void leerTablaDatos();
+int mapearDisco(char* path);
+void mostrarHeader(osada_header oheader);
+
+void* readdir(char* path);
+void* getAttr(char* path);
+
 
 char borrarArchivo(char* path);
 char borrarDirectorio(char* path);
