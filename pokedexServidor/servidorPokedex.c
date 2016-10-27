@@ -2,7 +2,7 @@
 * servidorPokedex.c
 *
 *  Created on: 29/9/2016
-*      Author: David
+*      Author: Guadalupe
 */
 
 #include <commons/string.h>
@@ -37,6 +37,7 @@
 #include <unistd.h>
 
 #include "osada.h"
+
 #include "servidorPokedex.h"
 
 //colores para los prints en la consola
@@ -264,7 +265,7 @@ void atendercliente(int socket)
 					printf(GRN "\t procesando PEDIDO_RMDIR\n" RESET);
 
 					respuesta = procesarPedidoRmdir((char*)pedido);
-					if(respuesta != NULL)
+					if (respuesta != NULL)
 					{
 						enviarConProtocolo(socket, RESPUESTA_RMDIR, respuesta);
 						printf(GRN "\t devolviendo RESPUESTA_RMDIR\n" RESET);
@@ -293,13 +294,13 @@ void atendercliente(int socket)
 					break;
 
 				case PEDIDO_UNLINK:
-					printf(RED "\t procesando PEDIDO_UNLINK\n" RESET);
+					printf(GRN "\t procesando PEDIDO_UNLINK\n" RESET);
 
 					respuesta = procesarPedidoUnlink((char*)pedido);
 					if(respuesta != NULL)
 					{
 						enviarConProtocolo(socket, RESPUESTA_UNLINK, respuesta);
-						printf(RED "\t devolviendo RESPUESTA_UNLINK\n" RESET);
+						printf(GRN "\t devolviendo RESPUESTA_UNLINK\n" RESET);
 					}
 					else
 					{
@@ -371,70 +372,17 @@ void* procesarPedidoGetatrr(char *path)
 {
 	printf("\t path: %s\n", path);
 	return getAttr(path);
-
-//	void *respuesta = NULL;
-//	t_stbuf* stbuf = malloc(sizeof( t_stbuf));
-//	memset(stbuf, 0, sizeof( t_stbuf));
-//
-//	if (strcmp(path, "/") == 0)
-//	{
-//		stbuf->mode = S_IFDIR | 0755;
-//		stbuf->nlink = 2;
-//		stbuf->size = 0;
-//	}
-//	else if (strcmp(path, "/bulbasaur") == 0)
-//	{
-//		stbuf->mode = S_IFDIR | 0755;
-//		stbuf->nlink = 2;
-//		stbuf->size = 0;
-//	}
-//	else if (strcmp(path, "/pokemon.txt") == 0)
-//	{
-//		stbuf->mode = S_IFREG | 0444;
-//		stbuf->nlink = 1;
-//		stbuf->size = 144;
-//	}
-//	else
-//	{
-//		printf(YEL "\n\t Path no encontrado \n" RESET);
-//		free(stbuf);
-//		return NULL;
-//	}
-//	respuesta = malloc(sizeof(t_stbuf));
-//	memset(respuesta, 0, sizeof(t_stbuf));
-//	memcpy(respuesta, stbuf, sizeof(t_stbuf));
-//
-//	free(stbuf);
-	//return respuesta; //getAttr(path);
 }
 
 void* procesarPedidoReaddir(char *path)
 {
 	printf("\t path: %s\n", path);
-//	void *respuesta = NULL;
-
-	//char* archivosEnDirectorio = readdir(path);
 	return readdir(path);
-//	if (strcmp(path, "/") == 0)
-//	{
-//		char* archivos = "pikachu/squirtle/bulbasaur/pokemon.txt/pepito.txt/";
-//		respuesta = malloc(strlen(archivos)+1);
-//		memset(respuesta, 0, strlen(archivos)+1);
-//		memcpy(respuesta, archivos, strlen(archivos)+1);
-//		//free(archivos);
-//	}
-//	else
-//	{
-//		printf(YEL "\n\t Path no encontrado \n" RESET);
-//		return NULL;
-//	}
-//
-//	return respuesta;
 }
 
-void* procesarPedidoRead(void* buffer)//en construccion
+void* procesarPedidoRead(void* buffer)
 {
-	printf(YEL "\n\t Entre procesarPedidoRead\n" RESET);
+	//printf(YEL "\n\t Entre procesarPedidoRead\n" RESET);
 	int desplazamiento = 0;
 	size_t* size = malloc(sizeof(size_t));
 	off_t* offset = malloc(sizeof(off_t));
@@ -454,57 +402,35 @@ void* procesarPedidoRead(void* buffer)//en construccion
 	printf( "\t En procesarPedidoRead el pathlen es: %d\n", *pathLen);
 	printf( "\t En procesarPedidoRead el path es: %s\n" RESET, path);
 
-	if (strcmp(path, "/pikachu/pika-chu.mp4") == 0)
+//	else if (strcmp(path, "/pokemon.txt") == 0)
+//	{
+//		printf(GRN "size: %d" RESET, *size);
+//		void* respuesta = malloc(144);
+//		memset(respuesta, 0, 144);
+//		memcpy(respuesta,"Los pokemon son una clase de criaturas (monstruos) basadas en muchos casos en animales reales o criaturas míticas y mitológicas orientales.\n", 144);
+//		//printf(GRN "respuesta: %s" RESET, respuesta);
+//		return respuesta;
+//	}
+//	else if (strcmp(path, "/pepito.txt") == 0)
+//	{
+//		printf(GRN "size: %d" RESET, *size);
+//		void* respuesta = malloc(5);
+//		memset(respuesta, 0, 5);
+//		memcpy(respuesta,"Hola\n", 5);
+//	//	printf(GRN "respuesta: %s" RESET, respuesta);
+//		return respuesta;
+//	}
+	int posicion;
+	if(existePath(path, &posicion))
 	{
-		void* respuesta = malloc(*size);
-		memset(respuesta, 0, *size);
-		memcpy(respuesta,(pmap_pikachu + *offset), *size);
-		return respuesta;
-	}
-	else if (strcmp(path, "/squirtle/vamo a calmarno.jpg") == 0)
-	{
-		//----------------------
-		int fd_squirtle;
-		fd_squirtle = open("/fuse_pokemon/vamo a calmarno.jpg",O_RDWR);
-		fstat(fd_squirtle,&squirtleStat);
-		pmap_squirtle = mmap(0, squirtleStat.st_size, PROT_READ | PROT_WRITE, MAP_SHARED, fd_squirtle, 0);
-		//----------------------
 
-		void* respuesta = malloc(squirtleStat.st_size);
-		memset(respuesta, 0, squirtleStat.st_size);
-		//memcpy(respuesta,(pmap_squirtle), squirtleStat.st_size);
-		memcpy(respuesta,((char*)pmap_squirtle + *offset), squirtleStat.st_size);
-		//printf(GRN "\n\n\nvamo a calmarno.jpg: %s\n\n\n" RESET, respuesta);
-		return respuesta;
-	}
-	else if (strcmp(path, "/bulbasaur/bulbasaur.mp3") == 0)
-	{
-		void* respuesta = malloc(*size);
-		memset(respuesta, 0, *size);
-		memcpy(respuesta,(pmap_bulbasaur + *offset), *size);
-		return respuesta;
-	}
-	else if (strcmp(path, "/pokemon.txt") == 0)
-	{
-		printf(GRN "size: %d" RESET, *size);
-		void* respuesta = malloc(144);
-		memset(respuesta, 0, 144);
-		memcpy(respuesta,"Los pokemon son una clase de criaturas (monstruos) basadas en muchos casos en animales reales o criaturas míticas y mitológicas orientales.\n", 144);
-		//printf(GRN "respuesta: %s" RESET, respuesta);
-		return respuesta;
-	}
-	else if (strcmp(path, "/pepito.txt") == 0)
-	{
-		printf(GRN "size: %d" RESET, *size);
-		void* respuesta = malloc(5);
-		memset(respuesta, 0, 5);
-		memcpy(respuesta,"Hola\n", 5);
-	//	printf(GRN "respuesta: %s" RESET, respuesta);
-		return respuesta;
+		osada_file* archivo = buscarArchivo(nombre(path), &posicion);
+		printf(GRN "\t Archivo leido" RESET);
+		return readFile(archivo);
 	}
 	else
 	{
-		printf(RED "\n\t No encontré el path, aca no queria entrar !!!!!\n" RESET);
+		printf(RED "\n\t No encontré el path!\n" RESET);
 	}
 
 	//free(buffer);
@@ -613,19 +539,88 @@ void terminar()
 }
 
 //funciones de disco----------------------------------------------------------------------------------
+char* nombre(char* path)
+{
+	char* pathToken = malloc(strlen(path)+1);
+	strcpy(pathToken, path);
+
+	char* token = malloc(strlen(path) +1);
+	char* respuesta = malloc(strlen(path) +1);
+
+	token = strtok(pathToken, "/");
+
+	while (token != NULL)
+	{
+		strcpy(respuesta, token);
+		token = strtok(NULL, "/");
+	}
+	return respuesta;
+}
+
 char borrarArchivo(char* path)
 {
-	//TODO: lee la tabla de archivos, pone en cero/borrado el estado del archivo y actualiza el bitmap
+	//lee la tabla de archivos, pone en cero/borrado el estado del archivo y actualiza el bitmap
 	//devuelve 's' para indicar ok al cliente o 'n' si fallo el pedido
+	int posicion;
+
+	osada_file* archivo = buscarArchivo(nombre(path), &posicion);
+	if (archivo == NULL)
+	{
+		printf(RED "\t No se encontro el archivo\n" RESET);
+		return 'n';
+	}
+
+		archivo->state = 0;
+		escribirArchivo(posicion, archivo);
+
+		//falta actualizar el bitmap
+
+	printf(YEL "\t Se borro el archivo: %s\n" RESET, archivo->fname);
 	return 's';
-	//return 'n';
 }
+
+int esDirectorioVacio(int posicion)
+{
+	int i;
+	osada_file* archivo = malloc(sizeof(osada_file));
+
+		for(i=0; i< 2048; i++)
+		{
+			leerArchivo(i, archivo);
+
+			if ((archivo->parent_directory == posicion) && (archivo->state != 0))
+			{
+				free(archivo);
+				return 0;
+			}
+		}
+
+		free(archivo);
+	return 1;
+}
+
 char borrarDirectorio(char* path)
 {
-	//TODO: lee la tabla de archivos, chequea que el directorio este vacio y pone en cero/borrado el estado del directorio
+	//lee la tabla de archivos, chequea que el directorio este vacio y pone en cero/borrado el estado del directorio
 	//devuelve 's' para indicar ok al cliente o 'n' si fallo el pedido
+	int posicion;
+
+	osada_file* archivo = buscarArchivo(nombre(path), &posicion);
+	if (archivo == NULL)
+	{
+		printf(RED "\t No se encontro el archivo\n" RESET);
+		return 'n';
+	}
+	if (!esDirectorioVacio(posicion))
+	{
+		printf(RED "\t No se pudo borrar el directorio porque no esta vacio\n" RESET);
+		return 'n';
+	}
+		archivo->state = 0;
+		escribirArchivo(posicion, archivo);
+
+	printf(YEL "\t Se borro el archivo: %s\n" RESET, archivo->fname);
 	return 's';
-	//return 'n';
 }
 
 char crearArchivo(char* path, int modo)
@@ -637,12 +632,49 @@ char crearArchivo(char* path, int modo)
 	//return 'n';
 }
 
+osada_file* buscarArchivo(char* nombre, int* posicion)
+{
+	osada_file* archivo = malloc(sizeof(osada_file));
+	int i;
+
+		for(i=0; i< 2048; i++)
+		{
+			leerArchivo(i, archivo);
+
+			if ((strcmp(archivo->fname, nombre) == 0) && (archivo->state != 0))
+			{
+				*posicion = i;
+			return archivo;
+			}
+		}
+
+		return NULL;
+}
+
 char renombrarArchivo(char* paths)
 {
-	//TODO: separa el path recibido en nuevo y viejo, lee la tabla de archivos y actualiza el nombre,
+	//separa el path recibido en nuevo y viejo, lee la tabla de archivos y actualiza el nombre,
 	//devuelve 's' para indicar ok al cliente o 'n' si fallo el pedido
+	int posicion;
+
+	char *viejo = malloc(strlen(paths)+1);
+	char *nuevo = malloc(strlen(paths)+1);
+
+	viejo = strtok(paths, "*");
+	nuevo = strtok(NULL, "*");
+
+	osada_file* archivo = buscarArchivo(viejo, &posicion);
+	if (archivo == NULL)
+	{
+		printf(RED "\t No se encontro el archivo: %s\n" RESET, viejo);
+		return 'n';
+	}
+
+		strcpy(archivo->fname, nuevo);
+		escribirArchivo(posicion, archivo);
+
+	printf(GRN "\t Se cambio el nombre del archivo: %s por: %s\n" RESET, viejo, nuevo);
 	return 's';
-	//return 'n';
 }
 
 void asignarOffsets()
@@ -718,12 +750,8 @@ int existeDirectorio(unsigned char* token, uint16_t* padre, int* posicion)
 			*posicion = i;
 			leerArchivo(i, &archivo);
 
-//    	printf(GRN "	archivo.fname: %s\n", archivo.fname);
-//    	printf("	token: %s" RESET, token);
-
 			if ((strcmp(archivo.fname, token) == 0) && (archivo.state != 0))
 			{
-				//printf(YEL "TOKEN IGUAL FNAME!!!!\n" RESET);
 				if (archivo.parent_directory == *padre)
 				{
 				*padre = i;
@@ -731,7 +759,6 @@ int existeDirectorio(unsigned char* token, uint16_t* padre, int* posicion)
 			}
 			}
 		}
-	// printf(YEL "recorrió toda la tabla de archivos y salió sin encontrar\n" RESET);
 
 		return 0;
 }
@@ -746,8 +773,14 @@ void inicializarDisco()
 //
 //////mas adelante borrar esto
 //	char* path = "/directorio/subdirectorio";
-//	char* archivosEnDirectorio = readdir(path);
-//	 getAttr(path);
+////	char* archivosEnDirectorio = readdir(path);
+////	 getAttr(path);
+//	printf("%s\n", nombre(path));
+//
+//	char* path2 = "/directorio/subdirectorio/large.txt";
+////	char* archivosEnDirectorio = readdir(path);
+////	 getAttr(path);
+//	printf("%s\n", nombre(path2));
 }
 
 void leerArchivo(uint32_t posicion, osada_file* buf)
@@ -823,7 +856,7 @@ void* getAttr(char* path)
 	osada_file archivo;
 		int pos = 0;
 		int existe = 1;
-//   printf(GRN "path: %s\n" RESET, path);
+
 		if (strcmp(path, "/") == 0)
 		{
 		t_stbuf* stbuf = malloc(sizeof(t_stbuf));
@@ -832,13 +865,10 @@ void* getAttr(char* path)
 		stbuf->size = 0;
 		return stbuf;
 		}
-	// printf(GRN "path: %s\n" RESET, path);
+
 	if (existePath(path, &pos))
 	{
 		leerArchivo(pos, &archivo);
-//		printf(GRN "es archivo: %s\n" RESET, archivo.fname);
-//		printf(GRN " archivo.parent_directory: %d, pos: %d\n" RESET,  archivo.parent_directory, pos);
-//		printf(GRN "archivo.state: %d\n" RESET, archivo.state);
 
 		if (archivo.state != 0)
 		{
@@ -856,7 +886,6 @@ void* getAttr(char* path)
 				stbuf->size = archivo.file_size;
 			}
 
-			//printf(CYN "Encontre archivo: %s\n" RESET, archivo.fname);
 			return stbuf;
 		}
 	}
@@ -886,7 +915,6 @@ void* readdir(char* path)
 			existe = existePath(path, &pos);
 		}
 
-	//printf(CYN "POS: %d !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n" RESET, pos);
 	if (existe != 0) //si el path es valido busco cuantos archivos contiene para dimensionar la respuesta
 	{
 		for(i=0; i< 2048; i++)
@@ -896,13 +924,12 @@ void* readdir(char* path)
 			if ((pos == archivo.parent_directory) && (archivo.state != 0))
 			{
 				contadorArchivosEnPath++;
-				//printf(CYN "Contar archivo: %s\n" RESET, archivo.fname);
 			}
 		}
 	}
 	else
 	{
-		//printf(YEL "No hay archivos para devolver, el path no existe \n" RESET);
+		//printf(YEL "El path no existe \n" RESET);
 		return NULL;
 	}
 
@@ -919,7 +946,6 @@ void* readdir(char* path)
 		{
 			strcat(buffer, archivo.fname);
 			strcat(buffer, "/");
-				//   printf(CYN "archivo pedido: %s\n" RESET, archivo.fname);
 		}
 	}
 		printf("\t Archivos en path: %s\n", buffer);
@@ -972,43 +998,35 @@ void leerTablaDatos()
 }
 
 //-----------------------esto esta para probar o sacar, deberia servir para armar los bloques del archivo
-void* concatenate(void *buffer, int tamBuffer, void *tmpBuffer, int tamTmpBuffer, void* result)
+void* readFile(osada_file* archivo)
 {
-		// copy buffer to "result"
-		memcpy(result, buffer, tamBuffer);
-		// copy tmpBuffer to "result" after varA
-		memcpy(result + tamBuffer, tmpBuffer, tamTmpBuffer);
-}
+	int i;
 
-void* readData(int cant_blocks, int* fat_values, void *buffer)
-{
-		int i;
-		void *tmp_buffer;
-
-		for(i=0; i < cant_blocks; i++)
-		{
-				leerDato(fat_values[i], &tmp_buffer);
-				void* buffer_aux = malloc(OSADA_BLOCK_SIZE * (i + 1) + OSADA_BLOCK_SIZE);
-				concatenate(&buffer, OSADA_BLOCK_SIZE * (i + 1), &tmp_buffer, OSADA_BLOCK_SIZE, &buffer_aux);
-				buffer = buffer_aux;
-		}
-}
-
-void* readFile(osada_file ofile, void *buffer)
-{
-	int i,
-	fat_size = offsetDatos - offsetAsignaciones,
+	//int fat_size = offsetDatos - offsetAsignaciones;
 	//Redondeo para arriba porque no se puede tener porcion de bloque
 	//Ej: int a = (59 + (4 - 1)) / 4; redondea a 15
-	cant_blocks = (ofile.file_size + (OSADA_BLOCK_SIZE - 1)) / OSADA_BLOCK_SIZE;
-	int fat_values[cant_blocks - 1];
-	int next_block = ofile.first_block;
-	for (i=0;i < cant_blocks; i++)
+
+	int cant_blocks = (archivo->file_size + (OSADA_BLOCK_SIZE - 1)) / OSADA_BLOCK_SIZE;
+	int next_block = archivo->first_block;
+	void *buffer = malloc(OSADA_BLOCK_SIZE * cant_blocks);
+		int offset = 0;
+		void* bufferAux = malloc(OSADA_BLOCK_SIZE);
+
+	for (i=0; i < cant_blocks; i++)
 	{
-				fat_values[i] = next_block;
+				leerDato(next_block, &bufferAux);
+				memcpy(buffer + offset, bufferAux, OSADA_BLOCK_SIZE);
+				offset += OSADA_BLOCK_SIZE;
 				leerAsignacion(next_block, &next_block);
 	}
 
-	readData(cant_blocks,fat_values, &buffer);
+	void* respuesta = malloc(archivo->file_size);
+	memcpy(respuesta, buffer, archivo->file_size);
 
+	free(bufferAux);
+	free(buffer);
+	bufferAux = NULL;
+	buffer = NULL;
+
+	return respuesta;
 }

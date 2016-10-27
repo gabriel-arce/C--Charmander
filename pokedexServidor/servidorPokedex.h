@@ -36,7 +36,7 @@
 #define RESPUESTA_CREATE 31
 #define ENOENTRY 32
 
-//funciones de disco
+//funciones de disco--------------------------
 void asignarOffsets();
 void descargar(uint32_t descriptorArchivo);
 void escribirBloque(uint32_t bloque, char* buf);
@@ -55,20 +55,20 @@ void leerTablaDatos();
 int mapearDisco(char* path);
 void mostrarHeader(osada_header oheader);
 
-void* readdir(char* path);
-void* getAttr(char* path);
-
-
+//nuevas-----------------------------------
 char borrarArchivo(char* path);
 char borrarDirectorio(char* path);
+osada_file* buscarArchivo(char* nombre, int* posicion);
 char crearArchivo(char* path, int modo);
+void* getAttr(char* path);
+char* nombre(char* path);
+void* readdir(char* path);
 char renombrarArchivo(char* paths);
 
-
-//estas no se si funcionan
-void* readFile(osada_file ofile, void *buffer);
-void* readData(int cant_blocks, int* fat_values, void *buffer);
-void* concatenate(void *buffer, int tamBuffer, void *tmpBuffer, int tamTmpBuffer, void* result);
+//estas no se si funcionan-------------------
+void* readFile(osada_file* archivo);
+void readData(int cant_blocks, int* fat_values, void *buffer);
+void concatenate(void *buffer, int tamBuffer, void *tmpBuffer, int tamTmpBuffer, void* result);
 
 
 //funciones de servidor-------------------------------------------------
