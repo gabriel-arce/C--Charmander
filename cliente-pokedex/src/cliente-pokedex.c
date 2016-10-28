@@ -29,12 +29,12 @@ int set_datos_conexion() {
 }
 
 
-int conectar_con_servidor_pkdx() {
+int* conectar_con_servidor_pkdx() {
 	int socket_fd = -1;
 	pthread_mutex_init(&mutex_comunicacion,NULL);
 	socket_fd = clienteDelServidor("127.0.0.1", 5000);
 
-	return socket_fd;
+	return &socket_fd;
 }
 
 //----Operaciones  (return 1(ok) o 0(fail))

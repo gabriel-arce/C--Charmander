@@ -122,7 +122,8 @@ t_log* logCliente;
 
 
 int validar(int argc, char **argv);
-int conectar_con_servidor_pkdx();
+
+int* conectar_con_servidor_pkdx();
 void* enviarOperacionAServidor(int operacion, void* buffer_out);
 int set_datos_conexion();
 void printConectado();
