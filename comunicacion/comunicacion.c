@@ -178,10 +178,17 @@ int calcularTamanioMensaje(int head, void* mensaje)
 	switch(head)
 	{
 		case HANDSHAKE:
-			tamanio = strlen((char*) mensaje) + 1;
-			break;
-
 		case PEDIDO_GETATTR:
+		case PEDIDO_READDIR:
+		case RESPUESTA_READDIR:
+		case RESPUESTA_READ:
+		case PEDIDO_UNLINK:
+		case PEDIDO_MKDIR:
+		case PEDIDO_OPEN:
+		case PEDIDO_RMDIR:
+		case PEDIDO_RENAME:
+		case PEDIDO_CREATE:
+		case PEDIDO_TRUNCATE:
 			tamanio = strlen((char*) mensaje) + 1;
 			break;
 
@@ -189,75 +196,25 @@ int calcularTamanioMensaje(int head, void* mensaje)
 			tamanio = sizeof(t_stbuf);
 			break;
 
-		case PEDIDO_READDIR:
-			tamanio = strlen((char*) mensaje) + 1;
-			break;
-
-		case RESPUESTA_READDIR:
-			tamanio =  strlen((char*) mensaje) + 1;
-			break;
-
 		case PEDIDO_READ:
 			tamanio = sizeof(t_readbuf);
-			break;
-
-		case RESPUESTA_READ:
-			tamanio = strlen((char*) mensaje) + 1;
 			break;
 
 		case PEDIDO_WRITE:
 			tamanio = sizeof(t_writebuf);
 			break;
 
-		case PEDIDO_UNLINK:
-			tamanio = strlen((char*) mensaje) + 1;
-			break;
-
-		case PEDIDO_MKDIR:
-		  tamanio = strlen((char*) mensaje) + 1;
-			break;
-
-		case PEDIDO_RMDIR:
-			tamanio = strlen((char*) mensaje) + 1;
-			break;
-
-		case PEDIDO_RENAME:
-		  tamanio = strlen((char*) mensaje) + 1;
-			break;
-
-		case PEDIDO_CREATE:
-		  tamanio = strlen((char*) mensaje) + 1;
-			break;
-
-		case PEDIDO_TRUNCATE:
-			tamanio = strlen((char*) mensaje) + 1;
-			break;
-
 		case RESPUESTA_TRUNCATE:
 			tamanio = sizeof(off_t);
 			break;
 
-		case RESPUESTA_WRITE:
-		  tamanio = sizeof(char);
-			break;
-
-		case RESPUESTA_UNLINK:
-			tamanio = sizeof(char);
-			break;
-
-		case RESPUESTA_MKDIR:
-			tamanio = sizeof(char);
-			break;
-
-		case RESPUESTA_RMDIR:
-			tamanio = sizeof(char);
-			break;
-
-		case RESPUESTA_RENAME:
-			tamanio = sizeof(char);
-			break;
-
 		case RESPUESTA_CREATE:
+		case RESPUESTA_MKDIR:
+		case RESPUESTA_OPEN:
+		case RESPUESTA_RMDIR:
+		case RESPUESTA_RENAME:
+		case RESPUESTA_UNLINK:
+		case RESPUESTA_WRITE:
 			tamanio = sizeof(char);
 			break;
 
@@ -338,63 +295,37 @@ void* serializar(int head, void* mensaje, int tamanio)
 	switch(head)
 	{
 		case HANDSHAKE:
-			buffer = malloc(tamanio);
-			memcpy(buffer, mensaje, tamanio);
-			break;
 
 		case PEDIDO_GETATTR://quiero enviar un path
+		case PEDIDO_CREATE:
+		case PEDIDO_MKDIR:
+		case PEDIDO_OPEN:
+		case PEDIDO_READ:
+		case PEDIDO_READDIR:// envio un path
+		case PEDIDO_RMDIR:
+		case PEDIDO_RENAME:
+		case PEDIDO_UNLINK:
+		case PEDIDO_WRITE:
+
+		case RESPUESTA_CREATE:
+		case RESPUESTA_MKDIR:
+		case RESPUESTA_OPEN:
+		case RESPUESTA_READ:
+		case RESPUESTA_READDIR:
+		case RESPUESTA_RMDIR:
+		case RESPUESTA_RENAME:
+		case RESPUESTA_UNLINK:
+		case RESPUESTA_WRITE:
+
+		case ENOENTRY:
+
 			buffer = malloc(tamanio);
 			memcpy(buffer, mensaje, tamanio);
 			break;
 
 		case RESPUESTA_GETATTR://quiero enviar un struct stat
-			buffer = serializarPedidoGetatrr((t_stbuf*) mensaje, tamanio);
-			break;
-
-		case PEDIDO_READDIR:// envio un path
-			buffer = malloc(tamanio);
-			memcpy(buffer, mensaje, tamanio);
-			break;
-
-		case RESPUESTA_READDIR:// envio un char*
-			buffer = malloc(tamanio);
-			memcpy(buffer, mensaje, tamanio);
-			break;
-
-		case PEDIDO_READ:
-			buffer = malloc(tamanio);
-			memcpy(buffer, mensaje, tamanio);
-			break;
-
-		case RESPUESTA_READ:
-			buffer = malloc(tamanio);
-			memcpy(buffer, mensaje, tamanio);
-			break;
-
-		case PEDIDO_WRITE:
-			buffer = malloc(tamanio);
-			memcpy(buffer, mensaje, tamanio);
-			break;
-
-		case PEDIDO_UNLINK:
-		case PEDIDO_MKDIR:
-		case PEDIDO_RMDIR:
-		case PEDIDO_RENAME:
-		case PEDIDO_CREATE:
-		case RESPUESTA_WRITE:
-		case RESPUESTA_UNLINK:
-		case RESPUESTA_MKDIR:
-		case RESPUESTA_RMDIR:
-		case RESPUESTA_RENAME:
-		case RESPUESTA_CREATE:
-			buffer = malloc(tamanio);
-			memcpy(buffer, mensaje, tamanio);
-			break;
-
-		case ENOENTRY:
-			buffer = malloc(tamanio);
-			memcpy(buffer, mensaje, tamanio);
-			break;
+				buffer = serializarPedidoGetatrr((t_stbuf*) mensaje, tamanio);
+				break;
 
 		default:
 			buffer = malloc(tamanio);
@@ -412,64 +343,34 @@ void * deserializar(int head, void * buffer, int tamanio)
 
 	switch(head)
 	{
-		case HANDSHAKE:
-			mensaje = malloc(tamanio);
-			memcpy(mensaje, buffer, tamanio);
-			break;
-
-		case PEDIDO_GETATTR:
-			mensaje = malloc(tamanio);
-			memcpy(mensaje, buffer, tamanio);
-			break;
-
 		case RESPUESTA_GETATTR:
-			mensaje = serializarPedidoGetatrr((t_stbuf*)buffer, tamanio);
-			break;
+				mensaje = serializarPedidoGetatrr((t_stbuf*)buffer, tamanio);
+				break;
 
-		case PEDIDO_READDIR:
-			mensaje = malloc(tamanio);
-			memcpy(mensaje, buffer, tamanio);
-			break;
+		case HANDSHAKE:
 
-		case RESPUESTA_READDIR:
-			mensaje = malloc(tamanio);
-			memcpy(mensaje, buffer, tamanio);
-			break;
-
-		case PEDIDO_READ:
-			mensaje = malloc(tamanio);
-			memcpy(mensaje, buffer, tamanio);
-			break;
-
-		case RESPUESTA_READ:
-			mensaje = malloc(tamanio);
-			memcpy(mensaje, buffer, tamanio);
-			break;
-
-		case PEDIDO_WRITE:
-			mensaje = malloc(tamanio);
-			memcpy(mensaje, buffer, tamanio);
-			break;
-
-		case PEDIDO_UNLINK:
+		case PEDIDO_CREATE:
+		case PEDIDO_GETATTR:
 		case PEDIDO_MKDIR:
+	 	case PEDIDO_OPEN:
+		case PEDIDO_READ:
+		case PEDIDO_READDIR:
 		case PEDIDO_RMDIR:
 		case PEDIDO_RENAME:
-		case PEDIDO_CREATE:
-		case RESPUESTA_WRITE:
-		case RESPUESTA_UNLINK:
+		case PEDIDO_UNLINK:
+		case PEDIDO_WRITE:
+
+		case RESPUESTA_CREATE:
 		case RESPUESTA_MKDIR:
+		case RESPUESTA_OPEN:
+		case RESPUESTA_READ:
+		case RESPUESTA_READDIR:
 		case RESPUESTA_RMDIR:
 		case RESPUESTA_RENAME:
-		case RESPUESTA_CREATE:
-			mensaje = malloc(tamanio);
-			memcpy(mensaje, buffer, tamanio);
-			break;
+		case RESPUESTA_UNLINK:
+		case RESPUESTA_WRITE:
 
 		case ENOENTRY:
-			mensaje = malloc(tamanio);
-			memcpy(mensaje, buffer, tamanio);
-			break;
 
 		default:
 			mensaje = malloc(tamanio);
@@ -552,9 +453,9 @@ void* recibirConProtocolo(int socketEmisor, int* head)
 void* recibirEstructuraRead(int socketEmisor,int* head)
 {
 	// Recibo el head: PEDIDO_READ
-	printf(MAG"\t En recibirEstructuraRead head:%d\n ", *head);
+	//printf(MAG"\t En recibirEstructuraRead head:%d\n ", *head);
 	int recibido = recibirPorSocket(socketEmisor, head, sizeof(int));
-	printf("\t En recibirEstructuraRead recibi algo :%d\n ", recibido);
+	//printf("\t En recibirEstructuraRead recibi algo :%d\n ", recibido);
 	if (*head < 1 || recibido <= 0)
 	{
 		return NULL;
@@ -563,7 +464,7 @@ void* recibirEstructuraRead(int socketEmisor,int* head)
 	// Recibo el struct t_readbuf:
 	t_readbuf* buffer = malloc(sizeof(t_readbuf));
 	recibido = recibirPorSocket(socketEmisor, buffer, sizeof(t_readbuf));
-	printf("\t En recibirEstructuraRead recibi t_readbuf tamano :%d\n " , recibido);
+	//printf("\t En recibirEstructuraRead recibi t_readbuf tamano :%d\n " , recibido);
 	if (recibido <= 0)
 	{
 		return NULL;
@@ -572,7 +473,7 @@ void* recibirEstructuraRead(int socketEmisor,int* head)
 	// Recibo  el path:
 	char* path = malloc(buffer->pathLen);
 	recibido = recibirPorSocket(socketEmisor, path, buffer->pathLen);
-	printf("\t En recibirEstructuraRead recibi path :%s\n" RESET, path);
+	//printf("\t En recibirEstructuraRead recibi path :%s\n" RESET, path);
 	if (recibido <= 0)
 	{
 		return NULL;
@@ -601,7 +502,7 @@ void* serializarPedidoRead(t_readbuf* response, char* path)
 	memcpy(buffer + desplazamiento, &(response->pathLen), sizeof(int));
 	desplazamiento += sizeof(int);
 	memcpy(buffer + desplazamiento, path, response->pathLen);//chequear aca por si path necesita & o *
-	printf(MAG "\t En serializarPedidoRead el path es:%s\n" RESET, path);
+	//printf(MAG "\t En serializarPedidoRead el path es:%s\n" RESET, path);
   return buffer;
 }
 
@@ -610,7 +511,7 @@ int enviarEstructuraRead(int fdReceptor, int head, char* path, t_readbuf* mensaj
 	int desplazamiento = 0;
 	int tamanioMensaje = sizeof(t_readbuf) + strlen(path) + 1;
 	int tamanioTotalAEnviar = 0;
-	printf(MAG "\t En enviarEstructuraRead path:%s\n ",path);
+	//printf(MAG "\t En enviarEstructuraRead path:%s\n ",path);
 	void *mensajeSerializado = serializarPedidoRead( mensaje, path);
 
 	// Lo que se envía es: head + tamaño del msj serializado:
@@ -624,7 +525,7 @@ int enviarEstructuraRead(int fdReceptor, int head, char* path, t_readbuf* mensaj
 
 	// Envío la totalidad del paquete (lo contenido en el buffer):
 	int enviados = enviarPorSocket(fdReceptor, buffer, tamanioTotalAEnviar);
-	printf("\t En enviarEstructuraRead enviados:%d\n" RESET,enviados);
+	//printf("\t En enviarEstructuraRead enviados:%d\n" RESET,enviados);
 
 	free(mensajeSerializado);
 	mensajeSerializado = NULL;

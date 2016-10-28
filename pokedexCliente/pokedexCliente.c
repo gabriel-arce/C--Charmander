@@ -187,6 +187,11 @@ static int osada_getattr(const char *path, struct stat *stbuf)
 			log_info(logCliente, "	Recibi ENOENT");
 			return -ENOENT;
 		}
+		else
+		{
+			log_info(logCliente, "	Recibi algo inesperado %d", head);
+			return -ENOENT;
+		}
 	}
 	else
 	{
@@ -227,6 +232,40 @@ static int osada_mkdir(const char *path, mode_t mode)
 	}
 	free(paquete);
 
+	return 0;
+}
+
+static int osada_open(const char *path, struct fuse_file_info *fi)
+{
+	//TODO: enviar al server el path y chequear que el archivo existe, ver de tener una tabla de archivos abiertos y si es para escritura o lectura
+	log_info(logCliente, "******************************************************************************" );
+	log_info(logCliente, "****************** FUSE: llamada a osada_open() ******************************" );
+	log_info(logCliente, "******************************************************************************" );
+
+	log_info(logCliente, path);
+
+	int head = 0;
+	void *paquete = NULL;
+
+	pthread_mutex_lock(&mutex_comunicacion);
+		enviarConProtocolo(*socketServidor, PEDIDO_OPEN, path);
+		log_info(logCliente, "	Envie PEDIDO_OPEN");
+		paquete = recibirConProtocolo(*socketServidor,&head);
+	pthread_mutex_unlock(&mutex_comunicacion);
+
+	if (head == RESPUESTA_OPEN)
+	{
+		log_info(logCliente, "	Recibi RESPUESTA_OPEN");
+		log_info(logCliente, (char*)paquete);
+
+		free(paquete);
+		return 0;
+	}
+	else
+	{
+		log_info(logCliente, "	Recibi respuesta ENOENT");
+		return -ENOENT;
+	}
 	return 0;
 }
 
@@ -305,10 +344,11 @@ static int osada_read(const char *path, char *buf, size_t size, off_t offset, st
 
 			if (head == RESPUESTA_READ)
 			{
-				memset(buf, 0, size);
+				memset(buf, 0, strlen((char*)paquete) + 1);
 				memcpy(buf, paquete, strlen((char*)paquete) + 1);
 
 				log_info(logCliente, "	Recibi RESPUESTA_READ");
+				return strlen((char*)paquete) + 1;
 			}
 			else if (head == ENOENTRY)
 			{
@@ -336,12 +376,19 @@ static int osada_rename(const char *path, const char *newpath)
 
 	int head = 0;
 	void* paquete = NULL;
-
+	int offset = 0;
+	char* centinela = malloc(sizeof(char));
+	centinela[0] = "*";
 	void *pedido = malloc(strlen(path) + strlen(newpath) + 3);
 	memset(pedido, 0, strlen(path) + strlen(newpath) + 3);
-	memcpy(pedido, path, strlen(path) +1);
-	memcpy(pedido, '*', sizeof(char));
-	memcpy(pedido + strlen(path) + 2, newpath, strlen(newpath) +1);
+
+	char* str = malloc(strlen(path) + strlen(newpath) + 3);
+	memset(str, 0, strlen(path) + strlen(newpath) + 3);
+	strcpy(str, path);
+	strcat(str, "*");
+	strcat(str, newpath);
+	memcpy(pedido, str, strlen(path) + strlen(newpath) + 3);
+
 
 	pthread_mutex_lock(&mutex_comunicacion);
 		enviarConProtocolo(*socketServidor, PEDIDO_RENAME, pedido);

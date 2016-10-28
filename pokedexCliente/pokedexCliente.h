@@ -37,6 +37,9 @@
 #define RESPUESTA_CREATE 31
 #define ENOENTRY 32
 
+#define PEDIDO_OPEN 33
+#define RESPUESTA_OPEN 34
+
 static int osada_create(const char *path, mode_t mode, struct fuse_file_info *fi);
 static int osada_getattr(const char *path, struct stat *stbuf);
 static int osada_mkdir(const char *path, mode_t mode);
@@ -47,6 +50,7 @@ static int osada_rmdir(const char *path);
 static int osada_truncate(const char *path, off_t new_size);
 static int osada_unlink(const char *path);
 static int osada_write(const char *path, const char *buf, size_t size, off_t offset, struct fuse_file_info *fi);
+static int osada_open(const char *path, struct fuse_file_info *fi);
 
 void printConectado();
 void printEncabezado();
@@ -65,7 +69,7 @@ struct t_runtime_options
 static struct fuse_operations osada_oper = {
 .getattr = osada_getattr,	// obtener atributos
 .readdir = osada_readdir, // leer un directorio
-//.read = osada_read, // leer archivo
+.read = osada_read, // leer archivo
 .write = osada_write, // escribir un archivo
 .unlink = osada_unlink, // borrar un archivo
 .mkdir = osada_mkdir,	// crear un directorio
@@ -73,6 +77,7 @@ static struct fuse_operations osada_oper = {
 .rename = osada_rename,	//renombrar un archivo
 .create = osada_create, //crear y abrir un archivo
 .truncate = osada_truncate, //redimensionar archivo
+.open = osada_open, //abre un archivo
 };
 
 enum {

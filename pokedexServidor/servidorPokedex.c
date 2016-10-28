@@ -37,7 +37,6 @@
 #include <unistd.h>
 
 #include "osada.h"
-
 #include "servidorPokedex.h"
 
 //colores para los prints en la consola
@@ -64,15 +63,6 @@ int offsetTablaArchivos;
 int offsetAsignaciones;
 int offsetDatos;
 
-//borrar esto------------------------------------------------
-struct stat pikachuStat;
-struct stat squirtleStat;
-struct stat bulbasaurStat;
-int* pmap_pikachu;
-int* pmap_squirtle;
-int* pmap_bulbasaur;
-
-//-----------------------------------------------------------
 int main(int argc, char ** argv)
 {
 	printEncabezado();
@@ -163,18 +153,18 @@ void atendercliente(int socket)
 			switch(head)
 			{
 				case PEDIDO_CREATE:
-					printf(CYN "\t procesando PEDIDO_CREATE\n" RESET);
+					printf(MAG "\t procesando PEDIDO_CREATE\n" RESET);
 
 					respuesta = procesarPedidoCreate((char*)pedido);
 					if(respuesta != NULL)
 					{
 						enviarConProtocolo(socket, RESPUESTA_CREATE, respuesta);
-						printf(CYN "\t devolviendo RESPUESTA_CREATE\n" RESET);
+						printf(MAG "\t devolviendo RESPUESTA_CREATE\n" RESET);
 					}
 					else
 					{
 						enviarConProtocolo(socket, ENOENTRY, pedido);
-						printf(CYN "\t devolviendo respuesta ENOENT \n" RESET);
+						printf(YEL "\t devolviendo respuesta ENOENT \n" RESET);
 					}
 					break;
 
@@ -206,12 +196,28 @@ void atendercliente(int socket)
 					else
 					{
 						enviarConProtocolo(socket, ENOENTRY, pedido);
-						printf(MAG "\t devolviendo respuesta ENOENT \n" RESET);
+						printf(YEL "\t devolviendo respuesta ENOENT \n" RESET);
+					}
+					break;
+
+				case PEDIDO_OPEN:
+					printf(CYN "\t procesando PEDIDO_OPEN\n" RESET);
+
+					respuesta = procesarPedidoOpen((char*)pedido);
+					if(respuesta != NULL)
+					{
+						enviarConProtocolo(socket, RESPUESTA_OPEN, respuesta);
+						printf(CYN "\t devolviendo RESPUESTA_OPEN\n" RESET);
+					}
+					else
+					{
+						enviarConProtocolo(socket, ENOENTRY, pedido);
+						printf(YEL "\t devolviendo respuesta ENOENT \n" RESET);
 					}
 					break;
 
 				case PEDIDO_READ:
-					printf( "\t procesando PEDIDO_READ\n" );
+					printf( YEL "\t procesando PEDIDO_READ\n" RESET);
 
 					void *buffer = NULL;
 					buffer = recibirEstructuraRead(socket, &head);
@@ -220,12 +226,12 @@ void atendercliente(int socket)
 					if(respuesta != NULL)
 					{
 						enviarConProtocolo(socket, RESPUESTA_READ, respuesta);
-						printf("\t devolviendo RESPUESTA_READ \n");
+						printf(YEL "\t devolviendo RESPUESTA_READ \n" RESET);
 					}
 					else
 					{
 						enviarConProtocolo(socket, ENOENTRY, pedido);
-						printf("\t devolviendo respuesta ENOENT \n");
+						printf(YEL "\t devolviendo respuesta ENOENT \n" RESET);
 					}
 					break;
 
@@ -247,7 +253,6 @@ void atendercliente(int socket)
 
 				case PEDIDO_RENAME:
 					printf(BLU "\t procesando PEDIDO_RENAME\n" RESET);
-
 					respuesta = procesarPedidoRename((char*)pedido);
 					if(respuesta != NULL)
 					{
@@ -257,7 +262,7 @@ void atendercliente(int socket)
 					else
 					{
 						enviarConProtocolo(socket, ENOENTRY, pedido);
-						printf(BLU "\t devolviendo respuesta ENOENT \n" RESET);
+						printf(YEL "\t devolviendo respuesta ENOENT \n" RESET);
 					}
 					break;
 
@@ -273,18 +278,18 @@ void atendercliente(int socket)
 					else
 					{
 						enviarConProtocolo(socket, ENOENTRY, pedido);
-						printf(GRN "\t devolviendo respuesta ENOENT \n" RESET);
+						printf(YEL "\t devolviendo respuesta ENOENT \n" RESET);
 					}
 					break;
 
 				case PEDIDO_TRUNCATE:
-					printf(YEL "\t procesando PEDIDO_TRUNCATE\n" RESET);
+					printf(BLU "\t procesando PEDIDO_TRUNCATE\n" RESET);
 
 					respuesta = procesarPedidoTruncate((char*)pedido);
 					if(respuesta != NULL)
 					{
 						enviarConProtocolo(socket, RESPUESTA_TRUNCATE, respuesta);
-						printf(YEL "\t devolviendo RESPUESTA_TRUNCATE\n" RESET);
+						printf(BLU "\t devolviendo RESPUESTA_TRUNCATE\n" RESET);
 					}
 					else
 					{
@@ -305,12 +310,12 @@ void atendercliente(int socket)
 					else
 					{
 						enviarConProtocolo(socket, ENOENTRY, pedido);
-						printf(RED "\t devolviendo respuesta ENOENT \n" RESET);
+						printf(YEL "\t devolviendo respuesta ENOENT \n" RESET);
 					}
 					break;
 
 				case PEDIDO_WRITE:
-					printf( "\t procesando PEDIDO_WRITE\n" );
+					printf( RED "\t procesando PEDIDO_WRITE\n" RESET);
 
 					void *bufWrite = NULL;
 					bufWrite = recibirEstructuraWrite(socket, &head);
@@ -319,12 +324,12 @@ void atendercliente(int socket)
 					if(respuesta != NULL)
 					{
 						enviarConProtocolo(socket, RESPUESTA_WRITE, respuesta);
-						printf("\t devolviendo RESPUESTA_WRITE \n");
+						printf(RED "\t devolviendo RESPUESTA_WRITE \n" RESET);
 					}
 					else
 					{
 						enviarConProtocolo(socket, ENOENTRY, pedido);
-						printf("\t devolviendo respuesta ENOENT \n");
+						printf(YEL "\t devolviendo respuesta ENOENT \n" RESET);
 					}
 					break;
 
@@ -374,6 +379,14 @@ void* procesarPedidoGetatrr(char *path)
 	return getAttr(path);
 }
 
+void* procesarPedidoOpen(char* path)
+{
+	printf("\t path: %s\n", path);
+	char* respuesta = malloc(sizeof(char));
+	respuesta[0] = abrirArchivo(path);
+	return respuesta;
+}
+
 void* procesarPedidoReaddir(char *path)
 {
 	printf("\t path: %s\n", path);
@@ -386,46 +399,33 @@ void* procesarPedidoRead(void* buffer)
 	int desplazamiento = 0;
 	size_t* size = malloc(sizeof(size_t));
 	off_t* offset = malloc(sizeof(off_t));
-	int* pathLen = malloc(sizeof(int));
+	int pathLen;
 
 	memcpy(size, buffer , sizeof(size_t));
 	desplazamiento += sizeof(size_t);
 	memcpy(offset, buffer + desplazamiento, sizeof(off_t));
 	desplazamiento += sizeof(off_t);
-	memcpy(pathLen, buffer + desplazamiento, sizeof(int));
+	memcpy(&pathLen, buffer + desplazamiento, sizeof(int));
 	desplazamiento += sizeof(int);
 	char* path = malloc(pathLen);
-	memcpy(path,  buffer + desplazamiento, *pathLen);
+	memcpy(path,  buffer + desplazamiento, pathLen);
 
-	printf(CYN "\n\t En procesarPedidoRead el size es: %d\n", *size);
-	printf( "\t En procesarPedidoRead el offset es: %d\n", *offset);
-	printf( "\t En procesarPedidoRead el pathlen es: %d\n", *pathLen);
-	printf( "\t En procesarPedidoRead el path es: %s\n" RESET, path);
+//	printf(CYN "\n\t En procesarPedidoRead el size es: %d\n", *size);
+//	printf( "\t En procesarPedidoRead el offset es: %d\n", *offset);
+//	printf( "\t En procesarPedidoRead el pathlen es: %d\n", pathLen);
+//	printf( CYN "\t En procesarPedidoRead el path es: %s\n" RESET, path);
 
-//	else if (strcmp(path, "/pokemon.txt") == 0)
-//	{
-//		printf(GRN "size: %d" RESET, *size);
-//		void* respuesta = malloc(144);
-//		memset(respuesta, 0, 144);
-//		memcpy(respuesta,"Los pokemon son una clase de criaturas (monstruos) basadas en muchos casos en animales reales o criaturas míticas y mitológicas orientales.\n", 144);
-//		//printf(GRN "respuesta: %s" RESET, respuesta);
-//		return respuesta;
-//	}
-//	else if (strcmp(path, "/pepito.txt") == 0)
-//	{
-//		printf(GRN "size: %d" RESET, *size);
-//		void* respuesta = malloc(5);
-//		memset(respuesta, 0, 5);
-//		memcpy(respuesta,"Hola\n", 5);
-//	//	printf(GRN "respuesta: %s" RESET, respuesta);
-//		return respuesta;
-//	}
 	int posicion;
 	if(existePath(path, &posicion))
 	{
 
-		osada_file* archivo = buscarArchivo(nombre(path), &posicion);
-		printf(GRN "\t Archivo leido" RESET);
+		osada_file* archivo = buscarArchivo(path, &posicion);
+		if (archivo == NULL)
+		{
+			printf(RED "\t En pedido read: No se encontro el archivo: %s\n" RESET, nombre(path));
+			return 'n';
+		}
+		printf(GRN "\t Archivo leido\n" RESET);
 		return readFile(archivo);
 	}
 	else
@@ -441,14 +441,14 @@ void* procesarPedidoRead(void* buffer)
 void* procesarPedidoCreate(char *path)//const char *path, mode_t mode,
 {
 	char* respuesta = malloc(sizeof(char));
-	respuesta[0] = crearArchivo(path, 0);
+	respuesta[0] = crearArchivo(path, 1);
 	return respuesta;
 }
 
 void* procesarPedidoMkdir(char *path)//const char *path, mode_t mode
 {
 	char* respuesta = malloc(sizeof(char));
-	respuesta[0] = crearArchivo(path, 1);
+	respuesta[0] = crearArchivo(path, 2);
 	return respuesta;
 }
 
@@ -557,13 +557,57 @@ char* nombre(char* path)
 	return respuesta;
 }
 
+int posicionUltimoToken(char* path)
+{
+	int i;
+	if(strlen(path) > 1)
+	{
+		for(i = strlen(path) - 2; i >= 0; i --)
+		{
+			if(path[i] == '/')
+			{
+				return i;
+			}
+		}
+	}
+	return -1;
+}
+
+int padre(char* path)
+{
+	//printf(YEL "\t Path recibido en padre: %s\n" RESET, path);
+	int posicion;
+
+	if((posicion = posicionUltimoToken(path)) == -1)
+	{
+		printf(RED "\t No se encontro el archivo padre\n" RESET);
+		return -1;
+	}
+
+	if(posicion == 0)
+	{
+		return 65535;
+	}
+
+	char* pathPadre = malloc((sizeof(char) * posicion) + 1);
+	strncpy(pathPadre, path, posicion);
+	osada_file* archivo = buscarArchivo(pathPadre, &posicion);
+	if (archivo == NULL)
+	{
+		printf(RED "\t No se encontro el archivo padre\n" RESET);
+		return -1;
+	}
+
+	return posicion;
+}
+
 char borrarArchivo(char* path)
 {
 	//lee la tabla de archivos, pone en cero/borrado el estado del archivo y actualiza el bitmap
 	//devuelve 's' para indicar ok al cliente o 'n' si fallo el pedido
 	int posicion;
 
-	osada_file* archivo = buscarArchivo(nombre(path), &posicion);
+	osada_file* archivo = buscarArchivo(path, &posicion);
 	if (archivo == NULL)
 	{
 		printf(RED "\t No se encontro el archivo\n" RESET);
@@ -573,7 +617,7 @@ char borrarArchivo(char* path)
 		archivo->state = 0;
 		escribirArchivo(posicion, archivo);
 
-		//falta actualizar el bitmap
+		//TODO: falta actualizar el bitmap
 
 	printf(YEL "\t Se borro el archivo: %s\n" RESET, archivo->fname);
 	return 's';
@@ -605,7 +649,7 @@ char borrarDirectorio(char* path)
 	//devuelve 's' para indicar ok al cliente o 'n' si fallo el pedido
 	int posicion;
 
-	osada_file* archivo = buscarArchivo(nombre(path), &posicion);
+	osada_file* archivo = buscarArchivo(path, &posicion);
 	if (archivo == NULL)
 	{
 		printf(RED "\t No se encontro el archivo\n" RESET);
@@ -623,16 +667,87 @@ char borrarDirectorio(char* path)
 	return 's';
 }
 
-char crearArchivo(char* path, int modo)
+int buscarEspacioLibre()
 {
-	//TODO: chequeo que exista espacio en la tabla de archivos, si hay agrego el pedido
-	// if(modo == 0) //agrego un archivo a la tabla de archivos
-		// else //agrego un directorio
-	return 's';
-	//return 'n';
+	int pos;
+	int i;
+	osada_file* archivo = malloc(sizeof(osada_file));
+	memset(archivo, 0, sizeof(osada_file));
+	for (i = 0; i< 2048; i++)
+	{
+		leerArchivo(i, archivo);
+		if(archivo->state == 0)
+		{
+			return i;
+		}
+	}
+	return -1;
 }
 
-osada_file* buscarArchivo(char* nombre, int* posicion)
+int agregarArchivo(char* path, int modo)
+{
+	//printf(CYN "\t nombre(path) en agregarArchivo %s\n" RESET, nombre(path));
+	int pos;
+
+	if(strcmp(nombre(path), ".Trash-1000") == 0)
+	{
+		return -1;
+	}
+
+	if ((pos = buscarEspacioLibre()) == -1)// chequeo que exista espacio en la tabla de archivos, si hay agrego el pedido
+	{
+		printf(RED "\t No hay espacio para crear el archivo %s\n" RESET, nombre(path));
+		return -1;
+	}
+
+	int p = padre(path);
+	if (p == -1)//ver el caso en que el padre sea el directorio raiz
+	{
+		printf(RED "\t Salgo sin agregar el archivo %s\n" RESET, nombre(path));
+		return -1;
+	}
+	osada_file* nuevo = malloc(sizeof(osada_file));
+	memset(nuevo, 0, sizeof(osada_file));
+	strcpy(nuevo->fname, nombre(path));
+	nuevo->file_size = 0;
+	nuevo->lastmod = 0;
+	nuevo->first_block = 0;//ver con que inicializar esto
+	nuevo->state = modo;//si es archivo o directorio
+	nuevo->parent_directory = p;
+	escribirArchivo(pos, nuevo);
+
+	return 0;
+}
+
+char crearArchivo(char* path, int modo)
+{
+	int posicion;
+	osada_file* archivo = buscarArchivo(path, &posicion);
+	//printf(BLU "\t nombre(path) en crearArchivo %s\n" RESET, nombre(path));
+	if (archivo == NULL)
+	{
+		if (agregarArchivo(path, modo) == -1)//si no hay espacio en la tabla de archivos
+		{
+			return 'n';
+		}
+		printf(GRN "\t Se creó el archivo: %s\n" RESET, nombre(path));
+		return 's';
+	}
+	else if (archivo->parent_directory != padre(path))
+	{
+		if (agregarArchivo(path, modo) == -1)
+		{
+			return 'n';
+		}
+		printf(GRN "\t Se creó el archivo: %s\n" RESET, nombre(path));
+		return 's';
+	}
+	printf(RED "\t Ya existe el archivo %s\n" RESET, nombre(path));
+	return 'n';
+
+}
+
+osada_file* buscarArchivo(char* path, int* posicion)
 {
 	osada_file* archivo = malloc(sizeof(osada_file));
 	int i;
@@ -641,14 +756,23 @@ osada_file* buscarArchivo(char* nombre, int* posicion)
 		{
 			leerArchivo(i, archivo);
 
-			if ((strcmp(archivo->fname, nombre) == 0) && (archivo->state != 0))
+			if ((strcmp(archivo->fname, nombre(path)) == 0) && (archivo->state != 0))//necesito saber el path entero para saber si tiene el mismo padre
 			{
+				if (archivo->parent_directory == padre(path))
+				{
 				*posicion = i;
-			return archivo;
+				return archivo;
+				}
 			}
 		}
 
 		return NULL;
+}
+
+char abrirArchivo(char* path)
+{
+	//TODO: chequear que el archivo exista, ver de tener una tabla con archivos abiertos y el modo (lectura o escritura)
+	return 's';
 }
 
 char renombrarArchivo(char* paths)
@@ -656,7 +780,7 @@ char renombrarArchivo(char* paths)
 	//separa el path recibido en nuevo y viejo, lee la tabla de archivos y actualiza el nombre,
 	//devuelve 's' para indicar ok al cliente o 'n' si fallo el pedido
 	int posicion;
-
+	//printf(YEL "\t En renombrar: Los paths concatenados son: %s\n" RESET, paths);
 	char *viejo = malloc(strlen(paths)+1);
 	char *nuevo = malloc(strlen(paths)+1);
 
@@ -670,20 +794,20 @@ char renombrarArchivo(char* paths)
 		return 'n';
 	}
 
-		strcpy(archivo->fname, nuevo);
+		strcpy(archivo->fname, nombre(nuevo));
 		escribirArchivo(posicion, archivo);
 
-	printf(GRN "\t Se cambio el nombre del archivo: %s por: %s\n" RESET, viejo, nuevo);
+	printf(GRN "\t Se cambio el nombre del archivo: %s por: %s\n" RESET, nombre(viejo), nombre(nuevo));
 	return 's';
 }
 
 void asignarOffsets()
 {
-	int tamanioTablaAsig = oheader.fs_blocks - 1025 - oheader.bitmap_blocks - oheader.data_blocks;
+	int tamanioTablaAsig = (oheader.fs_blocks - 1025 - oheader.bitmap_blocks - oheader.data_blocks) * OSADA_BLOCK_SIZE;
 	offsetBitmap = OSADA_BLOCK_SIZE;
 	offsetTablaArchivos = OSADA_BLOCK_SIZE + (oheader.bitmap_blocks * OSADA_BLOCK_SIZE);
-	offsetAsignaciones = offsetTablaArchivos + 1024;
-	offsetDatos = offsetAsignaciones + (sizeof(int) * tamanioTablaAsig);
+	offsetAsignaciones = offsetTablaArchivos + (1024 * OSADA_BLOCK_SIZE);
+	offsetDatos = offsetAsignaciones + tamanioTablaAsig;
 }
 
 void descargar(uint32_t descriptorArchivo)
@@ -733,10 +857,10 @@ int existePath(char* path, uint16_t* pos)
 	//free(pathRecibido);
 	if (existe == 0)
 	{
-		printf(YEL "\t NO EXISTE PATH: %s\n" RESET, path);
+		printf(YEL "\t No existe path: %s\n" RESET, path);
 		return 0;//no existe
 	}
-	printf(CYN "\t EXISTE PATH: %s, POSICION:%d\n" RESET, path, padre);
+	printf(CYN "\t Existe path: %s, posicion:%d\n" RESET, path, padre);
 	return 1;
 }
 
@@ -766,21 +890,39 @@ int existeDirectorio(unsigned char* token, uint16_t* padre, int* posicion)
 void inicializarDisco()
 {
 //para inicializar el disco--------------------
-	mapearDisco("basic.bin"); //mapearDisco("challenge.bin");
+	mapearDisco("challenge.bin"); //mapearDisco("challenge.bin");
 	leerHeader();
 	asignarOffsets();
-//	leerTablaArchivos();
+	leerTablaArchivos();
 //
 //////mas adelante borrar esto
 //	char* path = "/directorio/subdirectorio";
+//	int posicion;
+//
+//	osada_file* archivo = buscarArchivo(path, &posicion);
+//	if (archivo == NULL)
+//	{
+//		printf(RED "\t  No se encontro el archivo: %s\n" RESET, nombre(path));
+//	}
+//	else
+//	{
+//		printf(GRN "\t se encontro el archivo: %s\n" RESET, nombre(path));
+//	}
+
+
 ////	char* archivosEnDirectorio = readdir(path);
 ////	 getAttr(path);
 //	printf("%s\n", nombre(path));
 //
 //	char* path2 = "/directorio/subdirectorio/large.txt";
-////	char* archivosEnDirectorio = readdir(path);
-////	 getAttr(path);
-//	printf("%s\n", nombre(path2));
+//////	char* archivosEnDirectorio = readdir(path);
+//////	 getAttr(path);
+////	printf("%s\n", nombre(path2));
+//	int posicion = posicionUltimoToken(path2);
+//	char* pathPadre = malloc((sizeof(char) * posicion) + 1);
+//	strncpy(pathPadre, path2, posicion);
+//	 //padre( path);
+//	printf(RED "--path:%s, path padre: %s---" RESET, path2, pathPadre);
 }
 
 void leerArchivo(uint32_t posicion, osada_file* buf)
@@ -893,6 +1035,7 @@ void* getAttr(char* path)
 	return NULL;
 }
 
+
 /* para procesar pedido readdir(),
 * recibo un path de fuse y chequeo que exista
 * si existe armo una cadena con los nombres de todos los archivos y directorios contenidos en ese path */
@@ -960,16 +1103,10 @@ void leerTablaArchivos()
 		int i;
 		printf("tabla de archivos\n");
 		printf("    Archivo.fname  parent_directory  file_size  state\n");
-		for(i=0; i< 15; i++)
+		for(i=0; i< 20; i++)
 		{
 			leerArchivo(i, &archivo);
 			printf("%17s\t %8d\t %4d\t %4d\n", archivo.fname, archivo.parent_directory, archivo.file_size, archivo.state);
-//       if(i<7)//sacar esto, esta solo para probar el escribir archivos
-//       {
-//    	   strcpy(archivo.fname,"Me modificaron");
-//    	   escribirArchivo(i, &archivo);
-//    	   printf(YEL "%s\t %d\t %d\t %d\n" RESET, archivo.fname, archivo.parent_directory, archivo.file_size, archivo.state);
-//       }
 		}
 }
 
@@ -997,24 +1134,27 @@ void leerTablaDatos()
 		}
 }
 
-//-----------------------esto esta para probar o sacar, deberia servir para armar los bloques del archivo
 void* readFile(osada_file* archivo)
 {
 	int i;
-
+	int offset = 0;
 	//int fat_size = offsetDatos - offsetAsignaciones;
-	//Redondeo para arriba porque no se puede tener porcion de bloque
-	//Ej: int a = (59 + (4 - 1)) / 4; redondea a 15
 
-	int cant_blocks = (archivo->file_size + (OSADA_BLOCK_SIZE - 1)) / OSADA_BLOCK_SIZE;
+	int cant_blocks = archivo->file_size / OSADA_BLOCK_SIZE;
+	if((archivo->file_size % OSADA_BLOCK_SIZE) != 0)
+	{
+		cant_blocks++;
+	}
+	printf(GRN "\t Cantidad de bloques: %d\n" RESET, cant_blocks);
 	int next_block = archivo->first_block;
 	void *buffer = malloc(OSADA_BLOCK_SIZE * cant_blocks);
-		int offset = 0;
+
 		void* bufferAux = malloc(OSADA_BLOCK_SIZE);
 
 	for (i=0; i < cant_blocks; i++)
 	{
-				leerDato(next_block, &bufferAux);
+		//printf(YEL "asignacion: %d" RESET, next_block);
+				leerDato(next_block, bufferAux);
 				memcpy(buffer + offset, bufferAux, OSADA_BLOCK_SIZE);
 				offset += OSADA_BLOCK_SIZE;
 				leerAsignacion(next_block, &next_block);

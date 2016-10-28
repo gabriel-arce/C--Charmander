@@ -36,6 +36,9 @@
 #define RESPUESTA_CREATE 31
 #define ENOENTRY 32
 
+#define PEDIDO_OPEN 33
+#define RESPUESTA_OPEN 34
+
 //funciones de disco--------------------------
 void asignarOffsets();
 void descargar(uint32_t descriptorArchivo);
@@ -55,7 +58,9 @@ void leerTablaDatos();
 int mapearDisco(char* path);
 void mostrarHeader(osada_header oheader);
 
-//nuevas-----------------------------------
+//nuevas de disco-----------------------------------
+char abrirArchivo(char* path);
+int agregarArchivo(char* path, int modo);
 char borrarArchivo(char* path);
 char borrarDirectorio(char* path);
 osada_file* buscarArchivo(char* nombre, int* posicion);
@@ -65,11 +70,8 @@ char* nombre(char* path);
 void* readdir(char* path);
 char renombrarArchivo(char* paths);
 
-//estas no se si funcionan-------------------
+//esta no se si funcionan-------------------
 void* readFile(osada_file* archivo);
-void readData(int cant_blocks, int* fat_values, void *buffer);
-void concatenate(void *buffer, int tamBuffer, void *tmpBuffer, int tamTmpBuffer, void* result);
-
 
 //funciones de servidor-------------------------------------------------
 void atendercliente(int socket);
@@ -80,6 +82,7 @@ void printTerminar();
 void* procesarPedidoCreate(char *pedido);
 void* procesarPedidoGetatrr(char *path);
 void* procesarPedidoMkdir(char *path);
+void* procesarPedidoOpen(char* path);
 void* procesarPedidoRead(void *buffer);
 void* procesarPedidoReaddir(char *path);
 void* procesarPedidoRename(char *paths);
