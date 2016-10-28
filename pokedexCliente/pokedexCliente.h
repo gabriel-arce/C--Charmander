@@ -65,7 +65,7 @@ struct t_runtime_options
 static struct fuse_operations osada_oper = {
 .getattr = osada_getattr,	// obtener atributos
 .readdir = osada_readdir, // leer un directorio
-//.read = osada_read, // leer archivo
+.read = osada_read, // leer archivo
 .write = osada_write, // escribir un archivo
 .unlink = osada_unlink, // borrar un archivo
 .mkdir = osada_mkdir,	// crear un directorio

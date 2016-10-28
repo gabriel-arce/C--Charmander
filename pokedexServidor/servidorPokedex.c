@@ -386,20 +386,20 @@ void* procesarPedidoRead(void* buffer)
 	int desplazamiento = 0;
 	size_t* size = malloc(sizeof(size_t));
 	off_t* offset = malloc(sizeof(off_t));
-	int* pathLen = malloc(sizeof(int));
+	int pathLen;
 
 	memcpy(size, buffer , sizeof(size_t));
 	desplazamiento += sizeof(size_t);
 	memcpy(offset, buffer + desplazamiento, sizeof(off_t));
 	desplazamiento += sizeof(off_t);
-	memcpy(pathLen, buffer + desplazamiento, sizeof(int));
+	memcpy(&pathLen, buffer + desplazamiento, sizeof(int));
 	desplazamiento += sizeof(int);
 	char* path = malloc(pathLen);
-	memcpy(path,  buffer + desplazamiento, *pathLen);
+	memcpy(path,  buffer + desplazamiento, pathLen);
 
 	printf(CYN "\n\t En procesarPedidoRead el size es: %d\n", *size);
 	printf( "\t En procesarPedidoRead el offset es: %d\n", *offset);
-	printf( "\t En procesarPedidoRead el pathlen es: %d\n", *pathLen);
+	printf( "\t En procesarPedidoRead el pathlen es: %d\n", pathLen);
 	printf( "\t En procesarPedidoRead el path es: %s\n" RESET, path);
 
 //	else if (strcmp(path, "/pokemon.txt") == 0)
@@ -423,9 +423,8 @@ void* procesarPedidoRead(void* buffer)
 	int posicion;
 	if(existePath(path, &posicion))
 	{
-
 		osada_file* archivo = buscarArchivo(nombre(path), &posicion);
-		printf(GRN "\t Archivo leido" RESET);
+		printf(GRN "\t Archivo leido\n" RESET);
 		return readFile(archivo);
 	}
 	else
@@ -640,7 +639,6 @@ osada_file* buscarArchivo(char* nombre, int* posicion)
 		for(i=0; i< 2048; i++)
 		{
 			leerArchivo(i, archivo);
-
 			if ((strcmp(archivo->fname, nombre) == 0) && (archivo->state != 0))
 			{
 				*posicion = i;
@@ -679,11 +677,11 @@ char renombrarArchivo(char* paths)
 
 void asignarOffsets()
 {
-	int tamanioTablaAsig = oheader.fs_blocks - 1025 - oheader.bitmap_blocks - oheader.data_blocks;
+	int tamanioTablaAsig = (oheader.fs_blocks - 1025 - oheader.bitmap_blocks - oheader.data_blocks) * OSADA_BLOCK_SIZE;
 	offsetBitmap = OSADA_BLOCK_SIZE;
 	offsetTablaArchivos = OSADA_BLOCK_SIZE + (oheader.bitmap_blocks * OSADA_BLOCK_SIZE);
-	offsetAsignaciones = offsetTablaArchivos + 1024;
-	offsetDatos = offsetAsignaciones + (sizeof(int) * tamanioTablaAsig);
+	offsetAsignaciones = offsetTablaArchivos + (1024 * OSADA_BLOCK_SIZE);
+	offsetDatos = offsetAsignaciones + tamanioTablaAsig;
 }
 
 void descargar(uint32_t descriptorArchivo)
@@ -1011,10 +1009,9 @@ void* readFile(osada_file* archivo)
 	void *buffer = malloc(OSADA_BLOCK_SIZE * cant_blocks);
 		int offset = 0;
 		void* bufferAux = malloc(OSADA_BLOCK_SIZE);
-
 	for (i=0; i < cant_blocks; i++)
 	{
-				leerDato(next_block, &bufferAux);
+				leerDato(next_block, bufferAux);
 				memcpy(buffer + offset, bufferAux, OSADA_BLOCK_SIZE);
 				offset += OSADA_BLOCK_SIZE;
 				leerAsignacion(next_block, &next_block);
