@@ -425,6 +425,7 @@ void* procesarPedidoRead(void* buffer)
 			printf(RED "\t En pedido read: No se encontro el archivo: %s\n" RESET, nombre(path));
 			return 'n';
 		}
+
 		printf(GRN "\t Archivo leido\n" RESET);
 		return readFile(archivo);
 	}
@@ -756,7 +757,7 @@ osada_file* buscarArchivo(char* path, int* posicion)
 		{
 			leerArchivo(i, archivo);
 
-			if ((strcmp(archivo->fname, nombre(path)) == 0) && (archivo->state != 0))//necesito saber el path entero para saber si tiene el mismo padre
+			if ((strcmp(archivo->fname, nombre(path)) == 0) && (archivo->state != 0))
 			{
 				if (archivo->parent_directory == padre(path))
 				{
@@ -1150,9 +1151,9 @@ void* readFile(osada_file* archivo)
 	void *buffer = malloc(OSADA_BLOCK_SIZE * cant_blocks);
 
 		void* bufferAux = malloc(OSADA_BLOCK_SIZE);
-
 	for (i=0; i < cant_blocks; i++)
 	{
+
 		//printf(YEL "asignacion: %d" RESET, next_block);
 				leerDato(next_block, bufferAux);
 				memcpy(buffer + offset, bufferAux, OSADA_BLOCK_SIZE);
