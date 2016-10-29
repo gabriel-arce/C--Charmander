@@ -201,13 +201,13 @@ void atendercliente(int socket)
 					break;
 
 				case PEDIDO_OPEN:
-					printf(CYN "\t procesando PEDIDO_OPEN\n" RESET);
+					printf(GRN "\t procesando PEDIDO_OPEN\n" RESET);
 
 					respuesta = procesarPedidoOpen((char*)pedido);
 					if(respuesta != NULL)
 					{
 						enviarConProtocolo(socket, RESPUESTA_OPEN, respuesta);
-						printf(CYN "\t devolviendo RESPUESTA_OPEN\n" RESET);
+						printf(GRN "\t devolviendo RESPUESTA_OPEN\n" RESET);
 					}
 					else
 					{
@@ -217,7 +217,7 @@ void atendercliente(int socket)
 					break;
 
 				case PEDIDO_READ:
-					printf( YEL "\t procesando PEDIDO_READ\n" RESET);
+					printf( BLU "\t procesando PEDIDO_READ\n" RESET);
 
 					void *buffer = NULL;
 					buffer = recibirEstructuraRead(socket, &head);
@@ -226,7 +226,7 @@ void atendercliente(int socket)
 					if(respuesta != NULL)
 					{
 						enviarConProtocolo(socket, RESPUESTA_READ, respuesta);
-						printf(YEL "\t devolviendo RESPUESTA_READ \n" RESET);
+						printf(BLU "\t devolviendo RESPUESTA_READ \n" RESET);
 					}
 					else
 					{
@@ -373,10 +373,24 @@ void printEncabezado()
 	printf("****************** Iniciando servidor..\n\n");
 }
 
+void* procesarPedidoCreate(char *path)//const char *path, mode_t mode,
+{
+	char* respuesta = malloc(sizeof(char));
+	respuesta[0] = crearArchivo(path, 1);
+	return respuesta;
+}
+
 void* procesarPedidoGetatrr(char *path)
 {
 	printf("\t path: %s\n", path);
 	return getAttr(path);
+}
+
+void* procesarPedidoMkdir(char *path)//const char *path, mode_t mode
+{
+	char* respuesta = malloc(sizeof(char));
+	respuesta[0] = crearArchivo(path, 2);
+	return respuesta;
 }
 
 void* procesarPedidoOpen(char* path)
@@ -385,12 +399,6 @@ void* procesarPedidoOpen(char* path)
 	char* respuesta = malloc(sizeof(char));
 	respuesta[0] = abrirArchivo(path);
 	return respuesta;
-}
-
-void* procesarPedidoReaddir(char *path)
-{
-	printf("\t path: %s\n", path);
-	return readdir(path);
 }
 
 void* procesarPedidoRead(void* buffer)
@@ -425,7 +433,6 @@ void* procesarPedidoRead(void* buffer)
 			printf(RED "\t En pedido read: No se encontro el archivo: %s\n" RESET, nombre(path));
 			return 'n';
 		}
-
 		printf(GRN "\t Archivo leido\n" RESET);
 		return readFile(archivo);
 	}
@@ -439,18 +446,10 @@ void* procesarPedidoRead(void* buffer)
 	return NULL;
 }
 
-void* procesarPedidoCreate(char *path)//const char *path, mode_t mode,
+void* procesarPedidoReaddir(char *path)
 {
-	char* respuesta = malloc(sizeof(char));
-	respuesta[0] = crearArchivo(path, 1);
-	return respuesta;
-}
-
-void* procesarPedidoMkdir(char *path)//const char *path, mode_t mode
-{
-	char* respuesta = malloc(sizeof(char));
-	respuesta[0] = crearArchivo(path, 2);
-	return respuesta;
+	printf("\t path: %s\n", path);
+	return readdir(path);
 }
 
 void* procesarPedidoRename(char *paths)//path - newpath
@@ -467,18 +466,18 @@ void* procesarPedidoRmdir(char *path)
 	return respuesta;
 }
 
-void* procesarPedidoUnlink(char* path)
-{
-	char* respuesta = malloc(sizeof(char));
-	respuesta[0] = borrarArchivo(path);
-	return respuesta;
-}
-
 void* procesarPedidoTruncate(char *path)//const char *path, off_t new_size
 {
 	void* respuesta = NULL;
 
 	return respuesta;//ver que devuelve
+}
+
+void* procesarPedidoUnlink(char* path)
+{
+	char* respuesta = malloc(sizeof(char));
+	respuesta[0] = borrarArchivo(path);
+	return respuesta;
 }
 
 void* procesarPedidoWrite(void *buffer)//en construccion
@@ -510,23 +509,37 @@ void* procesarPedidoWrite(void *buffer)//en construccion
 	printf( "\t En procesarPedidoWrite el bufLen es: %d\n", *bufLen);
 	printf( "\t En procesarPedidoWrite el path es: %s\n" RESET, path);
 
-	if (strcmp(path, "/pokemon.txt") == 0)
+	int cantidadBloques = (int)size / OSADA_BLOCK_SIZE;
+	if(((int)size % OSADA_BLOCK_SIZE) != 0)
+	{
+		cantidadBloques++;
+	}
+
+	if (hayEspacioEnDisco(cantidadBloques) != 0)
 	{
 		//llamar a funcion que escriba en el archivo
 		printf(GRN "Escribir en archivo un buffer de size: %d" RESET, *size);
-		void* respuesta = malloc(sizeof(char));
-		memcpy(respuesta, 'b', sizeof(char));
+		char* respuesta = malloc(sizeof(char));
+		respuesta[0] = writeFile(path, size);
 		return respuesta;
 	}
 	else
 	{
-		printf(RED "\n\t En construccion!!!!!\n" RESET);
+		printf(RED "\n\t No hay espacio suficiente para escribir el archivo, cancelando operacion\n" RESET);
 	}
 
 	//free(buffer);
-
 	return NULL;
+}
 
+int hayEspacioEnDisco(int cantidadBloques)
+{
+	return 1;
+}
+char writeFile(char* path, size_t size)
+{
+
+	return 's';
 }
 
 void terminar()
@@ -540,66 +553,59 @@ void terminar()
 }
 
 //funciones de disco----------------------------------------------------------------------------------
-char* nombre(char* path)
+
+char abrirArchivo(char* path)
 {
-	char* pathToken = malloc(strlen(path)+1);
-	strcpy(pathToken, path);
-
-	char* token = malloc(strlen(path) +1);
-	char* respuesta = malloc(strlen(path) +1);
-
-	token = strtok(pathToken, "/");
-
-	while (token != NULL)
-	{
-		strcpy(respuesta, token);
-		token = strtok(NULL, "/");
-	}
-	return respuesta;
+	//TODO: chequear que el archivo exista, ver de tener una tabla con archivos abiertos y el modo (lectura o escritura)
+	return 's';
 }
 
-int posicionUltimoToken(char* path)
+int agregarArchivo(char* path, int modo)
 {
-	int i;
-	if(strlen(path) > 1)
+	//printf(CYN "\t nombre(path) en agregarArchivo %s\n" RESET, nombre(path));
+	int pos;
+
+	if(strcmp(nombre(path), ".Trash-1000") == 0)
 	{
-		for(i = strlen(path) - 2; i >= 0; i --)
-		{
-			if(path[i] == '/')
-			{
-				return i;
-			}
-		}
+		return -1;
 	}
-	return -1;
-}
-
-int padre(char* path)
-{
-	//printf(YEL "\t Path recibido en padre: %s\n" RESET, path);
-	int posicion;
-
-	if((posicion = posicionUltimoToken(path)) == -1)
+	if(strlen(nombre(path)) > 17)
 	{
-		printf(RED "\t No se encontro el archivo padre\n" RESET);
+		printf(RED "\t El nombre de archivo " YEL "%s" RED " supera el limite de caracteres maximo (17)\n" RESET, nombre(path));
+		return -1;
+	}
+	if ((pos = buscarEspacioLibre()) == -1)// chequeo que exista espacio en la tabla de archivos, si hay agrego el pedido
+	{
+		printf(RED "\t No hay espacio para crear el archivo %s\n" RESET, nombre(path));
 		return -1;
 	}
 
-	if(posicion == 0)
+	int p = padre(path);
+	if (p == -1)
 	{
-		return 65535;
-	}
-
-	char* pathPadre = malloc((sizeof(char) * posicion) + 1);
-	strncpy(pathPadre, path, posicion);
-	osada_file* archivo = buscarArchivo(pathPadre, &posicion);
-	if (archivo == NULL)
-	{
-		printf(RED "\t No se encontro el archivo padre\n" RESET);
+		printf(RED "\t Salgo sin agregar el archivo %s\n" RESET, nombre(path));
 		return -1;
 	}
+	osada_file* nuevo = malloc(sizeof(osada_file));
+	memset(nuevo, 0, sizeof(osada_file));
+	strcpy(nuevo->fname, nombre(path));
+	nuevo->file_size = 0;
+	nuevo->lastmod = 0;//ver de poner la fecha con time()?
+	nuevo->first_block = 0;//ver con que inicializar esto
+	nuevo->state = modo;//si es archivo o directorio
+	nuevo->parent_directory = p;
+	escribirArchivo(pos, nuevo);
 
-	return posicion;
+	return 0;
+}
+
+void asignarOffsets()
+{
+	int tamanioTablaAsig = (oheader.fs_blocks - 1025 - oheader.bitmap_blocks - oheader.data_blocks) * OSADA_BLOCK_SIZE;
+	offsetBitmap = OSADA_BLOCK_SIZE;
+	offsetTablaArchivos = OSADA_BLOCK_SIZE + (oheader.bitmap_blocks * OSADA_BLOCK_SIZE);
+	offsetAsignaciones = offsetTablaArchivos + (1024 * OSADA_BLOCK_SIZE);
+	offsetDatos = offsetAsignaciones + tamanioTablaAsig;
 }
 
 char borrarArchivo(char* path)
@@ -622,26 +628,6 @@ char borrarArchivo(char* path)
 
 	printf(YEL "\t Se borro el archivo: %s\n" RESET, archivo->fname);
 	return 's';
-}
-
-int esDirectorioVacio(int posicion)
-{
-	int i;
-	osada_file* archivo = malloc(sizeof(osada_file));
-
-		for(i=0; i< 2048; i++)
-		{
-			leerArchivo(i, archivo);
-
-			if ((archivo->parent_directory == posicion) && (archivo->state != 0))
-			{
-				free(archivo);
-				return 0;
-			}
-		}
-
-		free(archivo);
-	return 1;
 }
 
 char borrarDirectorio(char* path)
@@ -668,7 +654,29 @@ char borrarDirectorio(char* path)
 	return 's';
 }
 
-int buscarEspacioLibre()
+osada_file* buscarArchivo(char* path, int* posicion)
+{
+	osada_file* archivo = malloc(sizeof(osada_file));
+	int i;
+
+		for(i=0; i< 2048; i++)
+		{
+			leerArchivo(i, archivo);
+
+			if ((strcmp(archivo->fname, nombre(path)) == 0) && (archivo->state != 0))//necesito saber el path entero para saber si tiene el mismo padre
+			{
+				if (archivo->parent_directory == padre(path))
+				{
+				*posicion = i;
+				return archivo;
+				}
+			}
+		}
+
+		return NULL;
+}
+
+int buscarEspacioLibre()//busca el primer espacio libre en la tabla de archivos
 {
 	int pos;
 	int i;
@@ -685,39 +693,10 @@ int buscarEspacioLibre()
 	return -1;
 }
 
-int agregarArchivo(char* path, int modo)
+int buscarBitLibre() //busca el primer espacio libre en el bitmap
 {
-	//printf(CYN "\t nombre(path) en agregarArchivo %s\n" RESET, nombre(path));
-	int pos;
-
-	if(strcmp(nombre(path), ".Trash-1000") == 0)
-	{
-		return -1;
-	}
-
-	if ((pos = buscarEspacioLibre()) == -1)// chequeo que exista espacio en la tabla de archivos, si hay agrego el pedido
-	{
-		printf(RED "\t No hay espacio para crear el archivo %s\n" RESET, nombre(path));
-		return -1;
-	}
-
-	int p = padre(path);
-	if (p == -1)//ver el caso en que el padre sea el directorio raiz
-	{
-		printf(RED "\t Salgo sin agregar el archivo %s\n" RESET, nombre(path));
-		return -1;
-	}
-	osada_file* nuevo = malloc(sizeof(osada_file));
-	memset(nuevo, 0, sizeof(osada_file));
-	strcpy(nuevo->fname, nombre(path));
-	nuevo->file_size = 0;
-	nuevo->lastmod = 0;
-	nuevo->first_block = 0;//ver con que inicializar esto
-	nuevo->state = modo;//si es archivo o directorio
-	nuevo->parent_directory = p;
-	escribirArchivo(pos, nuevo);
-
-	return 0;
+	//TODO: recorrer y buscar un bit libre, devolver la posicion encontrada para escribir en la tabla de asignaciones
+	return -1;
 }
 
 char crearArchivo(char* path, int modo)
@@ -748,69 +727,6 @@ char crearArchivo(char* path, int modo)
 
 }
 
-osada_file* buscarArchivo(char* path, int* posicion)
-{
-	osada_file* archivo = malloc(sizeof(osada_file));
-	int i;
-
-		for(i=0; i< 2048; i++)
-		{
-			leerArchivo(i, archivo);
-
-			if ((strcmp(archivo->fname, nombre(path)) == 0) && (archivo->state != 0))
-			{
-				if (archivo->parent_directory == padre(path))
-				{
-				*posicion = i;
-				return archivo;
-				}
-			}
-		}
-
-		return NULL;
-}
-
-char abrirArchivo(char* path)
-{
-	//TODO: chequear que el archivo exista, ver de tener una tabla con archivos abiertos y el modo (lectura o escritura)
-	return 's';
-}
-
-char renombrarArchivo(char* paths)
-{
-	//separa el path recibido en nuevo y viejo, lee la tabla de archivos y actualiza el nombre,
-	//devuelve 's' para indicar ok al cliente o 'n' si fallo el pedido
-	int posicion;
-	//printf(YEL "\t En renombrar: Los paths concatenados son: %s\n" RESET, paths);
-	char *viejo = malloc(strlen(paths)+1);
-	char *nuevo = malloc(strlen(paths)+1);
-
-	viejo = strtok(paths, "*");
-	nuevo = strtok(NULL, "*");
-
-	osada_file* archivo = buscarArchivo(viejo, &posicion);
-	if (archivo == NULL)
-	{
-		printf(RED "\t No se encontro el archivo: %s\n" RESET, viejo);
-		return 'n';
-	}
-
-		strcpy(archivo->fname, nombre(nuevo));
-		escribirArchivo(posicion, archivo);
-
-	printf(GRN "\t Se cambio el nombre del archivo: %s por: %s\n" RESET, nombre(viejo), nombre(nuevo));
-	return 's';
-}
-
-void asignarOffsets()
-{
-	int tamanioTablaAsig = (oheader.fs_blocks - 1025 - oheader.bitmap_blocks - oheader.data_blocks) * OSADA_BLOCK_SIZE;
-	offsetBitmap = OSADA_BLOCK_SIZE;
-	offsetTablaArchivos = OSADA_BLOCK_SIZE + (oheader.bitmap_blocks * OSADA_BLOCK_SIZE);
-	offsetAsignaciones = offsetTablaArchivos + (1024 * OSADA_BLOCK_SIZE);
-	offsetDatos = offsetAsignaciones + tamanioTablaAsig;
-}
-
 void descargar(uint32_t descriptorArchivo)
 {
 	if (munmap(disco, tamanioArchivo) == -1)
@@ -833,6 +749,49 @@ void escribirBloque(uint32_t bloque, char* buf)
 void escribirArchivo(uint32_t posicion, char* buf)
 {
 	memcpy(disco + offsetTablaArchivos + (posicion * sizeof(osada_file)), buf, sizeof(osada_file));
+}
+
+int esDirectorioVacio(int posicion)
+{
+	int i;
+	osada_file* archivo = malloc(sizeof(osada_file));
+
+		for(i=0; i< 2048; i++)
+		{
+			leerArchivo(i, archivo);
+
+			if ((archivo->parent_directory == posicion) && (archivo->state != 0))
+			{
+				free(archivo);
+				return 0;
+			}
+		}
+
+		free(archivo);
+	return 1;
+}
+
+int existeDirectorio(unsigned char* token, uint16_t* padre, int* posicion)
+{
+	osada_file archivo;
+	int i;
+
+		for(i=0; i< 2048; i++)
+		{
+			*posicion = i;
+			leerArchivo(i, &archivo);
+
+			if ((strcmp(archivo.fname, token) == 0) && (archivo.state != 0))
+			{
+				if (archivo.parent_directory == *padre)
+				{
+				*padre = i;
+				return 1;
+			}
+			}
+		}
+
+		return 0;
 }
 
 int existePath(char* path, uint16_t* pos)
@@ -865,65 +824,52 @@ int existePath(char* path, uint16_t* pos)
 	return 1;
 }
 
-int existeDirectorio(unsigned char* token, uint16_t* padre, int* posicion)
+void* getAttr(char* path)
 {
 	osada_file archivo;
-	int i;
+		int pos = 0;
+		int existe = 1;
 
-		for(i=0; i< 2048; i++)
+		if (strcmp(path, "/") == 0)
 		{
-			*posicion = i;
-			leerArchivo(i, &archivo);
-
-			if ((strcmp(archivo.fname, token) == 0) && (archivo.state != 0))
-			{
-				if (archivo.parent_directory == *padre)
-				{
-				*padre = i;
-				return 1;
-			}
-			}
+		t_stbuf* stbuf = malloc(sizeof(t_stbuf));
+		stbuf->mode = S_IFDIR | 0755;
+		stbuf->nlink = 2;
+		stbuf->size = 0;
+		return stbuf;
 		}
+	if (existePath(path, &pos))
+	{
+		leerArchivo(pos, &archivo);
 
-		return 0;
+		if (archivo.state != 0)
+		{
+			t_stbuf* stbuf = malloc(sizeof( t_stbuf));
+			if (archivo.state == 2)//si es un directorio
+			{
+				stbuf->mode = S_IFDIR | 0755;
+				stbuf->nlink = 2;
+				stbuf->size = 0;
+			}
+			else
+			{
+				stbuf->mode = S_IFREG | 0444;
+				stbuf->nlink = 1;
+				stbuf->size = archivo.file_size;
+			}
+
+			return stbuf;
+		}
+	}
+	return NULL;
 }
 
 void inicializarDisco()
 {
-//para inicializar el disco--------------------
 	mapearDisco("challenge.bin"); //mapearDisco("challenge.bin");
 	leerHeader();
 	asignarOffsets();
 	leerTablaArchivos();
-//
-//////mas adelante borrar esto
-//	char* path = "/directorio/subdirectorio";
-//	int posicion;
-//
-//	osada_file* archivo = buscarArchivo(path, &posicion);
-//	if (archivo == NULL)
-//	{
-//		printf(RED "\t  No se encontro el archivo: %s\n" RESET, nombre(path));
-//	}
-//	else
-//	{
-//		printf(GRN "\t se encontro el archivo: %s\n" RESET, nombre(path));
-//	}
-
-
-////	char* archivosEnDirectorio = readdir(path);
-////	 getAttr(path);
-//	printf("%s\n", nombre(path));
-//
-//	char* path2 = "/directorio/subdirectorio/large.txt";
-//////	char* archivosEnDirectorio = readdir(path);
-//////	 getAttr(path);
-////	printf("%s\n", nombre(path2));
-//	int posicion = posicionUltimoToken(path2);
-//	char* pathPadre = malloc((sizeof(char) * posicion) + 1);
-//	strncpy(pathPadre, path2, posicion);
-//	 //padre( path);
-//	printf(RED "--path:%s, path padre: %s---" RESET, path2, pathPadre);
 }
 
 void leerArchivo(uint32_t posicion, osada_file* buf)
@@ -994,48 +940,67 @@ void mostrarHeader(osada_header oheader)
 		printf("                     Data size: %d blocks \n \n", oheader.data_blocks);
 }
 
-void* getAttr(char* path)
+char* nombre(char* path)
 {
-	osada_file archivo;
-		int pos = 0;
-		int existe = 1;
+	char* pathToken = malloc(strlen(path)+1);
+	strcpy(pathToken, path);
 
-		if (strcmp(path, "/") == 0)
-		{
-		t_stbuf* stbuf = malloc(sizeof(t_stbuf));
-		stbuf->mode = S_IFDIR | 0755;
-		stbuf->nlink = 2;
-		stbuf->size = 0;
-		return stbuf;
-		}
+	char* token = malloc(strlen(path) +1);
+	char* respuesta = malloc(strlen(path) +1);
 
-	if (existePath(path, &pos))
+	token = strtok(pathToken, "/");
+
+	while (token != NULL)
 	{
-		leerArchivo(pos, &archivo);
-
-		if (archivo.state != 0)
-		{
-			t_stbuf* stbuf = malloc(sizeof( t_stbuf));
-			if (archivo.state == 2)//si es un directorio
-			{
-				stbuf->mode = S_IFDIR | 0755;
-				stbuf->nlink = 2;
-				stbuf->size = 0;
-			}
-			else
-			{
-				stbuf->mode = S_IFREG | 0444;
-				stbuf->nlink = 1;
-				stbuf->size = archivo.file_size;
-			}
-
-			return stbuf;
-		}
+		strcpy(respuesta, token);
+		token = strtok(NULL, "/");
 	}
-
-	return NULL;
+	return respuesta;
 }
 
+int padre(char* path)
+{
+	//printf(YEL "\t Path recibido en padre: %s\n" RESET, path);
+	int posicion;
+
+	if((posicion = posicionUltimoToken(path)) == -1)
+	{
+		printf(RED "\t No se encontro el archivo padre\n" RESET);
+		return -1;
+	}
+
+	if(posicion == 0)
+	{
+		return 65535;
+	}
+
+	char* pathPadre = malloc((sizeof(char) * posicion) + 1);
+	strncpy(pathPadre, path, posicion);
+	osada_file* archivo = buscarArchivo(pathPadre, &posicion);
+	if (archivo == NULL)
+	{
+		printf(RED "\t No se encontro el archivo padre\n" RESET);
+		return -1;
+	}
+
+	return posicion;
+}
+
+int posicionUltimoToken(char* path)
+{
+	int i;
+	if(strlen(path) > 1)
+	{
+		for(i = strlen(path) - 2; i >= 0; i --)
+		{
+			if(path[i] == '/')
+			{
+				return i;
+			}
+		}
+	}
+	return -1;
+}
 
 /* para procesar pedido readdir(),
 * recibo un path de fuse y chequeo que exista
@@ -1101,6 +1066,69 @@ void* readdir(char* path)
 	return buffer;
 }
 
+void* readFile(osada_file* archivo)
+{
+	int i;
+	int offset = 0;
+	//int fat_size = offsetDatos - offsetAsignaciones;
+
+	int cant_blocks = archivo->file_size / OSADA_BLOCK_SIZE;
+	if((archivo->file_size % OSADA_BLOCK_SIZE) != 0)
+	{
+		cant_blocks++;
+	}
+	printf(GRN "\t Cantidad de bloques: %d\n" RESET, cant_blocks);
+	int next_block = archivo->first_block;
+	void *buffer = malloc(OSADA_BLOCK_SIZE * cant_blocks);
+
+		void* bufferAux = malloc(OSADA_BLOCK_SIZE);
+
+	for (i=0; i < cant_blocks; i++)
+	{
+		//printf(YEL "asignacion: %d" RESET, next_block);
+				leerDato(next_block, bufferAux);
+				memcpy(buffer + offset, bufferAux, OSADA_BLOCK_SIZE);
+				offset += OSADA_BLOCK_SIZE;
+				leerAsignacion(next_block, &next_block);
+	}
+
+	void* respuesta = malloc(archivo->file_size);
+	memcpy(respuesta, buffer, archivo->file_size);
+
+	free(bufferAux);
+	free(buffer);
+	bufferAux = NULL;
+	buffer = NULL;
+
+	return respuesta;
+}
+
+char renombrarArchivo(char* paths)
+{
+	//separa el path recibido en nuevo y viejo, lee la tabla de archivos y actualiza el nombre,
+	//devuelve 's' para indicar ok al cliente o 'n' si fallo el pedido
+	int posicion;
+	//printf(YEL "\t En renombrar: Los paths concatenados son: %s\n" RESET, paths);
+	char *viejo = malloc(strlen(paths)+1);
+	char *nuevo = malloc(strlen(paths)+1);
+
+	viejo = strtok(paths, "*");
+	nuevo = strtok(NULL, "*");
+
+	osada_file* archivo = buscarArchivo(viejo, &posicion);
+	if (archivo == NULL)
+	{
+		printf(RED "\t No se encontro el archivo: %s\n" RESET, viejo);
+		return 'n';
+	}
+
+		strcpy(archivo->fname, nombre(nuevo));
+		escribirArchivo(posicion, archivo);
+
+	printf(GRN "\t Se cambio el nombre del archivo: %s por: %s\n" RESET, nombre(viejo), nombre(nuevo));
+	return 's';
+}
+
 //funciones para probar la lectura correcta del disco----------------------------------------------------------------------
 void leerTablaArchivos()
 {
@@ -1137,41 +1165,4 @@ void leerTablaDatos()
 			leerDato(i, &bloque);
 			printf("%s \n", bloque);
 		}
-}
-
-void* readFile(osada_file* archivo)
-{
-	int i;
-	int offset = 0;
-	//int fat_size = offsetDatos - offsetAsignaciones;
-
-	int cant_blocks = archivo->file_size / OSADA_BLOCK_SIZE;
-	if((archivo->file_size % OSADA_BLOCK_SIZE) != 0)
-	{
-		cant_blocks++;
-	}
-	printf(GRN "\t Cantidad de bloques: %d\n" RESET, cant_blocks);
-	int next_block = archivo->first_block;
-	void *buffer = malloc(OSADA_BLOCK_SIZE * cant_blocks);
-
-		void* bufferAux = malloc(OSADA_BLOCK_SIZE);
-	for (i=0; i < cant_blocks; i++)
-	{
-
-		//printf(YEL "asignacion: %d" RESET, next_block);
-				leerDato(next_block, bufferAux);
-				memcpy(buffer + offset, bufferAux, OSADA_BLOCK_SIZE);
-				offset += OSADA_BLOCK_SIZE;
-				leerAsignacion(next_block, &next_block);
-	}
-
-	void* respuesta = malloc(archivo->file_size);
-	memcpy(respuesta, buffer, archivo->file_size);
-
-	free(bufferAux);
-	free(buffer);
-	bufferAux = NULL;
-	buffer = NULL;
-
-	return respuesta;
 }
