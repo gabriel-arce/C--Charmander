@@ -1079,20 +1079,24 @@ void* readdir(char* path)
 
 	printf("\t Cantidad de archivos en path: %d\n", contadorArchivosEnPath);
 
-	buffer = malloc(contadorArchivosEnPath * ((sizeof(char) * OSADA_FILENAME_LENGTH) + 1));//le sumo 1 para agregar el caracter centinela despues de cada fname
-	memset(buffer, 0, contadorArchivosEnPath * ((sizeof(char) * OSADA_FILENAME_LENGTH) + 1));
-
-	for(i=0; i< 2048; i++) //armo la cadena que voy a enviar a fuse con los archivos y diectorios encontrados en el path
+	if(contadorArchivosEnPath != 0)
 	{
-		leerArchivo(i, &archivo);
+		buffer = malloc(contadorArchivosEnPath * ((sizeof(char) * OSADA_FILENAME_LENGTH) + 1));//le sumo 1 para agregar el caracter centinela despues de cada fname
+		memset(buffer, 0, contadorArchivosEnPath * ((sizeof(char) * OSADA_FILENAME_LENGTH) + 1));
 
-		if ((pos == archivo.parent_directory) && (archivo.state != 0))
+		for(i=0; i< 2048; i++) //armo la cadena que voy a enviar a fuse con los archivos y diectorios encontrados en el path
 		{
-			strcat(buffer, archivo.fname);
-			strcat(buffer, "/");
+			leerArchivo(i, &archivo);
+
+			if ((pos == archivo.parent_directory) && (archivo.state != 0))
+			{
+				strcat(buffer, archivo.fname);
+				//printf(MAG "\t Archivo para el path: %s\n" RESET, archivo.fname);
+				strcat(buffer, "/");
+			}
 		}
+		printf(CYN "\t Archivos en path: %s\n" RESET, buffer);
 	}
-		printf("\t Archivos en path: %s\n", buffer);
 
 	return buffer;
 }

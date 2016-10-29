@@ -1,6 +1,6 @@
 
 /*
-* fuseCodemon.c
+*pokedexCliente.c
 *
 *  Created on: 17/9/2016
 *      Author: utnso
@@ -256,7 +256,7 @@ static int osada_open(const char *path, struct fuse_file_info *fi)
 	if (head == RESPUESTA_OPEN)
 	{
 		log_info(logCliente, "	Recibi RESPUESTA_OPEN");
-		log_info(logCliente, (char*)paquete);
+		//log_info(logCliente, (char*)paquete);
 
 		free(paquete);
 		return 0;
