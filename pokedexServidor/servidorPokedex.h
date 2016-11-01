@@ -42,15 +42,18 @@
 //funciones de disco--------------------------
 void asignarOffsets();
 void descargar(uint32_t descriptorArchivo);
-void escribirBloque(uint32_t bloque, char* buf);
 void escribirArchivo(uint32_t posicion, char* buf);
-int existePath(char* path, uint16_t* pos);
+void escribirAsignacion(uint32_t posicion, int buf);
+
+
+void escribirBloque(uint32_t bloque, char* buf);
+int existePath(char* path, int* pos);
 int existeDirectorio(unsigned char* token, uint16_t* padre, int* posicion);
 void inicializarDisco();
 void leerArchivo(uint32_t posicion, osada_file* buf);
 void leerAsignacion(uint32_t posicion, osada_file* buf);
 void leerBloque(uint32_t cantidadBloques, char* buf);
-void leerDato(uint32_t posicion, osada_file* buf);
+void leerDato(uint32_t posicion, osada_block* buf);
 void leerHeader();
 void leerTablaArchivos();
 void leerTablaAsignaciones();
@@ -67,11 +70,17 @@ osada_file* buscarArchivo(char* nombre, int* posicion);
 char crearArchivo(char* path, int modo);
 void* getAttr(char* path);
 char* nombre(char* path);
+int posicionUltimoToken(char* path);
 void* readdir(char* path);
 char renombrarArchivo(char* paths);
-
-//esta no se si funcionan-------------------
 void* readFile(osada_file* archivo);
+char writeFile(char* path, size_t size, void* bufWrite);
+
+//funciones que faltan para write---------------------------------------
+int proximaPosicionLibre();
+int buscarEspacioLibre();//esta me parece que esta demas
+int buscarBitLibre() ;//esta me parece que esta demas
+int hayEspacioEnDisco(int cantidadBloques);
 
 //funciones de servidor-------------------------------------------------
 void atendercliente(int socket);
@@ -83,7 +92,7 @@ void* procesarPedidoCreate(char *pedido);
 void* procesarPedidoGetatrr(char *path);
 void* procesarPedidoMkdir(char *path);
 void* procesarPedidoOpen(char* path);
-void* procesarPedidoRead(void *buffer);
+void* procesarPedidoRead(void* buffer, uint32_t* tamanioBuffer);
 void* procesarPedidoReaddir(char *path);
 void* procesarPedidoRename(char *paths);
 void* procesarPedidoRmdir(char *path);
@@ -91,6 +100,7 @@ void* procesarPedidoTruncate(char *path);
 void* procesarPedidoUnlink(char *path);
 void* procesarPedidoWrite(void *buffer);
 
+void liberarRecursos();
 void terminar();
 
 #endif /* SERVIDORPOKEDEX_H_ */

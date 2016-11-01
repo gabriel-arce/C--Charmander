@@ -110,14 +110,13 @@ void* hiloComunicacion(void* arg)
 			int socketCliente = aceptarConexion(listenningSocket);
 		pthread_mutex_unlock(&mutex_comunicacion);
 
-
-		mensaje = recibirConProtocolo(socketCliente,&head);
+		mensaje = recibir(socketCliente,&head);
 		char* mensajeHSK = mensaje;
 		printf("\t Recibiendo pedido de un cliente:%s \n ", mensajeHSK);
 
 		if (mensajeHSK)
 		{
-			if (enviarConProtocolo(socketCliente, HANDSHAKE, mensajeHSK) == -1)
+			if (enviar(socketCliente, HANDSHAKE, mensajeHSK) == -1)
 			{
 				printf(YEL "\t El cliente %d se desconecto antes de recibir el handshake \n " RESET, socketCliente);
 			}
@@ -145,7 +144,7 @@ void atendercliente(int socket)
 		void *pedido = NULL;
 		int head = 0;
 
-		pedido = recibirConProtocolo(socket, &head);
+		pedido = recibir(socket, &head);
 		printf("\n******** Recibi del cliente " CYN "%d" RESET " un mensaje...\n", socket);
 
 		if(pedido != NULL)
@@ -158,12 +157,12 @@ void atendercliente(int socket)
 					respuesta = procesarPedidoCreate((char*)pedido);
 					if(respuesta != NULL)
 					{
-						enviarConProtocolo(socket, RESPUESTA_CREATE, respuesta);
+						enviar(socket, RESPUESTA_CREATE, respuesta);
 						printf(MAG "\t devolviendo RESPUESTA_CREATE\n" RESET);
 					}
 					else
 					{
-						enviarConProtocolo(socket, ENOENTRY, pedido);
+						enviar(socket, ENOENTRY, pedido);
 						printf(YEL "\t devolviendo respuesta ENOENT \n" RESET);
 					}
 					break;
@@ -174,12 +173,12 @@ void atendercliente(int socket)
 					respuesta = procesarPedidoGetatrr((char*)pedido);
 					if(respuesta != NULL)
 					{
-						enviarConProtocolo(socket, RESPUESTA_GETATTR, respuesta);
+						enviar(socket, RESPUESTA_GETATTR, respuesta);
 						printf("\t devolviendo RESPUESTA_GETATTR \n");
 					}
 					else
 					{
-						enviarConProtocolo(socket, ENOENTRY, pedido);
+						enviar(socket, ENOENTRY, pedido);
 						printf("\t devolviendo respuesta ENOENT \n");
 					}
 					break;
@@ -190,12 +189,12 @@ void atendercliente(int socket)
 					respuesta = procesarPedidoMkdir((char*)pedido);
 					if(respuesta != NULL)
 					{
-						enviarConProtocolo(socket, RESPUESTA_MKDIR, respuesta);
+						enviar(socket, RESPUESTA_MKDIR, respuesta);
 						printf(MAG "\t devolviendo RESPUESTA_MKDIR\n" RESET);
 					}
 					else
 					{
-						enviarConProtocolo(socket, ENOENTRY, pedido);
+						enviar(socket, ENOENTRY, pedido);
 						printf(YEL "\t devolviendo respuesta ENOENT \n" RESET);
 					}
 					break;
@@ -206,12 +205,12 @@ void atendercliente(int socket)
 					respuesta = procesarPedidoOpen((char*)pedido);
 					if(respuesta != NULL)
 					{
-						enviarConProtocolo(socket, RESPUESTA_OPEN, respuesta);
+						enviar(socket, RESPUESTA_OPEN, respuesta);
 						printf(GRN "\t devolviendo RESPUESTA_OPEN\n" RESET);
 					}
 					else
 					{
-						enviarConProtocolo(socket, ENOENTRY, pedido);
+						enviar(socket, ENOENTRY, pedido);
 						printf(YEL "\t devolviendo respuesta ENOENT \n" RESET);
 					}
 					break;
@@ -220,17 +219,20 @@ void atendercliente(int socket)
 					printf( BLU "\t procesando PEDIDO_READ\n" RESET);
 
 					void *buffer = NULL;
-					buffer = recibirEstructuraRead(socket, &head);
+					uint32_t* tamanioBuffer = malloc(sizeof(uint32_t));
+					memset(tamanioBuffer, 0, sizeof(uint32_t));
 
-					respuesta = procesarPedidoRead(buffer);
+					buffer = recibirEstructuraRead(socket, &head);
+					respuesta = procesarPedidoRead(buffer, tamanioBuffer);
+
 					if(respuesta != NULL)
 					{
-						enviarConProtocolo(socket, RESPUESTA_READ, respuesta);
+						enviarRespuestaRead(socket, RESPUESTA_READ, respuesta, *tamanioBuffer);
 						printf(BLU "\t devolviendo RESPUESTA_READ \n" RESET);
 					}
 					else
 					{
-						enviarConProtocolo(socket, ENOENTRY, pedido);
+						enviar(socket, ENOENTRY, pedido);
 						printf(YEL "\t devolviendo respuesta ENOENT \n" RESET);
 					}
 					break;
@@ -241,12 +243,12 @@ void atendercliente(int socket)
 					respuesta = procesarPedidoReaddir((char*)pedido);
 					if(respuesta != NULL)
 					{
-						enviarConProtocolo(socket, RESPUESTA_READDIR, respuesta);
+						enviar(socket, RESPUESTA_READDIR, respuesta);
 						printf("\t devolviendo RESPUESTA_READDIR\n");
 					}
 					else
 					{
-						enviarConProtocolo(socket, ENOENTRY, pedido);
+						enviar(socket, ENOENTRY, pedido);
 						printf("\t devolviendo respuesta ENOENT \n");
 					}
 					break;
@@ -256,12 +258,12 @@ void atendercliente(int socket)
 					respuesta = procesarPedidoRename((char*)pedido);
 					if(respuesta != NULL)
 					{
-						enviarConProtocolo(socket, RESPUESTA_RENAME, respuesta);
+						enviar(socket, RESPUESTA_RENAME, respuesta);
 						printf(BLU "\t devolviendo RESPUESTA_RENAME\n" RESET);
 					}
 					else
 					{
-						enviarConProtocolo(socket, ENOENTRY, pedido);
+						enviar(socket, ENOENTRY, pedido);
 						printf(YEL "\t devolviendo respuesta ENOENT \n" RESET);
 					}
 					break;
@@ -272,12 +274,12 @@ void atendercliente(int socket)
 					respuesta = procesarPedidoRmdir((char*)pedido);
 					if (respuesta != NULL)
 					{
-						enviarConProtocolo(socket, RESPUESTA_RMDIR, respuesta);
+						enviar(socket, RESPUESTA_RMDIR, respuesta);
 						printf(GRN "\t devolviendo RESPUESTA_RMDIR\n" RESET);
 					}
 					else
 					{
-						enviarConProtocolo(socket, ENOENTRY, pedido);
+						enviar(socket, ENOENTRY, pedido);
 						printf(YEL "\t devolviendo respuesta ENOENT \n" RESET);
 					}
 					break;
@@ -288,12 +290,12 @@ void atendercliente(int socket)
 					respuesta = procesarPedidoTruncate((char*)pedido);
 					if(respuesta != NULL)
 					{
-						enviarConProtocolo(socket, RESPUESTA_TRUNCATE, respuesta);
+						enviar(socket, RESPUESTA_TRUNCATE, respuesta);
 						printf(BLU "\t devolviendo RESPUESTA_TRUNCATE\n" RESET);
 					}
 					else
 					{
-						enviarConProtocolo(socket, ENOENTRY, pedido);
+						enviar(socket, ENOENTRY, pedido);
 						printf(YEL "\t devolviendo respuesta ENOENT \n" RESET);
 					}
 					break;
@@ -304,12 +306,12 @@ void atendercliente(int socket)
 					respuesta = procesarPedidoUnlink((char*)pedido);
 					if(respuesta != NULL)
 					{
-						enviarConProtocolo(socket, RESPUESTA_UNLINK, respuesta);
+						enviar(socket, RESPUESTA_UNLINK, respuesta);
 						printf(GRN "\t devolviendo RESPUESTA_UNLINK\n" RESET);
 					}
 					else
 					{
-						enviarConProtocolo(socket, ENOENTRY, pedido);
+						enviar(socket, ENOENTRY, pedido);
 						printf(YEL "\t devolviendo respuesta ENOENT \n" RESET);
 					}
 					break;
@@ -323,24 +325,24 @@ void atendercliente(int socket)
 					respuesta = procesarPedidoWrite(bufWrite);
 					if(respuesta != NULL)
 					{
-						enviarConProtocolo(socket, RESPUESTA_WRITE, respuesta);
+						enviar(socket, RESPUESTA_WRITE, respuesta);
 						printf(RED "\t devolviendo RESPUESTA_WRITE \n" RESET);
 					}
 					else
 					{
-						enviarConProtocolo(socket, ENOENTRY, pedido);
+						enviar(socket, ENOENTRY, pedido);
 						printf(YEL "\t devolviendo respuesta ENOENT \n" RESET);
 					}
 					break;
 
 				default:
 					printf(RED "\n¿Porqué entre en default???, ¿tenia que enviar un handshake por segunda vez??? \n\n" RESET);
-					enviarConProtocolo(socket,HANDSHAKE, pedido);
+					enviar(socket,HANDSHAKE, pedido);
 					break;
 			}
 
-			free(pedido);
-			free(respuesta);
+//			free(pedido);
+//			free(respuesta);
 
 		}
 		else
@@ -400,49 +402,65 @@ void* procesarPedidoOpen(char* path)
 	respuesta[0] = abrirArchivo(path);
 	return respuesta;
 }
-
-void* procesarPedidoRead(void* buffer)
+void* procesarPedidoRead(void* buffer, uint32_t* tamanioBuffer)
 {
-	//printf(YEL "\n\t Entre procesarPedidoRead\n" RESET);
 	int desplazamiento = 0;
 	size_t* size = malloc(sizeof(size_t));
 	off_t* offset = malloc(sizeof(off_t));
-	int pathLen;
+	int pathLen = 0;
 
-	memcpy(size, buffer , sizeof(size_t));
+	memset(size, 0, sizeof(size_t));
+	memset(offset, 0, sizeof(off_t));
+
+	memcpy(size, buffer, sizeof(size_t));
 	desplazamiento += sizeof(size_t);
 	memcpy(offset, buffer + desplazamiento, sizeof(off_t));
 	desplazamiento += sizeof(off_t);
 	memcpy(&pathLen, buffer + desplazamiento, sizeof(int));
 	desplazamiento += sizeof(int);
 	char* path = malloc(pathLen);
+	memset(path, 0, pathLen);
 	memcpy(path,  buffer + desplazamiento, pathLen);
 
-//	printf(CYN "\n\t En procesarPedidoRead el size es: %d\n", *size);
-//	printf( "\t En procesarPedidoRead el offset es: %d\n", *offset);
+	printf(CYN "\t En procesarPedidoRead el size es: %d\n", *size);
+	printf( "\t En procesarPedidoRead el offset es: %d\n", *offset);
 //	printf( "\t En procesarPedidoRead el pathlen es: %d\n", pathLen);
 //	printf( CYN "\t En procesarPedidoRead el path es: %s\n" RESET, path);
 
-	int posicion;
+	int posicion = -1;
 	if(existePath(path, &posicion))
 	{
-
 		osada_file* archivo = buscarArchivo(path, &posicion);
+
 		if (archivo == NULL)
 		{
 			printf(RED "\t En pedido read: No se encontro el archivo: %s\n" RESET, nombre(path));
-			return 'n';
+			return NULL;
 		}
-		printf(GRN "\t Archivo leido\n" RESET);
-		return readFile(archivo);
+
+		void* archivoCompleto = readFile(archivo);
+		uint32_t bytes = archivo->file_size - *offset;
+		if (bytes <= *size)
+		{
+			//memcpy(tamanioBuffer,&(archivo->file_size), sizeof(uint32_t));
+			memcpy(tamanioBuffer,&bytes, sizeof(uint32_t));
+			return archivoCompleto;
+		}
+
+		void* respuesta = malloc(*size);
+		memset(respuesta, 0, *size);
+		memcpy(tamanioBuffer, size, sizeof(uint32_t));
+		memcpy(respuesta, archivoCompleto + *offset, *size);
+		return respuesta;
 	}
 	else
 	{
 		printf(RED "\n\t No encontré el path!\n" RESET);
+		return NULL;
 	}
 
 	//free(buffer);
-
+	printf(RED "\t NO DEBERIA ENTRAR ACA\n" RESET);
 	return NULL;
 }
 
@@ -485,27 +503,27 @@ void* procesarPedidoWrite(void *buffer)//en construccion
 	int desplazamiento = 0;
 	size_t* size = malloc(sizeof(size_t));
 	off_t* offset = malloc(sizeof(off_t));
-	int* pathLen = malloc(sizeof(int));
+	int pathLen;// = malloc(sizeof(int));
 	int* bufLen = malloc(sizeof(int));
 
 	memcpy(size, buffer, sizeof(size_t));
 	desplazamiento += sizeof(size_t);
 	memcpy(offset, buffer + desplazamiento, sizeof(off_t));
 	desplazamiento += sizeof(off_t);
-	memcpy(pathLen, buffer + desplazamiento, sizeof(int));
+	memcpy(&pathLen, buffer + desplazamiento, sizeof(int));
 	desplazamiento += sizeof(int);
 	memcpy(bufLen, buffer + desplazamiento, sizeof(int));
 	desplazamiento += sizeof(int);
 
 	char* path = malloc(pathLen);
-	memcpy(path,  buffer + desplazamiento, *pathLen);
-	desplazamiento += *pathLen;
-	char* bufWrite = malloc(bufLen);
+	memcpy(path,  buffer + desplazamiento, pathLen);
+	desplazamiento += pathLen;
+	void* bufWrite = malloc(bufLen);
 	memcpy(bufWrite,  buffer + desplazamiento, *bufLen);
 
 	printf(CYN "\n\t En procesarPedidoWrite el size es: %d\n", *size);
 	printf( "\t En procesarPedidoWrite el offset es: %d\n", *offset);
-	printf( "\t En procesarPedidoWrite el pathlen es: %d\n", *pathLen);
+	printf( "\t En procesarPedidoWrite el pathlen es: %d\n", pathLen);
 	printf( "\t En procesarPedidoWrite el bufLen es: %d\n", *bufLen);
 	printf( "\t En procesarPedidoWrite el path es: %s\n" RESET, path);
 
@@ -518,9 +536,9 @@ void* procesarPedidoWrite(void *buffer)//en construccion
 	if (hayEspacioEnDisco(cantidadBloques) != 0)
 	{
 		//llamar a funcion que escriba en el archivo
-		printf(GRN "Escribir en archivo un buffer de size: %d" RESET, *size);
+		printf(GRN "\t Escribiendo en archivo un buffer de size: %d\n" RESET, *size);
 		char* respuesta = malloc(sizeof(char));
-		respuesta[0] = writeFile(path, size);
+		respuesta[0] = writeFile(path, size, bufWrite);
 		return respuesta;
 	}
 	else
@@ -533,19 +551,65 @@ void* procesarPedidoWrite(void *buffer)//en construccion
 }
 
 int hayEspacioEnDisco(int cantidadBloques)
+/*retorna la cantidad de bloques que no entran en el disco ó
+*  cero en caso de que tenga el espacion pedido*/
 {
-	return 1;
+	return 0;
 }
-char writeFile(char* path, size_t size)
+
+int proximaPosicionLibre()
+{
+	return 0;
+}
+char writeFile(char* path, size_t size, void* bufWrite)
+{
+/*TODO:
+* chequear que tenga la cantidad de bloques necesarios para el buffer leyendo el bitmap
+	si lo tengo empezar a pedir bloques libres o los bloques que tiene asignados ese archivo en particular,
+		llamar a escribirBloque hasta terminar
+		devolver 's' */
+
+	int cantidadDeBloques = size / OSADA_BLOCK_SIZE;
+	int bloques = 0;
+
+	if ((size % OSADA_BLOCK_SIZE) != 0)
+	{
+		cantidadDeBloques++;
+	}
+
+	if ((bloques = hayEspacioEnDisco(cantidadDeBloques)) > 0)
+	{
+		printf(RED "\t No hay espacio en disco para guardar el archivo %s\n" RESET, nombre(path));
+		printf(RED "\t Hace/n falta " GRN "%d " RED " bloque/s \n" RESET, bloques);
+		return 'n';
+	}
+
+//	void* buffer = malloc(OSADA_BLOCK_SIZE);
+//	int posicion = 65535;
+//	int i;
+//
+//	for(i = 0; i< cantidadDeBloques; i++)
+//	{
+//		posicion = proximaPosicionLibre();
+//		memcpy(buffer, bufWrite + (OSADA_BLOCK_SIZE * i), OSADA_BLOCK_SIZE);
+//		escribirAsignacion(posicion, &posicion);
+//		escribirBloque(posicion, buffer);
+//	}
+	printf(GRN "\t Se guardo el archivo %s correctamente (mentira, todavia falta codearlo XD)\n" RESET, nombre(path));
+	return 's';
+}
+
+void liberarRecursos()
 {
 
-	return 's';
 }
 
 void terminar()
 {
 	close(listenningSocket);
+
 	descargar(descriptorArchivo);
+	liberarRecursos();
 	printf(RED "\n\n------------------ Señal SIGTERM -------------------------------------------------\n" RESET);
 	printTerminar();
 
@@ -657,6 +721,8 @@ char borrarDirectorio(char* path)
 osada_file* buscarArchivo(char* path, int* posicion)
 {
 	osada_file* archivo = malloc(sizeof(osada_file));
+	memset(archivo, 0, sizeof(osada_file));
+
 	int i;
 
 		for(i=0; i< 2048; i++)
@@ -672,8 +738,8 @@ osada_file* buscarArchivo(char* path, int* posicion)
 				}
 			}
 		}
-
-		return NULL;
+		//free(archivo);
+		return archivo;
 }
 
 int buscarEspacioLibre()//busca el primer espacio libre en la tabla de archivos
@@ -703,7 +769,7 @@ char crearArchivo(char* path, int modo)
 {
 	int posicion;
 	osada_file* archivo = buscarArchivo(path, &posicion);
-	//printf(BLU "\t nombre(path) en crearArchivo %s\n" RESET, nombre(path));
+
 	if (archivo == NULL)
 	{
 		if (agregarArchivo(path, modo) == -1)//si no hay espacio en la tabla de archivos
@@ -741,9 +807,14 @@ void descargar(uint32_t descriptorArchivo)
 	}
 }
 
+void escribirAsignacion(uint32_t posicion, int buf)
+{
+	memcpy(disco + offsetAsignaciones + (posicion * sizeof(int)), buf, sizeof(int));
+}
+
 void escribirBloque(uint32_t bloque, char* buf)
 {
-	memcpy(disco + (bloque * OSADA_BLOCK_SIZE), buf, OSADA_BLOCK_SIZE);
+	memcpy(disco + offsetDatos + (bloque * OSADA_BLOCK_SIZE), buf, OSADA_BLOCK_SIZE);
 }
 
 void escribirArchivo(uint32_t posicion, char* buf)
@@ -755,6 +826,7 @@ int esDirectorioVacio(int posicion)
 {
 	int i;
 	osada_file* archivo = malloc(sizeof(osada_file));
+	memset(archivo, 0, sizeof(osada_file));
 
 		for(i=0; i< 2048; i++)
 		{
@@ -774,6 +846,8 @@ int esDirectorioVacio(int posicion)
 int existeDirectorio(unsigned char* token, uint16_t* padre, int* posicion)
 {
 	osada_file archivo;
+	memset(&archivo, 0, sizeof(osada_file));
+
 	int i;
 
 		for(i=0; i< 2048; i++)
@@ -794,18 +868,17 @@ int existeDirectorio(unsigned char* token, uint16_t* padre, int* posicion)
 		return 0;
 }
 
-int existePath(char* path, uint16_t* pos)
+int existePath(char* path, int* pos)
 {
-	int i;
 	int existe = 1;
-	uint16_t padre;
-	padre = 65535;
+	uint16_t padre = 65535;
 	//printf( "path %s\n", path);
-
 	char *token = malloc(strlen(path)+1);
 	char *pathRecibido = malloc(strlen(path)+1);
+	memset(token, 0, strlen(path)+1);
+	memset(pathRecibido, 0, strlen(path)+1);
 
-	strcpy(pathRecibido, path);
+	memcpy(pathRecibido, path, strlen(path) +1);
 	token = strtok(pathRecibido, "/");
 
 	while ((token != NULL) && (existe != 0))
@@ -818,7 +891,7 @@ int existePath(char* path, uint16_t* pos)
 	if (existe == 0)
 	{
 		printf(YEL "\t No existe path: %s\n" RESET, path);
-		return 0;//no existe
+		return 0;
 	}
 	printf(CYN "\t Existe path: %s, posicion:%d\n" RESET, path, padre);
 	return 1;
@@ -887,9 +960,9 @@ void leerBloque(uint32_t cantidadBloques, char* buf)
 	memcpy(buf, disco + (cantidadBloques * OSADA_BLOCK_SIZE), OSADA_BLOCK_SIZE);
 }
 
-void leerDato(uint32_t posicion, osada_file* buf)
+void leerDato(uint32_t posicion, osada_block* buf)
 {
-	memcpy(buf, disco + offsetDatos + (posicion * OSADA_BLOCK_SIZE), OSADA_BLOCK_SIZE);
+	memcpy(buf, disco + offsetDatos + (posicion * sizeof(osada_block)), sizeof(osada_block));
 }
 
 void leerHeader()
@@ -943,25 +1016,33 @@ void mostrarHeader(osada_header oheader)
 char* nombre(char* path)
 {
 	char* pathToken = malloc(strlen(path)+1);
-	strcpy(pathToken, path);
+	memset(pathToken, 0, strlen(path)+1);
+	memcpy(pathToken, path, strlen(path) +1);
 
 	char* token = malloc(strlen(path) +1);
-	char* respuesta = malloc(strlen(path) +1);
+	char* auxiliar = malloc(strlen(path) +1);
+
+	memset(token, 0, strlen(path)+1);
+	memset(auxiliar, 0, strlen(path)+1);
 
 	token = strtok(pathToken, "/");
 
 	while (token != NULL)
 	{
-		strcpy(respuesta, token);
+		memcpy(auxiliar, token, strlen(token) +1);
 		token = strtok(NULL, "/");
 	}
+
+	char* respuesta = malloc(strlen(auxiliar) +1);
+	memset(respuesta, 0, strlen(auxiliar) +1);
+	memcpy(respuesta, auxiliar, strlen(auxiliar) +1);
+
 	return respuesta;
 }
 
 int padre(char* path)
 {
-	//printf(YEL "\t Path recibido en padre: %s\n" RESET, path);
-	int posicion;
+	int posicion = 0;
 
 	if((posicion = posicionUltimoToken(path)) == -1)
 	{
@@ -975,8 +1056,11 @@ int padre(char* path)
 	}
 
 	char* pathPadre = malloc((sizeof(char) * posicion) + 1);
+	memset(pathPadre, 0, (sizeof(char) * posicion) + 1);
 	strncpy(pathPadre, path, posicion);
+
 	osada_file* archivo = buscarArchivo(pathPadre, &posicion);
+
 	if (archivo == NULL)
 	{
 		printf(RED "\t No se encontro el archivo padre\n" RESET);
@@ -988,7 +1072,7 @@ int padre(char* path)
 
 int posicionUltimoToken(char* path)
 {
-	int i;
+	int i = 0;
 	if(strlen(path) > 1)
 	{
 		for(i = strlen(path) - 2; i >= 0; i --)
@@ -1070,35 +1154,34 @@ void* readFile(osada_file* archivo)
 {
 	int i;
 	int offset = 0;
-	//int fat_size = offsetDatos - offsetAsignaciones;
+	uint32_t fileSize = archivo->file_size;
+	void* respuesta = malloc(fileSize);
+	memset(respuesta, 0, fileSize);
 
-	int cant_blocks = archivo->file_size / OSADA_BLOCK_SIZE;
-	if((archivo->file_size % OSADA_BLOCK_SIZE) != 0)
+	int cantidadBloques = fileSize / OSADA_BLOCK_SIZE;
+
+	if((fileSize % OSADA_BLOCK_SIZE) != 0)
 	{
-		cant_blocks++;
-	}
-	printf(GRN "\t Cantidad de bloques: %d\n" RESET, cant_blocks);
-	int next_block = archivo->first_block;
-	void *buffer = malloc(OSADA_BLOCK_SIZE * cant_blocks);
-
-		void* bufferAux = malloc(OSADA_BLOCK_SIZE);
-
-	for (i=0; i < cant_blocks; i++)
-	{
-		//printf(YEL "asignacion: %d" RESET, next_block);
-				leerDato(next_block, bufferAux);
-				memcpy(buffer + offset, bufferAux, OSADA_BLOCK_SIZE);
-				offset += OSADA_BLOCK_SIZE;
-				leerAsignacion(next_block, &next_block);
+		cantidadBloques++;
 	}
 
-	void* respuesta = malloc(archivo->file_size);
-	memcpy(respuesta, buffer, archivo->file_size);
+	uint32_t next_block = archivo->first_block;
 
-	free(bufferAux);
-	free(buffer);
-	bufferAux = NULL;
-	buffer = NULL;
+	void *buffer = malloc(OSADA_BLOCK_SIZE * cantidadBloques);
+	void* bufferAux = malloc(OSADA_BLOCK_SIZE);
+
+	memset(buffer, 0, OSADA_BLOCK_SIZE * cantidadBloques);
+	memset(bufferAux, 0, OSADA_BLOCK_SIZE);
+
+	for (i=0; i < cantidadBloques; i++)
+	{
+		leerDato(next_block, bufferAux);
+		memcpy(buffer + offset, bufferAux, OSADA_BLOCK_SIZE);
+		offset += OSADA_BLOCK_SIZE;
+		leerAsignacion(next_block, &next_block);
+	}
+
+	memcpy(respuesta, buffer, fileSize);
 
 	return respuesta;
 }
@@ -1109,8 +1192,11 @@ char renombrarArchivo(char* paths)
 	//devuelve 's' para indicar ok al cliente o 'n' si fallo el pedido
 	int posicion;
 	//printf(YEL "\t En renombrar: Los paths concatenados son: %s\n" RESET, paths);
-	char *viejo = malloc(strlen(paths)+1);
-	char *nuevo = malloc(strlen(paths)+1);
+	char* viejo = malloc(strlen(paths)+1);
+	char* nuevo = malloc(strlen(paths)+1);
+
+	memset(viejo, 0, strlen(paths)+1);
+	memset(nuevo, 0, strlen(paths)+1);
 
 	viejo = strtok(paths, "*");
 	nuevo = strtok(NULL, "*");
@@ -1121,7 +1207,11 @@ char renombrarArchivo(char* paths)
 		printf(RED "\t No se encontro el archivo: %s\n" RESET, viejo);
 		return 'n';
 	}
-
+	if (strlen(nombre(nuevo)) > 17)
+	{
+		printf(RED "\t El nuevo nombre de archivo supera la cantidad maxima de caracteres (17): %s\n" RESET, nombre(viejo));
+		return 'n';
+	}
 		strcpy(archivo->fname, nombre(nuevo));
 		escribirArchivo(posicion, archivo);
 
@@ -1139,7 +1229,7 @@ void leerTablaArchivos()
 		for(i=0; i< 20; i++)
 		{
 			leerArchivo(i, &archivo);
-			printf("%17s\t %8d\t %4d\t %4d\n", archivo.fname, archivo.parent_directory, archivo.file_size, archivo.state);
+			printf("%17s\t %8d\t %4d\t %4d\n\n", archivo.fname, archivo.parent_directory, archivo.file_size, archivo.state);
 		}
 }
 

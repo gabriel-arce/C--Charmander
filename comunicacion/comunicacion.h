@@ -87,9 +87,10 @@ char tipo;
 int tamanio;
 }__attribute__((packed)) t_header;
 
-int recibirInt(int socket);
-void enviarInt32(uint32_t mensaje, int socket) ;
-void enviarInt(int mensaje, int socket);
+
+void* recibirRespuestaRead(int socketEmisor, int* head, uint32_t* tamanio);
+int enviarRespuestaRead(int socket, int head, void* respuesta, uint32_t tamanioBuffer);
+
 int aceptarConexion(int listenningSocket);
 int crearServer(char * puerto);
 int recibirPorSocket(int skServidor, void * buffer, int tamanioBytes);
@@ -97,8 +98,8 @@ int enviarPorSocket(int fdCliente, const void * mensaje, int tamanioBytes);
 int calcularTamanioMensaje(int head, void* mensaje);
 void * serializar(int head, void * mensaje, int tamanio);
 void * deserializar(int head, void * buffer, int tamanio);
-int enviarConProtocolo(int fdReceptor, int head, void *mensaje);
-void* recibirConProtocolo(int socketEmisor,int* head);
+int enviar(int fdReceptor, int head, void *mensaje);
+void* recibir(int socketEmisor,int* head);
 int crearSocket(char ip[], char puerto[]);
 
 void* serializarPedidoGetatrr(t_stbuf* response, int tamanio);

@@ -181,7 +181,6 @@ int calcularTamanioMensaje(int head, void* mensaje)
 		case PEDIDO_GETATTR:
 		case PEDIDO_READDIR:
 		case RESPUESTA_READDIR:
-		case RESPUESTA_READ:
 		case PEDIDO_UNLINK:
 		case PEDIDO_MKDIR:
 		case PEDIDO_OPEN:
@@ -190,6 +189,11 @@ int calcularTamanioMensaje(int head, void* mensaje)
 		case PEDIDO_CREATE:
 		case PEDIDO_TRUNCATE:
 			tamanio = strlen((char*) mensaje) + 1;
+			break;
+
+		case RESPUESTA_READ:
+			printf(YEL "\t Entre en RESPUESTA_READ en calcularTamanioMensaje(), devuelvo un sizeof(int)\n" RESET);
+			tamanio = sizeof(int);
 			break;
 
 		case RESPUESTA_GETATTR:
@@ -244,37 +248,6 @@ void* serializarPedidoGetatrr(t_stbuf* response, int tamanio)
 
 	memcpy(buffer + desplazamiento, &(response->size), sizeof(off_t));
 
-
-	// memcpy(buffer + desplazamiento, &(response->st_dev), sizeof(dev_t));
-	// desplazamiento += sizeof(dev_t);
-	//
-	// memcpy(buffer + desplazamiento, &(response->st_ino), sizeof(ino_t));
-	// desplazamiento += sizeof(ino_t);
-	//
-	// memcpy(buffer + desplazamiento, &(response->st_mode), sizeof(mode_t));
-	// desplazamiento += sizeof(mode_t);
-	//
-	// memcpy(buffer + desplazamiento, &(response->st_nlink), sizeof(nlink_t));
-	// desplazamiento += sizeof(nlink_t);
-	//
-	// memcpy(buffer + desplazamiento, &(response->st_uid), sizeof(uid_t ));
-	// desplazamiento += sizeof(uid_t );
-	//
-	// memcpy(buffer + desplazamiento, &(response->st_gid), sizeof(gid_t));
-	// desplazamiento += sizeof(gid_t);
-	//
-	// memcpy(buffer + desplazamiento, &(response->st_rdev), sizeof(dev_t));
-	// desplazamiento += sizeof(dev_t);
-	//
-	// memcpy(buffer + desplazamiento, &(response->st_size), sizeof(off_t));
-	// desplazamiento += sizeof(off_t);
-	//
-	// memcpy(buffer + desplazamiento, &(response->st_blksize), sizeof(blksize_t));
-	// desplazamiento += sizeof(blksize_t);
-	//
-	// memcpy(buffer + desplazamiento, &(response->st_blocks), sizeof(blkcnt_t));
-	// desplazamiento += sizeof(blkcnt_t);
-	//
 	// memcpy(buffer + desplazamiento, &(response->st_atime), sizeof(time_t));
 	// desplazamiento += sizeof(time_t);
 	//
@@ -380,7 +353,7 @@ void * deserializar(int head, void * buffer, int tamanio)
 	return mensaje;
 } // Se debe castear lo retornado (indicar el tipo de dato que debe matchear con el void*)
 
-int enviarConProtocolo(int fdReceptor, int head, void *mensaje)
+int enviar(int fdReceptor, int head, void *mensaje)
 {
 	int desplazamiento = 0, tamanioMensaje = 0, tamanioTotalAEnviar = 0;
 
@@ -410,7 +383,7 @@ int enviarConProtocolo(int fdReceptor, int head, void *mensaje)
 	return enviados;
 }
 
-void* recibirConProtocolo(int socketEmisor, int* head)
+void* recibir(int socketEmisor, int* head)
 {   // Validar contra NULL al recibir en cada módulo.
 
 	// Recibo primero el head:
@@ -533,6 +506,62 @@ int enviarEstructuraRead(int fdReceptor, int head, char* path, t_readbuf* mensaj
 	buffer = NULL;
 
 	return enviados;
+}
+
+//Para respuesta read---------------------------------------
+int enviarRespuestaRead(int socket, int head, void* respuesta, uint32_t* tamanioBuffer)
+{
+	int desplazamiento = 0;
+	int tamanioAEnviar =sizeof(int) + sizeof(uint32_t) + *tamanioBuffer;//tamanioBuffer podria ser el file_size de un archivo o un size menor si el archivo fuera muy grande
+
+	//Serializo todo junto en el buffer para enviar
+	void *buffer = malloc(tamanioAEnviar);
+	memcpy(buffer, &head, sizeof(int));
+	desplazamiento +=  sizeof(int);
+	memcpy(buffer + desplazamiento, tamanioBuffer, sizeof(uint32_t));
+	desplazamiento +=  sizeof(uint32_t);
+	memcpy(buffer + desplazamiento, respuesta, *tamanioBuffer);
+
+	// Envío la totalidad del paquete de una:
+	int enviados = enviarPorSocket(socket, buffer, tamanioAEnviar);
+	printf(MAG "\t En enviarRespuestaRead enviados:%d\n" RESET,enviados);
+
+	free(buffer);
+	buffer = NULL;
+
+	return enviados;
+}
+
+void* recibirRespuestaRead(int socketEmisor, int* head, uint32_t* tamanio)
+{
+	// Recibo el head: RESPUESTA_READ
+	//printf(MAG"\t En recibirEstructuraRead head:%d\n ", *head);
+	int recibido = recibirPorSocket(socketEmisor, head, sizeof(int));
+	//printf("\t En recibirEstructuraRead recibi algo :%d\n ", recibido);
+	if (*head < 1 || recibido <= 0)
+	{
+		return NULL;
+	}
+
+	//uint32_t tamanio;
+	recibido = recibirPorSocket(socketEmisor, tamanio, sizeof(uint32_t));
+
+	if (recibido <= 0)
+	{
+		return NULL;
+	}
+
+	printf(YEL "\t En recibirRespuestaRead recibi  tamanio :%d\n "RESET, *tamanio);
+	// Recibo  el buffer:
+	void* buffer = malloc(*tamanio);
+	recibido = recibirPorSocket(socketEmisor, buffer, *tamanio);
+
+	if (recibido <= 0)
+	{
+		return NULL;
+	}
+
+	return buffer;//bufferEntero;
 }
 
 //Exclusivo para write----------------------------------------------------------------------------
