@@ -30,8 +30,10 @@ void leer_metadata_mapa(char * metadata_path) {
 	} else {
 		if (string_equals_ignore_case(algoritmo, "SRDF")) {
 			metadata->planificador->algth = SRDF;
+			if (cola_de_prioridad_SRDF != NULL)
+				cola_de_prioridad_SRDF = list_create();
 		} else {
-			perror("Algoritmo no reconocido");
+			log_trace(logger, "[ERROR]: Algoritmo no reconocido.");
 			exit(EXIT_FAILURE);
 		}
 	}
@@ -58,7 +60,7 @@ void cargar_medalla() {
 }
 
 void crear_archivo_log() {
-	logger = log_create(LOG_FILE, "MAPA log file", true, LOG_LEVEL_TRACE);
+	logger = log_create(LOG_FILE, "MAPA log file", false, LOG_LEVEL_TRACE);
 	log_info(logger, "MAPA %s iniciado.", nombreMapa);
 }
 
@@ -70,8 +72,7 @@ void cargar_pokenests() {
 	DIR * d = opendir(dir_pokenests);
 
 	if (!d) {
-		fprintf(stderr, "Cannot open directory '%s': %s\n", dir_pokenests,
-				strerror(errno));
+		log_trace(logger, "No se pudo abrir el directorio: [ %s ]", dir_pokenests);
 		exit(EXIT_FAILURE);
 	}
 
@@ -95,14 +96,13 @@ void cargar_pokenests() {
 				path_length = snprintf(path, PATH_MAX, "%s/%s", dir_pokenests,
 						d_name);
 				if (path_length >= PATH_MAX) {
-					fprintf(stderr, "Path length has got too long.\n");
+					log_trace(logger, "[ERROR]: Ruta demasiado larga.");
 					exit(EXIT_FAILURE);
 				}
 
 				//now create the logical pokenest
 				t_pokenest * pknst = malloc(sizeof(t_pokenest));
 				pknst->nombre = string_duplicate(d_name);
-				pknst->entrenadoresBloqueados = queue_create();
 				pknst->pokemones = list_create();
 				pknst->posicion = malloc(sizeof(t_posicion));
 
@@ -173,8 +173,7 @@ void cargar_pokenests() {
 
 	/* Release everything. */
 	if (closedir(d)) {
-		fprintf(stderr, "Could not close '%s': %s\n", dir_pokenests,
-				strerror(errno));
+		log_trace(logger, "[ERROR]: No se pudo abrir el directorio: [ %s ]", dir_pokenests);
 		exit(EXIT_FAILURE);
 	}
 
@@ -218,14 +217,12 @@ void run_trainer_server() {
 		perror("Server-socket() error");
 		exit(1);
 	}
-//	printf("Server-socket() is OK...\n");
 
 	/*"address already in use" error message */
 	if (setsockopt(listener, SOL_SOCKET, SO_REUSEADDR, &optval, sizeof(int)) == -1) {
-		perror("Server-setsockopt() error");
+		log_trace(logger, "[ERROR]: Server-setsockopt() error");
 		exit(1);
 	}
-	//printf("Server-setsockopt() is OK...\n");
 
 	/* bind */
 	serveraddr.sin_family = AF_INET;
@@ -235,17 +232,15 @@ void run_trainer_server() {
 	memset(&(serveraddr.sin_zero), '\0', 8);
 
 	if (bind(listener, (struct sockaddr *) &serveraddr, sizeof(serveraddr)) == -1) {
-		perror("Server-bind() error");
+		log_trace(logger, "[ERROR]: Server-bind() error");
 		exit(1);
 	}
-	//printf("Server-bind() is OK...\n");
 
 	/* listen */
 	if (listen(listener, 10) == -1) {
-		perror("Server-listen() error");
+		log_trace(logger, "[ERROR]: Server-listen() error");
 		exit(1);
 	}
-	//printf("Server-listen() is OK...\n");
 
 	/* add the listener to the master set */
 	FD_SET(listener, &master_fdset);
@@ -259,7 +254,7 @@ void run_trainer_server() {
 		read_fds = master_fdset;
 
 		if (select(fdmax + 1, &read_fds, NULL, NULL, NULL) == -1) {
-			perror("Server-select() error");
+			log_trace(logger, "[ERROR]: Server-select() error");
 			exit(1);
 		}
 
@@ -275,20 +270,15 @@ void run_trainer_server() {
 					addrlen = sizeof(clientaddr);
 
 					if ((newfd = accept(listener, (struct sockaddr *) &clientaddr, (socklen_t *) &addrlen)) == -1) {
-						perror("Server-accept() error");
+						log_trace(logger, "[ERROR]: Server-accept() error");
 					} else {
 
 						pthread_mutex_lock(&mutex_servidor);
-
-//						printf("Server-accept() is OK...\n");
 
 						FD_SET(newfd, &master_fdset); /* add to master set */
 
 						if (newfd > fdmax)
 							fdmax = newfd;
-
-//						printf("New connection from %s on socket %d\n",
-//								inet_ntoa(clientaddr.sin_addr), newfd);
 
 						t_header * handshake = recibir_header(newfd);
 
@@ -683,7 +673,7 @@ int avanzar_posicion_entrenador(t_entrenador * entrenador, int buffer_size) {
 	entrenador->posicion->x = movimiento->x;
 	entrenador->posicion->y = movimiento->y;
 
-	//actualizar interfaz grafica
+//	Interfaz grafica
 //	pthread_mutex_lock(&mutex_gui);
 //	MoverPersonaje(items_mapa, entrenador->simbolo_entrenador, movimiento->x, movimiento->y);
 //	nivel_gui_dibujar(items_mapa, nombreMapa);
@@ -722,8 +712,17 @@ int atrapar_pokemon(t_entrenador * entrenador) {
 	keep_running = false;
 
 	entrenador->bloqueado = true;
-	if (agregar_a_cola(entrenador, cola_de_bloqueados, mutex_cola_bloqueados) != -1)
-		signalSemaforo(semaforo_de_bloqueados);
+
+	t_bloqueado * entrenador_bloqueado = malloc(sizeof(t_bloqueado));
+	entrenador_bloqueado->entrenador = entrenador;
+	entrenador_bloqueado->pokenest = pokenest;
+
+	t_list * l = cola_de_bloqueados;
+
+	pthread_mutex_lock(&mutex_cola_bloqueados);
+	list_add(cola_de_bloqueados, entrenador_bloqueado);
+	pthread_mutex_unlock(&mutex_cola_bloqueados);
+	signalSemaforo(semaforo_de_bloqueados);
 
 	return EXIT_SUCCESS;
 }
@@ -840,7 +839,7 @@ int generar_captura(t_entrenador * entrenador, t_pokenest * pokenest, t_pokemon 
 	entrenador->bloqueado = false;
 	entrenador->tiempoBloqueado += difftime(&(tiempo_desbloqueo),
 			&(entrenador->momentoBloqueado));
-	entrenador->momentoBloqueado = NULL;
+	entrenador->momentoBloqueado = 0;
 	pthread_mutex_unlock(&(entrenador->mutex_entrenador));
 
 	char * ruta_pkm = string_duplicate(ruta_directorio);
@@ -850,7 +849,7 @@ int generar_captura(t_entrenador * entrenador, t_pokenest * pokenest, t_pokemon 
 	if (enviar_ruta_pkm(ruta_pkm, entrenador->socket) == -1)
 		return _on_error();
 
-	//actualizo interfaz grafica
+//	Interfaz grafica
 	//pthread_mutex_lock(&mutex_gui);
 	//restarRecurso(items_mapa, pokenest->identificador);
 	//nivel_gui_dibujar(items_mapa, nombreMapa);

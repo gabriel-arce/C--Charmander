@@ -31,6 +31,7 @@
 #include <nivel.h>
 #include <tad_items.h>
 #include <curses.h>
+#include "mapa-deadlock.h"
 
 #define LOG_FILE "log_mapa.log"
 #define TOTAL_ARGS 3
@@ -101,7 +102,6 @@ typedef struct {
 	char identificador;
 	char * nombre;
 	t_list * pokemones;			//t_pokemon
-	t_queue * entrenadoresBloqueados;
 	char * tipo;
 } t_pokenest;
 
@@ -109,6 +109,11 @@ typedef struct {
 	t_entrenador * entrenador;
 	t_pokenest * pokenest;
 } t_bloqueado;
+
+t_list * cola_de_listos; /*t_entrenador*/
+t_list * cola_de_bloqueados;  /*t_bloqueado*/
+t_list * cola_de_prioridad_SRDF;
+t_list * lista_de_pokenests; //t_pokenest
 
 t_metadata_mapa * metadata;
 int socket_servidor;
@@ -129,11 +134,6 @@ pthread_mutex_t mutex_entrenadores;
 pthread_mutex_t mutex_cola_prioridadSRDF;
 pthread_mutex_t mutex_log;
 pthread_mutex_t mutex_pokenests;
-
-t_list * cola_de_listos; //t_entrenador
-t_list * cola_de_bloqueados; //t_bloqueado
-t_list * cola_de_prioridad_SRDF;
-t_list * lista_de_pokenests; //t_pokenest
 
 char * nombreMapa;   //se setea con argumento en consola
 char * ruta_directorio;
@@ -159,13 +159,15 @@ void cargar_pokenests();
 void cargar_medalla();
 void imprimir_pokenests();
 void signal_handler(int signal);
-void sacar_de_listos(t_entrenador * e);
-void sacar_de_conectados(t_entrenador * e);
-void sacar_de_bloqueados(t_entrenador * e);
+void sacar_de_listos(t_entrenador * entrenador);
+void sacar_de_conectados(t_entrenador * entrenador);
+void sacar_de_bloqueados(t_entrenador * entrenador);
+int the_number_of_the_beast(t_pokemon * beast);
 
 //****Conection and threads ****
 void run_trainer_server();
 void run_scheduler_thread();
+void run_deadlock_thread();
 int procesar_nuevo_entrenador(int socket_entrenador, int buffer_size);
 t_entrenador * recibir_datos_entrenador(int socket_entrenador, int buffer_size);
 int desconexion_entrenador(t_entrenador * entrenador, int nbytes_recv);
@@ -207,13 +209,11 @@ int liberar_pokemons(t_entrenador * e);
 int incrementar_recurso(char id_pokenest);
 t_pokemon * obtener_primer_no_capturado(t_pokenest * pokenest);
 int generar_captura(t_entrenador * entrenador, t_pokenest * pokenest, t_pokemon * pokemon);
-void agregar_a_cola(t_entrenador * entrenador, t_list * cola, pthread_mutex_t mutex);
+int agregar_a_cola(t_entrenador * entrenador, t_list * cola, pthread_mutex_t mutex);
 t_entrenador * pop_entrenador();
 
 //***Envios y serializaciones***
 t_pokemon * recibirPokemon(int socket);
 int enviar_ruta_pkm(char * ruta, int socket);
-
-//***Deadlock y bloqueo***
 
 #endif /* MAPA_H_ */

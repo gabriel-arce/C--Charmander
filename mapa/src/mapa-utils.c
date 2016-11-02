@@ -35,8 +35,8 @@ void inicializar_semaforos() {
 	pthread_mutex_init(&mutex_servidor, 0);
 	pthread_mutex_init(&mutex_planificador_turno, 0);
 	pthread_mutex_init(&mutex_cola_listos, 0);
-	pthread_mutex_init(&cola_de_bloqueados, 0);
-	pthread_mutex_init(&cola_de_prioridad_SRDF, 0);
+	pthread_mutex_init(&mutex_cola_bloqueados, 0);
+	pthread_mutex_init(&mutex_cola_prioridadSRDF, 0);
 	pthread_mutex_init(&mutex_entrenadores, 0);
 	pthread_mutex_init(&mutex_log, 0);
 	pthread_mutex_init(&mutex_pokenests, 0);
@@ -63,12 +63,12 @@ void destruir_semaforos() {
 void inicializar_variables() {
 	entrenadores_conectados = list_create();
 	cola_de_listos = list_create();
-	cola_de_bloqueados = list_create();
 	lista_de_pokenests = list_create();
 	quantum_actual = 0;
 	keep_running = false;
 	entrenador_corriendo = NULL;
 	items_mapa = list_create();
+	cola_de_bloqueados = list_create();
 }
 
 void destruir_variables() {
@@ -77,17 +77,29 @@ void destruir_variables() {
 	list_destroy_and_destroy_elements(lista_de_pokenests, (void *) pokenest_destroyer);
 	list_destroy_and_destroy_elements(items_mapa, (void *) item_destroyer);
 
+	list_destroy(cola_de_bloqueados);
+
 	free(nombreMapa);
 	free(ruta_directorio);
 }
 
 void entrenador_destroyer(t_entrenador * e) {
 	free(e->nombre_entrenador);
-	free(e);
+	free(e->posicion);
+	free(e->pokemonesCapturados);
 }
 
 void pokenest_destroyer(t_pokenest * r) {
-	//TODO una vez definido el tema de los recursos y las colas de bloqueados codear el destroyer
+	free(r->nombre);
+
+	void pkm_destroyer(t_pokemon * p) {
+		free(p->nombre);
+		free(p->nombreArchivo);
+	}
+	list_destroy_and_destroy_elements(r->pokemones, (void *) pkm_destroyer);
+	free(r->posicion);
+	free(r->tipo);
+	free(r);
 }
 
 void item_destroyer(void * item) {
@@ -237,13 +249,25 @@ void destruir_metadata() {
 
 void ordenar_pokemons(t_list * pokemons) {
 
+	int min, max;
+
+	bool sorteame_estaaaaaa(t_pokemon * shit_min, t_pokemon * shit_max) {
+
+		min = the_number_of_the_beast(shit_min);
+		max = the_number_of_the_beast(shit_max);
+
+		return (min <= max);
+	}
+
+	list_sort(pokemons, (void *) sorteame_estaaaaaa);
+
 }
 
 int liberar_pokemons(t_entrenador * e) {
 
 	void free_pkm(t_pokemon * p) {
 		p->capturado = false;
-		//interfaz grafica
+		//Interfaz grafica
 		//incrementar_recurso(p->id_pokenest);
 	}
 	list_iterate(e->pokemonesCapturados, (void *) free_pkm);
@@ -269,7 +293,7 @@ int incrementar_recurso(char id_pokenest) {
 	return EXIT_SUCCESS;
 }
 
-void sacar_de_listos(t_entrenador * e) {
+void sacar_de_listos(t_entrenador * entrenador) {
 
 	pthread_mutex_lock(&mutex_cola_listos);
 
@@ -278,7 +302,7 @@ void sacar_de_listos(t_entrenador * e) {
 	for (i = 0; i < listos; i++) {
 		t_entrenador * e = list_get(cola_de_listos, i);
 
-		if (e->socket == e->socket) {
+		if (e->simbolo_entrenador == entrenador->simbolo_entrenador) {
 			list_remove(cola_de_listos, i);
 			break;
 		}
@@ -287,7 +311,7 @@ void sacar_de_listos(t_entrenador * e) {
 	pthread_mutex_unlock(&mutex_cola_listos);
 }
 
-void sacar_de_conectados(t_entrenador * e) {
+void sacar_de_conectados(t_entrenador * entrenador) {
 
 	pthread_mutex_lock(&(mutex_entrenadores));
 
@@ -297,7 +321,7 @@ void sacar_de_conectados(t_entrenador * e) {
 	for (i = 0; i < totales; i++) {
 		t_entrenador * e = list_get(entrenadores_conectados, i);
 
-		if (e->socket == e->socket) {
+		if (e->simbolo_entrenador == entrenador->simbolo_entrenador) {
 
 			if (e == entrenador_corriendo) {
 				keep_running = false;
@@ -375,14 +399,21 @@ int enviar_ruta_pkm(char * ruta, int socket) {
 }
 
 int agregar_a_cola(t_entrenador * entrenador, t_list * cola, pthread_mutex_t mutex) {
-	bool esta_en_lista(t_entrenador * e) {
-		return (e->simbolo_entrenador == entrenador->simbolo_entrenador);
-	}
 
 	int result = 0;
 
 	pthread_mutex_lock(&mutex);
-	bool ya_esta_en_cola = list_any_satisfy(cola, (void *) esta_en_lista);
+	bool ya_esta_en_cola = false;
+
+	int i;
+	for (i = 0; i < cola->elements_count; i++) {
+		t_entrenador * e = list_get(cola, i);
+
+		if (e->simbolo_entrenador == entrenador->simbolo_entrenador) {
+			ya_esta_en_cola = true;
+			break;
+		}
+	}
 
 	if (!ya_esta_en_cola)
 		list_add(cola, entrenador);
@@ -400,4 +431,42 @@ t_entrenador * pop_entrenador() {
 	pthread_mutex_unlock(&mutex_cola_listos);
 
 	return e;
+}
+
+t_list * snapshot_list(t_list * source_list) {
+
+	bool copy_this(void * elem) {
+		return true;
+	}
+	t_list * copy = list_filter(source_list, (void *) copy_this);
+
+	return copy;
+}
+
+int the_number_of_the_beast(t_pokemon * beast) {
+
+	int length_name = string_length(beast->nombre);
+	int length_arch = string_length(beast->nombreArchivo);
+
+	int i;
+	char * num_on_string = NULL;
+
+	for(i = length_name; i < length_arch; i++) {
+		char c = beast->nombreArchivo[i];
+
+		if (c == '.')
+			break;
+	}
+
+	int length_number = i - length_name;
+
+	num_on_string = malloc(1 + (length_number * sizeof(char)));
+	num_on_string[length_number + 1] = '\0';
+	memcpy(num_on_string, beast->nombreArchivo + length_name, length_number);
+
+	int THE_number = atoi(num_on_string);
+
+	free(num_on_string);
+
+	return THE_number;
 }
