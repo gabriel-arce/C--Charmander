@@ -1,4 +1,3 @@
-
 #include <commons/config.h>
 #include <commons/collections/queue.h>
 #include <commons/collections/list.h>
@@ -163,7 +162,7 @@ int recibirPorSocket(int skServidor, void * buffer, int tamanioBytes)
 
 		if (bytes_recibidos == 0)
 		{
-	   	printf(RED "\n\t La conexión socket #%d se ha cerrado.\n" RESET, skServidor);
+			printf(RED "\n\t La conexión socket #%d se ha cerrado.\n" RESET, skServidor);
 			return -1;
 		}
 		total += bytes_recibidos;
@@ -325,7 +324,7 @@ void * deserializar(int head, void * buffer, int tamanio)
 		case PEDIDO_CREATE:
 		case PEDIDO_GETATTR:
 		case PEDIDO_MKDIR:
-	 	case PEDIDO_OPEN:
+		case PEDIDO_OPEN:
 		case PEDIDO_READ:
 		case PEDIDO_READDIR:
 		case PEDIDO_RMDIR:
@@ -410,7 +409,7 @@ void* recibir(int socketEmisor, int* head)
 	if (recibido <= 0)
 	{
 		return NULL;
-  }
+	}
 
 	// Deserializo el mensaje según el protocolo:
 	void* buffer = deserializar(*head, mensaje, *tamanioMensaje);
@@ -476,7 +475,7 @@ void* serializarPedidoRead(t_readbuf* response, char* path)
 	desplazamiento += sizeof(int);
 	memcpy(buffer + desplazamiento, path, response->pathLen);//chequear aca por si path necesita & o *
 	//printf(MAG "\t En serializarPedidoRead el path es:%s\n" RESET, path);
-  return buffer;
+	return buffer;
 }
 
 int enviarEstructuraRead(int fdReceptor, int head, char* path, t_readbuf* mensaje)
@@ -509,6 +508,7 @@ int enviarEstructuraRead(int fdReceptor, int head, char* path, t_readbuf* mensaj
 }
 
 //Para respuesta read---------------------------------------
+
 int enviarRespuestaRead(int socket, int head, void* respuesta, uint32_t* tamanioBuffer)
 {
 	int desplazamiento = 0;

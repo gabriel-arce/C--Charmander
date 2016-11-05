@@ -89,7 +89,7 @@ int tamanio;
 
 
 void* recibirRespuestaRead(int socketEmisor, int* head, uint32_t* tamanio);
-int enviarRespuestaRead(int socket, int head, void* respuesta, uint32_t tamanioBuffer);
+int enviarRespuestaRead(int socket, int head, void* respuesta, uint32_t* tamanioBuffer);
 
 int aceptarConexion(int listenningSocket);
 int crearServer(char * puerto);
