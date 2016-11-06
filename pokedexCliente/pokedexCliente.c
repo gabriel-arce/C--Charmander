@@ -59,7 +59,6 @@ int main(int argc, char *argv[])
   struct fuse_args args = FUSE_ARGS_INIT(argc, argv);
 
   int head=0;
-  void *mensajeHSK = NULL;
 
   printEncabezado();
 
@@ -96,13 +95,13 @@ int main(int argc, char *argv[])
     return -1;
   }
 
-  memset(socketServidor,0,sizeof(int*));
+  memset(socketServidor, 0, sizeof(int));
   *socketServidor = socket;
   printf("\t Enviando mensaje handshake al servidor \n");
   log_info(logCliente, "	Enviando mensaje handshake al servidor" );
 
   enviar(*socketServidor, HANDSHAKE, mensaje);
-  mensajeHSK = recibir(*socketServidor,&head);
+  recibir(*socketServidor,&head);
   //pthread_mutex_unlock(&mutex_comunicacion);
 
   if (head == HANDSHAKE)
@@ -144,11 +143,11 @@ static int osada_create(const char *path, mode_t mode, struct fuse_file_info *fi
   }
   else if (head == ENOENTRY)
   {
-    log_info(logCliente, "	Recibi respuesta ENOENT en osada_create....... ........ ..... ...... ..... .... .....");
+    log_info(logCliente, "	Recibi respuesta ENOENT en osada_create........................................");
   }
   else
   {
-    log_info(logCliente, "	No recibi RESPUESTA_CREATE en osada_create.... ....... ........ ....... ........ ..... ....");
+    log_info(logCliente, "	No recibi RESPUESTA_CREATE en osada_create.....................................");
   }
   free(paquete);
 
@@ -168,7 +167,7 @@ static int osada_getattr(const char *path, struct stat *stbuf)
     t_stbuf *paquete = NULL;
 
     pthread_mutex_lock(&mutex_comunicacion);
-      enviar(*socketServidor, PEDIDO_GETATTR, path);
+      enviar(*socketServidor, PEDIDO_GETATTR, (void*)path);
       //log_info(logCliente, "	Envie PEDIDO_GETATTR");
       paquete = (t_stbuf*)recibir(*socketServidor,&head);
     pthread_mutex_unlock(&mutex_comunicacion);
@@ -213,7 +212,7 @@ static int osada_mkdir(const char *path, mode_t mode)
   void* paquete = NULL;
 
   pthread_mutex_lock(&mutex_comunicacion);
-    enviar(*socketServidor, PEDIDO_MKDIR, path);
+    enviar(*socketServidor, PEDIDO_MKDIR, (void*)path);
     log_info(logCliente, "	Envie PEDIDO_MKDIR");
     paquete = recibir(*socketServidor, &head);
   pthread_mutex_unlock(&mutex_comunicacion);
@@ -224,11 +223,11 @@ static int osada_mkdir(const char *path, mode_t mode)
   }
   else if (head == ENOENTRY)
   {
-    log_info(logCliente, "	Recibi respuesta ENOENT en osada_mkdir....... ........ ..... ...... ..... .... .....");
+    log_info(logCliente, "	Recibi respuesta ENOENT en osada_mkdir........................................");
   }
   else
   {
-    log_info(logCliente, "	No recibi RESPUESTA_MKDIR en osada_mkdir.... ....... ........ ....... ........ ..... ....");
+    log_info(logCliente, "	No recibi RESPUESTA_MKDIR en osada_mkdir......................................");
   }
   free(paquete);
 
@@ -238,18 +237,16 @@ static int osada_mkdir(const char *path, mode_t mode)
 static int osada_open(const char *path, struct fuse_file_info *fi)
 {
   //TODO: enviar al server el path y chequear que el archivo existe, ver de tener una tabla de archivos abiertos y si es para escritura o lectura
-  log_info(logCliente, "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" );
   log_info(logCliente, "******************************************************************************" );
   log_info(logCliente, "****************** FUSE: llamada a osada_open() ******************************" );
   log_info(logCliente, "******************************************************************************" );
-  log_info(logCliente, "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" );
   log_info(logCliente, path);
 
   int head = 0;
   void *paquete = NULL;
 
   pthread_mutex_lock(&mutex_comunicacion);
-    enviar(*socketServidor, PEDIDO_OPEN, path);
+    enviar(*socketServidor, PEDIDO_OPEN, (void*) path);
     log_info(logCliente, "	Envie PEDIDO_OPEN");
     paquete = recibir(*socketServidor,&head);
   pthread_mutex_unlock(&mutex_comunicacion);
@@ -357,11 +354,11 @@ static int osada_read(const char *path, char *buf, size_t size, off_t offset, st
     }
     else if (head == ENOENTRY)
     {
-      log_info(logCliente, "	Recibi respuesta ENOENT en osada_read....... ........ ..... ...... ..... .... .....");
+      log_info(logCliente, "	Recibi respuesta ENOENT en osada_read.......................................");
     }
     else
     {
-      log_info(logCliente, "	No recibi RESPUESTA_READ en osada_read.... ....... ........ ....... ........ ..... ....");
+      log_info(logCliente, "	No recibi RESPUESTA_READ en osada_read......................................");
     }
     free(paquete);
   }
@@ -369,6 +366,40 @@ static int osada_read(const char *path, char *buf, size_t size, off_t offset, st
   return size;
 }
 
+static int osada_release(const char *path, struct fuse_file_info *fi)
+{
+// libero un archivo que fue abierto antes
+  log_info(logCliente, "******************************************************************************" );
+  log_info(logCliente, "****************** FUSE: llamada a osada_release() ***************************" );
+  log_info(logCliente, "******************************************************************************" );
+
+  log_info(logCliente, path);
+
+  int head = 0;
+  void* paquete = NULL;
+
+  pthread_mutex_lock(&mutex_comunicacion);
+    enviar(*socketServidor, PEDIDO_RELEASE, path);
+    log_info(logCliente, "	Envie PEDIDO_RELEASE");
+    paquete = recibir(*socketServidor, &head);
+  pthread_mutex_unlock(&mutex_comunicacion);
+
+  if (head == RESPUESTA_RELEASE)
+  {
+    log_info(logCliente, "	Recibi RESPUESTA_RELEASE");
+  }
+  else if (head == ENOENTRY)
+  {
+    log_info(logCliente, "	Recibi respuesta ENOENT en osada_release........................................");
+  }
+  else
+  {
+    log_info(logCliente, "	No recibi RESPUESTA_RELEASE en osada_release....................................");
+  }
+  free(paquete);
+
+  return 0;
+}
 
 static int osada_rename(const char *path, const char *newpath)
 {
@@ -408,11 +439,11 @@ static int osada_rename(const char *path, const char *newpath)
   }
   else if (head == ENOENTRY)
   {
-    log_info(logCliente, "	Recibi respuesta ENOENT en osada_rename....... ........ ..... ...... ..... .... .....");
+    log_info(logCliente, "	Recibi respuesta ENOENT en osada_rename........................................");
   }
   else
   {
-    log_info(logCliente, "	No recibi RESPUESTA_RENAME en osada_rename.... ....... ........ ....... ........ ..... ....");
+    log_info(logCliente, "	No recibi RESPUESTA_RENAME en osada_rename.....................................");
   }
   free(paquete);
 
@@ -443,11 +474,11 @@ static int osada_rmdir(const char *path)
   }
   else if (head == ENOENTRY)
   {
-    log_info(logCliente, "	Recibi respuesta ENOENT en osada_rmdir....... ........ ..... ...... ..... .... .....");
+    log_info(logCliente, "	Recibi respuesta ENOENT en osada_rmdir........................................");
   }
   else
   {
-    log_info(logCliente, "	No recibi RESPUESTA_RMDIR en osada_rmdir.... ....... ........ ....... ........ ..... ....");
+    log_info(logCliente, "	No recibi RESPUESTA_RMDIR en osada_rmdir......................................");
   }
   free(paquete);
 
@@ -457,7 +488,7 @@ static int osada_rmdir(const char *path)
 
 static int osada_truncate(const char *path, off_t new_size)
 {
-  return 0;
+  //return 0;
   /* Truncate or extend the given file so that it is precisely size bytes long.
    * This call is required for read/write filesystems, because recreating a file will first truncate it.*/
 
@@ -471,9 +502,13 @@ static int osada_truncate(const char *path, off_t new_size)
 
   int head = 0;
   void* paquete = NULL;
+    off_t* newSize = malloc(sizeof(off_t));
+    memset(newSize,0, sizeof(off_t));
+    memcpy(newSize, &new_size, sizeof(off_t));
 
   pthread_mutex_lock(&mutex_comunicacion);
     enviar(*socketServidor, PEDIDO_TRUNCATE, path);
+    enviar(*socketServidor, PEDIDO_TRUNCATE_NEW_SIZE, newSize);
     log_info(logCliente, "	Envie PEDIDO_TRUNCATE");
     paquete =  recibir(*socketServidor,&head);
   pthread_mutex_unlock(&mutex_comunicacion);
@@ -481,15 +516,14 @@ static int osada_truncate(const char *path, off_t new_size)
   if (head == RESPUESTA_TRUNCATE)
   {
     log_info(logCliente, "	Recibi RESPUESTA_TRUNCATE");
-    //new_size = *paquete; //ver si new size viene con algo o lo tengo que llenar
   }
   else if (head == ENOENTRY)
   {
-    log_info(logCliente, "	Recibi respuesta ENOENT en osada_truncate....... ........ ..... ...... ..... .... .....");
+    log_info(logCliente, "	Recibi respuesta ENOENT en osada_truncate........................................");
   }
   else
   {
-    log_info(logCliente, "	No recibi RESPUESTA_TRUNCATE en osada_truncate.... ....... ........ ....... ........ ..... ....");
+    log_info(logCliente, "	No recibi RESPUESTA_TRUNCATE en osada_truncate...................................");
   }
   free(paquete);
 
@@ -520,11 +554,11 @@ static int osada_unlink(const char *path)
   }
   else if (head == ENOENTRY)
   {
-    log_info(logCliente, "	Recibi respuesta ENOENT en osada_unlink....... ........ ..... ...... ..... .... .....");
+    log_info(logCliente, "	Recibi respuesta ENOENT en osada_unlink........................................");
   }
   else
   {
-    log_info(logCliente, "	No recibi RESPUESTA_UNLINK en osada_unlink.... ....... ........ ....... ........ ..... ....");
+    log_info(logCliente, "	No recibi RESPUESTA_UNLINK en osada_unlink.....................................");
   }
   free(paquete);
 
@@ -546,12 +580,14 @@ static int osada_write(const char *path, const char *buf, size_t size, off_t off
     int head = 0;
 
     t_writebuf *pedido = malloc(sizeof(t_writebuf));
+    memset(pedido,0, sizeof(t_writebuf));
     pedido->pathLen = strlen(path) + 1;
     pedido->bufLen = strlen(buf) + 1;
     pedido->size = size;
     pedido->offset = offset;
 
-    uint32_t* tamanio = 0;
+    uint32_t* tamanio = malloc(sizeof(uint32_t));
+    memset(tamanio, 0, sizeof(uint32_t));
 
     pthread_mutex_lock(&mutex_comunicacion);
       enviar(*socketServidor, PEDIDO_WRITE, pedido);
@@ -559,7 +595,6 @@ static int osada_write(const char *path, const char *buf, size_t size, off_t off
       log_info(logCliente, "	Envie PEDIDO_WRITE");
       tamanio = (uint32_t*)recibir(*socketServidor,&head);
     pthread_mutex_unlock(&mutex_comunicacion);
-    //free(pedido);
 
     if (head == RESPUESTA_WRITE)
     {
@@ -568,17 +603,15 @@ static int osada_write(const char *path, const char *buf, size_t size, off_t off
     }
     else if (head == ENOENTRY)
     {
-      log_info(logCliente, "	Recibi respuesta ENOENT en osada_write....... ........ ..... ...... ..... .... .....");
+      log_info(logCliente, "	Recibi respuesta ENOENT en osada_write........................................");
       return ENOSPC;//no hay espacio en disco
     }
     else
     {
-      log_info(logCliente, "	No recibi RESPUESTA_WRITE en osada_white.... ....... ........ ....... ........ ..... ....");
+      log_info(logCliente, "	No recibi RESPUESTA_WRITE en osada_white......................................");
       return ENOSPC;
     }
-    //free(tamanio);
   }
-
   return size;
 }
 

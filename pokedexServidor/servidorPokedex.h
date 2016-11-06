@@ -38,9 +38,13 @@
 
 #define PEDIDO_OPEN 33
 #define RESPUESTA_OPEN 34
+#define PEDIDO_RELEASE 35
+#define RESPUESTA_RELEASE 36
+#define PEDIDO_TRUNCATE_NEW_SIZE 37
 
 void atendercliente(int socket);
 void* hiloComunicacion(void* arg);
+void liberarRecursos(); //TODO
 void printEncabezado();
 void printTerminar();
 
@@ -50,13 +54,13 @@ void* procesarPedidoMkdir(char *path);
 void* procesarPedidoOpen(char* path);
 void* procesarPedidoRead(void* buffer, uint32_t* tamanioBuffer);
 void* procesarPedidoReaddir(char *path);
+void* procesarPedidoRelease(char* path);
 void* procesarPedidoRename(char *paths);
 void* procesarPedidoRmdir(char *path);
-void* procesarPedidoTruncate(char *path);
+void* procesarPedidoTruncate(off_t newSize, char* path);
 void* procesarPedidoUnlink(char *path);
 void* procesarPedidoWrite(void *buffer);
 
-void liberarRecursos();
 void terminar();
 
 #endif /* SERVIDORPOKEDEX_H_ */

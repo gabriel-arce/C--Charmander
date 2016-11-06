@@ -54,11 +54,14 @@ typedef struct {
 _Static_assert( sizeof(osada_file) == (sizeof(osada_block) / 2.0), "osada_file size does not half osada_block size");
 
 char abrirArchivo(char* path);
+char liberarArchivo(char* path);
+
 int agregarArchivo(char* path, int modo);
 void asignarOffsets();
 char borrarArchivo(char* path);
 char borrarDirectorio(char* path);
 osada_file* buscarArchivo(char* nombre, int* posicion);
+int cantidadDeBloques(uint32_t size);
 char crearArchivo(char* path, int modo);
 void descargar();
 void escribirArchivo(uint32_t posicion, osada_file* buf);
@@ -86,12 +89,17 @@ int posicionUltimoToken(char* path);
 void* readdir(char* path);
 char renombrarArchivo(char* paths);
 void* readFile(osada_file* archivo);
+char truncar(char* path, uint32_t newSize);
 
-
+//funciones para truncate------------------------------------
+void agregarBloques(uint32_t size, uint32_t newSize, uint32_t posicion);
+void sacarBloques(uint32_t size, uint32_t newSize, uint32_t posicion);
 //funciones para write---------------------------------------
 int buscarEspacioLibre();//esta busca un espacio en la tabla de archivos
 int buscarBitLibre(uint32_t* posicion);//esta la uso para buscar bloques libres en la tabla de datos
+void liberarBits(uint32_t posicion);
 int hayEspacioEnDisco(int cantidadBloques);
+void* writeBuffer(size_t* size, off_t* offset, char* path, void* bufWrite);
 void writeFile(char* path, size_t size, void* bufWrite, int cantidadBloques, off_t offset);
 
 #pragma pack(pop)

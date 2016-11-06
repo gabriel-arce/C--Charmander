@@ -32,6 +32,9 @@
 
 #define PEDIDO_OPEN 33
 #define RESPUESTA_OPEN 34
+#define PEDIDO_RELEASE 35
+#define RESPUESTA_RELEASE 36
+#define PEDIDO_TRUNCATE_NEW_SIZE 37
 
 //colores para los prints en la consola
 #define RED   "\x1B[31m"

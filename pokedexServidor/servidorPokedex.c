@@ -245,6 +245,22 @@ void atendercliente(int socket)
 					}
 					break;
 
+				case PEDIDO_RELEASE:
+					printf(GRN "\t procesando PEDIDO_RELEASE\n" RESET);
+
+					respuesta = procesarPedidoRelease((char*)pedido);
+					if(respuesta != NULL)
+					{
+						enviar(socket, RESPUESTA_RELEASE, respuesta);
+						printf(GRN "\t devolviendo RESPUESTA_RELEASE\n" RESET);
+					}
+					else
+					{
+						enviar(socket, ENOENTRY, pedido);
+						printf(YEL "\t devolviendo respuesta ENOENT \n" RESET);
+					}
+					break;
+
 				case PEDIDO_RENAME:
 					printf(BLU "\t procesando PEDIDO_RENAME\n" RESET);
 					respuesta = procesarPedidoRename((char*)pedido);
@@ -277,13 +293,19 @@ void atendercliente(int socket)
 					break;
 
 				case PEDIDO_TRUNCATE:
-					printf(BLU "\t procesando PEDIDO_TRUNCATE\n" RESET);
+					printf(RED "\t procesando PEDIDO_TRUNCATE\n" RESET);
 
-					respuesta = procesarPedidoTruncate((char*)pedido);
+					off_t *newSize = NULL;
+					newSize = (off_t*)recibir(socket, &head);
+
+					if (head == PEDIDO_TRUNCATE_NEW_SIZE)
+					{
+						respuesta = procesarPedidoTruncate(*newSize, (char*)pedido);
+					}
 					if(respuesta != NULL)
 					{
 						enviar(socket, RESPUESTA_TRUNCATE, respuesta);
-						printf(BLU "\t devolviendo RESPUESTA_TRUNCATE\n" RESET);
+						printf(RED "\t devolviendo RESPUESTA_TRUNCATE\n" RESET);
 					}
 					else
 					{
@@ -395,6 +417,14 @@ void* procesarPedidoOpen(char* path)
 	return respuesta;
 }
 
+void* procesarPedidoRelease(char* path)
+{
+	printf("\t path: %s\n", path);
+	char* respuesta = malloc(sizeof(char));
+	respuesta[0] = liberarArchivo(path);
+	return respuesta;
+}
+
 void* procesarPedidoRead(void* buffer, uint32_t* tamanioBuffer)
 {
 	int desplazamiento = 0;
@@ -417,8 +447,6 @@ void* procesarPedidoRead(void* buffer, uint32_t* tamanioBuffer)
 
 	printf(CYN "\t En procesarPedidoRead el size es: %d bytes\n", *size);
 	printf( "\t En procesarPedidoRead el offset es: %d bytes\n", (uint32_t)*offset);
-//	printf( "\t En procesarPedidoRead el pathlen es: %d\n", pathLen);
-//	printf( CYN "\t En procesarPedidoRead el path es: %s\n" RESET, path);
 
 	int posicion = -1;
 	if(existePath(path, &posicion))
@@ -437,25 +465,22 @@ void* procesarPedidoRead(void* buffer, uint32_t* tamanioBuffer)
 
 		if ((bytes <= *size) && (*offset == 0))
 		{
-			printf(GRN "\t Los bytes en (bytes <= *size) son: %d bytes\n", bytes);
-			//memcpy(tamanioBuffer,&(archivo->file_size), sizeof(uint32_t));
+			//printf(BLU "\t Los bytes en (bytes <= *size) son: %d bytes\n", bytes);
 			memcpy(tamanioBuffer, &bytes, sizeof(uint32_t));
 			return archivoCompleto;
 		}
 		else if (bytes <= *size)
 		{
-			printf(RED "\t Los bytes en (bytes <= *size)son: %d bytes y offset >0\n", bytes);
+			//printf(BLU "\t Los bytes en (bytes <= *size)son: %d bytes y offset >0\n", bytes);
 			void* respuesta = malloc(bytes);
 			memset(respuesta, 0, bytes);
-			//*tamanioBuffer = (uint32_t)*size;
 			memcpy(tamanioBuffer, &bytes, sizeof(uint32_t));
 			memcpy(respuesta, archivoCompleto + *offset , bytes);
 			return respuesta;
 		}
-		printf(YEL "\t Los bytes en (bytes > *size)son: %d bytes\n", bytes);
+	//	printf(CYN "\t Los bytes en (bytes > *size)son: %d bytes\n", bytes);
 		void* respuesta = malloc(*size);
 		memset(respuesta, 0, *size);
-		//*tamanioBuffer = (uint32_t)*size;
 		memcpy(tamanioBuffer, size, sizeof(uint32_t));
 		memcpy(respuesta, archivoCompleto + *offset , *size);
 		return respuesta;
@@ -491,11 +516,12 @@ void* procesarPedidoRmdir(char *path)
 	return respuesta;
 }
 
-void* procesarPedidoTruncate(char *path)//const char *path, off_t new_size
+void* procesarPedidoTruncate(off_t newSize, char* path)
 {
-	void* respuesta = NULL;
-
-	return respuesta;//ver que devuelve
+	printf(CYN "\t En procesarPedidoTruncate el nuevo size es: %d\n", (uint32_t)newSize);
+	char* respuesta = malloc(sizeof(char));
+	respuesta[0] = truncar(path, (uint32_t)newSize);
+	return respuesta;
 }
 
 void* procesarPedidoUnlink(char* path)
@@ -505,7 +531,7 @@ void* procesarPedidoUnlink(char* path)
 	return respuesta;
 }
 
-void* procesarPedidoWrite(void *buffer)//en construccion
+void* procesarPedidoWrite(void *buffer)
 {
 	int desplazamiento = 0;
 	size_t* size = malloc(sizeof(size_t));
@@ -528,35 +554,14 @@ void* procesarPedidoWrite(void *buffer)//en construccion
 	void* bufWrite = malloc(*bufLen);
 	memcpy(bufWrite,  buffer + desplazamiento, *bufLen);
 
-//	printf(CYN "\n\t En procesarPedidoWrite el size es: %d\n", *size);
-//	printf( "\t En procesarPedidoWrite el offset es: %d\n", (int)*offset);
-//	printf( "\t En procesarPedidoWrite el pathlen es: %d\n", pathLen);
+	printf(BLU "\t En procesarPedidoWrite el size es: %d\n", *size);
+	printf( "\t En procesarPedidoWrite el offset es: %d\n", (int)*offset);
+	//printf( "\t En procesarPedidoWrite el pathlen es: %d\n", pathLen);
 //	printf( "\t En procesarPedidoWrite el bufLen es: %d\n", *bufLen);
-//	printf( "\t En procesarPedidoWrite el path es: %s\n" RESET, path);
+	//printf( "\t En procesarPedidoWrite el path es: %s\n" RESET, path);
 
-	int cantidadBloques = (uint32_t)*size / OSADA_BLOCK_SIZE;
-	if(((uint32_t)*size % OSADA_BLOCK_SIZE) != 0)
-	{
-		cantidadBloques++;
-	}
-
-	printf(GRN "\t Entre en procesarPedidoWrite\n" RESET);
-	if (hayEspacioEnDisco(cantidadBloques) != 0)
-	{
-		printf(GRN "\t Escribiendo en archivo un buffer de size: %d\n" RESET, *size);
-		writeFile(path, *size, bufWrite, cantidadBloques, *offset);
-		return size;
-	}
-	else
-	{
-		printf(RED "\n\t No hay espacio suficiente para escribir el archivo, cancelando operacion\n" RESET);
-	}
-
-	//free(buffer);
-	return NULL;
+	return writeBuffer(size, offset, path, bufWrite);
 }
-
-
 
 void liberarRecursos()
 {

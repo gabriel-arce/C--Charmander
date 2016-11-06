@@ -187,7 +187,12 @@ int calcularTamanioMensaje(int head, void* mensaje)
 		case PEDIDO_RENAME:
 		case PEDIDO_CREATE:
 		case PEDIDO_TRUNCATE:
+		case PEDIDO_RELEASE:
 			tamanio = strlen((char*) mensaje) + 1;
+			break;
+
+		case PEDIDO_TRUNCATE_NEW_SIZE:
+      tamanio = sizeof(off_t);
 			break;
 
 		case RESPUESTA_READ:
@@ -207,18 +212,19 @@ int calcularTamanioMensaje(int head, void* mensaje)
 			tamanio = sizeof(t_writebuf);
 			break;
 
-		case RESPUESTA_TRUNCATE:
-			tamanio = sizeof(off_t);
-			break;
-
 		case RESPUESTA_CREATE:
 		case RESPUESTA_MKDIR:
 		case RESPUESTA_OPEN:
 		case RESPUESTA_RMDIR:
 		case RESPUESTA_RENAME:
 		case RESPUESTA_UNLINK:
-		case RESPUESTA_WRITE:
+		case RESPUESTA_RELEASE:
+		case RESPUESTA_TRUNCATE:
 			tamanio = sizeof(char);
+			break;
+
+    case RESPUESTA_WRITE:
+      tamanio = sizeof(uint32_t);
 			break;
 
 		case ENOENTRY:
@@ -227,7 +233,7 @@ int calcularTamanioMensaje(int head, void* mensaje)
 
 		default:
 			break;
-}
+	}
 	return tamanio;
 }
 
@@ -276,6 +282,8 @@ void* serializar(int head, void* mensaje, int tamanio)
 		case PEDIDO_READDIR:// envio un path
 		case PEDIDO_RMDIR:
 		case PEDIDO_RENAME:
+		case PEDIDO_TRUNCATE:
+		case PEDIDO_TRUNCATE_NEW_SIZE:
 		case PEDIDO_UNLINK:
 		case PEDIDO_WRITE:
 
@@ -286,6 +294,7 @@ void* serializar(int head, void* mensaje, int tamanio)
 		case RESPUESTA_READDIR:
 		case RESPUESTA_RMDIR:
 		case RESPUESTA_RENAME:
+		case RESPUESTA_TRUNCATE:
 		case RESPUESTA_UNLINK:
 		case RESPUESTA_WRITE:
 
@@ -307,50 +316,6 @@ void* serializar(int head, void* mensaje, int tamanio)
 
 	return buffer;
 }
-
-// DESERIALIZAR: Del buffer, al mensaje listo para recibir
-void * deserializar(int head, void * buffer, int tamanio)
-{
-	void * mensaje = NULL;
-
-	switch(head)
-	{
-		case RESPUESTA_GETATTR:
-				mensaje = serializarPedidoGetatrr((t_stbuf*)buffer, tamanio);
-				break;
-
-		case HANDSHAKE:
-
-		case PEDIDO_CREATE:
-		case PEDIDO_GETATTR:
-		case PEDIDO_MKDIR:
-		case PEDIDO_OPEN:
-		case PEDIDO_READ:
-		case PEDIDO_READDIR:
-		case PEDIDO_RMDIR:
-		case PEDIDO_RENAME:
-		case PEDIDO_UNLINK:
-		case PEDIDO_WRITE:
-
-		case RESPUESTA_CREATE:
-		case RESPUESTA_MKDIR:
-		case RESPUESTA_OPEN:
-		case RESPUESTA_READ:
-		case RESPUESTA_READDIR:
-		case RESPUESTA_RMDIR:
-		case RESPUESTA_RENAME:
-		case RESPUESTA_UNLINK:
-		case RESPUESTA_WRITE:
-
-		case ENOENTRY:
-
-		default:
-			mensaje = malloc(tamanio);
-			memcpy(mensaje, buffer, tamanio);
-			break;
-	}
-	return mensaje;
-} // Se debe castear lo retornado (indicar el tipo de dato que debe matchear con el void*)
 
 int enviar(int fdReceptor, int head, void *mensaje)
 {
@@ -412,7 +377,7 @@ void* recibir(int socketEmisor, int* head)
 	}
 
 	// Deserializo el mensaje según el protocolo:
-	void* buffer = deserializar(*head, mensaje, *tamanioMensaje);
+	void* buffer = serializar(*head, mensaje, *tamanioMensaje);
 
 	free(tamanioMensaje); tamanioMensaje = NULL;
 	free(mensaje); mensaje = NULL;
@@ -425,9 +390,8 @@ void* recibir(int socketEmisor, int* head)
 void* recibirEstructuraRead(int socketEmisor,int* head)
 {
 	// Recibo el head: PEDIDO_READ
-	//printf(MAG"\t En recibirEstructuraRead head:%d\n ", *head);
 	int recibido = recibirPorSocket(socketEmisor, head, sizeof(int));
-	//printf("\t En recibirEstructuraRead recibi algo :%d\n ", recibido);
+
 	if (*head < 1 || recibido <= 0)
 	{
 		return NULL;
@@ -508,7 +472,6 @@ int enviarEstructuraRead(int fdReceptor, int head, char* path, t_readbuf* mensaj
 }
 
 //Para respuesta read---------------------------------------
-
 int enviarRespuestaRead(int socket, int head, void* respuesta, uint32_t* tamanioBuffer)
 {
 	int desplazamiento = 0;
@@ -524,7 +487,7 @@ int enviarRespuestaRead(int socket, int head, void* respuesta, uint32_t* tamanio
 
 	// Envío la totalidad del paquete de una:
 	int enviados = enviarPorSocket(socket, buffer, tamanioAEnviar);
-	printf(MAG "\t En enviarRespuestaRead enviados:%d\n" RESET,enviados);
+	//printf(MAG "\t En enviarRespuestaRead enviados:%d\n" RESET,enviados);
 
 	free(buffer);
 	buffer = NULL;
@@ -535,9 +498,8 @@ int enviarRespuestaRead(int socket, int head, void* respuesta, uint32_t* tamanio
 void* recibirRespuestaRead(int socketEmisor, int* head, uint32_t* tamanio)
 {
 	// Recibo el head: RESPUESTA_READ
-	//printf(MAG"\t En recibirEstructuraRead head:%d\n ", *head);
 	int recibido = recibirPorSocket(socketEmisor, head, sizeof(int));
-	//printf("\t En recibirEstructuraRead recibi algo :%d\n ", recibido);
+
 	if (*head < 1 || recibido <= 0)
 	{
 		return NULL;
@@ -551,7 +513,7 @@ void* recibirRespuestaRead(int socketEmisor, int* head, uint32_t* tamanio)
 		return NULL;
 	}
 
-	printf(YEL "\t En recibirRespuestaRead recibi  tamanio :%d\n "RESET, *tamanio);
+	//printf(YEL "\t En recibirRespuestaRead recibi tamanio :%d\n "RESET, *tamanio);
 	// Recibo  el buffer:
 	void* buffer = malloc(*tamanio);
 	recibido = recibirPorSocket(socketEmisor, buffer, *tamanio);
@@ -568,9 +530,9 @@ void* recibirRespuestaRead(int socketEmisor, int* head, uint32_t* tamanio)
 void* recibirEstructuraWrite(int socketEmisor,int* head)
 {
 	// Recibo el head: PEDIDO_WRITE
-	printf(MAG"\t En recibirEstructuraWrite head:%d\n ", *head);
+	//printf(MAG"\t En recibirEstructuraWrite head:%d\n ", *head);
 	int recibido = recibirPorSocket(socketEmisor, head, sizeof(int));
-	printf("\t En recibirEstructuraWrite recibi algo :%d\n ", recibido);
+	//printf("\t En recibirEstructuraWrite recibi algo :%d\n ", recibido);
 	if (*head < 1 || recibido <= 0)
 	{
 		return NULL;
@@ -579,7 +541,7 @@ void* recibirEstructuraWrite(int socketEmisor,int* head)
 	// Recibo el struct t_writebuf:
 	t_writebuf* buffer = malloc(sizeof(t_writebuf));
 	recibido = recibirPorSocket(socketEmisor, buffer, sizeof(t_writebuf));
-	printf("\t En recibirEstructuraWrite recibi t_writebuf tamano :%d\n " , recibido);
+	//printf("\t En recibirEstructuraWrite recibi t_writebuf tamano :%d\n " , recibido);
 	if (recibido <= 0)
 	{
 		return NULL;
@@ -588,7 +550,7 @@ void* recibirEstructuraWrite(int socketEmisor,int* head)
 	// Recibo  el path:
 	char* path = malloc(buffer->pathLen);
 	recibido = recibirPorSocket(socketEmisor, path, buffer->pathLen);
-	printf("\t En recibirEstructuraWrite recibi path :%s\n" RESET, path);
+	//printf("\t En recibirEstructuraWrite recibi path :%s\n" RESET, path);
 	if (recibido <= 0)
 	{
 		return NULL;
@@ -597,7 +559,7 @@ void* recibirEstructuraWrite(int socketEmisor,int* head)
 	//Recibo el buffer con los datos a escribir:
 	char* bufWrite = malloc(buffer->bufLen);
 	recibido = recibirPorSocket(socketEmisor, bufWrite, buffer->bufLen);
-	printf("\t En recibirEstructuraWrite recibi el buffer para escritura \n" RESET);
+	//printf("\t En recibirEstructuraWrite recibi el buffer para escritura \n" RESET);
 	if (recibido <= 0)
 	{
 		return NULL;
@@ -632,7 +594,7 @@ void* serializarPedidoWrite(t_writebuf* response, char* path, char* bufWrite)
 	memcpy(buffer + desplazamiento, path, response->pathLen);
 	desplazamiento += response->pathLen;
 	memcpy(buffer + desplazamiento, bufWrite, response->bufLen);
-	printf(MAG "\t En serializarPedidoWrite el path es:%s\n" RESET, path);
+	//printf(MAG "\t En serializarPedidoWrite el path es:%s\n" RESET, path);
 	return buffer;
 }
 
@@ -641,7 +603,7 @@ int enviarEstructuraWrite(int fdReceptor, int head, char* path, char* bufWrite, 
 	int desplazamiento = 0;
 	int tamanioMensaje = sizeof(t_writebuf) + strlen(path) + strlen(bufWrite) + 2;
 	int tamanioTotalAEnviar = 0;
-	printf(MAG "\t En enviarEstructuraWrite path:%s\n ",path);
+	//printf(MAG "\t En enviarEstructuraWrite path:%s\n ",path);
 	void *mensajeSerializado = serializarPedidoWrite( mensaje, path, bufWrite);
 
 	// Lo que se envía es: head + tamaño del msj serializado:
@@ -655,7 +617,7 @@ int enviarEstructuraWrite(int fdReceptor, int head, char* path, char* bufWrite, 
 
 	// Envío la totalidad del paquete (lo contenido en el buffer):
 	int enviados = enviarPorSocket(fdReceptor, buffer, tamanioTotalAEnviar);
-	printf("\t En enviarEstructuraWrite enviados:%d\n" RESET, enviados);
+	//printf("\t En enviarEstructuraWrite enviados:%d\n" RESET, enviados);
 
 	free(mensajeSerializado);
 	mensajeSerializado = NULL;
