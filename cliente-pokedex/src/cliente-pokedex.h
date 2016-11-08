@@ -87,6 +87,8 @@ static struct fuse_opt fuse_options[] = {
 		FUSE_OPT_END,
 };
 
+struct tm *timeinfo;
+
 //-------Operaciones
 static int osada_create(const char *path, mode_t mode, struct fuse_file_info *fi);
   int osada_getattr(const char *path, struct stat *stbuf);

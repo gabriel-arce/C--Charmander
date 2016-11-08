@@ -27,6 +27,8 @@ int main(int argc, char *argv[]) {
 
 	printEncabezado();
 	socketServidor = conectar_con_servidor_pkdx();
+	obtenerFecha();
+
 
 	//Inicializar Fuse
 	PrintFuse();

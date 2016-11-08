@@ -355,3 +355,18 @@ void terminar()
 	exit(0);
 }
 
+time_t obtenerFecha(){
+	time_t tiempo = time(0);
+
+	time(&tiempo);
+
+	timeinfo = localtime(&tiempo);
+	return timeinfo;
+
+	//Para cada uno de los campos..
+	// anio ---> timeinof->tm_year + 1900
+	//mes ---> timeinfo->tm_mon + 1
+	// dia ---> timeinfo->tm_mday
+	// y asi el resto..
+
+}
