@@ -36,52 +36,31 @@
 #define RESPUESTA_CREATE 31
 #define ENOENTRY 32
 
-//funciones de disco
-void asignarOffsets();
-void descargar(uint32_t descriptorArchivo);
-void escribirBloque(uint32_t bloque, char* buf);
-void escribirArchivo(uint32_t posicion, char* buf);
-int existePath(char* path, uint16_t** pos);
-int existeDirectorio(unsigned char* token, uint16_t* padre, int* posicion);
-void inicializarDisco();
-void leerArchivo(uint32_t posicion, osada_file* buf);
-void leerAsignacion(uint32_t posicion, osada_file* buf);
-void leerBloque(uint32_t cantidadBloques, char* buf);
-void leerDato(uint32_t posicion, osada_file* buf);
-void leerHeader();
-int mapearDisco(char* path);
-void mostrarHeader(osada_header oheader);
-void* readdir(char* path);
-void leerTablaArchivos();
-void leerTablaAsignaciones();
-void leerTablaDatos();
+#define PEDIDO_OPEN 33
+#define RESPUESTA_OPEN 34
+#define PEDIDO_RELEASE 35
+#define RESPUESTA_RELEASE 36
+#define PEDIDO_TRUNCATE_NEW_SIZE 37
+#define PEDIDO_FLUSH 38
+#define RESPUESTA_FLUSH 39
 
-char borrarArchivo(char* path);
-char borrarDirectorio(char* path);
-char crearArchivo(char* path, int modo);
-char renombrarArchivo(char* paths);
-
-
-//estas no se si funcionan
-void* readFile(osada_file ofile, void *buffer);
-void* readData(int cant_blocks, int* fat_values, void *buffer);
-void* concatenate(void *buffer, int tamBuffer, void *tmpBuffer, int tamTmpBuffer, void* result);
-
-
-//funciones de servidor-------------------------------------------------
 void atendercliente(int socket);
 void* hiloComunicacion(void* arg);
+void liberarRecursos(); //TODO
 void printEncabezado();
 void printTerminar();
 
 void* procesarPedidoCreate(char *pedido);
 void* procesarPedidoGetatrr(char *path);
+void* procesarPedidoFlush(char *path);
 void* procesarPedidoMkdir(char *path);
-void* procesarPedidoRead(void *buffer);
+void* procesarPedidoOpen(char* path);
+void* procesarPedidoRead(void* buffer, uint32_t* tamanioBuffer);
 void* procesarPedidoReaddir(char *path);
+void* procesarPedidoRelease(char* path);
 void* procesarPedidoRename(char *paths);
 void* procesarPedidoRmdir(char *path);
-void* procesarPedidoTruncate(char *path);
+void* procesarPedidoTruncate(off_t newSize, char* path);
 void* procesarPedidoUnlink(char *path);
 void* procesarPedidoWrite(void *buffer);
 

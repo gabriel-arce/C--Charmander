@@ -58,7 +58,7 @@
 #define ENOENTRY 32
 //--
 
-#define TOTAL_ARGS 2
+#define TOTAL_ARGS 3
 #define DEFAULT_FILE_PATH "/"
 #define NOMBRE_LOG	"ClientePokedex.log"
 #define NOMBRE_PROG	"cliente-pokedex"
@@ -87,6 +87,8 @@ static struct fuse_opt fuse_options[] = {
 		FUSE_OPT_END,
 };
 
+struct tm *timeinfo;
+
 //-------Operaciones
 static int osada_create(const char *path, mode_t mode, struct fuse_file_info *fi);
   int osada_getattr(const char *path, struct stat *stbuf);
@@ -103,7 +105,7 @@ static int osada_unlink(const char *path);
 char * ip_pokedex;
 int puerto_pokedex;
 char * directorio_montaje;
-int* socketServidor;
+int  socketServidor;
 
 struct stat fileStat;
 pthread_t thread_Planificador;
@@ -122,7 +124,7 @@ t_log* logCliente;
 
 
 int validar(int argc, char **argv);
-int conectar_con_servidor_pkdx();
+int  conectar_con_servidor_pkdx();
 void* enviarOperacionAServidor(int operacion, void* buffer_out);
 int set_datos_conexion();
 void printConectado();

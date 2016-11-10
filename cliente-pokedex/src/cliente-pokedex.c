@@ -53,9 +53,9 @@ int conectar_con_servidor_pkdx() {
 		t_stbuf *paquete = NULL;
 
 		pthread_mutex_lock(&mutex_comunicacion);
-			enviarConProtocolo(*socketServidor, PEDIDO_GETATTR, path);
+			enviarConProtocolo(socketServidor, PEDIDO_GETATTR, path);
 			log_info(logCliente, "	Envie PEDIDO_GETATTR");
-			paquete = (t_stbuf*)recibirConProtocolo(*socketServidor,&head);
+			paquete = (t_stbuf*)recibirConProtocolo(socketServidor,&head);
 		pthread_mutex_unlock(&mutex_comunicacion);
 
 		if (head == RESPUESTA_GETATTR)
@@ -93,9 +93,9 @@ int conectar_con_servidor_pkdx() {
 	void *paquete = NULL;
 
 	pthread_mutex_lock(&mutex_comunicacion);
-		enviarConProtocolo(*socketServidor, PEDIDO_READDIR, path);
+		enviarConProtocolo(socketServidor, PEDIDO_READDIR, path);
 		log_info(logCliente, "	Envie PEDIDO_READDIR");
-		paquete = recibirConProtocolo(*socketServidor,&head);
+		paquete = recibirConProtocolo(socketServidor,&head);
 	pthread_mutex_unlock(&mutex_comunicacion);
 
 	if (head == RESPUESTA_READDIR)
@@ -147,10 +147,10 @@ static int osada_read(const char *path, char *buf, size_t size, off_t offset, st
 		char* paquete = NULL;
 
 		pthread_mutex_lock(&mutex_comunicacion);
-			enviarConProtocolo(*socketServidor, PEDIDO_READ, pedido);
-		    enviarEstructuraRead(*socketServidor, PEDIDO_READ, path, pedido);
+			enviarConProtocolo(socketServidor, PEDIDO_READ, pedido);
+		    enviarEstructuraRead(socketServidor, PEDIDO_READ, path, pedido);
 			log_info(logCliente, "	Envie PEDIDO_READ");
-			paquete =(char*) recibirConProtocolo(*socketServidor,&head);
+			paquete =(char*) recibirConProtocolo(socketServidor,&head);
 		pthread_mutex_unlock(&mutex_comunicacion);
 		//free(pedido);
 
@@ -355,3 +355,18 @@ void terminar()
 	exit(0);
 }
 
+time_t obtenerFecha(){
+	time_t tiempo = time(0);
+
+	time(&tiempo);
+
+	timeinfo = localtime(&tiempo);
+	return timeinfo;
+
+	//Para cada uno de los campos..
+	// anio ---> timeinof->tm_year + 1900
+	//mes ---> timeinfo->tm_mon + 1
+	// dia ---> timeinfo->tm_mday
+	// y asi el resto..
+
+}

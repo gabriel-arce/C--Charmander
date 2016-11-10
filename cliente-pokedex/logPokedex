@@ -345,3 +345,472 @@
 [INFO] 11:08:22:958 Pokedex/(10760:10782): /
 [INFO] 11:10:27:781 Pokedex/(10938:10938): ****************** Creando archivo Log *******************************************
 [INFO] 11:10:28:524 Pokedex/(10938:10938): ****************** Llamo a fuse main  ********************************************
+[INFO] 21:59:24:109 Pokedex/(2441:2441): ****************** Creando archivo Log *******************************************
+[INFO] 21:59:24:110 Pokedex/(2441:2441): ****************** Llamo a fuse main  ********************************************
+[INFO] 21:59:24:132 Pokedex/(2441:2453): ****************** FUSE: llamada a osada_getattr() ******************************
+[INFO] 21:59:24:132 Pokedex/(2441:2453): /.Trash
+[INFO] 21:59:24:132 Pokedex/(2441:2453): 	Recibi ENOENT
+[INFO] 21:59:24:132 Pokedex/(2441:2454): ****************** FUSE: llamada a osada_getattr() ******************************
+[INFO] 21:59:24:132 Pokedex/(2441:2454): /.Trash-1000
+[INFO] 21:59:24:132 Pokedex/(2441:2454): 	Recibi ENOENT
+[INFO] 21:59:24:132 Pokedex/(2441:2453): ****************** FUSE: llamada a osada_getattr() ******************************
+[INFO] 21:59:24:132 Pokedex/(2441:2453): /.xdg-volume-info
+[INFO] 21:59:24:132 Pokedex/(2441:2453): 	Recibi ENOENT
+[INFO] 21:59:24:132 Pokedex/(2441:2454): ****************** FUSE: llamada a osada_getattr() ******************************
+[INFO] 21:59:24:132 Pokedex/(2441:2454): /autorun.inf
+[INFO] 21:59:24:132 Pokedex/(2441:2454): 	Recibi ENOENT
+[INFO] 21:59:24:132 Pokedex/(2441:2453): ****************** FUSE: llamada a osada_readdir() ******************************
+[INFO] 21:59:24:132 Pokedex/(2441:2453): /
+[INFO] 21:59:24:132 Pokedex/(2441:2453): 	Envie PEDIDO_READDIR
+[INFO] 21:59:24:132 Pokedex/(2441:2453): 	Recibi respuesta ENOENT
+[INFO] 21:59:24:132 Pokedex/(2441:2454): ****************** FUSE: llamada a osada_readdir() ******************************
+[INFO] 21:59:24:132 Pokedex/(2441:2454): /
+[INFO] 21:59:24:132 Pokedex/(2441:2454): 	Envie PEDIDO_READDIR
+[INFO] 21:59:24:132 Pokedex/(2441:2454): 	Recibi respuesta ENOENT
+[INFO] 21:59:24:132 Pokedex/(2441:2454): ****************** FUSE: llamada a osada_readdir() ******************************
+[INFO] 21:59:24:132 Pokedex/(2441:2454): /
+[INFO] 21:59:24:132 Pokedex/(2441:2454): 	Envie PEDIDO_READDIR
+[INFO] 21:59:24:132 Pokedex/(2441:2454): 	Recibi respuesta ENOENT
+[INFO] 21:59:24:132 Pokedex/(2441:2454): ****************** FUSE: llamada a osada_readdir() ******************************
+[INFO] 21:59:24:132 Pokedex/(2441:2454): /
+[INFO] 21:59:24:132 Pokedex/(2441:2454): 	Envie PEDIDO_READDIR
+[INFO] 21:59:24:132 Pokedex/(2441:2454): 	Recibi respuesta ENOENT
+[INFO] 21:59:24:132 Pokedex/(2441:2454): ****************** FUSE: llamada a osada_readdir() ******************************
+[INFO] 21:59:24:132 Pokedex/(2441:2454): /
+[INFO] 21:59:24:132 Pokedex/(2441:2454): 	Envie PEDIDO_READDIR
+[INFO] 21:59:24:132 Pokedex/(2441:2454): 	Recibi respuesta ENOENT
+[INFO] 21:59:24:132 Pokedex/(2441:2454): ****************** FUSE: llamada a osada_readdir() ******************************
+[INFO] 21:59:24:132 Pokedex/(2441:2454): /
+[INFO] 21:59:24:132 Pokedex/(2441:2454): 	Envie PEDIDO_READDIR
+[INFO] 21:59:24:132 Pokedex/(2441:2454): 	Recibi respuesta ENOENT
+[INFO] 21:59:24:132 Pokedex/(2441:2454): ****************** FUSE: llamada a osada_readdir() ******************************
+[INFO] 21:59:24:132 Pokedex/(2441:2454): /
+[INFO] 21:59:24:132 Pokedex/(2441:2454): 	Envie PEDIDO_READDIR
+[INFO] 21:59:24:132 Pokedex/(2441:2454): 	Recibi respuesta ENOENT
+[INFO] 21:59:24:133 Pokedex/(2441:2454): ****************** FUSE: llamada a osada_readdir() ******************************
+[INFO] 21:59:24:133 Pokedex/(2441:2454): /
+[INFO] 21:59:24:133 Pokedex/(2441:2454): 	Envie PEDIDO_READDIR
+[INFO] 21:59:24:133 Pokedex/(2441:2454): 	Recibi respuesta ENOENT
+[INFO] 21:59:24:133 Pokedex/(2441:2454): ****************** FUSE: llamada a osada_readdir() ******************************
+[INFO] 21:59:24:133 Pokedex/(2441:2454): /
+[INFO] 21:59:24:133 Pokedex/(2441:2454): 	Envie PEDIDO_READDIR
+[INFO] 21:59:24:133 Pokedex/(2441:2454): 	Recibi respuesta ENOENT
+[INFO] 21:59:24:133 Pokedex/(2441:2454): ****************** FUSE: llamada a osada_readdir() ******************************
+[INFO] 21:59:24:133 Pokedex/(2441:2454): /
+[INFO] 21:59:24:133 Pokedex/(2441:2454): 	Envie PEDIDO_READDIR
+[INFO] 21:59:24:133 Pokedex/(2441:2454): 	Recibi respuesta ENOENT
+[INFO] 21:59:24:133 Pokedex/(2441:2454): ****************** FUSE: llamada a osada_readdir() ******************************
+[INFO] 21:59:24:133 Pokedex/(2441:2454): /
+[INFO] 21:59:24:133 Pokedex/(2441:2454): 	Envie PEDIDO_READDIR
+[INFO] 21:59:24:133 Pokedex/(2441:2454): 	Recibi respuesta ENOENT
+[INFO] 21:59:24:133 Pokedex/(2441:2454): ****************** FUSE: llamada a osada_readdir() ******************************
+[INFO] 21:59:24:133 Pokedex/(2441:2454): /
+[INFO] 21:59:24:133 Pokedex/(2441:2454): 	Envie PEDIDO_READDIR
+[INFO] 21:59:24:133 Pokedex/(2441:2454): 	Recibi respuesta ENOENT
+[INFO] 21:59:24:133 Pokedex/(2441:2454): ****************** FUSE: llamada a osada_readdir() ******************************
+[INFO] 21:59:24:133 Pokedex/(2441:2454): /
+[INFO] 21:59:24:133 Pokedex/(2441:2454): 	Envie PEDIDO_READDIR
+[INFO] 21:59:24:133 Pokedex/(2441:2454): 	Recibi respuesta ENOENT
+[INFO] 21:59:24:133 Pokedex/(2441:2454): ****************** FUSE: llamada a osada_readdir() ******************************
+[INFO] 21:59:24:133 Pokedex/(2441:2454): /
+[INFO] 21:59:24:133 Pokedex/(2441:2454): 	Envie PEDIDO_READDIR
+[INFO] 21:59:24:133 Pokedex/(2441:2454): 	Recibi respuesta ENOENT
+[INFO] 21:59:24:133 Pokedex/(2441:2454): ****************** FUSE: llamada a osada_readdir() ******************************
+[INFO] 21:59:24:133 Pokedex/(2441:2454): /
+[INFO] 21:59:24:133 Pokedex/(2441:2454): 	Envie PEDIDO_READDIR
+[INFO] 21:59:24:133 Pokedex/(2441:2454): 	Recibi respuesta ENOENT
+[INFO] 21:59:24:133 Pokedex/(2441:2454): ****************** FUSE: llamada a osada_readdir() ******************************
+[INFO] 21:59:24:133 Pokedex/(2441:2454): /
+[INFO] 21:59:24:133 Pokedex/(2441:2454): 	Envie PEDIDO_READDIR
+[INFO] 21:59:24:133 Pokedex/(2441:2454): 	Recibi respuesta ENOENT
+[INFO] 21:59:24:133 Pokedex/(2441:2454): ****************** FUSE: llamada a osada_readdir() ******************************
+[INFO] 21:59:24:133 Pokedex/(2441:2454): /
+[INFO] 21:59:24:133 Pokedex/(2441:2454): 	Envie PEDIDO_READDIR
+[INFO] 21:59:24:133 Pokedex/(2441:2454): 	Recibi respuesta ENOENT
+[INFO] 21:59:24:133 Pokedex/(2441:2454): ****************** FUSE: llamada a osada_readdir() ******************************
+[INFO] 21:59:24:133 Pokedex/(2441:2454): /
+[INFO] 21:59:24:133 Pokedex/(2441:2454): 	Envie PEDIDO_READDIR
+[INFO] 21:59:24:133 Pokedex/(2441:2454): 	Recibi respuesta ENOENT
+[INFO] 21:59:24:133 Pokedex/(2441:2454): ****************** FUSE: llamada a osada_readdir() ******************************
+[INFO] 21:59:24:133 Pokedex/(2441:2454): /
+[INFO] 21:59:24:133 Pokedex/(2441:2454): 	Envie PEDIDO_READDIR
+[INFO] 21:59:24:133 Pokedex/(2441:2454): 	Recibi respuesta ENOENT
+[INFO] 21:59:24:133 Pokedex/(2441:2454): ****************** FUSE: llamada a osada_readdir() ******************************
+[INFO] 21:59:24:133 Pokedex/(2441:2454): /
+[INFO] 21:59:24:133 Pokedex/(2441:2454): 	Envie PEDIDO_READDIR
+[INFO] 21:59:24:133 Pokedex/(2441:2454): 	Recibi respuesta ENOENT
+[INFO] 21:59:24:134 Pokedex/(2441:2454): ****************** FUSE: llamada a osada_readdir() ******************************
+[INFO] 21:59:24:134 Pokedex/(2441:2454): /
+[INFO] 21:59:24:134 Pokedex/(2441:2454): 	Envie PEDIDO_READDIR
+[INFO] 21:59:24:134 Pokedex/(2441:2454): 	Recibi respuesta ENOENT
+[INFO] 21:59:24:134 Pokedex/(2441:2454): ****************** FUSE: llamada a osada_readdir() ******************************
+[INFO] 21:59:24:134 Pokedex/(2441:2454): /
+[INFO] 21:59:24:134 Pokedex/(2441:2454): 	Envie PEDIDO_READDIR
+[INFO] 21:59:24:134 Pokedex/(2441:2454): 	Recibi respuesta ENOENT
+[INFO] 21:59:24:134 Pokedex/(2441:2453): ****************** FUSE: llamada a osada_getattr() ******************************
+[INFO] 21:59:24:134 Pokedex/(2441:2453): /autorun.inf
+[INFO] 21:59:24:134 Pokedex/(2441:2453): 	Recibi ENOENT
+[INFO] 21:59:24:138 Pokedex/(2441:2454): ****************** FUSE: llamada a osada_getattr() ******************************
+[INFO] 21:59:24:138 Pokedex/(2441:2454): /
+[INFO] 21:59:24:138 Pokedex/(2441:2454): 	Envie PEDIDO_GETATTR
+[INFO] 21:59:24:138 Pokedex/(2441:2454): 	No recibi RESPUESTA_GETATTR
+[INFO] 22:01:24:480 Pokedex/(2528:2528): ****************** Creando archivo Log *******************************************
+[INFO] 22:01:24:482 Pokedex/(2528:2528): ****************** Llamo a fuse main  ********************************************
+[INFO] 22:01:24:482 Pokedex/(2441:2453): ****************** FUSE: llamada a osada_getattr() ******************************
+[INFO] 22:01:24:482 Pokedex/(2441:2453): /
+[INFO] 22:01:24:482 Pokedex/(2441:2453): 	Envie PEDIDO_GETATTR
+[INFO] 22:01:24:482 Pokedex/(2441:2453): 	No recibi RESPUESTA_GETATTR
+[INFO] 22:04:39:12 Pokedex/(2441:2454): ****************** FUSE: llamada a osada_getattr() ******************************
+[INFO] 22:04:39:12 Pokedex/(2441:2454): /
+[INFO] 22:04:39:12 Pokedex/(2441:2454): 	Envie PEDIDO_GETATTR
+[INFO] 22:04:39:12 Pokedex/(2441:2454): 	No recibi RESPUESTA_GETATTR
+[INFO] 22:04:39:67 Pokedex/(2441:2453): ****************** FUSE: llamada a osada_getattr() ******************************
+[INFO] 22:04:39:67 Pokedex/(2441:2453): /
+[INFO] 22:04:39:67 Pokedex/(2441:2453): 	Envie PEDIDO_GETATTR
+[INFO] 22:04:39:67 Pokedex/(2441:2453): 	No recibi RESPUESTA_GETATTR
+[INFO] 22:05:15:764 Pokedex/(2441:2454): ****************** FUSE: llamada a osada_getattr() ******************************
+[INFO] 22:05:15:764 Pokedex/(2441:2454): /
+[INFO] 22:05:15:765 Pokedex/(2441:2454): 	Envie PEDIDO_GETATTR
+[INFO] 22:05:15:765 Pokedex/(2441:2454): 	No recibi RESPUESTA_GETATTR
+[INFO] 22:06:14:977 Pokedex/(2829:2829): ****************** Creando archivo Log *******************************************
+[INFO] 22:06:14:981 Pokedex/(2829:2829): ****************** Llamo a fuse main  ********************************************
+[INFO] 22:06:15:6 Pokedex/(2829:2841): ****************** FUSE: llamada a osada_getattr() ******************************
+[INFO] 22:06:15:6 Pokedex/(2829:2841): /.Trash
+[INFO] 22:06:15:6 Pokedex/(2829:2841): 	Recibi ENOENT
+[INFO] 22:06:15:7 Pokedex/(2829:2842): ****************** FUSE: llamada a osada_getattr() ******************************
+[INFO] 22:06:15:7 Pokedex/(2829:2842): /.Trash-1000
+[INFO] 22:06:15:7 Pokedex/(2829:2842): 	Recibi ENOENT
+[INFO] 22:06:15:7 Pokedex/(2829:2841): ****************** FUSE: llamada a osada_getattr() ******************************
+[INFO] 22:06:15:7 Pokedex/(2829:2841): /.xdg-volume-info
+[INFO] 22:06:15:7 Pokedex/(2829:2841): 	Recibi ENOENT
+[INFO] 22:06:15:7 Pokedex/(2829:2842): ****************** FUSE: llamada a osada_getattr() ******************************
+[INFO] 22:06:15:7 Pokedex/(2829:2842): /autorun.inf
+[INFO] 22:06:15:7 Pokedex/(2829:2842): 	Recibi ENOENT
+[INFO] 22:06:15:7 Pokedex/(2829:2841): ****************** FUSE: llamada a osada_readdir() ******************************
+[INFO] 22:06:15:7 Pokedex/(2829:2841): /
+[INFO] 22:06:15:7 Pokedex/(2829:2841): 	Envie PEDIDO_READDIR
+[INFO] 22:06:15:7 Pokedex/(2829:2841): 	Recibi respuesta ENOENT
+[INFO] 22:06:15:7 Pokedex/(2829:2842): ****************** FUSE: llamada a osada_readdir() ******************************
+[INFO] 22:06:15:7 Pokedex/(2829:2842): /
+[INFO] 22:06:15:7 Pokedex/(2829:2842): 	Envie PEDIDO_READDIR
+[INFO] 22:06:15:7 Pokedex/(2829:2842): 	Recibi respuesta ENOENT
+[INFO] 22:06:15:7 Pokedex/(2829:2842): ****************** FUSE: llamada a osada_readdir() ******************************
+[INFO] 22:06:15:7 Pokedex/(2829:2842): /
+[INFO] 22:06:15:7 Pokedex/(2829:2842): 	Envie PEDIDO_READDIR
+[INFO] 22:06:15:7 Pokedex/(2829:2842): 	Recibi respuesta ENOENT
+[INFO] 22:06:15:7 Pokedex/(2829:2842): ****************** FUSE: llamada a osada_readdir() ******************************
+[INFO] 22:06:15:7 Pokedex/(2829:2842): /
+[INFO] 22:06:15:7 Pokedex/(2829:2842): 	Envie PEDIDO_READDIR
+[INFO] 22:06:15:7 Pokedex/(2829:2842): 	Recibi respuesta ENOENT
+[INFO] 22:06:15:7 Pokedex/(2829:2842): ****************** FUSE: llamada a osada_readdir() ******************************
+[INFO] 22:06:15:7 Pokedex/(2829:2842): /
+[INFO] 22:06:15:7 Pokedex/(2829:2842): 	Envie PEDIDO_READDIR
+[INFO] 22:06:15:7 Pokedex/(2829:2842): 	Recibi respuesta ENOENT
+[INFO] 22:06:15:7 Pokedex/(2829:2842): ****************** FUSE: llamada a osada_readdir() ******************************
+[INFO] 22:06:15:7 Pokedex/(2829:2842): /
+[INFO] 22:06:15:7 Pokedex/(2829:2842): 	Envie PEDIDO_READDIR
+[INFO] 22:06:15:7 Pokedex/(2829:2842): 	Recibi respuesta ENOENT
+[INFO] 22:06:15:8 Pokedex/(2829:2842): ****************** FUSE: llamada a osada_readdir() ******************************
+[INFO] 22:06:15:8 Pokedex/(2829:2842): /
+[INFO] 22:06:15:8 Pokedex/(2829:2842): 	Envie PEDIDO_READDIR
+[INFO] 22:06:15:8 Pokedex/(2829:2842): 	Recibi respuesta ENOENT
+[INFO] 22:06:15:8 Pokedex/(2829:2842): ****************** FUSE: llamada a osada_readdir() ******************************
+[INFO] 22:06:15:8 Pokedex/(2829:2842): /
+[INFO] 22:06:15:8 Pokedex/(2829:2842): 	Envie PEDIDO_READDIR
+[INFO] 22:06:15:8 Pokedex/(2829:2842): 	Recibi respuesta ENOENT
+[INFO] 22:06:15:8 Pokedex/(2829:2842): ****************** FUSE: llamada a osada_readdir() ******************************
+[INFO] 22:06:15:8 Pokedex/(2829:2842): /
+[INFO] 22:06:15:8 Pokedex/(2829:2842): 	Envie PEDIDO_READDIR
+[INFO] 22:06:15:8 Pokedex/(2829:2842): 	Recibi respuesta ENOENT
+[INFO] 22:06:15:8 Pokedex/(2829:2842): ****************** FUSE: llamada a osada_readdir() ******************************
+[INFO] 22:06:15:8 Pokedex/(2829:2842): /
+[INFO] 22:06:15:8 Pokedex/(2829:2842): 	Envie PEDIDO_READDIR
+[INFO] 22:06:15:8 Pokedex/(2829:2842): 	Recibi respuesta ENOENT
+[INFO] 22:06:15:8 Pokedex/(2829:2841): ****************** FUSE: llamada a osada_readdir() ******************************
+[INFO] 22:06:15:8 Pokedex/(2829:2841): /
+[INFO] 22:06:15:8 Pokedex/(2829:2841): 	Envie PEDIDO_READDIR
+[INFO] 22:06:15:8 Pokedex/(2829:2841): 	Recibi respuesta ENOENT
+[INFO] 22:06:15:8 Pokedex/(2829:2841): ****************** FUSE: llamada a osada_readdir() ******************************
+[INFO] 22:06:15:8 Pokedex/(2829:2841): /
+[INFO] 22:06:15:8 Pokedex/(2829:2841): 	Envie PEDIDO_READDIR
+[INFO] 22:06:15:8 Pokedex/(2829:2841): 	Recibi respuesta ENOENT
+[INFO] 22:06:15:8 Pokedex/(2829:2841): ****************** FUSE: llamada a osada_readdir() ******************************
+[INFO] 22:06:15:8 Pokedex/(2829:2841): /
+[INFO] 22:06:15:8 Pokedex/(2829:2841): 	Envie PEDIDO_READDIR
+[INFO] 22:06:15:8 Pokedex/(2829:2841): 	Recibi respuesta ENOENT
+[INFO] 22:06:15:9 Pokedex/(2829:2841): ****************** FUSE: llamada a osada_readdir() ******************************
+[INFO] 22:06:15:9 Pokedex/(2829:2841): /
+[INFO] 22:06:15:9 Pokedex/(2829:2841): 	Envie PEDIDO_READDIR
+[INFO] 22:06:15:9 Pokedex/(2829:2841): 	Recibi respuesta ENOENT
+[INFO] 22:06:15:9 Pokedex/(2829:2841): ****************** FUSE: llamada a osada_readdir() ******************************
+[INFO] 22:06:15:9 Pokedex/(2829:2841): /
+[INFO] 22:06:15:9 Pokedex/(2829:2841): 	Envie PEDIDO_READDIR
+[INFO] 22:06:15:9 Pokedex/(2829:2841): 	Recibi respuesta ENOENT
+[INFO] 22:06:15:9 Pokedex/(2829:2841): ****************** FUSE: llamada a osada_readdir() ******************************
+[INFO] 22:06:15:9 Pokedex/(2829:2841): /
+[INFO] 22:06:15:9 Pokedex/(2829:2841): 	Envie PEDIDO_READDIR
+[INFO] 22:06:15:9 Pokedex/(2829:2841): 	Recibi respuesta ENOENT
+[INFO] 22:06:15:9 Pokedex/(2829:2841): ****************** FUSE: llamada a osada_readdir() ******************************
+[INFO] 22:06:15:9 Pokedex/(2829:2841): /
+[INFO] 22:06:15:9 Pokedex/(2829:2841): 	Envie PEDIDO_READDIR
+[INFO] 22:06:15:9 Pokedex/(2829:2841): 	Recibi respuesta ENOENT
+[INFO] 22:06:15:9 Pokedex/(2829:2841): ****************** FUSE: llamada a osada_readdir() ******************************
+[INFO] 22:06:15:9 Pokedex/(2829:2841): /
+[INFO] 22:06:15:9 Pokedex/(2829:2841): 	Envie PEDIDO_READDIR
+[INFO] 22:06:15:9 Pokedex/(2829:2841): 	Recibi respuesta ENOENT
+[INFO] 22:06:15:9 Pokedex/(2829:2841): ****************** FUSE: llamada a osada_readdir() ******************************
+[INFO] 22:06:15:9 Pokedex/(2829:2841): /
+[INFO] 22:06:15:9 Pokedex/(2829:2841): 	Envie PEDIDO_READDIR
+[INFO] 22:06:15:9 Pokedex/(2829:2841): 	Recibi respuesta ENOENT
+[INFO] 22:06:15:9 Pokedex/(2829:2841): ****************** FUSE: llamada a osada_readdir() ******************************
+[INFO] 22:06:15:9 Pokedex/(2829:2841): /
+[INFO] 22:06:15:9 Pokedex/(2829:2841): 	Envie PEDIDO_READDIR
+[INFO] 22:06:15:9 Pokedex/(2829:2841): 	Recibi respuesta ENOENT
+[INFO] 22:06:15:9 Pokedex/(2829:2841): ****************** FUSE: llamada a osada_readdir() ******************************
+[INFO] 22:06:15:9 Pokedex/(2829:2841): /
+[INFO] 22:06:15:9 Pokedex/(2829:2841): 	Envie PEDIDO_READDIR
+[INFO] 22:06:15:9 Pokedex/(2829:2841): 	Recibi respuesta ENOENT
+[INFO] 22:06:15:10 Pokedex/(2829:2841): ****************** FUSE: llamada a osada_readdir() ******************************
+[INFO] 22:06:15:10 Pokedex/(2829:2841): /
+[INFO] 22:06:15:10 Pokedex/(2829:2841): 	Envie PEDIDO_READDIR
+[INFO] 22:06:15:10 Pokedex/(2829:2841): 	Recibi respuesta ENOENT
+[INFO] 22:06:15:10 Pokedex/(2829:2841): ****************** FUSE: llamada a osada_getattr() ******************************
+[INFO] 22:06:15:10 Pokedex/(2829:2841): /autorun.inf
+[INFO] 22:06:15:10 Pokedex/(2829:2841): 	Recibi ENOENT
+[INFO] 22:06:15:11 Pokedex/(2829:2841): ****************** FUSE: llamada a osada_getattr() ******************************
+[INFO] 22:06:15:11 Pokedex/(2829:2841): /
+[INFO] 22:06:15:11 Pokedex/(2829:2841): 	Envie PEDIDO_GETATTR
+[INFO] 22:06:15:11 Pokedex/(2829:2841): 	No recibi RESPUESTA_GETATTR
+[INFO] 22:06:15:11 Pokedex/(2829:2842): ****************** FUSE: llamada a osada_getattr() ******************************
+[INFO] 22:06:15:11 Pokedex/(2829:2842): /
+[INFO] 22:06:15:11 Pokedex/(2829:2842): 	Envie PEDIDO_GETATTR
+[INFO] 22:06:15:11 Pokedex/(2829:2842): 	No recibi RESPUESTA_GETATTR
+[INFO] 22:06:57:265 Pokedex/(2906:2906): ****************** Creando archivo Log *******************************************
+[INFO] 22:07:01:184 Pokedex/(2906:2906): ****************** Llamo a fuse main  ********************************************
+[INFO] 22:07:04:152 Pokedex/(2906:2929): ****************** FUSE: llamada a osada_getattr() ******************************
+[INFO] 22:07:04:152 Pokedex/(2906:2929): /.Trash
+[INFO] 22:07:04:152 Pokedex/(2906:2929): 	Recibi ENOENT
+[INFO] 22:07:04:152 Pokedex/(2906:2930): ****************** FUSE: llamada a osada_getattr() ******************************
+[INFO] 22:07:04:153 Pokedex/(2906:2930): /.Trash-1000
+[INFO] 22:07:04:153 Pokedex/(2906:2930): 	Recibi ENOENT
+[INFO] 22:07:04:153 Pokedex/(2906:2929): ****************** FUSE: llamada a osada_getattr() ******************************
+[INFO] 22:07:04:153 Pokedex/(2906:2929): /.xdg-volume-info
+[INFO] 22:07:04:153 Pokedex/(2906:2929): 	Recibi ENOENT
+[INFO] 22:07:04:153 Pokedex/(2906:2930): ****************** FUSE: llamada a osada_getattr() ******************************
+[INFO] 22:07:04:153 Pokedex/(2906:2930): /autorun.inf
+[INFO] 22:07:04:153 Pokedex/(2906:2930): 	Recibi ENOENT
+[INFO] 22:07:04:153 Pokedex/(2906:2929): ****************** FUSE: llamada a osada_readdir() ******************************
+[INFO] 22:07:04:153 Pokedex/(2906:2929): /
+[INFO] 22:07:04:153 Pokedex/(2906:2929): 	Envie PEDIDO_READDIR
+[INFO] 22:07:04:153 Pokedex/(2906:2929): 	Recibi respuesta ENOENT
+[INFO] 22:07:04:153 Pokedex/(2906:2930): ****************** FUSE: llamada a osada_readdir() ******************************
+[INFO] 22:07:04:153 Pokedex/(2906:2930): /
+[INFO] 22:07:04:153 Pokedex/(2906:2930): 	Envie PEDIDO_READDIR
+[INFO] 22:07:04:153 Pokedex/(2906:2930): 	Recibi respuesta ENOENT
+[INFO] 22:07:04:153 Pokedex/(2906:2930): ****************** FUSE: llamada a osada_readdir() ******************************
+[INFO] 22:07:04:153 Pokedex/(2906:2930): /
+[INFO] 22:07:04:153 Pokedex/(2906:2930): 	Envie PEDIDO_READDIR
+[INFO] 22:07:04:153 Pokedex/(2906:2930): 	Recibi respuesta ENOENT
+[INFO] 22:07:04:153 Pokedex/(2906:2930): ****************** FUSE: llamada a osada_readdir() ******************************
+[INFO] 22:07:04:153 Pokedex/(2906:2930): /
+[INFO] 22:07:04:153 Pokedex/(2906:2930): 	Envie PEDIDO_READDIR
+[INFO] 22:07:04:153 Pokedex/(2906:2930): 	Recibi respuesta ENOENT
+[INFO] 22:07:04:153 Pokedex/(2906:2930): ****************** FUSE: llamada a osada_readdir() ******************************
+[INFO] 22:07:04:153 Pokedex/(2906:2930): /
+[INFO] 22:07:04:153 Pokedex/(2906:2930): 	Envie PEDIDO_READDIR
+[INFO] 22:07:04:153 Pokedex/(2906:2930): 	Recibi respuesta ENOENT
+[INFO] 22:07:04:153 Pokedex/(2906:2930): ****************** FUSE: llamada a osada_readdir() ******************************
+[INFO] 22:07:04:153 Pokedex/(2906:2930): /
+[INFO] 22:07:04:153 Pokedex/(2906:2930): 	Envie PEDIDO_READDIR
+[INFO] 22:07:04:153 Pokedex/(2906:2930): 	Recibi respuesta ENOENT
+[INFO] 22:07:04:153 Pokedex/(2906:2930): ****************** FUSE: llamada a osada_readdir() ******************************
+[INFO] 22:07:04:153 Pokedex/(2906:2930): /
+[INFO] 22:07:04:153 Pokedex/(2906:2930): 	Envie PEDIDO_READDIR
+[INFO] 22:07:04:153 Pokedex/(2906:2930): 	Recibi respuesta ENOENT
+[INFO] 22:07:04:153 Pokedex/(2906:2930): ****************** FUSE: llamada a osada_readdir() ******************************
+[INFO] 22:07:04:153 Pokedex/(2906:2930): /
+[INFO] 22:07:04:153 Pokedex/(2906:2930): 	Envie PEDIDO_READDIR
+[INFO] 22:07:04:153 Pokedex/(2906:2930): 	Recibi respuesta ENOENT
+[INFO] 22:07:04:153 Pokedex/(2906:2930): ****************** FUSE: llamada a osada_readdir() ******************************
+[INFO] 22:07:04:153 Pokedex/(2906:2930): /
+[INFO] 22:07:04:153 Pokedex/(2906:2930): 	Envie PEDIDO_READDIR
+[INFO] 22:07:04:153 Pokedex/(2906:2930): 	Recibi respuesta ENOENT
+[INFO] 22:07:04:153 Pokedex/(2906:2930): ****************** FUSE: llamada a osada_readdir() ******************************
+[INFO] 22:07:04:153 Pokedex/(2906:2930): /
+[INFO] 22:07:04:153 Pokedex/(2906:2930): 	Envie PEDIDO_READDIR
+[INFO] 22:07:04:153 Pokedex/(2906:2930): 	Recibi respuesta ENOENT
+[INFO] 22:07:04:154 Pokedex/(2906:2930): ****************** FUSE: llamada a osada_readdir() ******************************
+[INFO] 22:07:04:154 Pokedex/(2906:2930): /
+[INFO] 22:07:04:154 Pokedex/(2906:2930): 	Envie PEDIDO_READDIR
+[INFO] 22:07:04:154 Pokedex/(2906:2930): 	Recibi respuesta ENOENT
+[INFO] 22:07:04:154 Pokedex/(2906:2930): ****************** FUSE: llamada a osada_readdir() ******************************
+[INFO] 22:07:04:154 Pokedex/(2906:2930): /
+[INFO] 22:07:04:154 Pokedex/(2906:2930): 	Envie PEDIDO_READDIR
+[INFO] 22:07:04:154 Pokedex/(2906:2930): 	Recibi respuesta ENOENT
+[INFO] 22:07:04:154 Pokedex/(2906:2930): ****************** FUSE: llamada a osada_readdir() ******************************
+[INFO] 22:07:04:154 Pokedex/(2906:2930): /
+[INFO] 22:07:04:154 Pokedex/(2906:2930): 	Envie PEDIDO_READDIR
+[INFO] 22:07:04:154 Pokedex/(2906:2930): 	Recibi respuesta ENOENT
+[INFO] 22:07:04:154 Pokedex/(2906:2930): ****************** FUSE: llamada a osada_readdir() ******************************
+[INFO] 22:07:04:154 Pokedex/(2906:2930): /
+[INFO] 22:07:04:154 Pokedex/(2906:2930): 	Envie PEDIDO_READDIR
+[INFO] 22:07:04:154 Pokedex/(2906:2930): 	Recibi respuesta ENOENT
+[INFO] 22:07:04:154 Pokedex/(2906:2930): ****************** FUSE: llamada a osada_readdir() ******************************
+[INFO] 22:07:04:154 Pokedex/(2906:2930): /
+[INFO] 22:07:04:154 Pokedex/(2906:2930): 	Envie PEDIDO_READDIR
+[INFO] 22:07:04:154 Pokedex/(2906:2930): 	Recibi respuesta ENOENT
+[INFO] 22:07:04:154 Pokedex/(2906:2930): ****************** FUSE: llamada a osada_readdir() ******************************
+[INFO] 22:07:04:154 Pokedex/(2906:2930): /
+[INFO] 22:07:04:154 Pokedex/(2906:2930): 	Envie PEDIDO_READDIR
+[INFO] 22:07:04:154 Pokedex/(2906:2930): 	Recibi respuesta ENOENT
+[INFO] 22:07:04:154 Pokedex/(2906:2930): ****************** FUSE: llamada a osada_readdir() ******************************
+[INFO] 22:07:04:154 Pokedex/(2906:2930): /
+[INFO] 22:07:04:154 Pokedex/(2906:2930): 	Envie PEDIDO_READDIR
+[INFO] 22:07:04:154 Pokedex/(2906:2930): 	Recibi respuesta ENOENT
+[INFO] 22:07:04:154 Pokedex/(2906:2930): ****************** FUSE: llamada a osada_readdir() ******************************
+[INFO] 22:07:04:154 Pokedex/(2906:2930): /
+[INFO] 22:07:04:154 Pokedex/(2906:2930): 	Envie PEDIDO_READDIR
+[INFO] 22:07:04:154 Pokedex/(2906:2930): 	Recibi respuesta ENOENT
+[INFO] 22:07:04:154 Pokedex/(2906:2930): ****************** FUSE: llamada a osada_readdir() ******************************
+[INFO] 22:07:04:154 Pokedex/(2906:2930): /
+[INFO] 22:07:04:154 Pokedex/(2906:2930): 	Envie PEDIDO_READDIR
+[INFO] 22:07:04:154 Pokedex/(2906:2930): 	Recibi respuesta ENOENT
+[INFO] 22:07:04:154 Pokedex/(2906:2930): ****************** FUSE: llamada a osada_readdir() ******************************
+[INFO] 22:07:04:154 Pokedex/(2906:2930): /
+[INFO] 22:07:04:154 Pokedex/(2906:2930): 	Envie PEDIDO_READDIR
+[INFO] 22:07:04:154 Pokedex/(2906:2930): 	Recibi respuesta ENOENT
+[INFO] 22:07:04:154 Pokedex/(2906:2930): ****************** FUSE: llamada a osada_readdir() ******************************
+[INFO] 22:07:04:154 Pokedex/(2906:2930): /
+[INFO] 22:07:04:154 Pokedex/(2906:2930): 	Envie PEDIDO_READDIR
+[INFO] 22:07:04:154 Pokedex/(2906:2930): 	Recibi respuesta ENOENT
+[INFO] 22:07:04:155 Pokedex/(2906:2930): ****************** FUSE: llamada a osada_readdir() ******************************
+[INFO] 22:07:04:155 Pokedex/(2906:2930): /
+[INFO] 22:07:04:155 Pokedex/(2906:2930): 	Envie PEDIDO_READDIR
+[INFO] 22:07:04:155 Pokedex/(2906:2930): 	Recibi respuesta ENOENT
+[INFO] 22:07:04:155 Pokedex/(2906:2929): ****************** FUSE: llamada a osada_getattr() ******************************
+[INFO] 22:07:04:155 Pokedex/(2906:2929): /autorun.inf
+[INFO] 22:07:04:155 Pokedex/(2906:2929): 	Recibi ENOENT
+[INFO] 22:07:04:169 Pokedex/(2906:2930): ****************** FUSE: llamada a osada_getattr() ******************************
+[INFO] 22:07:04:169 Pokedex/(2906:2930): /
+[INFO] 22:07:04:169 Pokedex/(2906:2930): 	Envie PEDIDO_GETATTR
+[INFO] 22:07:04:169 Pokedex/(2906:2930): 	No recibi RESPUESTA_GETATTR
+[INFO] 22:07:04:169 Pokedex/(2906:2929): ****************** FUSE: llamada a osada_getattr() ******************************
+[INFO] 22:07:04:169 Pokedex/(2906:2929): /
+[INFO] 22:07:04:169 Pokedex/(2906:2929): 	Envie PEDIDO_GETATTR
+[INFO] 22:07:04:169 Pokedex/(2906:2929): 	No recibi RESPUESTA_GETATTR
+[INFO] 22:09:28:436 Pokedex/(3001:3001): ****************** Creando archivo Log *******************************************
+[INFO] 22:09:28:444 Pokedex/(3001:3001): ****************** Llamo a fuse main  ********************************************
+[INFO] 22:09:28:473 Pokedex/(3001:3013): ****************** FUSE: llamada a osada_getattr() ******************************
+[INFO] 22:09:28:473 Pokedex/(3001:3013): /.Trash
+[INFO] 22:09:28:473 Pokedex/(3001:3013): 	Recibi ENOENT
+[INFO] 22:09:28:474 Pokedex/(3001:3014): ****************** FUSE: llamada a osada_getattr() ******************************
+[INFO] 22:09:28:474 Pokedex/(3001:3014): /.Trash-1000
+[INFO] 22:09:28:474 Pokedex/(3001:3014): 	Recibi ENOENT
+[INFO] 22:09:28:474 Pokedex/(3001:3013): ****************** FUSE: llamada a osada_getattr() ******************************
+[INFO] 22:09:28:474 Pokedex/(3001:3013): /.xdg-volume-info
+[INFO] 22:09:28:474 Pokedex/(3001:3013): 	Recibi ENOENT
+[INFO] 22:09:28:474 Pokedex/(3001:3014): ****************** FUSE: llamada a osada_getattr() ******************************
+[INFO] 22:09:28:474 Pokedex/(3001:3014): /autorun.inf
+[INFO] 22:09:28:474 Pokedex/(3001:3014): 	Recibi ENOENT
+[INFO] 22:09:28:474 Pokedex/(3001:3013): ****************** FUSE: llamada a osada_readdir() ******************************
+[INFO] 22:09:28:474 Pokedex/(3001:3013): /
+[INFO] 22:09:28:474 Pokedex/(3001:3013): 	Envie PEDIDO_READDIR
+[INFO] 22:09:28:474 Pokedex/(3001:3013): 	Recibi respuesta ENOENT
+[INFO] 22:09:28:474 Pokedex/(3001:3014): ****************** FUSE: llamada a osada_readdir() ******************************
+[INFO] 22:09:28:474 Pokedex/(3001:3014): /
+[INFO] 22:09:28:474 Pokedex/(3001:3014): 	Envie PEDIDO_READDIR
+[INFO] 22:09:28:474 Pokedex/(3001:3014): 	Recibi respuesta ENOENT
+[INFO] 22:09:28:474 Pokedex/(3001:3014): ****************** FUSE: llamada a osada_readdir() ******************************
+[INFO] 22:09:28:474 Pokedex/(3001:3014): /
+[INFO] 22:09:28:474 Pokedex/(3001:3014): 	Envie PEDIDO_READDIR
+[INFO] 22:09:28:474 Pokedex/(3001:3014): 	Recibi respuesta ENOENT
+[INFO] 22:09:28:474 Pokedex/(3001:3014): ****************** FUSE: llamada a osada_readdir() ******************************
+[INFO] 22:09:28:474 Pokedex/(3001:3014): /
+[INFO] 22:09:28:474 Pokedex/(3001:3014): 	Envie PEDIDO_READDIR
+[INFO] 22:09:28:474 Pokedex/(3001:3014): 	Recibi respuesta ENOENT
+[INFO] 22:09:28:474 Pokedex/(3001:3014): ****************** FUSE: llamada a osada_readdir() ******************************
+[INFO] 22:09:28:474 Pokedex/(3001:3014): /
+[INFO] 22:09:28:474 Pokedex/(3001:3014): 	Envie PEDIDO_READDIR
+[INFO] 22:09:28:474 Pokedex/(3001:3014): 	Recibi respuesta ENOENT
+[INFO] 22:09:28:474 Pokedex/(3001:3014): ****************** FUSE: llamada a osada_readdir() ******************************
+[INFO] 22:09:28:474 Pokedex/(3001:3014): /
+[INFO] 22:09:28:474 Pokedex/(3001:3014): 	Envie PEDIDO_READDIR
+[INFO] 22:09:28:474 Pokedex/(3001:3014): 	Recibi respuesta ENOENT
+[INFO] 22:09:28:474 Pokedex/(3001:3014): ****************** FUSE: llamada a osada_readdir() ******************************
+[INFO] 22:09:28:474 Pokedex/(3001:3014): /
+[INFO] 22:09:28:474 Pokedex/(3001:3014): 	Envie PEDIDO_READDIR
+[INFO] 22:09:28:474 Pokedex/(3001:3014): 	Recibi respuesta ENOENT
+[INFO] 22:09:28:474 Pokedex/(3001:3014): ****************** FUSE: llamada a osada_readdir() ******************************
+[INFO] 22:09:28:474 Pokedex/(3001:3014): /
+[INFO] 22:09:28:474 Pokedex/(3001:3014): 	Envie PEDIDO_READDIR
+[INFO] 22:09:28:474 Pokedex/(3001:3014): 	Recibi respuesta ENOENT
+[INFO] 22:09:28:474 Pokedex/(3001:3014): ****************** FUSE: llamada a osada_readdir() ******************************
+[INFO] 22:09:28:474 Pokedex/(3001:3014): /
+[INFO] 22:09:28:475 Pokedex/(3001:3014): 	Envie PEDIDO_READDIR
+[INFO] 22:09:28:475 Pokedex/(3001:3014): 	Recibi respuesta ENOENT
+[INFO] 22:09:28:475 Pokedex/(3001:3014): ****************** FUSE: llamada a osada_readdir() ******************************
+[INFO] 22:09:28:475 Pokedex/(3001:3014): /
+[INFO] 22:09:28:475 Pokedex/(3001:3014): 	Envie PEDIDO_READDIR
+[INFO] 22:09:28:475 Pokedex/(3001:3014): 	Recibi respuesta ENOENT
+[INFO] 22:09:28:475 Pokedex/(3001:3014): ****************** FUSE: llamada a osada_readdir() ******************************
+[INFO] 22:09:28:475 Pokedex/(3001:3014): /
+[INFO] 22:09:28:475 Pokedex/(3001:3014): 	Envie PEDIDO_READDIR
+[INFO] 22:09:28:475 Pokedex/(3001:3014): 	Recibi respuesta ENOENT
+[INFO] 22:09:28:475 Pokedex/(3001:3014): ****************** FUSE: llamada a osada_readdir() ******************************
+[INFO] 22:09:28:475 Pokedex/(3001:3014): /
+[INFO] 22:09:28:475 Pokedex/(3001:3014): 	Envie PEDIDO_READDIR
+[INFO] 22:09:28:475 Pokedex/(3001:3014): 	Recibi respuesta ENOENT
+[INFO] 22:09:28:475 Pokedex/(3001:3014): ****************** FUSE: llamada a osada_readdir() ******************************
+[INFO] 22:09:28:475 Pokedex/(3001:3014): /
+[INFO] 22:09:28:475 Pokedex/(3001:3014): 	Envie PEDIDO_READDIR
+[INFO] 22:09:28:475 Pokedex/(3001:3014): 	Recibi respuesta ENOENT
+[INFO] 22:09:28:475 Pokedex/(3001:3014): ****************** FUSE: llamada a osada_readdir() ******************************
+[INFO] 22:09:28:475 Pokedex/(3001:3014): /
+[INFO] 22:09:28:475 Pokedex/(3001:3014): 	Envie PEDIDO_READDIR
+[INFO] 22:09:28:475 Pokedex/(3001:3014): 	Recibi respuesta ENOENT
+[INFO] 22:09:28:475 Pokedex/(3001:3014): ****************** FUSE: llamada a osada_readdir() ******************************
+[INFO] 22:09:28:475 Pokedex/(3001:3014): /
+[INFO] 22:09:28:475 Pokedex/(3001:3014): 	Envie PEDIDO_READDIR
+[INFO] 22:09:28:475 Pokedex/(3001:3014): 	Recibi respuesta ENOENT
+[INFO] 22:09:28:475 Pokedex/(3001:3014): ****************** FUSE: llamada a osada_readdir() ******************************
+[INFO] 22:09:28:475 Pokedex/(3001:3014): /
+[INFO] 22:09:28:475 Pokedex/(3001:3014): 	Envie PEDIDO_READDIR
+[INFO] 22:09:28:475 Pokedex/(3001:3014): 	Recibi respuesta ENOENT
+[INFO] 22:09:28:475 Pokedex/(3001:3014): ****************** FUSE: llamada a osada_readdir() ******************************
+[INFO] 22:09:28:475 Pokedex/(3001:3014): /
+[INFO] 22:09:28:475 Pokedex/(3001:3014): 	Envie PEDIDO_READDIR
+[INFO] 22:09:28:475 Pokedex/(3001:3014): 	Recibi respuesta ENOENT
+[INFO] 22:09:28:475 Pokedex/(3001:3014): ****************** FUSE: llamada a osada_readdir() ******************************
+[INFO] 22:09:28:475 Pokedex/(3001:3014): /
+[INFO] 22:09:28:475 Pokedex/(3001:3014): 	Envie PEDIDO_READDIR
+[INFO] 22:09:28:475 Pokedex/(3001:3014): 	Recibi respuesta ENOENT
+[INFO] 22:09:28:475 Pokedex/(3001:3014): ****************** FUSE: llamada a osada_readdir() ******************************
+[INFO] 22:09:28:475 Pokedex/(3001:3014): /
+[INFO] 22:09:28:475 Pokedex/(3001:3014): 	Envie PEDIDO_READDIR
+[INFO] 22:09:28:475 Pokedex/(3001:3014): 	Recibi respuesta ENOENT
+[INFO] 22:09:28:475 Pokedex/(3001:3014): ****************** FUSE: llamada a osada_readdir() ******************************
+[INFO] 22:09:28:475 Pokedex/(3001:3014): /
+[INFO] 22:09:28:475 Pokedex/(3001:3014): 	Envie PEDIDO_READDIR
+[INFO] 22:09:28:475 Pokedex/(3001:3014): 	Recibi respuesta ENOENT
+[INFO] 22:09:28:475 Pokedex/(3001:3014): ****************** FUSE: llamada a osada_readdir() ******************************
+[INFO] 22:09:28:476 Pokedex/(3001:3014): /
+[INFO] 22:09:28:476 Pokedex/(3001:3014): 	Envie PEDIDO_READDIR
+[INFO] 22:09:28:476 Pokedex/(3001:3014): 	Recibi respuesta ENOENT
+[INFO] 22:09:28:476 Pokedex/(3001:3014): ****************** FUSE: llamada a osada_readdir() ******************************
+[INFO] 22:09:28:476 Pokedex/(3001:3014): /
+[INFO] 22:09:28:476 Pokedex/(3001:3014): 	Envie PEDIDO_READDIR
+[INFO] 22:09:28:476 Pokedex/(3001:3014): 	Recibi respuesta ENOENT
+[INFO] 22:09:28:476 Pokedex/(3001:3013): ****************** FUSE: llamada a osada_getattr() ******************************
+[INFO] 22:09:28:476 Pokedex/(3001:3013): /autorun.inf
+[INFO] 22:09:28:476 Pokedex/(3001:3013): 	Recibi ENOENT
+[INFO] 22:09:28:492 Pokedex/(3001:3014): ****************** FUSE: llamada a osada_getattr() ******************************
+[INFO] 22:09:28:492 Pokedex/(3001:3014): /
+[INFO] 22:09:28:492 Pokedex/(3001:3014): 	Envie PEDIDO_GETATTR
+[INFO] 22:09:28:492 Pokedex/(3001:3014): 	No recibi RESPUESTA_GETATTR
+[INFO] 22:09:28:492 Pokedex/(3001:3013): ****************** FUSE: llamada a osada_getattr() ******************************
+[INFO] 22:09:28:492 Pokedex/(3001:3013): /
+[INFO] 22:09:28:492 Pokedex/(3001:3013): 	Envie PEDIDO_GETATTR
+[INFO] 22:09:28:492 Pokedex/(3001:3013): 	No recibi RESPUESTA_GETATTR
+[INFO] 09:55:43:528 Pokedex/(5393:5393): ****************** Creando archivo Log *******************************************
+[INFO] 09:59:42:670 Pokedex/(5558:5558): ****************** Creando archivo Log *******************************************
+[INFO] 10:00:23:913 Pokedex/(5558:5558): ****************** Llamo a fuse main  ********************************************

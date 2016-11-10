@@ -2,9 +2,9 @@
 * servidorPokedex.c
 *
 *  Created on: 29/9/2016
-*      Author: David
+*      Author: Guadalupe
 */
-
+#include <commons/bitarray.h>
 #include <commons/string.h>
 #include <commons/log.h>
 #include <commons/config.h>
@@ -36,9 +36,8 @@
 #include <sys/mman.h>
 #include <unistd.h>
 
-#include "osada.h"
+#include <osada.h>
 #include "servidorPokedex.h"
-#include "disco.c"
 
 //colores para los prints en la consola
 #define RED   "\x1B[31m"
@@ -54,25 +53,8 @@ t_log logServidor;
 int	listenningSocket;
 pthread_mutex_t mutex_comunicacion  = PTHREAD_MUTEX_INITIALIZER;
 
-//variables de disco
-char* disco;
-off_t tamanioArchivo;
-int32_t descriptorArchivo;
-osada_header oheader;
-int offsetBitmap;
-int offsetTablaArchivos;
-int offsetAsignaciones;
-int offsetDatos;
 
-//borrar esto------------------------------------------------
-struct stat pikachuStat;
-struct stat squirtleStat;
-struct stat bulbasaurStat;
-int* pmap_pikachu;
-int* pmap_squirtle;
-int* pmap_bulbasaur;
 
-//-----------------------------------------------------------
 int main(int argc, char ** argv)
 {
 	printEncabezado();
@@ -101,7 +83,7 @@ int main(int argc, char ** argv)
 	pthread_join(thread5, NULL);
 
 	close(listenningSocket);
-	descargar(descriptorArchivo);
+	descargar();
 
 	printTerminar();
 	return(0);
@@ -120,14 +102,13 @@ void* hiloComunicacion(void* arg)
 			int socketCliente = aceptarConexion(listenningSocket);
 		pthread_mutex_unlock(&mutex_comunicacion);
 
-
-		mensaje = recibirConProtocolo(socketCliente,&head);
+		mensaje = recibir(socketCliente,&head);
 		char* mensajeHSK = mensaje;
 		printf("\t Recibiendo pedido de un cliente:%s \n ", mensajeHSK);
 
 		if (mensajeHSK)
 		{
-			if (enviarConProtocolo(socketCliente, HANDSHAKE, mensajeHSK) == -1)
+			if (enviar(socketCliente, HANDSHAKE, mensajeHSK) == -1)
 			{
 				printf(YEL "\t El cliente %d se desconecto antes de recibir el handshake \n " RESET, socketCliente);
 			}
@@ -155,7 +136,7 @@ void atendercliente(int socket)
 		void *pedido = NULL;
 		int head = 0;
 
-		pedido = recibirConProtocolo(socket, &head);
+		pedido = recibir(socket, &head);
 		printf("\n******** Recibi del cliente " CYN "%d" RESET " un mensaje...\n", socket);
 
 		if(pedido != NULL)
@@ -163,18 +144,18 @@ void atendercliente(int socket)
 			switch(head)
 			{
 				case PEDIDO_CREATE:
-					printf(CYN "\t procesando PEDIDO_CREATE\n" RESET);
+					printf(MAG "\t procesando PEDIDO_CREATE\n" RESET);
 
 					respuesta = procesarPedidoCreate((char*)pedido);
 					if(respuesta != NULL)
 					{
-						enviarConProtocolo(socket, RESPUESTA_CREATE, respuesta);
-						printf(CYN "\t devolviendo RESPUESTA_CREATE\n" RESET);
+						enviar(socket, RESPUESTA_CREATE, respuesta);
+						printf(MAG "\t devolviendo RESPUESTA_CREATE\n" RESET);
 					}
 					else
 					{
-						enviarConProtocolo(socket, ENOENTRY, pedido);
-						printf(CYN "\t devolviendo respuesta ENOENT \n" RESET);
+						enviar(socket, ENOENTRY, pedido);
+						printf(YEL "\t devolviendo respuesta ENOENT \n" RESET);
 					}
 					break;
 
@@ -184,13 +165,29 @@ void atendercliente(int socket)
 					respuesta = procesarPedidoGetatrr((char*)pedido);
 					if(respuesta != NULL)
 					{
-						enviarConProtocolo(socket, RESPUESTA_GETATTR, respuesta);
+						enviar(socket, RESPUESTA_GETATTR, respuesta);
 						printf("\t devolviendo RESPUESTA_GETATTR \n");
 					}
 					else
 					{
-						enviarConProtocolo(socket, ENOENTRY, pedido);
+						enviar(socket, ENOENTRY, pedido);
 						printf("\t devolviendo respuesta ENOENT \n");
+					}
+					break;
+
+				case PEDIDO_FLUSH:
+					printf(GRN "\t procesando PEDIDO_FLUSH\n");
+
+					respuesta = procesarPedidoFlush((char*)pedido);
+					if(respuesta != NULL)
+					{
+						enviar(socket, RESPUESTA_GETATTR, respuesta);
+						printf(GRN "\t devolviendo RESPUESTA_FLUSH \n" RESET);
+					}
+					else
+					{
+						enviar(socket, ENOENTRY, pedido);
+						printf(YEL "\t devolviendo respuesta ENOENT \n" RESET);
 					}
 					break;
 
@@ -200,32 +197,51 @@ void atendercliente(int socket)
 					respuesta = procesarPedidoMkdir((char*)pedido);
 					if(respuesta != NULL)
 					{
-						enviarConProtocolo(socket, RESPUESTA_MKDIR, respuesta);
+						enviar(socket, RESPUESTA_MKDIR, respuesta);
 						printf(MAG "\t devolviendo RESPUESTA_MKDIR\n" RESET);
 					}
 					else
 					{
-						enviarConProtocolo(socket, ENOENTRY, pedido);
-						printf(MAG "\t devolviendo respuesta ENOENT \n" RESET);
+						enviar(socket, ENOENTRY, pedido);
+						printf(YEL "\t devolviendo respuesta ENOENT \n" RESET);
+					}
+					break;
+
+				case PEDIDO_OPEN:
+					printf(GRN "\t procesando PEDIDO_OPEN\n" RESET);
+
+					respuesta = procesarPedidoOpen((char*)pedido);
+					if(respuesta != NULL)
+					{
+						enviar(socket, RESPUESTA_OPEN, respuesta);
+						printf(GRN "\t devolviendo RESPUESTA_OPEN\n" RESET);
+					}
+					else
+					{
+						enviar(socket, ENOENTRY, pedido);
+						printf(YEL "\t devolviendo respuesta ENOENT \n" RESET);
 					}
 					break;
 
 				case PEDIDO_READ:
-					printf( "\t procesando PEDIDO_READ\n" );
+					printf( BLU "\t procesando PEDIDO_READ\n" RESET);
 
 					void *buffer = NULL;
-					buffer = recibirEstructuraRead(socket, &head);
+					uint32_t* tamanioBuffer = malloc(sizeof(uint32_t));
+					memset(tamanioBuffer, 0, sizeof(uint32_t));
 
-					respuesta = procesarPedidoRead(buffer);
+					buffer = recibirEstructuraRead(socket, &head);
+					respuesta = procesarPedidoRead(buffer, tamanioBuffer);
+
 					if(respuesta != NULL)
 					{
-						enviarConProtocolo(socket, RESPUESTA_READ, respuesta);
-						printf("\t devolviendo RESPUESTA_READ \n");
+						enviarRespuestaRead(socket, RESPUESTA_READ, respuesta, tamanioBuffer);
+						printf(BLU "\t devolviendo RESPUESTA_READ \n" RESET);
 					}
 					else
 					{
-						enviarConProtocolo(socket, ENOENTRY, pedido);
-						printf("\t devolviendo respuesta ENOENT \n");
+						enviar(socket, ENOENTRY, pedido);
+						printf(YEL "\t devolviendo respuesta ENOENT \n" RESET);
 					}
 					break;
 
@@ -235,29 +251,44 @@ void atendercliente(int socket)
 					respuesta = procesarPedidoReaddir((char*)pedido);
 					if(respuesta != NULL)
 					{
-						enviarConProtocolo(socket, RESPUESTA_READDIR, respuesta);
+						enviar(socket, RESPUESTA_READDIR, respuesta);
 						printf("\t devolviendo RESPUESTA_READDIR\n");
 					}
 					else
 					{
-						enviarConProtocolo(socket, ENOENTRY, pedido);
+						enviar(socket, ENOENTRY, pedido);
 						printf("\t devolviendo respuesta ENOENT \n");
+					}
+					break;
+
+				case PEDIDO_RELEASE:
+					printf(GRN "\t procesando PEDIDO_RELEASE\n" RESET);
+
+					respuesta = procesarPedidoRelease((char*)pedido);
+					if(respuesta != NULL)
+					{
+						enviar(socket, RESPUESTA_RELEASE, respuesta);
+						printf(GRN "\t devolviendo RESPUESTA_RELEASE\n" RESET);
+					}
+					else
+					{
+						enviar(socket, ENOENTRY, pedido);
+						printf(YEL "\t devolviendo respuesta ENOENT \n" RESET);
 					}
 					break;
 
 				case PEDIDO_RENAME:
 					printf(BLU "\t procesando PEDIDO_RENAME\n" RESET);
-
 					respuesta = procesarPedidoRename((char*)pedido);
 					if(respuesta != NULL)
 					{
-						enviarConProtocolo(socket, RESPUESTA_RENAME, respuesta);
+						enviar(socket, RESPUESTA_RENAME, respuesta);
 						printf(BLU "\t devolviendo RESPUESTA_RENAME\n" RESET);
 					}
 					else
 					{
-						enviarConProtocolo(socket, ENOENTRY, pedido);
-						printf(BLU "\t devolviendo respuesta ENOENT \n" RESET);
+						enviar(socket, ENOENTRY, pedido);
+						printf(YEL "\t devolviendo respuesta ENOENT \n" RESET);
 					}
 					break;
 
@@ -265,52 +296,58 @@ void atendercliente(int socket)
 					printf(GRN "\t procesando PEDIDO_RMDIR\n" RESET);
 
 					respuesta = procesarPedidoRmdir((char*)pedido);
-					if(respuesta != NULL)
+					if (respuesta != NULL)
 					{
-						enviarConProtocolo(socket, RESPUESTA_RMDIR, respuesta);
+						enviar(socket, RESPUESTA_RMDIR, respuesta);
 						printf(GRN "\t devolviendo RESPUESTA_RMDIR\n" RESET);
 					}
 					else
 					{
-						enviarConProtocolo(socket, ENOENTRY, pedido);
-						printf(GRN "\t devolviendo respuesta ENOENT \n" RESET);
+						enviar(socket, ENOENTRY, pedido);
+						printf(YEL "\t devolviendo respuesta ENOENT \n" RESET);
 					}
 					break;
 
 				case PEDIDO_TRUNCATE:
-					printf(YEL "\t procesando PEDIDO_TRUNCATE\n" RESET);
+					printf(RED "\t procesando PEDIDO_TRUNCATE\n" RESET);
 
-					respuesta = procesarPedidoTruncate((char*)pedido);
+					off_t *newSize = NULL;
+					newSize = (off_t*)recibir(socket, &head);
+
+					if (head == PEDIDO_TRUNCATE_NEW_SIZE)
+					{
+						respuesta = procesarPedidoTruncate(*newSize, (char*)pedido);
+					}
 					if(respuesta != NULL)
 					{
-						enviarConProtocolo(socket, RESPUESTA_TRUNCATE, respuesta);
-						printf(YEL "\t devolviendo RESPUESTA_TRUNCATE\n" RESET);
+						enviar(socket, RESPUESTA_TRUNCATE, respuesta);
+						printf(RED "\t devolviendo RESPUESTA_TRUNCATE\n" RESET);
 					}
 					else
 					{
-						enviarConProtocolo(socket, ENOENTRY, pedido);
+						enviar(socket, ENOENTRY, pedido);
 						printf(YEL "\t devolviendo respuesta ENOENT \n" RESET);
 					}
 					break;
 
 				case PEDIDO_UNLINK:
-					printf(RED "\t procesando PEDIDO_UNLINK\n" RESET);
+					printf(GRN "\t procesando PEDIDO_UNLINK\n" RESET);
 
 					respuesta = procesarPedidoUnlink((char*)pedido);
 					if(respuesta != NULL)
 					{
-						enviarConProtocolo(socket, RESPUESTA_UNLINK, respuesta);
-						printf(RED "\t devolviendo RESPUESTA_UNLINK\n" RESET);
+						enviar(socket, RESPUESTA_UNLINK, respuesta);
+						printf(GRN "\t devolviendo RESPUESTA_UNLINK\n" RESET);
 					}
 					else
 					{
-						enviarConProtocolo(socket, ENOENTRY, pedido);
-						printf(RED "\t devolviendo respuesta ENOENT \n" RESET);
+						enviar(socket, ENOENTRY, pedido);
+						printf(YEL "\t devolviendo respuesta ENOENT \n" RESET);
 					}
 					break;
 
 				case PEDIDO_WRITE:
-					printf( "\t procesando PEDIDO_WRITE\n" );
+					printf( RED "\t procesando PEDIDO_WRITE\n" RESET);
 
 					void *bufWrite = NULL;
 					bufWrite = recibirEstructuraWrite(socket, &head);
@@ -318,24 +355,24 @@ void atendercliente(int socket)
 					respuesta = procesarPedidoWrite(bufWrite);
 					if(respuesta != NULL)
 					{
-						enviarConProtocolo(socket, RESPUESTA_WRITE, respuesta);
-						printf("\t devolviendo RESPUESTA_WRITE \n");
+						enviar(socket, RESPUESTA_WRITE, respuesta);
+						printf(RED "\t devolviendo RESPUESTA_WRITE \n" RESET);
 					}
 					else
 					{
-						enviarConProtocolo(socket, ENOENTRY, pedido);
-						printf("\t devolviendo respuesta ENOENT \n");
+						enviar(socket, ENOENTRY, pedido);
+						printf(YEL "\t devolviendo respuesta ENOENT \n" RESET);
 					}
 					break;
 
 				default:
 					printf(RED "\n¿Porqué entre en default???, ¿tenia que enviar un handshake por segunda vez??? \n\n" RESET);
-					enviarConProtocolo(socket,HANDSHAKE, pedido);
+					enviar(socket,HANDSHAKE, pedido);
 					break;
 			}
 
-			free(pedido);
-			free(respuesta);
+//			free(pedido);
+//			free(respuesta);
 
 		}
 		else
@@ -362,228 +399,131 @@ void printEncabezado()
 {
 	printf(GRN "\n\n\nxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\n" RESET);
 	printf("**********************************************************************************\n");
-	printf("****************** " GRN "POKEDEX SERVIDOR" RESET " **********************************************\n");
+	printf("**************** " GRN "POKEDEX SERVIDOR" RESET " ************************************************\n");
 	printf("**********************************************************************************\n\n");
 
-	printf("****************** Iniciando servidor..\n\n");
-}
-
-void* procesarPedidoGetatrr(char *path)
-{
-	printf("\t path: %s\n", path);
-	void *respuesta = NULL;
-
-	t_stbuf* stbuf = malloc(sizeof( t_stbuf));
-	memset(stbuf, 0, sizeof( t_stbuf));
-
-	if (strcmp(path, "/") == 0)
-	{
-		stbuf->mode = S_IFDIR | 0755;
-		stbuf->nlink = 2;
-		stbuf->size = 0;
-	}
-	else if (strcmp(path, "/pikachu") == 0)
-	{
-		stbuf->mode = S_IFDIR | 0755;
-		stbuf->nlink = 2;
-		stbuf->size = 0;
-	}
-	else if (strcmp(path, "/squirtle") == 0)
-	{
-		stbuf->mode = S_IFDIR | 0755;
-		stbuf->nlink = 2;
-		stbuf->size = 0;
-	}
-	else if (strcmp(path, "/bulbasaur") == 0)
-	{
-		stbuf->mode = S_IFDIR | 0755;
-		stbuf->nlink = 2;
-		stbuf->size = 0;
-	}
-	else if (strcmp(path, "/pokemon.txt") == 0)
-	{
-		stbuf->mode = S_IFREG | 0444;
-		stbuf->nlink = 1;
-		stbuf->size = 144;
-	}
-	else if (strcmp(path, "/pikachu/pika-chu.mp4") == 0)
-	{
-		stbuf->mode = S_IFREG | 0444;
-		stbuf->nlink = 1;
-		stbuf->size = pikachuStat.st_size;
-	}
-	else if (strcmp(path, "/squirtle/vamo a calmarno.jpg") == 0)
-	{
-		stbuf->mode = S_IFREG | 0444;
-		stbuf->nlink = 1;
-		stbuf->size = squirtleStat.st_size;
-	}
-	else if (strcmp(path, "/bulbasaur/bulbasaur.mp3") == 0)
-	{
-		stbuf->mode = S_IFREG | 0444;
-		stbuf->nlink = 1;
-		stbuf->size = bulbasaurStat.st_size;
-	}
-	else if (strcmp(path, "/pepito.txt") == 0)
-	{
-		stbuf->mode = S_IFREG | 0444;
-		stbuf->nlink = 1;
-		stbuf->size = 5;
-	}
-	else
-	{
-		printf(YEL "\n\t Path no encontrado \n" RESET);
-		free(stbuf);
-		return NULL;
-	}
-
-	respuesta = malloc(sizeof(t_stbuf));
-	memset(respuesta, 0, sizeof(t_stbuf));
-	memcpy(respuesta, stbuf, sizeof(t_stbuf));
-
-	free(stbuf);
-
-	return respuesta;
-}
-
-void* procesarPedidoReaddir(char *path)
-{
-	printf("\t path: %s\n", path);
-	void *respuesta = NULL;
-
-	if (strcmp(path, "/") == 0)
-	{
-		char* archivos = "pikachu/squirtle/bulbasaur/pokemon.txt/pepito.txt/";
-		respuesta = malloc(strlen(archivos)+1);
-		memset(respuesta, 0, strlen(archivos)+1);
-		memcpy(respuesta, archivos, strlen(archivos)+1);
-		//free(archivos);
-	}
-	else if (strcmp(path, "/pikachu") == 0)
-	{
-		char* archivos = "pika-chu.mp4/";
-		respuesta = malloc(strlen(archivos)+1);
-		memset(respuesta, 0, strlen(archivos)+1);
-		memcpy(respuesta, archivos, strlen(archivos)+1);
-		//free(archivos);
-	}
-	else if (strcmp(path, "/squirtle") == 0)
-	{
-		char* archivos = "vamo a calmarno.jpg/";
-		respuesta = malloc(strlen(archivos)+1);
-		memset(respuesta, 0, strlen(archivos)+1);
-		memcpy(respuesta, archivos, strlen(archivos)+1);
-		//free(archivos);
-	}
-	else if (strcmp(path, "/bulbasaur") == 0)
-	{
-		char* archivos = "bulbasaur.mp3/";
-		respuesta = malloc(strlen(archivos)+1);
-		memset(respuesta, 0, strlen(archivos)+1);
-		memcpy(respuesta, archivos,strlen(archivos)+1);
-		//free(archivos);
-	}
-	else
-	{
-		printf(YEL "\n\t Path no encontrado \n" RESET);
-		return NULL;
-	}
-
-	return respuesta;
-}
-
-void* procesarPedidoRead(void* buffer)//en construccion
-{
-	printf(YEL "\n\t Entre procesarPedidoRead\n" RESET);
-	int desplazamiento = 0;
-	size_t* size = malloc(sizeof(size_t));
-	off_t* offset = malloc(sizeof(off_t));
-	int* pathLen = malloc(sizeof(int));
-
-	memcpy(size, buffer , sizeof(size_t));
-	desplazamiento += sizeof(size_t);
-	memcpy(offset, buffer + desplazamiento, sizeof(off_t));
-	desplazamiento += sizeof(off_t);
-	memcpy(pathLen, buffer + desplazamiento, sizeof(int));
-	desplazamiento += sizeof(int);
-	char* path = malloc(pathLen);
-	memcpy(path,  buffer + desplazamiento, *pathLen);
-
-	printf(CYN "\n\t En procesarPedidoRead el size es: %d\n", *size);
-	printf( "\t En procesarPedidoRead el offset es: %d\n", *offset);
-	printf( "\t En procesarPedidoRead el pathlen es: %d\n", *pathLen);
-	printf( "\t En procesarPedidoRead el path es: %s\n" RESET, path);
-
-	if (strcmp(path, "/pikachu/pika-chu.mp4") == 0)
-	{
-		void* respuesta = malloc(*size);
-		memset(respuesta, 0, *size);
-		memcpy(respuesta,(pmap_pikachu + *offset), *size);
-		return respuesta;
-	}
-	else if (strcmp(path, "/squirtle/vamo a calmarno.jpg") == 0)
-	{
-		//----------------------
-		int fd_squirtle;
-		fd_squirtle = open("/fuse_pokemon/vamo a calmarno.jpg",O_RDWR);
-		fstat(fd_squirtle,&squirtleStat);
-		pmap_squirtle = mmap(0, squirtleStat.st_size, PROT_READ | PROT_WRITE, MAP_SHARED, fd_squirtle, 0);
-		//----------------------
-
-		void* respuesta = malloc(squirtleStat.st_size);
-		memset(respuesta, 0, squirtleStat.st_size);
-		//memcpy(respuesta,(pmap_squirtle), squirtleStat.st_size);
-		memcpy(respuesta,((char*)pmap_squirtle + *offset), squirtleStat.st_size);
-		//printf(GRN "\n\n\nvamo a calmarno.jpg: %s\n\n\n" RESET, respuesta);
-		return respuesta;
-	}
-	else if (strcmp(path, "/bulbasaur/bulbasaur.mp3") == 0)
-	{
-		void* respuesta = malloc(*size);
-		memset(respuesta, 0, *size);
-		memcpy(respuesta,(pmap_bulbasaur + *offset), *size);
-		return respuesta;
-	}
-	else if (strcmp(path, "/pokemon.txt") == 0)
-	{
-		printf(GRN "size: %d" RESET, *size);
-		void* respuesta = malloc(144);
-		memset(respuesta, 0, 144);
-		memcpy(respuesta,"Los pokemon son una clase de criaturas (monstruos) basadas en muchos casos en animales reales o criaturas míticas y mitológicas orientales.\n", 144);
-		//printf(GRN "respuesta: %s" RESET, respuesta);
-		return respuesta;
-	}
-	else if (strcmp(path, "/pepito.txt") == 0)
-	{
-		printf(GRN "size: %d" RESET, *size);
-		void* respuesta = malloc(5);
-		memset(respuesta, 0, 5);
-		memcpy(respuesta,"Hola\n", 5);
-	//	printf(GRN "respuesta: %s" RESET, respuesta);
-		return respuesta;
-	}
-	else
-	{
-		printf(RED "\n\t No encontré el path, aca no queria entrar !!!!!\n" RESET);
-	}
-
-	//free(buffer);
-
-	return NULL;
+	printf("**************** Iniciando servidor..\n\n");
 }
 
 void* procesarPedidoCreate(char *path)//const char *path, mode_t mode,
 {
 	char* respuesta = malloc(sizeof(char));
-	respuesta[0] = crearArchivo(path, 0);
+	respuesta[0] = crearArchivo(path, 1);
+	return respuesta;
+}
+
+void* procesarPedidoGetatrr(char *path)
+{
+	printf("\t path: %s\n", path);
+	return getAttr(path);
+}
+
+void* procesarPedidoFlush(char *path)
+{
+	printf(MAG "\t path: %s\n" RESET, path);
+	char* respuesta = malloc(sizeof(char));
+	respuesta[0] = flushArchivo(path);
 	return respuesta;
 }
 
 void* procesarPedidoMkdir(char *path)//const char *path, mode_t mode
 {
 	char* respuesta = malloc(sizeof(char));
-	respuesta[0] = crearArchivo(path, 1);
+	respuesta[0] = crearArchivo(path, 2);
 	return respuesta;
+}
+
+void* procesarPedidoOpen(char* path)
+{
+	printf("\t path: %s\n", path);
+	char* respuesta = malloc(sizeof(char));
+	respuesta[0] = abrirArchivo(path);
+	return respuesta;
+}
+
+void* procesarPedidoRelease(char* path)
+{
+	printf("\t path: %s\n", path);
+	char* respuesta = malloc(sizeof(char));
+	respuesta[0] = liberarArchivo(path);
+	return respuesta;
+}
+
+void* procesarPedidoRead(void* buffer, uint32_t* tamanioBuffer)
+{
+	int desplazamiento = 0;
+	size_t* size = malloc(sizeof(size_t));
+	off_t* offset = malloc(sizeof(off_t));
+	int pathLen = 0;
+
+	memset(size, 0, sizeof(size_t));
+	memset(offset, 0, sizeof(off_t));
+
+	memcpy(size, buffer, sizeof(size_t));
+	desplazamiento += sizeof(size_t);
+	memcpy(offset, buffer + desplazamiento, sizeof(off_t));
+	desplazamiento += sizeof(off_t);
+	memcpy(&pathLen, buffer + desplazamiento, sizeof(int));
+	desplazamiento += sizeof(int);
+	char* path = malloc(pathLen);
+	memset(path, 0, pathLen);
+	memcpy(path,  buffer + desplazamiento, pathLen);
+
+	printf(CYN "\t En procesarPedidoRead el size es: %d bytes\n", *size);
+	printf( "\t En procesarPedidoRead el offset es: %d bytes\n", (uint32_t)*offset);
+
+	int posicion = -1;
+	if(existePath(path, &posicion))
+	{
+		osada_file* archivo = buscarArchivo(path, &posicion);
+
+		if (archivo == NULL)
+		{
+			printf(RED "\t En pedido read: No se encontro el archivo: %s\n" RESET, nombre(path));
+			return NULL;
+		}
+
+		void* archivoCompleto = readFile(archivo);
+		uint32_t bytes = archivo->file_size - (uint32_t)*offset;
+		printf(BLU "\t El size del archivo completo es: %d bytes\n", archivo->file_size);
+
+		if ((bytes <= *size) && (*offset == 0))
+		{
+			//printf(BLU "\t Los bytes en (bytes <= *size) son: %d bytes\n", bytes);
+			memcpy(tamanioBuffer, &bytes, sizeof(uint32_t));
+			return archivoCompleto;
+		}
+		else if (bytes <= *size)
+		{
+			//printf(BLU "\t Los bytes en (bytes <= *size)son: %d bytes y offset >0\n", bytes);
+			void* respuesta = malloc(bytes);
+			memset(respuesta, 0, bytes);
+			memcpy(tamanioBuffer, &bytes, sizeof(uint32_t));
+			memcpy(respuesta, archivoCompleto + *offset , bytes);
+			return respuesta;
+		}
+	//	printf(CYN "\t Los bytes en (bytes > *size)son: %d bytes\n", bytes);
+		void* respuesta = malloc(*size);
+		memset(respuesta, 0, *size);
+		memcpy(tamanioBuffer, size, sizeof(uint32_t));
+		memcpy(respuesta, archivoCompleto + *offset , *size);
+		return respuesta;
+	}
+	else
+	{
+		printf(RED "\n\t No encontré el path!\n" RESET);
+		return NULL;
+	}
+
+	//free(buffer);
+	printf(RED "\t NO DEBERIA ENTRAR ACA\n" RESET);
+	return NULL;
+}
+
+void* procesarPedidoReaddir(char *path)
+{
+	printf("\t path: %s\n", path);
+	return readdir(path);
 }
 
 void* procesarPedidoRename(char *paths)//path - newpath
@@ -600,6 +540,14 @@ void* procesarPedidoRmdir(char *path)
 	return respuesta;
 }
 
+void* procesarPedidoTruncate(off_t newSize, char* path)
+{
+	printf(CYN "\t En procesarPedidoTruncate el nuevo size es: %d\n", (uint32_t)newSize);
+	char* respuesta = malloc(sizeof(char));
+	respuesta[0] = truncar(path, (uint32_t)newSize);
+	return respuesta;
+}
+
 void* procesarPedidoUnlink(char* path)
 {
 	char* respuesta = malloc(sizeof(char));
@@ -607,421 +555,51 @@ void* procesarPedidoUnlink(char* path)
 	return respuesta;
 }
 
-void* procesarPedidoTruncate(char *path)//const char *path, off_t new_size
-{
-	void* respuesta = NULL;
-
-	return respuesta;//ver que devuelve
-}
-
-void* procesarPedidoWrite(void *buffer)//en construccion
+void* procesarPedidoWrite(void *buffer)
 {
 	int desplazamiento = 0;
 	size_t* size = malloc(sizeof(size_t));
 	off_t* offset = malloc(sizeof(off_t));
-	int* pathLen = malloc(sizeof(int));
+	int pathLen;// = malloc(sizeof(int));
 	int* bufLen = malloc(sizeof(int));
 
 	memcpy(size, buffer, sizeof(size_t));
 	desplazamiento += sizeof(size_t);
 	memcpy(offset, buffer + desplazamiento, sizeof(off_t));
 	desplazamiento += sizeof(off_t);
-	memcpy(pathLen, buffer + desplazamiento, sizeof(int));
+	memcpy(&pathLen, buffer + desplazamiento, sizeof(int));
 	desplazamiento += sizeof(int);
 	memcpy(bufLen, buffer + desplazamiento, sizeof(int));
 	desplazamiento += sizeof(int);
 
 	char* path = malloc(pathLen);
-	memcpy(path,  buffer + desplazamiento, *pathLen);
-	desplazamiento += *pathLen;
-	char* bufWrite = malloc(bufLen);
+	memcpy(path,  buffer + desplazamiento, pathLen);
+	desplazamiento += pathLen;
+	void* bufWrite = malloc(*bufLen);
 	memcpy(bufWrite,  buffer + desplazamiento, *bufLen);
 
-	printf(CYN "\n\t En procesarPedidoWrite el size es: %d\n", *size);
-	printf( "\t En procesarPedidoWrite el offset es: %d\n", *offset);
-	printf( "\t En procesarPedidoWrite el pathlen es: %d\n", *pathLen);
-	printf( "\t En procesarPedidoWrite el bufLen es: %d\n", *bufLen);
-	printf( "\t En procesarPedidoWrite el path es: %s\n" RESET, path);
+	printf(BLU "\t En procesarPedidoWrite el size es: %d\n", *size);
+	printf( "\t En procesarPedidoWrite el offset es: %d\n", (int)*offset);
+	//printf( "\t En procesarPedidoWrite el pathlen es: %d\n", pathLen);
+//	printf( "\t En procesarPedidoWrite el bufLen es: %d\n", *bufLen);
+	//printf( "\t En procesarPedidoWrite el path es: %s\n" RESET, path);
 
-	if (strcmp(path, "/pokemon.txt") == 0)
-	{
-		//llamar a funcion que escriba en el archivo
-		printf(GRN "Escribir en archivo un buffer de size: %d" RESET, *size);
-		void* respuesta = malloc(sizeof(char));
-		memcpy(respuesta, 'b', sizeof(char));
-		return respuesta;
-	}
-	else
-	{
-		printf(RED "\n\t En construccion!!!!!\n" RESET);
-	}
+	return writeBuffer(size, offset, path, bufWrite);
+}
 
-	//free(buffer);
-
-	return NULL;
+void liberarRecursos()
+{
 
 }
 
 void terminar()
 {
 	close(listenningSocket);
-	descargar(descriptorArchivo);
+
+	descargar();
+	liberarRecursos();
 	printf(RED "\n\n------------------ Señal SIGTERM -------------------------------------------------\n" RESET);
 	printTerminar();
 
 	exit(0);
-}
-
-//funciones de disco----------------------------------------------------------------------------------
-char borrarArchivo(char* path)
-{
-	//TODO: lee la tabla de archivos, pone en cero/borrado el estado del archivo y actualiza el bitmap
-	//devuelve 's' para indicar ok al cliente o 'n' si fallo el pedido
-	return 's';
-	//return 'n';
-}
-char borrarDirectorio(char* path)
-{
-	//TODO: lee la tabla de archivos, chequea que el directorio este vacio y pone en cero/borrado el estado del directorio
-	//devuelve 's' para indicar ok al cliente o 'n' si fallo el pedido
-	return 's';
-	//return 'n';
-}
-
-char crearArchivo(char* path, int modo)
-{
-	//TODO: chequeo que exista espacio en la tabla de archivos, si hay agrego el pedido
-	// if(modo == 0) //agrego un archivo a la tabla de archivos
-		// else //agrego un directorio
-	return 's';
-	//return 'n';
-}
-
-char renombrarArchivo(char* paths)
-{
-	//TODO: separa el path recibido en nuevo y viejo, lee la tabla de archivos y actualiza el nombre,
-	//devuelve 's' para indicar ok al cliente o 'n' si fallo el pedido
-	return 's';
-	//return 'n';
-}
-
-void asignarOffsets()
-{
-	int tamanioTablaAsig = oheader.fs_blocks - 1025 - oheader.bitmap_blocks - oheader.data_blocks;
-	offsetBitmap = OSADA_BLOCK_SIZE;
-	offsetTablaArchivos = OSADA_BLOCK_SIZE + (oheader.bitmap_blocks * OSADA_BLOCK_SIZE);
-	offsetAsignaciones = offsetTablaArchivos + 1024;
-	offsetDatos = offsetAsignaciones + (sizeof(int) * tamanioTablaAsig);
-}
-
-void descargar(uint32_t descriptorArchivo)
-{
-	if (munmap(disco, tamanioArchivo) == -1)
-	{
-		printf(RED "Error en munmap.\n" RESET);
-		return;
-	}
-	if(close(descriptorArchivo)<0)
-	{
-		printf(RED "Error en close.\n" RESET);
-		return;
-	}
-}
-
-void escribirBloque(uint32_t bloque, char* buf)
-{
-	memcpy(disco + (bloque * OSADA_BLOCK_SIZE), buf, OSADA_BLOCK_SIZE);
-}
-
-void escribirArchivo(uint32_t posicion, char* buf)
-{
-	memcpy(disco + offsetTablaArchivos + (posicion * sizeof(osada_file)), buf, sizeof(osada_file));
-}
-
-int existePath(char* path, uint16_t** pos)
-{
-	int i;
-	int existe = 1;
-	uint16_t* padre;
-	padre = 65535;
-	printf( "path %s\n", path);
-	char *token = malloc(strlen(path)+1);
-	char *pathRecibido = malloc(strlen(path)+1);
-
-	strcpy(pathRecibido, path);
-	token = strtok(pathRecibido, "/");
-
-	while ((token != NULL) && (existe != 0))
-	{
-		existe = existeDirectorio(token, &padre,&(*pos));
-		token = strtok(NULL, "/");
-	}
-	//free(pathRecibido);
-	if (existe == 0)
-	{
-		return 0;//no existe
-	}
-	return 1;
-}
-
-int existeDirectorio(unsigned char* token, uint16_t* padre, int* posicion)
-{
-	osada_file archivo;
-	int i;
-
-		for(i=0; i< 2048; i++)
-		{
-			*posicion=i;
-			leerArchivo(i, &archivo);
-			if (strcmp(archivo.fname, token) == 0)
-			{
-				if (archivo.parent_directory == *padre)
-				{
-				*padre = i;
-				}
-			if (archivo.state == 2)
-			{
-				return 1;
-			}
-			}
-		}
-		printf(YEL "recorrió toda la tabla de archivos y salió sin encontrar\n" RESET);
-
-		return 0;
-}
-
-void inicializarDisco()
-{
-//para inicializar el disco--------------------
-	mapearDisco("basic.bin"); //mapearDisco("challenge.bin");
-	leerHeader();
-	asignarOffsets();
-	//leerTablaArchivos();
-//---------------------------------------------
-
-//mas adelante borrar esto y leer los archivos de osada----------------------
-//	char* path = "/directorio";
-//	char* archivosEnDirectorio = readdir(path);
-
-	//pikachu
-	int fd_pikachu;
-	//fd_pikachu= open("/home/utnso/fuse_pokemon/pika-chu.mp4",O_RDWR);
-	fd_pikachu= open("/fuse_pokemon/pika-chu.mp4",O_RDWR);
-	fstat(fd_pikachu,&pikachuStat);
-	pmap_pikachu= mmap(0, pikachuStat.st_size, PROT_READ | PROT_WRITE, MAP_SHARED, fd_pikachu, 0);
-
-	//bulbasaur
-	int fd_bulbasaur;
-	//fd_bulbasaur= open("/home/utnso/fuse_pokemon/bulbasaur.mp3",O_RDWR);
-	fd_bulbasaur= open("/fuse_pokemon/bulbasaur.mp3",O_RDWR);
-	fstat(fd_bulbasaur,&bulbasaurStat);
-	pmap_bulbasaur= mmap(0, bulbasaurStat.st_size, PROT_READ | PROT_WRITE, MAP_SHARED, fd_bulbasaur, 0);
-
-}
-
-void leerArchivo(uint32_t posicion, osada_file* buf)
-{
-	memcpy(buf, disco + offsetTablaArchivos + (posicion * sizeof(osada_file)), sizeof(osada_file));
-}
-
-void leerAsignacion(uint32_t posicion, osada_file* buf)
-{
-	memcpy(buf, disco + offsetAsignaciones + (posicion * sizeof(int)), sizeof(int));
-}
-
-void leerBloque(uint32_t cantidadBloques, char* buf)
-{
-	memcpy(buf, disco + (cantidadBloques * OSADA_BLOCK_SIZE), OSADA_BLOCK_SIZE);
-}
-
-void leerDato(uint32_t posicion, osada_file* buf)
-{
-	memcpy(buf, disco + offsetDatos + (posicion * OSADA_BLOCK_SIZE), OSADA_BLOCK_SIZE);
-}
-
-void leerHeader()
-{
-	memcpy(&oheader, disco, sizeof(osada_header));
-	mostrarHeader(oheader);
-}
-
-int mapearDisco(char* path)
-{
-		struct stat sb;
-
-	if((descriptorArchivo = open(path,O_RDWR)) == -1)
-	{
-		printf(RED "Error en open \n" RESET);
-		return -1;
-	}
-
-		if(fstat(descriptorArchivo,&sb)== -1)
-		{
-			printf(RED "Error en stat \n" RESET);
-				return -1;
-		}
-
-		tamanioArchivo = sb.st_size;
-	disco = mmap(NULL,tamanioArchivo, PROT_READ | PROT_WRITE, MAP_SHARED, descriptorArchivo,0);
-
-	if(disco == MAP_FAILED)
-	{
-		printf(RED "Error en mmap.\n" RESET);
-		return -1;
-	}
-
-	posix_madvise(disco,tamanioArchivo,POSIX_MADV_SEQUENTIAL);
-	return descriptorArchivo;
-}
-
-void mostrarHeader(osada_header oheader)
-{
-		printf(GRN "                   HEADER FILE SYSTEM OSADA \n" RESET);
-		char id[6];
-		strncpy(id, oheader.magic_number,6);
-		printf("                     ID: %s \n", id);
-		printf("                     Version: %d \n", oheader.version);
-		printf("                     FS size: %d blocks \n", oheader.fs_blocks);
-		printf("                     Bitmap size: %d blocks\n", oheader.bitmap_blocks);
-		printf("                     Allocations table offset: block #%d \n", oheader.allocations_table_offset);
-		printf("                     Data size: %d blocks \n \n", oheader.data_blocks);
-}
-
-/* para procesar pedido readdir(),
-* recibo un path de fuse y chequeo que exista
-* si existe armo una cadena con los nombres de todos los archivos y directorios contenidos en ese path */
-void* readdir(char* path)
-{
-	osada_file archivo;
-	unsigned char* seleccionado;
-	char* buffer = NULL;
-	int* pos;
-		int i;
-		int contadorArchivosEnPath = 0;
-
-	int existe = existePath(path, &pos);
-
-	if (existe != 0) //si el path es valido busco cuantos archivos contiene para dimensionar la respuesta
-	{
-		for(i=0; i< 2048; i++)
-		{
-			leerArchivo(i, &archivo);
-
-			if ((pos == archivo.parent_directory) && (archivo.state != 0))
-			{
-				contadorArchivosEnPath++;
-				printf(CYN "Contar archivo: %s\n" RESET, archivo.fname);
-			}
-		}
-	}
-	else
-	{
-		printf(YEL "no hay archivos para devolver, el path no existe \n" RESET);
-		return NULL;
-	}
-
-	printf("Cantidad de archivos en path: %d\n", contadorArchivosEnPath);
-
-	buffer = malloc(contadorArchivosEnPath * ((sizeof(char) * OSADA_FILENAME_LENGTH) + 1));//le sumo 1 para agregar el caracter centinela despues de cada fname
-	memset(buffer, 0, contadorArchivosEnPath * ((sizeof(char) * OSADA_FILENAME_LENGTH) + 1));
-
-	for(i=0; i< 2048; i++) //armo la cadena que voy a enviar a fuse con los archivos y diectorios encontrados en el path
-	{
-		leerArchivo(i, &archivo);
-
-		if ((pos == archivo.parent_directory) && (archivo.state != 0))
-		{
-			strcat(buffer, archivo.fname);
-			strcat(buffer, "/");
-						printf(CYN "archivo pedido: %s\n" RESET, archivo.fname);
-		}
-	}
-		printf("La cadena de archivos para enviar al cliente es: %s\n", buffer);
-
-	return buffer;
-}
-
-//funciones para probar la lectura correcta del disco----------------------------------------------------------------------
-void leerTablaArchivos()
-{
-		osada_file archivo;
-		int i;
-		printf("tabla de archivos\n");
-		for(i=0; i< 15; i++)
-		{
-			leerArchivo(i, &archivo);
-			printf("%s\t %d\t %d\t %d\n", archivo.fname, archivo.parent_directory, archivo.file_size, archivo.state);
-//       if(i<7)//sacar esto, esta solo para probar el escribir archivos
-//       {
-//    	   strcpy(archivo.fname,"Me modificaron");
-//    	   escribirArchivo(i, &archivo);
-//    	   printf(YEL "%s\t %d\t %d\t %d\n" RESET, archivo.fname, archivo.parent_directory, archivo.file_size, archivo.state);
-//       }
-		}
-}
-
-void leerTablaAsignaciones()
-{
-		int asignacion;
-		int i;
-		printf("tabla de asignaciones\n");
-		for(i=0; i< 100; i++)
-		{
-			leerAsignacion(i, &asignacion);
-				printf("%d \n", asignacion);
-		}
-}
-
-void leerTablaDatos()
-{
-	osada_block bloque;
-		int i;
-		printf("tabla de datos\n");
-		for(i=0; i< 100; i++)
-		{
-			leerDato(i, &bloque);
-			printf("%s \n", bloque);
-		}
-}
-
-//-----------------------esto esta para probar o sacar, deberia servir para armar los bloques del archivo
-void* concatenate(void *buffer, int tamBuffer, void *tmpBuffer, int tamTmpBuffer, void* result)
-{
-		// copy buffer to "result"
-		memcpy(result, buffer, tamBuffer);
-		// copy tmpBuffer to "result" after varA
-		memcpy(result + tamBuffer, tmpBuffer, tamTmpBuffer);
-}
-
-void* readData(int cant_blocks, int* fat_values, void *buffer)
-{
-		int i;
-		void *tmp_buffer;
-
-		for(i=0; i < cant_blocks; i++)
-		{
-				leerDato(fat_values[i], &tmp_buffer);
-				void* buffer_aux = malloc(OSADA_BLOCK_SIZE * (i + 1) + OSADA_BLOCK_SIZE);
-				concatenate(&buffer, OSADA_BLOCK_SIZE * (i + 1), &tmp_buffer, OSADA_BLOCK_SIZE, &buffer_aux);
-				buffer = buffer_aux;
-		}
-}
-
-void* readFile(osada_file ofile, void *buffer)
-{
-	int i,
-	fat_size = offsetDatos - offsetAsignaciones,
-	//Redondeo para arriba porque no se puede tener porcion de bloque
-	//Ej: int a = (59 + (4 - 1)) / 4; redondea a 15
-	cant_blocks = (ofile.file_size + (OSADA_BLOCK_SIZE - 1)) / OSADA_BLOCK_SIZE;
-	int fat_values[cant_blocks - 1];
-	int next_block = ofile.first_block;
-	for (i=0;i < cant_blocks; i++)
-	{
-				fat_values[i] = next_block;
-				leerAsignacion(next_block, &next_block);
-	}
-
-	readData(cant_blocks,fat_values, &buffer);
-
 }
