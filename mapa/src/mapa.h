@@ -31,7 +31,6 @@
 #include <nivel.h>
 #include <tad_items.h>
 #include <curses.h>
-#include "mapa-deadlock.h"
 
 #define LOG_FILE "log_mapa.log"
 #define TOTAL_ARGS 3
@@ -162,7 +161,7 @@ void signal_handler(int signal);
 void sacar_de_listos(t_entrenador * entrenador);
 void sacar_de_conectados(t_entrenador * entrenador);
 void sacar_de_bloqueados(t_entrenador * entrenador);
-int the_number_of_the_beast(t_pokemon * beast);
+int the_number_of_the_beast(t_pkm * beast);
 
 //****Conection and threads ****
 void run_trainer_server();
@@ -192,7 +191,7 @@ void pokenest_destroyer(t_pokenest * r);
 void destruir_metadata();
 void item_destroyer(void * item);
 // ....
-void pokemon_remover(t_pokemon * pkm, t_list * list);
+void pokemon_remover(t_pkm * pkm, t_list * list);
 
 //****Buscadores****
 t_entrenador * buscar_entrenador_por_simbolo(char expected_symbol);
@@ -207,13 +206,13 @@ int procesar_objetivo_cumplido(t_entrenador * entrenador);
 void ordenar_pokemons(t_list * pokemons);
 int liberar_pokemons(t_entrenador * e);
 int incrementar_recurso(char id_pokenest);
-t_pokemon * obtener_primer_no_capturado(t_pokenest * pokenest);
-int generar_captura(t_entrenador * entrenador, t_pokenest * pokenest, t_pokemon * pokemon);
+t_pkm * obtener_primer_no_capturado(t_pokenest * pokenest);
+int generar_captura(t_entrenador * entrenador, t_pokenest * pokenest, t_pkm * pokemon);
 int agregar_a_cola(t_entrenador * entrenador, t_list * cola, pthread_mutex_t mutex);
 t_entrenador * pop_entrenador();
 
 //***Envios y serializaciones***
-t_pokemon * recibirPokemon(int socket);
+t_pkm * recibirPokemon(int socket);
 int enviar_ruta_pkm(char * ruta, int socket);
 
 #endif /* MAPA_H_ */

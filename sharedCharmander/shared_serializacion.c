@@ -46,7 +46,7 @@ t_header * deserializar_header(void * buffer) {
 	return header;
 }
 
-void * serializarPokemon(t_pokemon * pokemon){
+void * serializarPokemon(t_pkm * pokemon){
 
 	int nombreSize = (string_length(pokemon->nombre));
 	int nombreArchivoSize = (string_length(pokemon->nombreArchivo));
@@ -65,8 +65,8 @@ void * serializarPokemon(t_pokemon * pokemon){
 	return pokemonSerializado;
 }
 
-t_pokemon * deserializarPokemon(void* pokemonSerializado){
-	t_pokemon * pokemon = malloc(sizeof(t_pokemon));
+t_pkm * deserializarPokemon(void* pokemonSerializado){
+	t_pkm * pokemon = malloc(sizeof(t_pkm));
 	int nombreSize;
 	int nombreArchivoSize;
 

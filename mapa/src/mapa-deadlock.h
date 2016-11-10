@@ -9,6 +9,8 @@
 #define MAPA_DEADLOCK_H_
 
 #include "mapa.h"
+#include <pkmn/factory.h>
+#include <pkmn/battle.h>
 
 typedef struct {
 	int filas;
@@ -16,21 +18,44 @@ typedef struct {
 	int ** data;
 } t_matriz;
 
+t_list * temp_pokenests;
+t_list * temp_entrenadores;
+t_matriz * asignados;
+t_matriz * solicitudes;
+int * marcados;
+int * disponibles;
+t_list * entrenadores_en_DL;
+
+t_pkmn_factory * factory;
+
+// ******* GENERALES *******
 int run_deadlock_algorithm();
-bool puede_asignar(int x, int * sol, int * disp);
+void snapshot_del_sistema();
+void imprimir_matriz_en_log(t_matriz * matriz, char * nombre_matriz);
+int * vector_copy(int * vec_src, int elems);
+
+// ******* CREATES *******
+t_matriz * crear_matriz(int filas, int columnas);
+t_matriz * crear_matriz_Asignados();
+t_matriz * crear_matriz_Solicitudes();
+int * crear_vector(int elems);
+int * crear_vector_Disponibles();
+
+// ******* INDICES EN LISTAS *******
+int indice_en_lista_pokenests(char id);
+int indice_en_lista_entrenadores(char simbolo_entrenador);
+
+// ******* FUNCIONES DEL ALGORITMO *******
+void marcar_sin_pkms();
 bool todos_marcados(int x, int * vec);
 int cantidad_no_marcados(int x, int * vec);
-int * crear_vector(int elems);
-t_matriz * crear_matriz(int filas, int columnas);
-void imprimir_matriz_en_log(t_matriz * matriz, char * nombre_matriz);
-void mostrar_matriz(t_matriz * mat);
-void mostrar_vector(int * vec, int cols);
-int * crear_vector_Disponibles();
-t_matriz * crear_matriz_Asignados();
-t_list * snapshot_list(t_list * source_list);
-int indice_en_lista_pokenests(char id);
-t_matriz * crear_matriz_Solicitudes();
-int * vector_copy(int * vec_src, int elems);
-void marcar_sin_pkms(int * marcados);
+bool puede_asignar(int x, int * sol, int * disp);
+
+// ******* FUNCIONES POST ALGORITMO *******
+t_list * obtener_los_dls();
+t_entrenador * let_the_battle_begins();
+t_entrenador * buscar_entrenador_del_pkm(t_pokemon * pkm, t_list * lista);
+t_pokemon * obtener_el_mas_poronga(t_entrenador * entrenador);
+
 
 #endif /* MAPA_DEADLOCK_H_ */

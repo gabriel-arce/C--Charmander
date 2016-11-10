@@ -92,7 +92,7 @@ void entrenador_destroyer(t_entrenador * e) {
 void pokenest_destroyer(t_pokenest * r) {
 	free(r->nombre);
 
-	void pkm_destroyer(t_pokemon * p) {
+	void pkm_destroyer(t_pkm * p) {
 		free(p->nombre);
 		free(p->nombreArchivo);
 	}
@@ -109,11 +109,11 @@ void item_destroyer(void * item) {
 	BorrarItem(items_mapa, i->id);
 }
 
-void pokemon_remover(t_pokemon * pkm, t_list * list) {
+void pokemon_remover(t_pkm * pkm, t_list * list) {
 	int i;
 
 	for( i = 0; i < list_size(list); i++ ) {
-		t_pokemon * p = list_get(list, i);
+		t_pkm * p = list_get(list, i);
 
 		if (string_equals_ignore_case(p->nombreArchivo, pkm->nombreArchivo))
 			break;
@@ -127,7 +127,7 @@ void imprimir_pokenests() {
 		printf("\nPokenest : %s\n", pknst->nombre);
 		printf("Ubicacion: ( %d; %d )\n", pknst->posicion->x, pknst->posicion->y);
 		printf("Pokemons: \n");
-		void pkm_printer(t_pokemon * pkm) {
+		void pkm_printer(t_pkm * pkm) {
 			printf("%s\n", pkm->nombreArchivo);
 		}
 		list_iterate(pknst->pokemones, (void *) pkm_printer);
@@ -141,7 +141,7 @@ bool esta_en_pokenest(t_entrenador * entrenador) {
 			&& (entrenador->posicion->y == entrenador->posicionObjetivo->y));
 }
 
-t_pokemon * recibirPokemon(int socket){
+t_pkm * recibirPokemon(int socket){
 
 	t_header * header_in = recibir_header(socket);
 
@@ -152,7 +152,7 @@ t_pokemon * recibirPokemon(int socket){
 		return NULL;
 	}
 
-	t_pokemon * pokemon = deserializarPokemon(buffer_in);
+	t_pkm * pokemon = deserializarPokemon(buffer_in);
 
 	free(header_in);
 	free(buffer_in);
@@ -160,9 +160,9 @@ t_pokemon * recibirPokemon(int socket){
 	return pokemon;
 }
 
-t_pokemon * deserializarPokemon(void* pokemonSerializado){
+t_pkm * deserializarPokemon(void* pokemonSerializado){
 
-	t_pokemon * pokemon = malloc(sizeof(t_pokemon));
+	t_pkm * pokemon = malloc(sizeof(t_pkm));
 
 	int nombreSize;
 	int nombreArchivoSize;
@@ -251,7 +251,7 @@ void ordenar_pokemons(t_list * pokemons) {
 
 	int min, max;
 
-	bool sorteame_estaaaaaa(t_pokemon * shit_min, t_pokemon * shit_max) {
+	bool sorteame_estaaaaaa(t_pkm * shit_min, t_pkm * shit_max) {
 
 		min = the_number_of_the_beast(shit_min);
 		max = the_number_of_the_beast(shit_max);
@@ -265,7 +265,7 @@ void ordenar_pokemons(t_list * pokemons) {
 
 int liberar_pokemons(t_entrenador * e) {
 
-	void free_pkm(t_pokemon * p) {
+	void free_pkm(t_pkm * p) {
 		p->capturado = false;
 		//Interfaz grafica
 		//incrementar_recurso(p->id_pokenest);
@@ -361,13 +361,13 @@ void sacar_de_bloqueados(t_entrenador * e) {
 	pthread_mutex_unlock(&mutex_cola_bloqueados);
 }
 
-t_pokemon * obtener_primer_no_capturado(t_pokenest * pokenest) {
-	t_pokemon * pkm_capt = NULL;
+t_pkm * obtener_primer_no_capturado(t_pokenest * pokenest) {
+	t_pkm * pkm_capt = NULL;
 	int pokemons = list_size(pokenest->pokemones);
 	int i;
 
 	for(i = 0; i < pokemons; i++) {
-		t_pokemon * p = list_get(pokenest->pokemones, i);
+		t_pkm * p = list_get(pokenest->pokemones, i);
 
 		if ( !(p->capturado) ) {
 			pkm_capt = p;
@@ -443,7 +443,7 @@ t_list * snapshot_list(t_list * source_list) {
 	return copy;
 }
 
-int the_number_of_the_beast(t_pokemon * beast) {
+int the_number_of_the_beast(t_pkm * beast) {
 
 	int length_name = string_length(beast->nombre);
 	int length_arch = string_length(beast->nombreArchivo);

@@ -149,7 +149,7 @@ void cargar_pokenests() {
 					// else its a pokemon
 					t_config * dat_pkm = config_create(path_f_pknst);
 
-					t_pokemon * pkm = malloc(sizeof(t_pokemon));
+					t_pkm * pkm = malloc(sizeof(t_pkm));
 					pkm->nombre = string_duplicate(d_name);
 					pkm->nombreArchivo = string_duplicate(f_pknst->d_name);
 					pkm->nivel = getIntProperty(dat_pkm, "Nivel");
@@ -562,12 +562,24 @@ int trainer_handler(t_entrenador * entrenador) {
 }
 
 int desconexion_entrenador(t_entrenador * entrenador, int nbytes_recv) {
-	if (nbytes_recv == 0)
-		log_trace(logger, "Se desconecto el entrenador %c en el socket %d", entrenador->simbolo_entrenador, entrenador->socket);
+	if (nbytes_recv == 0) {
+		pthread_mutex_lock(&mutex_log);
+		log_trace(logger, "Se desconecto el entrenador %c en el socket %d",
+				entrenador->simbolo_entrenador, entrenador->socket);
+		pthread_mutex_unlock(&mutex_log);
+	}
 
+	if (nbytes_recv < 0) {
+		pthread_mutex_lock(&mutex_log);
+		log_trace(logger, "[ERROR]: Error en el recv desde el socket %d", entrenador->socket);
+		pthread_mutex_unlock(&mutex_log);
+	}
 
-	if (nbytes_recv < 0)
-		log_trace(logger, "Error en el recv desde el socket %d", entrenador->socket);
+	if (nbytes_recv == 1) {
+		pthread_mutex_lock(&mutex_log);
+		log_trace(logger, "[DEADLOCK]: Se desconecto el entrenador %c por haber perdido la batalla");
+		pthread_mutex_unlock(&mutex_log);
+	}
 
 	FD_CLR(entrenador->socket, &master_fdset);
 	close(entrenador->socket);
@@ -784,7 +796,9 @@ void atender_bloqueados() {
 	while (true) {
 		waitSemaforo(semaforo_de_bloqueados);
 
-		//TODO TENGO QUE MUTEAR LAS VARIABLES COMPARTIDAS
+		//TODO GUARDA CON ESTO!!!!
+		pthread_mutex_lock(&mutex_cola_bloqueados);
+
 		cantidad_bloqueados = list_size(cola_de_bloqueados);
 
 		for (i = 0; i < cantidad_bloqueados; i++) {
@@ -795,6 +809,8 @@ void atender_bloqueados() {
 
 			intentar_capturar_pokemon(b);
 		}
+
+		pthread_mutex_unlock(&mutex_cola_bloqueados);
 	}
 
 }
@@ -802,7 +818,7 @@ void atender_bloqueados() {
 int intentar_capturar_pokemon(t_bloqueado * bloqueado) {
 
 	//obtengo el primer que no este capturado
-	t_pokemon * pkm_capt = obtener_primer_no_capturado(bloqueado->pokenest);
+	t_pkm * pkm_capt = obtener_primer_no_capturado(bloqueado->pokenest);
 
 	if (pkm_capt != NULL) {
 		//hay stock -> puede atrapar el pokemon
@@ -816,7 +832,7 @@ int intentar_capturar_pokemon(t_bloqueado * bloqueado) {
 	return EXIT_SUCCESS;
 }
 
-int generar_captura(t_entrenador * entrenador, t_pokenest * pokenest, t_pokemon * pokemon) {
+int generar_captura(t_entrenador * entrenador, t_pokenest * pokenest, t_pkm * pokemon) {
 
 	int _on_error() {
 		pokemon->capturado = false;

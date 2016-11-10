@@ -301,7 +301,7 @@ void enviarUbicacionAMapa(){
 }
 
 void atraparPokemon(){
-	t_pokemon * pokemonAtrapado = malloc(sizeof(t_pokemon));
+	t_pkm * pokemonAtrapado = malloc(sizeof(t_pkm));
 
 	enviar_header(_CAPTURAR_PKM,0,socket_entrenador);
 
@@ -407,7 +407,7 @@ void copiarMedalla() {
 	free(ruta_medalla);
 }
 
-void copiarPokemon(char * ruta_pkm, t_pokemon * pokemonAtrapado){
+void copiarPokemon(char * ruta_pkm, t_pkm * pokemonAtrapado){
 
 	copiar_archivo(ruta_pkm, rutaDirDeBill);
 
@@ -447,7 +447,7 @@ void setRutaDirDeBill() {
 	string_append_with_format(&rutaDirDeBill, "Entrenadores/%s/Dir-de-Bill/", nombreEntrenador);
 }
 
-void verificarNivelPokemon(t_pokemon * pokemon){
+void verificarNivelPokemon(t_pkm * pokemon){
 
 	if (pokemonMasFuerte == NULL)
 		pokemonMasFuerte = pokemon;
@@ -507,7 +507,7 @@ void imprimirLogro(){
 
 bool batallaPokemon(){ 					//retorna true si muere
 
-	enviar_header(_PKM_MAS_FUERTE, sizeof(t_pokemon), socket_entrenador);
+	enviar_header(_PKM_MAS_FUERTE, sizeof(t_pkm), socket_entrenador);
 
 	enviarPokemon(pokemonMasFuerte,  socket_entrenador);
 
@@ -600,7 +600,7 @@ void limpiar_pokemons_en_directorio() {
 	int pkms = list_size(pokemonesCapturados);
 
 	for (i = 0; i < pkms; i++) {
-		t_pokemon * p = list_get(pokemonesCapturados, i);
+		t_pkm * p = list_get(pokemonesCapturados, i);
 
 		if (p->mapa == mapaActual->socket)
 			rm_pokemon(p->nombreArchivo);
@@ -636,7 +636,7 @@ void destruirHojaDeViaje(t_mapa * mapa){
 	queue_destroy(mapa->objetivos);
 }
 
-void enviarPokemon(t_pokemon * pokemon, int socket){
+void enviarPokemon(t_pkm * pokemon, int socket){
 
 	int pokemonSerializadoSize = (sizeof(pokemon->nivel)) + (string_length(pokemon->nombre)) + (string_length(pokemon->nombreArchivo)) + (2 * (sizeof(int)));
 
