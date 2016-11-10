@@ -210,6 +210,7 @@ t_pkm * obtener_primer_no_capturado(t_pokenest * pokenest);
 int generar_captura(t_entrenador * entrenador, t_pokenest * pokenest, t_pkm * pokemon);
 int agregar_a_cola(t_entrenador * entrenador, t_list * cola, pthread_mutex_t mutex);
 t_entrenador * pop_entrenador();
+t_list * snapshot_list(t_list * source_list);
 
 //***Envios y serializaciones***
 t_pkm * recibirPokemon(int socket);

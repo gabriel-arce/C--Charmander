@@ -1,7 +1,7 @@
-TiempoChequeoDeadlock=10000
+TiempoChequeoDeadlock=10000000
 Batalla=1
 algoritmo=RR
-quantum=5
-retardo=50000
+quantum=3
+retardo=1000000
 IP=127.0.0.1
 Puerto=9000

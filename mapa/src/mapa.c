@@ -582,7 +582,9 @@ int desconexion_entrenador(t_entrenador * entrenador, int nbytes_recv) {
 	}
 
 	FD_CLR(entrenador->socket, &master_fdset);
+	shutdown(entrenador->socket, 2);
 	close(entrenador->socket);
+	entrenador->socket = -1;
 
 	//lo saco de listos (si esta en la cola)
 	sacar_de_listos(entrenador);
@@ -591,7 +593,9 @@ int desconexion_entrenador(t_entrenador * entrenador, int nbytes_recv) {
 	sacar_de_conectados(entrenador);
 
 	//fijarse a nivel pokenest las colas de bloqueados
+	pthread_mutex_lock(&mutex_cola_bloqueados);
 	sacar_de_bloqueados(entrenador);
+	pthread_mutex_unlock(&mutex_cola_bloqueados);
 
 	//liberar pokemons capturados
 	liberar_pokemons(entrenador);
@@ -603,7 +607,11 @@ int desconexion_entrenador(t_entrenador * entrenador, int nbytes_recv) {
 //	nivel_gui_dibujar(items_mapa, nombreMapa);
 //	pthread_mutex_unlock(&mutex_gui);
 
-	entrenador_destroyer(entrenador);
+	//entrenador_destroyer(entrenador);
+	entrenador->simbolo_entrenador = ' ';
+	free(entrenador->nombre_entrenador);
+	free(entrenador->posicion);
+	free(entrenador->posicionObjetivo);
 
 	return EXIT_FAILURE;
 }
@@ -792,6 +800,7 @@ void atender_bloqueados() {
 
 	int cantidad_bloqueados = 0;
 	int i;
+	int resultado;
 
 	while (true) {
 		waitSemaforo(semaforo_de_bloqueados);
@@ -807,29 +816,18 @@ void atender_bloqueados() {
 			if (b == NULL)
 				continue;
 
-			intentar_capturar_pokemon(b);
+			t_pkm * pkm = obtener_primer_no_capturado(b->pokenest);
+
+			if (pkm != NULL /*pudo capturar*/) {
+				list_remove(cola_de_bloqueados, i);
+				i--;
+				generar_captura(b->entrenador, b->pokenest, pkm);
+			}
 		}
 
 		pthread_mutex_unlock(&mutex_cola_bloqueados);
 	}
 
-}
-
-int intentar_capturar_pokemon(t_bloqueado * bloqueado) {
-
-	//obtengo el primer que no este capturado
-	t_pkm * pkm_capt = obtener_primer_no_capturado(bloqueado->pokenest);
-
-	if (pkm_capt != NULL) {
-		//hay stock -> puede atrapar el pokemon
-		sacar_de_bloqueados(bloqueado->entrenador);
-		generar_captura(bloqueado->entrenador, bloqueado->pokenest, pkm_capt);
-
-	} else {
-		//no hay stock -> lo dejo bloqueado
-	}
-
-	return EXIT_SUCCESS;
 }
 
 int generar_captura(t_entrenador * entrenador, t_pokenest * pokenest, t_pkm * pokemon) {

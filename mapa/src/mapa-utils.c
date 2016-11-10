@@ -274,6 +274,8 @@ int liberar_pokemons(t_entrenador * e) {
 
 	list_clean(e->pokemonesCapturados);
 
+	signalSemaforo(semaforo_de_bloqueados);
+
 	return EXIT_SUCCESS;
 }
 
@@ -339,8 +341,6 @@ void sacar_de_conectados(t_entrenador * entrenador) {
 
 void sacar_de_bloqueados(t_entrenador * e) {
 
-	pthread_mutex_lock(&mutex_cola_bloqueados);
-
 	int i;
 	int n = list_size(cola_de_bloqueados);
 	t_bloqueado * b;
@@ -358,7 +358,6 @@ void sacar_de_bloqueados(t_entrenador * e) {
 	if (encontro)
 		list_remove(cola_de_bloqueados, i);
 
-	pthread_mutex_unlock(&mutex_cola_bloqueados);
 }
 
 t_pkm * obtener_primer_no_capturado(t_pokenest * pokenest) {

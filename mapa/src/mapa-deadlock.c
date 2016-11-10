@@ -28,6 +28,11 @@ int run_deadlock_algorithm() {
 
 	snapshot_del_sistema();
 
+	if (temp_entrenadores->elements_count < 2) {
+		release_all();
+		return 0;
+	}
+
 	int pos = 0;
 	//AUN NO SE SI LO VOY A NECESITAR
 	int * temp_disp = vector_copy(disponibles, temp_pokenests->elements_count);
@@ -83,15 +88,35 @@ int run_deadlock_algorithm() {
 		}
 	}
 
-	free(temp_disp);
+	destroy_vector(temp_disp);
+	release_all();
 
 	return EXIT_SUCCESS;
 }
 
-void snapshot_del_sistema() {
+void release_all() {
+	destroy_matriz(asignados);
+	destroy_matriz(solicitudes);
+	destroy_vector(disponibles);
+	destroy_vector(marcados);
+}
 
-	temp_entrenadores = list_create();
-	temp_pokenests = list_create();
+void destroy_matriz(t_matriz * matriz) {
+	int f;
+
+	for (f = 0; f < temp_entrenadores->elements_count; f++) {
+		free(matriz->data[f]);
+	}
+
+	free(matriz->data);
+	free(matriz);
+}
+
+void destroy_vector(int * vector) {
+	free(vector);
+}
+
+void snapshot_del_sistema() {
 
 	pthread_mutex_lock(&mutex_pokenests);
 	temp_pokenests = snapshot_list(lista_de_pokenests);
@@ -101,15 +126,20 @@ void snapshot_del_sistema() {
 	pthread_mutex_lock(&mutex_entrenadores);
 	temp_entrenadores = snapshot_list(entrenadores_conectados);
 	asignados = crear_matriz_Asignados();
-
 		pthread_mutex_lock(&mutex_cola_bloqueados);
 		solicitudes = crear_matriz_Solicitudes();
 		pthread_mutex_unlock(&mutex_cola_bloqueados);
-
 	pthread_mutex_unlock(&mutex_entrenadores);
 
-	marcados = crear_vector(temp_entrenadores->elements_count);
+	pthread_mutex_lock(&mutex_log);
+	imprimir_pokenests_en_log();
+	imprimir_vector_en_log(disponibles, "Vector de disponibles", temp_pokenests->elements_count);
+	imprimir_entrenadores_en_log();
+	imprimir_matriz_en_log(asignados, "Matriz Asignados");
+	imprimir_matriz_en_log(solicitudes, "Matriz Solicitudes");
+	pthread_mutex_unlock(&mutex_log);
 
+	marcados = crear_vector(temp_entrenadores->elements_count);
 }
 
 t_matriz * crear_matriz(int filas, int columnas) {
@@ -146,8 +176,62 @@ void imprimir_matriz_en_log(t_matriz * matriz, char * nombre_matriz) {
 		}
 		string_append(&mat, " |\n");
 	}
+	string_append(&mat, " \0");
 
 	log_trace(logger, mat);
+
+	free(mat);
+}
+
+void imprimir_vector_en_log(int * vector, char * nombre_vector, int rows) {
+	char * vec = string_new();
+	string_append_with_format(&vec, "\n***_%s_***\n", nombre_vector);
+
+	int i;
+
+	string_append(&vec, "[ ");
+	for (i = 0; i < rows; i++) {
+		string_append_with_format(&vec, " %d ", vector[i]);
+	}
+	string_append(&vec, " ]\0");
+
+	log_trace(logger, vec);
+
+	free(vec);
+}
+
+void imprimir_pokenests_en_log() {
+	char * list = string_new();
+	string_append(&(list), "\n***_POKENESTS:_***\n");
+
+	int i;
+	string_append(&list, "[ ");
+	for (i = 0; i < temp_pokenests->elements_count; i++) {
+		t_pokenest * p = list_get(temp_pokenests, i);
+		string_append_with_format(&list, " %c ", p->identificador);
+	}
+	string_append(&list, " ]\0");
+
+	log_trace(logger, list);
+
+	free(list);
+}
+
+void imprimir_entrenadores_en_log() {
+	char * list = string_new();
+	string_append(&(list), "\n***_ENTRENADORES:_***\n");
+
+	int i;
+	string_append(&list, "[ ");
+	for (i = 0; i < temp_entrenadores->elements_count; i++) {
+		t_entrenador * e = list_get(temp_entrenadores, i);
+		string_append_with_format(&list, " %c ", e->simbolo_entrenador);
+	}
+	string_append(&list, " ]\0");
+
+	log_trace(logger, list);
+
+	free(list);
 }
 
 int * vector_copy(int * vec_src, int elems) {
@@ -201,19 +285,22 @@ int * crear_vector_Disponibles() {
 
 	disponibles = crear_vector(temp_pokenests->elements_count);
 
-	int i = 0;
+	int i,j;
+	int count = 0;
 
-	void iterate_pokenests(t_pokenest * pknst) {
-		int availables = 0;
-		void iterate_available_pkm(t_pkm * pkm) {
-			if(pkm->capturado == false)
-				availables++;
+	for (i = 0; i < temp_pokenests->elements_count; i++) {
+		t_pokenest * pknst = list_get(temp_pokenests, i);
+
+		for (j = 0; j < pknst->pokemones->elements_count; j++) {
+			t_pkm * pkm = list_get(pknst->pokemones, j);
+
+			if (pkm->capturado == false)
+				count++;
 		}
-		list_iterate(pknst->pokemones, (void *) iterate_available_pkm);
 
-		disponibles[i] = availables;
+		disponibles[i] = count;
+		count = 0;
 	}
-	list_iterate(temp_pokenests, (void *) iterate_pokenests);
 
 	return disponibles;
 }
@@ -321,7 +408,8 @@ t_list * obtener_los_dls() {
 		if (marcados[m] == 0) {
 			t_entrenador * e = list_get(temp_entrenadores, m);
 
-			list_add(entrenadores_en_DL, e);
+			if (e->socket != -1)
+				list_add(entrenadores_en_DL, e);
 		}
 	}
 
@@ -332,9 +420,10 @@ t_entrenador * let_the_battle_begins() {
 
 	t_list * dls = obtener_los_dls();
 
+	// TODO analizar bien el tema de que si tengo uno solo en dl si es realmente dl o starvation
 	// En caso de que solo sea uno no tiene sentido armar bardo
-	if (dls->elements_count == 1)
-		return list_get(dls, 0);
+//	if (dls->elements_count == 1)
+//		return list_get(dls, 0);
 
 	t_pokemon * winner = obtener_el_mas_poronga((t_entrenador *) list_get(dls, 0));
 	t_pokemon * loser = NULL;
@@ -351,7 +440,7 @@ t_entrenador * let_the_battle_begins() {
 
 	t_entrenador * el_entrenador_que_PERDIO = buscar_entrenador_del_pkm(loser, dls);
 
-	free(dls);
+	list_destroy(dls);
 
 	return el_entrenador_que_PERDIO;
 }

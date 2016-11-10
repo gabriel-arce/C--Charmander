@@ -45,3 +45,206 @@
 [INFO] 03:02:33:454 MAPA log file/(7040:7040): MAPA PuebloPaleta iniciado.
 [TRACE] 03:02:41:721 MAPA log file/(7040:7043): El entrenador @ ha logrado su objetivo.
 [TRACE] 03:02:41:721 MAPA log file/(7040:7043): Se desconecto el entrenador @ en el socket 7
+[INFO] 16:53:34:515 MAPA log file/(4963:4963): MAPA PuebloPaleta iniciado.
+[TRACE] 16:53:41:455 MAPA log file/(4963:4985): 
+***_POKENESTS:_***
+[  B  P  ]
+[TRACE] 16:53:41:456 MAPA log file/(4963:4985): 
+***_Vector de disponibles_***
+[  10  42  ]
+[TRACE] 16:53:41:456 MAPA log file/(4963:4985): 
+***_ENTRENADORES:_***
+[  ]
+[TRACE] 16:53:41:456 MAPA log file/(4963:4985): 
+***_Matriz Asignados_***
+ 
+[TRACE] 16:53:41:456 MAPA log file/(4963:4985): 
+***_Matriz Solicitudes_***
+ 
+[TRACE] 16:53:41:456 MAPA log file/(4963:4985): [DEADLOCK] fin del algoritmo con 0 entrenadores en dl.
+[INFO] 17:27:58:893 MAPA log file/(5531:5531): MAPA PuebloPaleta iniciado.
+[TRACE] 17:27:58:928 MAPA log file/(5531:5543): 
+***_POKENESTS:_***
+[  B  P  ]
+[INFO] 18:05:50:635 MAPA log file/(5878:5878): MAPA PuebloPaleta iniciado.
+[TRACE] 18:05:59:312 MAPA log file/(5878:5888): 
+***_POKENESTS:_***
+[  B  P  ]
+[TRACE] 18:05:59:312 MAPA log file/(5878:5888): 
+***_Vector de disponibles_***
+[  1  2  ]
+[TRACE] 18:05:59:312 MAPA log file/(5878:5888): 
+***_ENTRENADORES:_***
+[  ]
+[TRACE] 18:05:59:312 MAPA log file/(5878:5888): 
+***_Matriz Asignados_***
+ 
+[TRACE] 18:05:59:312 MAPA log file/(5878:5888): 
+***_Matriz Solicitudes_***
+ 
+[TRACE] 18:06:04:312 MAPA log file/(5878:5888): 
+***_POKENESTS:_***
+[  B  P  ]
+[TRACE] 18:06:04:312 MAPA log file/(5878:5888): 
+***_Vector de disponibles_***
+[  1  2  ]
+[TRACE] 18:06:04:312 MAPA log file/(5878:5888): 
+***_ENTRENADORES:_***
+[  @  ]
+[TRACE] 18:06:04:312 MAPA log file/(5878:5888): 
+***_Matriz Asignados_***
+|  0  0  |
+ 
+[TRACE] 18:06:04:312 MAPA log file/(5878:5888): 
+***_Matriz Solicitudes_***
+|  0  0  |
+ 
+[TRACE] 18:06:09:313 MAPA log file/(5878:5888): 
+***_POKENESTS:_***
+[  B  P  ]
+[TRACE] 18:06:09:313 MAPA log file/(5878:5888): 
+***_Vector de disponibles_***
+[  1  2  ]
+[TRACE] 18:06:09:313 MAPA log file/(5878:5888): 
+***_ENTRENADORES:_***
+[  @  ]
+[TRACE] 18:06:09:313 MAPA log file/(5878:5888): 
+***_Matriz Asignados_***
+|  0  0  |
+ 
+[TRACE] 18:06:09:313 MAPA log file/(5878:5888): 
+***_Matriz Solicitudes_***
+|  0  0  |
+ 
+[TRACE] 18:06:14:313 MAPA log file/(5878:5888): 
+***_POKENESTS:_***
+[  B  P  ]
+[TRACE] 18:06:14:313 MAPA log file/(5878:5888): 
+***_Vector de disponibles_***
+[  1  2  ]
+[TRACE] 18:06:14:313 MAPA log file/(5878:5888): 
+***_ENTRENADORES:_***
+[  @  ]
+[TRACE] 18:06:14:313 MAPA log file/(5878:5888): 
+***_Matriz Asignados_***
+|  0  0  |
+ 
+[TRACE] 18:06:14:313 MAPA log file/(5878:5888): 
+***_Matriz Solicitudes_***
+|  0  0  |
+ 
+[TRACE] 18:06:19:314 MAPA log file/(5878:5888): 
+***_POKENESTS:_***
+[  B  P  ]
+[TRACE] 18:06:19:314 MAPA log file/(5878:5888): 
+***_Vector de disponibles_***
+[  1  2  ]
+[TRACE] 18:06:19:314 MAPA log file/(5878:5888): 
+***_ENTRENADORES:_***
+[  @  ]
+[TRACE] 18:06:19:314 MAPA log file/(5878:5888): 
+***_Matriz Asignados_***
+|  0  0  |
+ 
+[TRACE] 18:06:19:314 MAPA log file/(5878:5888): 
+***_Matriz Solicitudes_***
+|  0  0  |
+ 
+[TRACE] 18:06:24:314 MAPA log file/(5878:5888): 
+***_POKENESTS:_***
+[  B  P  ]
+[TRACE] 18:06:24:314 MAPA log file/(5878:5888): 
+***_Vector de disponibles_***
+[  1  2  ]
+[TRACE] 18:06:24:314 MAPA log file/(5878:5888): 
+***_ENTRENADORES:_***
+[  @  ]
+[TRACE] 18:06:24:314 MAPA log file/(5878:5888): 
+***_Matriz Asignados_***
+|  0  0  |
+ 
+[TRACE] 18:06:24:314 MAPA log file/(5878:5888): 
+***_Matriz Solicitudes_***
+|  0  0  |
+ 
+[TRACE] 18:06:29:315 MAPA log file/(5878:5888): 
+***_POKENESTS:_***
+[  B  P  ]
+[TRACE] 18:06:29:315 MAPA log file/(5878:5888): 
+***_Vector de disponibles_***
+[  1  2  ]
+[TRACE] 18:06:29:315 MAPA log file/(5878:5888): 
+***_ENTRENADORES:_***
+[  @  ]
+[TRACE] 18:06:29:315 MAPA log file/(5878:5888): 
+***_Matriz Asignados_***
+|  0  0  |
+ 
+[TRACE] 18:06:29:315 MAPA log file/(5878:5888): 
+***_Matriz Solicitudes_***
+|  0  0  |
+ 
+[TRACE] 18:06:34:315 MAPA log file/(5878:5888): 
+***_POKENESTS:_***
+[  B  P  ]
+[TRACE] 18:06:34:316 MAPA log file/(5878:5888): 
+***_Vector de disponibles_***
+[  1  2  ]
+[TRACE] 18:06:34:316 MAPA log file/(5878:5888): 
+***_ENTRENADORES:_***
+[  @  ]
+[TRACE] 18:06:34:316 MAPA log file/(5878:5888): 
+***_Matriz Asignados_***
+|  0  0  |
+ 
+[TRACE] 18:06:34:316 MAPA log file/(5878:5888): 
+***_Matriz Solicitudes_***
+|  0  0  |
+ 
+[TRACE] 18:06:39:316 MAPA log file/(5878:5888): 
+***_POKENESTS:_***
+[  B  P  ]
+[TRACE] 18:06:39:316 MAPA log file/(5878:5888): 
+***_Vector de disponibles_***
+[  1  2  ]
+[TRACE] 18:06:39:316 MAPA log file/(5878:5888): 
+***_ENTRENADORES:_***
+[  @  ]
+[TRACE] 18:06:39:316 MAPA log file/(5878:5888): 
+***_Matriz Asignados_***
+|  0  0  |
+ 
+[TRACE] 18:06:39:316 MAPA log file/(5878:5888): 
+***_Matriz Solicitudes_***
+|  0  0  |
+ 
+[TRACE] 18:06:44:317 MAPA log file/(5878:5888): 
+***_POKENESTS:_***
+[  B  P  ]
+[TRACE] 18:06:44:317 MAPA log file/(5878:5888): 
+***_Vector de disponibles_***
+[  1  2  ]
+[TRACE] 18:06:44:317 MAPA log file/(5878:5888): 
+***_ENTRENADORES:_***
+[  @  ]
+[TRACE] 18:06:44:317 MAPA log file/(5878:5888): 
+***_Matriz Asignados_***
+|  0  0  |
+ 
+[TRACE] 18:06:44:317 MAPA log file/(5878:5888): 
+***_Matriz Solicitudes_***
+|  0  0  |
+ 
+[TRACE] 18:06:56:647 MAPA log file/(5878:5888): 
+***_POKENESTS:_***
+[  B  P  ]
+[TRACE] 18:06:56:647 MAPA log file/(5878:5888): 
+***_Vector de disponibles_***
+[  1  2  ]
+[TRACE] 18:06:56:647 MAPA log file/(5878:5888): 
+***_ENTRENADORES:_***
+[  @  ]
+[TRACE] 18:06:56:648 MAPA log file/(5878:5888): 
+***_Matriz Asignados_***
+|  0  0  |
+ 
