@@ -55,6 +55,7 @@ _Static_assert( sizeof(osada_file) == (sizeof(osada_block) / 2.0), "osada_file s
 
 char abrirArchivo(char* path);
 char liberarArchivo(char* path);
+char flushArchivo(char* path);
 
 int agregarArchivo(char* path, int modo);
 void asignarOffsets();

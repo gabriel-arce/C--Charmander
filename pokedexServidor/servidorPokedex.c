@@ -175,6 +175,22 @@ void atendercliente(int socket)
 					}
 					break;
 
+				case PEDIDO_FLUSH:
+					printf(GRN "\t procesando PEDIDO_FLUSH\n");
+
+					respuesta = procesarPedidoFlush((char*)pedido);
+					if(respuesta != NULL)
+					{
+						enviar(socket, RESPUESTA_GETATTR, respuesta);
+						printf(GRN "\t devolviendo RESPUESTA_FLUSH \n" RESET);
+					}
+					else
+					{
+						enviar(socket, ENOENTRY, pedido);
+						printf(YEL "\t devolviendo respuesta ENOENT \n" RESET);
+					}
+					break;
+
 				case PEDIDO_MKDIR:
 					printf(MAG "\t procesando PEDIDO_MKDIR\n" RESET);
 
@@ -400,6 +416,14 @@ void* procesarPedidoGetatrr(char *path)
 {
 	printf("\t path: %s\n", path);
 	return getAttr(path);
+}
+
+void* procesarPedidoFlush(char *path)
+{
+	printf(MAG "\t path: %s\n" RESET, path);
+	char* respuesta = malloc(sizeof(char));
+	respuesta[0] = flushArchivo(path);
+	return respuesta;
 }
 
 void* procesarPedidoMkdir(char *path)//const char *path, mode_t mode

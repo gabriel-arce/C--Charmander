@@ -199,6 +199,39 @@ static int osada_getattr(const char *path, struct stat *stbuf)
   }
 }
 
+static int osada_flush(const char *path, struct fuse_file_info *fi)
+{
+  log_info(logCliente, "******************************************************************************" );
+  log_info(logCliente, "****************** FUSE: llamada a osada_flush() *****************************" );
+  log_info(logCliente, "******************************************************************************" );
+
+  log_info(logCliente, path);
+
+  int head = 0;
+  void* paquete = NULL;
+
+  pthread_mutex_lock(&mutex_comunicacion);
+    enviar(*socketServidor, PEDIDO_FLUSH, (void*)path);
+    log_info(logCliente, "	Envie PEDIDO_FLUSH");
+    paquete = recibir(*socketServidor, &head);
+  pthread_mutex_unlock(&mutex_comunicacion);
+
+  if (head == RESPUESTA_FLUSH)
+  {
+    log_info(logCliente, "	Recibi RESPUESTA_FLUSH");
+  }
+  else if (head == ENOENTRY)
+  {
+    log_info(logCliente, "	Recibi respuesta ENOENT en osada_mkdir........................................");
+  }
+  else
+  {
+    log_info(logCliente, "	No recibi RESPUESTA_FLUSH en osada_mkdir......................................");
+  }
+  free(paquete);
+  return 0;
+}
+
 static int osada_mkdir(const char *path, mode_t mode)
 {
   // crear un directorio

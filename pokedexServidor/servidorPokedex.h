@@ -41,6 +41,8 @@
 #define PEDIDO_RELEASE 35
 #define RESPUESTA_RELEASE 36
 #define PEDIDO_TRUNCATE_NEW_SIZE 37
+#define PEDIDO_FLUSH 38
+#define RESPUESTA_FLUSH 39
 
 void atendercliente(int socket);
 void* hiloComunicacion(void* arg);
@@ -50,6 +52,7 @@ void printTerminar();
 
 void* procesarPedidoCreate(char *pedido);
 void* procesarPedidoGetatrr(char *path);
+void* procesarPedidoFlush(char *path);
 void* procesarPedidoMkdir(char *path);
 void* procesarPedidoOpen(char* path);
 void* procesarPedidoRead(void* buffer, uint32_t* tamanioBuffer);

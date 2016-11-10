@@ -42,9 +42,13 @@
 #define PEDIDO_RELEASE 35
 #define RESPUESTA_RELEASE 36
 #define PEDIDO_TRUNCATE_NEW_SIZE 37
+#define PEDIDO_FLUSH 38
+#define RESPUESTA_FLUSH 39
+
 
 static int osada_create(const char *path, mode_t mode, struct fuse_file_info *fi);
 static int osada_getattr(const char *path, struct stat *stbuf);
+static int osada_flush(const char *path, struct fuse_file_info *fi);
 static int osada_mkdir(const char *path, mode_t mode);
 static int osada_readdir(const char *path, void *buf, fuse_fill_dir_t filler, off_t offset, struct fuse_file_info *fi);
 static int osada_read(const char *path, char *buf, size_t size, off_t offset, struct fuse_file_info *fi);
@@ -82,7 +86,8 @@ static struct fuse_operations osada_oper = {
 .create = osada_create, //crear y abrir un archivo
 .truncate = osada_truncate, //redimensionar archivo
 .open = osada_open, //abre un archivo
-.release = osada_release, //libera un archivo que estuvo abierto?
+.release = osada_release, //libera un archivo que estuvo abierto
+.flush = osada_flush,
 };
 
 enum {

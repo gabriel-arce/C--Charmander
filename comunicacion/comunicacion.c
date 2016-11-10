@@ -178,6 +178,7 @@ int calcularTamanioMensaje(int head, void* mensaje)
 	{
 		case HANDSHAKE:
 		case PEDIDO_GETATTR:
+		case PEDIDO_FLUSH:
 		case PEDIDO_READDIR:
 		case RESPUESTA_READDIR:
 		case PEDIDO_UNLINK:
@@ -213,6 +214,7 @@ int calcularTamanioMensaje(int head, void* mensaje)
 			break;
 
 		case RESPUESTA_CREATE:
+		case RESPUESTA_FLUSH:
 		case RESPUESTA_MKDIR:
 		case RESPUESTA_OPEN:
 		case RESPUESTA_RMDIR:
@@ -274,8 +276,9 @@ void* serializar(int head, void* mensaje, int tamanio)
 	{
 		case HANDSHAKE:
 
-		case PEDIDO_GETATTR://quiero enviar un path
 		case PEDIDO_CREATE:
+		case PEDIDO_GETATTR://quiero enviar un path
+    case PEDIDO_FLUSH:
 		case PEDIDO_MKDIR:
 		case PEDIDO_OPEN:
 		case PEDIDO_READ:
@@ -288,6 +291,7 @@ void* serializar(int head, void* mensaje, int tamanio)
 		case PEDIDO_WRITE:
 
 		case RESPUESTA_CREATE:
+		case RESPUESTA_FLUSH:
 		case RESPUESTA_MKDIR:
 		case RESPUESTA_OPEN:
 		case RESPUESTA_READ:

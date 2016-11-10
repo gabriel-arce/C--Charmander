@@ -64,6 +64,12 @@ char abrirArchivo(char* path)
 	return 's';
 }
 
+char flushArchivo(char* path)
+{
+	//TODO: ver si me sirve para mantener los archivos abiertos
+	return 's';
+}
+
 char liberarArchivo(char* path)
 {
 	//TODO: chequear que el archivo exista en la tabla de archivos abiertos y marcarlo como cerrado
