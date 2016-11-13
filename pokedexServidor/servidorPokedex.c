@@ -51,6 +51,7 @@
 
 t_log logServidor;
 int	listenningSocket;
+t_bitarray* bitmap;
 pthread_mutex_t mutex_comunicacion  = PTHREAD_MUTEX_INITIALIZER;
 
 
@@ -59,7 +60,7 @@ int main(int argc, char ** argv)
 {
 	printEncabezado();
 	inicializarDisco();
-
+        bitmap = bitarray_create(disco + BLOCK_SIZE, oheader.fs_blocks * BLOCK_SIZE);
 	pthread_mutex_lock(&mutex_comunicacion);
 		listenningSocket = crearServer(PUERTO);
 	pthread_mutex_unlock(&mutex_comunicacion);
@@ -602,4 +603,74 @@ void terminar()
 	printTerminar();
 
 	exit(0);
+}
+
+int buscarBloqueLibre() {
+	int i;
+	for (i = 0; i < oheader.fs_blocks; ++i) {
+		if (bitarray_test_bit(bitmap, i) == 0) {
+                       //Seteo el bit y lo devuelvo 
+			bitarray_set_bit(bitmap, i);
+			return i;
+		}
+	}
+	return -1;
+}
+
+char borrarArchivo(char* path)
+{
+/*	//lee la tabla de archivos, pone en cero/borrado el estado del archivo y actualiza el bitmap
+	//devuelve 's' para indicar ok al cliente o 'n' si fallo el pedido
+	int posicion;
+
+	osada_file* archivo = buscarArchivo(path, &posicion);
+	if (archivo == NULL)
+	{
+		printf(RED "\t No se encontro el archivo\n" RESET);
+		return 'n';
+	}
+
+//si encuentra el archivo, lo borro
+while (tablaDeArchivos[file].bloqueInicial != 0) {
+			j = tablaDeArchivos[file].bloqueInicial;
+			bitarray_clean_bit(bitmap, j);
+			tablaDeArchivos[file].bloqueInicial = tablaDeAsignaciones[j];
+			tablaDeAsignaciones[j] = 0;
+		}
+		tablaDeArchivos[file].bloqueInicial = -1;
+		tablaDeArchivos[file].bloquePadre = -1;
+		tablaDeArchivos[file].estado = BORRADO;
+		tablaDeArchivos[file].tamanioArchivo = 0;
+		log_trace(log, "Se ah borrado el archivo: %s", tablaDeArchivos[file].nombreArchivo);
+		sincronizarMemoria();
+		return 1;
+
+		archivo->state = 0;
+		escribirArchivo(posicion, archivo);
+
+		//TODO: falta actualizar el bitmap
+
+	printf(YEL "\t Se borro el archivo: %s\n" RESET, archivo->fname);
+*/
+	return 's';
+}
+
+uint32_t bitmapOcupados() {
+	int i;
+	uint32_t ocupados = 0;
+	for (i = 0; i < oheader.fs_blocks * BLOCK_SIZE * 8; ++i) {
+		if (bitarray_test_bit(bitmap, i))
+			ocupados++;
+	}
+	return ocupados;
+}
+
+void sincronizarMemoria() {
+	//memcpy(data, &fileHeader, BLOCK_SIZE);
+	memcpy(data + BLOCK_SIZE, bitmap, oheader.fs_blocks);
+	//memcpy(data + (1 + N) * BLOCK_SIZE, tablaDeArchivos, 1024 * BLOCK_SIZE);
+	//memcpy(data + (1025 + N) * BLOCK_SIZE, tablaDeAsignaciones, A);
+	//memcpy(data + (1025 + N + A) * BLOCK_SIZE, bloquesDeDatos, X);
+	//log_trace(log, "Memoria sincronizada");
+
 }
