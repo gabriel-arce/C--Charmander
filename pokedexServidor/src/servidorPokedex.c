@@ -4,57 +4,8 @@
 *  Created on: 29/9/2016
 *      Author: Guadalupe
 */
-#include <commons/bitarray.h>
-#include <commons/string.h>
-#include <commons/log.h>
-#include <commons/config.h>
-#include <commons/collections/queue.h>
-#include <commons/collections/list.h>
-#include <commons/collections/dictionary.h>
-#include <comunicacion.h>
 
-#include <errno.h>
-#include <fcntl.h>
-#include <netinet/in.h>
-#include <netdb.h>
-#include <pthread.h>
-
-#include <semaphore.h>
-#include <signal.h>
-#include <stdbool.h>
-#include <string.h>
-#include <stdint.h>
-#include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
-#include <math.h>
-
-#include <sys/types.h>
-#include <sys/select.h>
-#include <sys/socket.h>
-#include <sys/stat.h>
-#include <sys/mman.h>
-#include <unistd.h>
-
-#include <osada.h>
 #include "servidorPokedex.h"
-
-//colores para los prints en la consola
-#define RED   "\x1B[31m"
-#define GRN   "\x1B[32m"
-#define YEL   "\x1B[33m"
-#define BLU   "\x1B[34m"
-#define MAG   "\x1B[35m"
-#define CYN   "\x1B[36m"
-#define WHT   "\x1B[37m"
-#define RESET "\x1B[0m"
-
-t_log logServidor;
-int	listenningSocket;
-t_bitarray* bitmap;
-pthread_mutex_t mutex_comunicacion  = PTHREAD_MUTEX_INITIALIZER;
-
-
 
 int main(int argc, char ** argv)
 {
@@ -667,7 +618,7 @@ uint32_t bitmapOcupados() {
 
 void sincronizarMemoria() {
 	//memcpy(data, &fileHeader, BLOCK_SIZE);
-	memcpy(data + BLOCK_SIZE, bitmap, oheader.fs_blocks);
+//	memcpy(data + BLOCK_SIZE, bitmap, oheader.fs_blocks);
 	//memcpy(data + (1 + N) * BLOCK_SIZE, tablaDeArchivos, 1024 * BLOCK_SIZE);
 	//memcpy(data + (1025 + N) * BLOCK_SIZE, tablaDeAsignaciones, A);
 	//memcpy(data + (1025 + N + A) * BLOCK_SIZE, bloquesDeDatos, X);

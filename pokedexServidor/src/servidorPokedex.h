@@ -5,6 +5,12 @@
  *      Author: utnso
  */
 
+#include <comunicacion.h>
+#include <osada.h>
+#include <signal.h>
+#include <pthread.h>
+
+
 #ifndef SERVIDORPOKEDEX_H_
 #define SERVIDORPOKEDEX_H_
 
@@ -45,6 +51,12 @@
 #define RESPUESTA_FLUSH 39
 
 #define BLOCK_SIZE	64
+
+//Variables Globales
+t_log logServidor;
+int	listenningSocket;
+t_bitarray* bitmap;
+pthread_mutex_t mutex_comunicacion  = PTHREAD_MUTEX_INITIALIZER;
 
 void atendercliente(int socket);
 void* hiloComunicacion(void* arg);
