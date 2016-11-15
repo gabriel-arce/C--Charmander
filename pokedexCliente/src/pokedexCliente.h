@@ -40,6 +40,31 @@ int iret1;
 pthread_t thread_Planificador;
 pthread_mutex_t mutex_comunicacion  = PTHREAD_MUTEX_INITIALIZER;
 
+struct t_runtime_options
+{
+	char* welcome_msg;
+} runtime_options;
+
+static struct fuse_operations osada_oper;
+
+enum {
+KEY_VERSION,
+KEY_HELP,
+};
+
+static struct fuse_opt fuse_options[] = {
+	// Este es un parametro definido por nosotros
+	CUSTOM_FUSE_OPT_KEY("--welcome-msg %s", welcome_msg, 0),
+	// Estos son parametros por defecto que ya tiene FUSE
+	FUSE_OPT_KEY("-V", KEY_VERSION),
+	FUSE_OPT_KEY("--version", KEY_VERSION),
+	FUSE_OPT_KEY("-h", KEY_HELP),
+	FUSE_OPT_KEY("--help", KEY_HELP),
+	FUSE_OPT_END,
+};
+
+struct tm *timeinfo;
+
 
 
 //Funciones
@@ -66,26 +91,7 @@ void printServidorDesconectado();
 
 void terminar();
 
-struct t_runtime_options
-{
-	char* welcome_msg;
-} runtime_options;
+time_t obtenerFecha();
 
-static struct fuse_operations osada_oper;
 
-enum {
-KEY_VERSION,
-KEY_HELP,
-};
-
-static struct fuse_opt fuse_options[] = {
-	// Este es un parametro definido por nosotros
-	CUSTOM_FUSE_OPT_KEY("--welcome-msg %s", welcome_msg, 0),
-	// Estos son parametros por defecto que ya tiene FUSE
-	FUSE_OPT_KEY("-V", KEY_VERSION),
-	FUSE_OPT_KEY("--version", KEY_VERSION),
-	FUSE_OPT_KEY("-h", KEY_HELP),
-	FUSE_OPT_KEY("--help", KEY_HELP),
-	FUSE_OPT_END,
-};
 #endif /* POKEDEXCLIENTE_H_ */
