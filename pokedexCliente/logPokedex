@@ -1,0 +1,119 @@
+[INFO] 13:39:55:321 Pokedex/(15613:15613): ****************** Creando archivo Log *******************************************
+[INFO] 13:39:55:322 Pokedex/(15613:15613): ****************** Estableciendo conexion con el servidor... 
+[INFO] 13:39:55:322 Pokedex/(15613:15613): ****************** No se pudo establecer la conexion con el servidor *************
+[INFO] 13:39:55:322 Pokedex/(15613:15613): ****************** Terminando el programa ****************************************
+[INFO] 13:39:55:322 Pokedex/(15613:15613): **********************************************************************************
+[INFO] 13:40:43:398 Pokedex/(15677:15677): ****************** Creando archivo Log *******************************************
+[INFO] 13:40:43:398 Pokedex/(15677:15677): ****************** Estableciendo conexion con el servidor... 
+[INFO] 13:40:43:398 Pokedex/(15677:15677): ****************** No se pudo establecer la conexion con el servidor *************
+[INFO] 13:40:43:398 Pokedex/(15677:15677): ****************** Terminando el programa ****************************************
+[INFO] 13:40:43:398 Pokedex/(15677:15677): **********************************************************************************
+[INFO] 13:41:49:960 Pokedex/(15733:15733): ****************** Creando archivo Log *******************************************
+[INFO] 13:41:59:694 Pokedex/(15733:15733): ****************** Estableciendo conexion con el servidor... 
+[INFO] 13:42:04:234 Pokedex/(15733:15733): ****************** No se pudo establecer la conexion con el servidor *************
+[INFO] 13:42:04:234 Pokedex/(15733:15733): ****************** Terminando el programa ****************************************
+[INFO] 13:42:04:234 Pokedex/(15733:15733): **********************************************************************************
+[INFO] 13:42:35:20 Pokedex/(15858:15858): ****************** Creando archivo Log *******************************************
+[INFO] 13:42:39:577 Pokedex/(15858:15858): ****************** Estableciendo conexion con el servidor... 
+[INFO] 13:42:49:438 Pokedex/(15858:15858): 	Enviando mensaje handshake al servidor
+[INFO] 13:42:55:70 Pokedex/(15858:15858): 	Recibi mensaje handshake  del servidor
+[INFO] 13:42:55:70 Pokedex/(15858:15858): ****************** Se establecio la conexion con exito *********************
+[INFO] 13:42:56:864 Pokedex/(15858:15858): ****************** Llamo a fuse main  ********************************************
+[INFO] 13:48:34:228 Pokedex/(16106:16106): ****************** Creando archivo Log *******************************************
+[INFO] 13:48:37:882 Pokedex/(16106:16106): ****************** Estableciendo conexion con el servidor... 
+[INFO] 13:48:41:9 Pokedex/(16106:16106): 	Enviando mensaje handshake al servidor
+[INFO] 13:48:43:294 Pokedex/(16106:16106): 	Recibi mensaje handshake  del servidor
+[INFO] 13:48:43:294 Pokedex/(16106:16106): ****************** Se establecio la conexion con exito *********************
+[INFO] 13:48:45:37 Pokedex/(16106:16106): ****************** Llamo a fuse main  ********************************************
+[INFO] 13:50:07:660 Pokedex/(16297:16297): ****************** Creando archivo Log *******************************************
+[INFO] 13:50:07:660 Pokedex/(16297:16297): ****************** Estableciendo conexion con el servidor... 
+[INFO] 13:50:07:660 Pokedex/(16297:16297): 	Enviando mensaje handshake al servidor
+[INFO] 13:50:07:662 Pokedex/(16297:16297): 	Recibi mensaje handshake  del servidor
+[INFO] 13:50:07:662 Pokedex/(16297:16297): ****************** Se establecio la conexion con exito *********************
+[INFO] 13:50:07:662 Pokedex/(16297:16297): ****************** Llamo a fuse main  ********************************************
+[INFO] 14:43:09:594 Pokedex/(16967:16967): ****************** Creando archivo Log *******************************************
+[INFO] 14:43:09:594 Pokedex/(16967:16967): ****************** Estableciendo conexion con el servidor... 
+[INFO] 14:43:09:594 Pokedex/(16967:16967): 	Enviando mensaje handshake al servidor
+[INFO] 14:43:09:594 Pokedex/(16967:16967): 	Recibi mensaje handshake  del servidor
+[INFO] 14:43:09:594 Pokedex/(16967:16967): ****************** Se establecio la conexion con exito *********************
+[INFO] 14:43:09:594 Pokedex/(16967:16967): ****************** Llamo a fuse main  ********************************************
+[INFO] 14:43:28:833 Pokedex/(17005:17005): ****************** Creando archivo Log *******************************************
+[INFO] 14:43:28:833 Pokedex/(17005:17005): ****************** Estableciendo conexion con el servidor... 
+[INFO] 14:43:28:833 Pokedex/(17005:17005): 	Enviando mensaje handshake al servidor
+[INFO] 14:43:28:833 Pokedex/(17005:17005): 	Recibi mensaje handshake  del servidor
+[INFO] 14:43:28:833 Pokedex/(17005:17005): ****************** Se establecio la conexion con exito *********************
+[INFO] 14:43:28:833 Pokedex/(17005:17005): ****************** Llamo a fuse main  ********************************************
+[INFO] 14:46:29:481 Pokedex/(17106:17106): ****************** Creando archivo Log *******************************************
+[INFO] 14:46:29:481 Pokedex/(17106:17106): ****************** Estableciendo conexion con el servidor... 
+[INFO] 14:46:29:481 Pokedex/(17106:17106): 	Enviando mensaje handshake al servidor
+[INFO] 14:46:29:481 Pokedex/(17106:17106): 	Recibi mensaje handshake  del servidor
+[INFO] 14:46:29:481 Pokedex/(17106:17106): ****************** Se establecio la conexion con exito *********************
+[INFO] 14:46:29:481 Pokedex/(17106:17106): ****************** Llamo a fuse main  ********************************************
+[INFO] 14:47:14:132 Pokedex/(17146:17146): ****************** Creando archivo Log *******************************************
+[INFO] 14:47:14:132 Pokedex/(17146:17146): ****************** Estableciendo conexion con el servidor... 
+[INFO] 14:47:14:133 Pokedex/(17146:17146): 	Enviando mensaje handshake al servidor
+[INFO] 14:47:14:133 Pokedex/(17146:17146): 	Recibi mensaje handshake  del servidor
+[INFO] 14:47:14:133 Pokedex/(17146:17146): ****************** Se establecio la conexion con exito *********************
+[INFO] 14:47:14:133 Pokedex/(17146:17146): ****************** Llamo a fuse main  ********************************************
+[INFO] 14:47:32:431 Pokedex/(17204:17204): ****************** Creando archivo Log *******************************************
+[INFO] 14:47:32:431 Pokedex/(17204:17204): ****************** Estableciendo conexion con el servidor... 
+[INFO] 14:47:32:431 Pokedex/(17204:17204): 	Enviando mensaje handshake al servidor
+[INFO] 14:47:32:432 Pokedex/(17204:17204): 	Recibi mensaje handshake  del servidor
+[INFO] 14:47:32:432 Pokedex/(17204:17204): ****************** Se establecio la conexion con exito *********************
+[INFO] 14:47:32:432 Pokedex/(17204:17204): ****************** Llamo a fuse main  ********************************************
+[INFO] 14:49:43:696 Pokedex/(17295:17295): ****************** Creando archivo Log *******************************************
+[INFO] 14:49:43:696 Pokedex/(17295:17295): ****************** Estableciendo conexion con el servidor... 
+[INFO] 14:49:43:697 Pokedex/(17295:17295): 	Enviando mensaje handshake al servidor
+[INFO] 14:49:43:697 Pokedex/(17295:17295): 	Recibi mensaje handshake  del servidor
+[INFO] 14:49:43:697 Pokedex/(17295:17295): ****************** Se establecio la conexion con exito *********************
+[INFO] 14:49:43:697 Pokedex/(17295:17295): ****************** Llamo a fuse main  ********************************************
+[INFO] 14:49:43:704 Pokedex/(17295:17305): ****************** FUSE: llamada a osada_getattr() ******************************
+[INFO] 14:49:43:704 Pokedex/(17295:17305): /.xdg-volume-info
+[INFO] 14:49:43:704 Pokedex/(17295:17305): 	Recibi ENOENT
+[INFO] 14:49:43:704 Pokedex/(17295:17305): ****************** FUSE: llamada a osada_getattr() ******************************
+[INFO] 14:49:43:704 Pokedex/(17295:17305): /
+[INFO] 14:49:43:704 Pokedex/(17295:17307): ****************** FUSE: llamada a osada_getattr() ******************************
+[INFO] 14:49:43:704 Pokedex/(17295:17307): /autorun.inf
+[INFO] 14:49:43:704 Pokedex/(17295:17307): 	Recibi ENOENT
+[INFO] 14:49:43:704 Pokedex/(17295:17305): 	Recibi RESPUESTA_GETATTR
+[INFO] 14:49:43:704 Pokedex/(17295:17306): ****************** FUSE: llamada a osada_getattr() ******************************
+[INFO] 14:49:43:704 Pokedex/(17295:17306): /.Trash
+[INFO] 14:49:43:704 Pokedex/(17295:17306): 	Recibi ENOENT
+[INFO] 14:49:43:704 Pokedex/(17295:17307): ******************************************************************************
+[INFO] 14:49:43:704 Pokedex/(17295:17307): ****************** FUSE: llamada a osada_readdir() ***************************
+[INFO] 14:49:43:704 Pokedex/(17295:17307): ******************************************************************************
+[INFO] 14:49:43:704 Pokedex/(17295:17307): /
+[INFO] 14:49:43:704 Pokedex/(17295:17307): 	Envie PEDIDO_READDIR
+[INFO] 14:49:43:705 Pokedex/(17295:17307): 	Recibi RESPUESTA_READDIR
+[INFO] 14:49:43:705 Pokedex/(17295:17307): Pokemons/Celadon City/README.txt/Cerulean City/Fuchsia City/Lavender Town/Pallet Town/Pewter City/Saffron City/Vermilion City/Viridian City/
+[INFO] 14:50:05:91 Pokedex/(17362:17362): ****************** Creando archivo Log *******************************************
+[INFO] 14:50:05:91 Pokedex/(17362:17362): ****************** Estableciendo conexion con el servidor... 
+[INFO] 14:50:05:92 Pokedex/(17362:17362): 	Enviando mensaje handshake al servidor
+[INFO] 14:50:05:92 Pokedex/(17362:17362): 	Recibi mensaje handshake  del servidor
+[INFO] 14:50:05:92 Pokedex/(17362:17362): ****************** Se establecio la conexion con exito *********************
+[INFO] 14:50:05:92 Pokedex/(17362:17362): ****************** Llamo a fuse main  ********************************************
+[INFO] 14:52:57:375 Pokedex/(17466:17466): ****************** Creando archivo Log *******************************************
+[INFO] 14:52:57:375 Pokedex/(17466:17466): ****************** Estableciendo conexion con el servidor... 
+[INFO] 14:52:57:375 Pokedex/(17466:17466): 	Enviando mensaje handshake al servidor
+[INFO] 14:52:57:375 Pokedex/(17466:17466): 	Recibi mensaje handshake  del servidor
+[INFO] 14:52:57:375 Pokedex/(17466:17466): ****************** Se establecio la conexion con exito *********************
+[INFO] 14:52:57:375 Pokedex/(17466:17466): ****************** Llamo a fuse main  ********************************************
+[INFO] 14:52:57:380 Pokedex/(17466:17476): ****************** FUSE: llamada a osada_getattr() ******************************
+[INFO] 14:52:57:380 Pokedex/(17466:17476): /.xdg-volume-info
+[INFO] 14:52:57:380 Pokedex/(17466:17479): ****************** FUSE: llamada a osada_getattr() ******************************
+[INFO] 14:52:57:380 Pokedex/(17466:17476): 	Recibi ENOENT
+[INFO] 14:52:57:380 Pokedex/(17466:17479): /
+[INFO] 14:52:57:380 Pokedex/(17466:17477): ****************** FUSE: llamada a osada_getattr() ******************************
+[INFO] 14:52:57:380 Pokedex/(17466:17477): /autorun.inf
+[INFO] 14:52:57:380 Pokedex/(17466:17477): 	Recibi ENOENT
+[INFO] 14:52:57:380 Pokedex/(17466:17479): 	Recibi RESPUESTA_GETATTR
+[INFO] 14:52:57:380 Pokedex/(17466:17478): ****************** FUSE: llamada a osada_getattr() ******************************
+[INFO] 14:52:57:380 Pokedex/(17466:17478): /.Trash
+[INFO] 14:52:57:380 Pokedex/(17466:17478): 	Recibi ENOENT
+[INFO] 14:52:57:380 Pokedex/(17466:17476): ******************************************************************************
+[INFO] 14:52:57:380 Pokedex/(17466:17476): ****************** FUSE: llamada a osada_readdir() ***************************
+[INFO] 14:52:57:380 Pokedex/(17466:17476): ******************************************************************************
+[INFO] 14:52:57:381 Pokedex/(17466:17476): /
+[INFO] 14:52:57:381 Pokedex/(17466:17476): 	Envie PEDIDO_READDIR
+[INFO] 14:52:57:381 Pokedex/(17466:17476): 	Recibi RESPUESTA_READDIR
+[INFO] 14:52:57:381 Pokedex/(17466:17476): Pokemons/Celadon City/README.txt/Cerulean City/Fuchsia City/Lavender Town/Pallet Town/Pewter City/Saffron City/Vermilion City/Viridian City/

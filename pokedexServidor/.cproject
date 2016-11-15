@@ -44,7 +44,7 @@
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/commons/Debug}&quot;"/>
 								</option>
 								<option id="gnu.c.link.option.libs.586702337" name="Libraries (-l)" superClass="gnu.c.link.option.libs" useByScannerDiscovery="false" valueType="libs">
-									<listOptionValue builtIn="false" value="osadaFS"/>
+									<listOptionValue builtIn="false" srcPrefixMapping="" srcRootPath="" value="osadaFS"/>
 									<listOptionValue builtIn="false" value="pthread"/>
 									<listOptionValue builtIn="false" value="comunicacion"/>
 									<listOptionValue builtIn="false" value="commons"/>
