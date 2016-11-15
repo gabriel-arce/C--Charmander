@@ -1,9 +1,38 @@
 #ifndef COMUNICACION_H_
 #define COMUNICACION_H_
 
+#include <commons/config.h>
+#include <commons/collections/queue.h>
+#include <commons/collections/list.h>
+#include <commons/collections/dictionary.h>
+#include <commons/string.h>
+#include <commons/log.h>
+#include <commons/bitarray.h>
+
 #include <fuse.h>
+#include <errno.h>
+#include <math.h>
+#include <netdb.h>
+#include <netinet/in.h>
+#include <pthread.h>
+#include <semaphore.h>
+#include <stdbool.h>
 #include <stdint.h>
+#include <stdlib.h>
+#include <stdio.h>
+#include <string.h>
+#include <sys/types.h>
+#include <sys/socket.h>
 #include <sys/stat.h>
+#include <sys/select.h>
+#include <unistd.h>
+#include <fcntl.h>
+#include <signal.h>
+#include <math.h>
+#include <sys/mman.h>
+#include <signal.h>
+#include <stddef.h>
+
 
 #define HANDSHAKE  777
 #define ERROR -1
@@ -38,8 +67,6 @@
 #define PEDIDO_FLUSH 38
 #define RESPUESTA_FLUSH 39
 
-
-
 //colores para los prints en la consola
 #define RED   "\x1B[31m"
 #define GRN   "\x1B[32m"
@@ -53,45 +80,36 @@
 //-----estructuras para paquetes-------------------------------------------------------------------------------------
 
 //para el stat de fuse en getattr
-typedef struct
-{
+typedef struct{
 	mode_t  mode;
 	nlink_t  nlink;
 	off_t  size;
-}__attribute__((packed))
-t_stbuf;
+}__attribute__((packed)) t_stbuf;
 
 //para fuse en pedido write
-typedef struct
-{
+typedef struct{
 	size_t size;
 	off_t offset;
 	int pathLen;
 	int bufLen;
-
-}__attribute__((packed))
-t_writebuf;
+}__attribute__((packed)) t_writebuf;
 
 //para   fuse en pedido read
-typedef struct
-{
+typedef struct{
 	size_t size;
 	off_t offset;
 	int pathLen;
-}__attribute__((packed))
-t_readbuf;
+}__attribute__((packed)) t_readbuf;
 
 //para el  fuse en respuesta read
-typedef struct
-{
+typedef struct{
 	char *buf; 
-}__attribute__((packed))
-t_readRespuesta;
+}__attribute__((packed)) t_readRespuesta;
 
 //header para enviar mensajes
 typedef struct {
-char tipo;
-int tamanio;
+	char tipo;
+	int tamanio;
 }__attribute__((packed)) t_header;
 
 

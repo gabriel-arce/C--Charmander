@@ -1,28 +1,4 @@
-#include <commons/config.h>
-#include <commons/collections/queue.h>
-#include <commons/collections/list.h>
-#include <commons/collections/dictionary.h>
-#include <commons/string.h>
-#include <commons/log.h>
 
-#include <errno.h>
-#include <math.h>
-#include <netdb.h>
-#include <netinet/in.h>
-#include <pthread.h>
-
-#include <semaphore.h>
-#include <stdbool.h>
-#include <stdint.h>
-#include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
-
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <sys/stat.h>
-#include <sys/select.h>
-#include <unistd.h>
 
 #include "comunicacion.h"
 

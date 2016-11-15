@@ -1,4 +1,5 @@
-#include <stdint.h>
+
+#include <comunicacion.h>
 
 #ifndef __OSADA_H__
 #define __OSADA_H__
@@ -53,6 +54,28 @@ typedef struct {
 
 _Static_assert( sizeof(osada_file) == (sizeof(osada_block) / 2.0), "osada_file size does not half osada_block size");
 
+
+
+//Variables Globales
+char* disco;
+off_t tamanioArchivo;
+int32_t descriptorArchivo;
+osada_header oheader;
+
+int offsetBitmap;
+int offsetTablaArchivos;
+int offsetAsignaciones;
+int offsetDatos;
+int baseTablaAsignacionesBitmap;
+int limiteTablaAsignacionesBitmap;
+
+uint32_t  bitmapSize, dataBlocks, bloques, maximoBit;
+t_bitarray* bitVector;
+struct stat fileStat;
+
+
+
+//Funciones
 char abrirArchivo(char* path);
 char liberarArchivo(char* path);
 char flushArchivo(char* path);

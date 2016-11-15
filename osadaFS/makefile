@@ -5,7 +5,7 @@ INSTALL_DIR=/usr/lib
 INSTALL_DIR_INCLUDE=/usr/include
 
 compile:
-	gcc -shared -fPIC -D_FILE_OFFSET_BITS=64 -DFUSE_USE_VERSION=27 osada.c -o $(OSADA_SO)
+	gcc -shared -fPIC -D_FILE_OFFSET_BITS=64 -DFUSE_USE_VERSION=30 osada.c -o $(OSADA_SO)
 
 install: compile
 	cp -u $(OSADA_SO) $(INSTALL_DIR)
