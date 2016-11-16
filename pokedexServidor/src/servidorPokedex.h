@@ -16,8 +16,10 @@
 
 #define PUERTO "4969"
 #define BACKLOG 15	// Define cuantas conexiones vamos a mantener pendientes al mismo tiempo
-//pasar a un .h los pedidos respuestas
+
+
 #define HANDSHAKE 777
+#define ERROR -1
 
 #define PEDIDO_GETATTR 12
 #define PEDIDO_READDIR 13
@@ -50,6 +52,29 @@
 #define PEDIDO_FLUSH 38
 #define RESPUESTA_FLUSH 39
 
+#define PEDIDO_UTIMENS 40
+#define RESPUESTA_UTIMENS 47
+#define RESPUESTA_ERROR 41
+
+#define ERRDQUOT 42 //archivo 2049, no hay espacio en la tabla de archivos
+#define ERRFBIG 43 //no hay bloques de datos disponibles
+#define ERRNAMETOOLONG 44 //nombres de archivos con mas de 17 caracteres
+#define PEDIDO_MKNOD 45
+#define RESPUESTA_MKNOD 46
+
+//colores para los prints en la consola
+#define RED   "\x1B[31m"
+#define GRN   "\x1B[32m"
+#define YEL   "\x1B[33m"
+#define BLU   "\x1B[34m"
+#define MAG   "\x1B[35m"
+#define CYN   "\x1B[36m"
+#define RESET "\x1B[0m"
+#define NAR "\033[38;5;166m"//naranja
+#define PINK "\033[38;5;168m"//rosa
+#define VIO "\033[38;5;129m"//violeta
+#define PINK2 "\033[38;5;207m"//violeta
+
 #define BLOCK_SIZE	64
 
 //Variables Globales
@@ -64,10 +89,13 @@ void liberarRecursos(); //TODO
 void printEncabezado();
 void printTerminar();
 
-void* procesarPedidoCreate(char *pedido);
+void* procesarCrearEntradaTablaDeArchivos(char *path, int* codigo, int modo);
+
+void* procesarPedidoCreate(char *path, int* codigo);
 void* procesarPedidoGetatrr(char *path);
 void* procesarPedidoFlush(char *path);
-void* procesarPedidoMkdir(char *path);
+void* procesarPedidoMkdir(char *path, int* codigo);
+void* procesarPedidoMknod(char *path, int* codigo);
 void* procesarPedidoOpen(char* path);
 void* procesarPedidoRead(void* buffer, uint32_t* tamanioBuffer);
 void* procesarPedidoReaddir(char *path);
@@ -76,6 +104,7 @@ void* procesarPedidoRename(char *paths);
 void* procesarPedidoRmdir(char *path);
 void* procesarPedidoTruncate(off_t newSize, char* path);
 void* procesarPedidoUnlink(char *path);
+void* procesarPedidoUtimens(char *path);
 void* procesarPedidoWrite(void *buffer);
 
 void terminar();

@@ -68,6 +68,7 @@ struct tm *timeinfo;
 
 
 //Funciones
+static int osada_access(const char *filename, int how);
 static int osada_create(const char *path, mode_t mode, struct fuse_file_info *fi);
 static int osada_getattr(const char *path, struct stat *stbuf);
 static int osada_flush(const char *path, struct fuse_file_info *fi);
@@ -79,9 +80,10 @@ static int osada_rename(const char *path, const char *newpath);
 static int osada_rmdir(const char *path);
 static int osada_truncate(const char *path, off_t new_size);
 static int osada_unlink(const char *path);
+static int osada_utimens(const char* path, const struct timespec ts[2]);
 static int osada_write(const char *path, const char *buf, size_t size, off_t offset, struct fuse_file_info *fi);
 static int osada_open(const char *path, struct fuse_file_info *fi);
-static int osada_access(const char *filename, int how);
+
 
 
 void printConectado();
@@ -92,8 +94,6 @@ void printMensajeInesperado(int head);
 void printServidorDesconectado();
 
 void terminar();
-
-time_t obtenerFecha();
 
 
 #endif /* POKEDEXCLIENTE_H_ */

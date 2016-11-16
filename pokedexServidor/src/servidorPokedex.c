@@ -12,7 +12,6 @@ int main(int argc, char ** argv)
 	printEncabezado();
 	inicializarDisco();
 
-    bitmap = bitarray_create(disco + BLOCK_SIZE, oheader.fs_blocks * BLOCK_SIZE);
 	pthread_mutex_lock(&mutex_comunicacion);
 		listenningSocket = crearServer(PUERTO);
 	pthread_mutex_unlock(&mutex_comunicacion);
@@ -81,6 +80,8 @@ void* hiloComunicacion(void* arg)
 void atendercliente(int socket)
 {
 	int continuar = 1;
+	int codigo = 0;
+
 	while(continuar)
 	{
 		printf("******** Atiendo al cliente %d *********************************************\n", socket);
@@ -99,27 +100,47 @@ void atendercliente(int socket)
 				case PEDIDO_CREATE:
 					printf(MAG "\t procesando PEDIDO_CREATE\n" RESET);
 
-					respuesta = procesarPedidoCreate((char*)pedido);
-					if(respuesta != NULL)
+					codigo = RESPUESTA_CREATE;
+					//respuesta = procesarPedidoCreate((char*)pedido, &codigo);
+					respuesta = procesarCrearEntradaTablaDeArchivos((char*)pedido, &codigo, 1);
+
+					switch(codigo)
 					{
-						enviar(socket, RESPUESTA_CREATE, respuesta);
-						printf(MAG "\t devolviendo RESPUESTA_CREATE\n" RESET);
-					}
-					else
-					{
-						enviar(socket, ENOENTRY, pedido);
-						printf(YEL "\t devolviendo respuesta ENOENT \n" RESET);
+						case RESPUESTA_CREATE:
+							enviar(socket, RESPUESTA_CREATE, respuesta);
+							printf(MAG "\t devolviendo RESPUESTA_CREATE\n" RESET);
+							break;
+
+						case ERRDQUOT:
+							enviar(socket, ERRDQUOT, respuesta);
+							printf(YEL "\t devolviendo ERRDQUOT\n" RESET);
+							break;
+
+						case ERRNAMETOOLONG:
+							enviar(socket, ERRNAMETOOLONG, respuesta);
+							printf(YEL "\t devolviendo ERRNAMETOOLONG\n" RESET);
+							break;
+
+						case RESPUESTA_ERROR:
+							enviar(socket, RESPUESTA_ERROR, respuesta);
+							printf(VIO "\t respondiendo  \n" RESET);
+							break;
+
+					    default:
+							enviar(socket, RESPUESTA_ERROR, respuesta);
+							printf(PINK2 "\t respondiendo  \n" RESET);
+							break;
 					}
 					break;
 
 				case PEDIDO_GETATTR:
-					printf("\t procesando PEDIDO_GETATTR\n");
+					printf( "\t procesando PEDIDO_GETATTR\n" );
 
 					respuesta = procesarPedidoGetatrr((char*)pedido);
 					if(respuesta != NULL)
 					{
 						enviar(socket, RESPUESTA_GETATTR, respuesta);
-						printf("\t devolviendo RESPUESTA_GETATTR \n");
+						printf( "\t devolviendo RESPUESTA_GETATTR \n" );
 					}
 					else
 					{
@@ -129,12 +150,12 @@ void atendercliente(int socket)
 					break;
 
 				case PEDIDO_FLUSH:
-					printf(GRN "\t procesando PEDIDO_FLUSH\n");
+					printf(GRN "\t procesando PEDIDO_FLUSH\n" RESET);
 
 					respuesta = procesarPedidoFlush((char*)pedido);
 					if(respuesta != NULL)
 					{
-						enviar(socket, RESPUESTA_GETATTR, respuesta);
+						enviar(socket, RESPUESTA_FLUSH, respuesta);
 						printf(GRN "\t devolviendo RESPUESTA_FLUSH \n" RESET);
 					}
 					else
@@ -147,16 +168,71 @@ void atendercliente(int socket)
 				case PEDIDO_MKDIR:
 					printf(MAG "\t procesando PEDIDO_MKDIR\n" RESET);
 
-					respuesta = procesarPedidoMkdir((char*)pedido);
-					if(respuesta != NULL)
+				    codigo = RESPUESTA_MKDIR;
+					//respuesta = procesarPedidoMkdir((char*)pedido, &codigo);
+					respuesta = procesarCrearEntradaTablaDeArchivos((char*)pedido, &codigo, 2);
+
+					switch(codigo)
 					{
-						enviar(socket, RESPUESTA_MKDIR, respuesta);
-						printf(MAG "\t devolviendo RESPUESTA_MKDIR\n" RESET);
+						case RESPUESTA_CREATE:
+							enviar(socket, RESPUESTA_MKDIR, respuesta);
+							printf(MAG "\t devolviendo RESPUESTA_MKDIR\n" RESET);
+							break;
+
+						case ERRDQUOT:
+							enviar(socket, ERRDQUOT, respuesta);
+							printf(YEL "\t devolviendo ERRDQUOT\n" RESET);
+							break;
+
+						case ERRNAMETOOLONG:
+							enviar(socket, ERRNAMETOOLONG, respuesta);
+							printf(YEL "\t devolviendo ERRNAMETOOLONG\n" RESET);
+							break;
+
+						case RESPUESTA_ERROR:
+							enviar(socket, RESPUESTA_ERROR, respuesta);
+							printf(VIO "\t respondiendo  \n" RESET);
+							break;
+
+					    default:
+							enviar(socket, RESPUESTA_ERROR, respuesta);
+							printf(PINK2 "\t respondiendo  \n" RESET);
+							break;
 					}
-					else
+					break;
+
+				case PEDIDO_MKNOD:
+					printf(MAG "\t procesando PEDIDO_MKNOD\n" RESET);
+
+					codigo = RESPUESTA_MKNOD;
+					//respuesta = procesarPedidoMknod((char*)pedido, &codigo);
+					respuesta = procesarCrearEntradaTablaDeArchivos((char*)pedido, &codigo, 1);
+
+					switch(codigo)
 					{
-						enviar(socket, ENOENTRY, pedido);
-						printf(YEL "\t devolviendo respuesta ENOENT \n" RESET);
+						case RESPUESTA_CREATE:
+							enviar(socket, RESPUESTA_MKNOD, respuesta);
+							printf(MAG "\t devolviendo RESPUESTA_MKNOD\n" RESET);
+							break;
+
+						case ERRDQUOT:
+							enviar(socket, ERRDQUOT, respuesta);
+							printf(YEL "\t devolviendo ERRDQUOT\n" RESET);
+							break;
+
+						case ERRNAMETOOLONG:
+							enviar(socket, ERRNAMETOOLONG, respuesta);
+							printf(YEL "\t devolviendo ERRNAMETOOLONG\n" RESET);
+							break;
+
+						case RESPUESTA_ERROR:
+							enviar(socket, RESPUESTA_ERROR, respuesta);
+							printf(VIO "\t respondiendo  \n" RESET);
+							break;
+					    default:
+							enviar(socket, RESPUESTA_ERROR, respuesta);
+							printf(PINK2 "\t respondiendo  \n" RESET);
+							break;
 					}
 					break;
 
@@ -199,13 +275,13 @@ void atendercliente(int socket)
 					break;
 
 				case PEDIDO_READDIR:
-					printf("\t procesando PEDIDO_READDIR\n");
+					printf( "\t procesando PEDIDO_READDIR\n" );
 
 					respuesta = procesarPedidoReaddir((char*)pedido);
 					if(respuesta != NULL)
 					{
 						enviar(socket, RESPUESTA_READDIR, respuesta);
-						printf("\t devolviendo RESPUESTA_READDIR\n");
+						printf( "\t devolviendo RESPUESTA_READDIR\n" );
 					}
 					else
 					{
@@ -231,38 +307,38 @@ void atendercliente(int socket)
 					break;
 
 				case PEDIDO_RENAME:
-					printf(BLU "\t procesando PEDIDO_RENAME\n" RESET);
+					printf(NAR "\t procesando PEDIDO_RENAME\n" RESET);
 					respuesta = procesarPedidoRename((char*)pedido);
 					if(respuesta != NULL)
 					{
 						enviar(socket, RESPUESTA_RENAME, respuesta);
-						printf(BLU "\t devolviendo RESPUESTA_RENAME\n" RESET);
+						printf(NAR "\t devolviendo RESPUESTA_RENAME\n" RESET);
 					}
 					else
 					{
-						enviar(socket, ENOENTRY, pedido);
-						printf(YEL "\t devolviendo respuesta ENOENT \n" RESET);
+						enviar(socket, ERRNAMETOOLONG, pedido);
+						printf(YEL "\t devolviendo respuesta ERRNAMETOOLONG \n" RESET);
 					}
 					break;
 
 				case PEDIDO_RMDIR:
-					printf(GRN "\t procesando PEDIDO_RMDIR\n" RESET);
+					printf(PINK "\t procesando PEDIDO_RMDIR\n" RESET);
 
 					respuesta = procesarPedidoRmdir((char*)pedido);
 					if (respuesta != NULL)
 					{
 						enviar(socket, RESPUESTA_RMDIR, respuesta);
-						printf(GRN "\t devolviendo RESPUESTA_RMDIR\n" RESET);
+						printf(PINK "\t devolviendo RESPUESTA_RMDIR\n" RESET);
 					}
 					else
 					{
 						enviar(socket, ENOENTRY, pedido);
-						printf(YEL "\t devolviendo respuesta ENOENT \n" RESET);
+						printf(YEL "\t devolviendo respuesta ERROR \n" RESET);
 					}
 					break;
 
 				case PEDIDO_TRUNCATE:
-					printf(RED "\t procesando PEDIDO_TRUNCATE\n" RESET);
+					printf(NAR "\t procesando PEDIDO_TRUNCATE\n" RESET);
 
 					off_t *newSize = NULL;
 					newSize = (off_t*)recibir(socket, &head);
@@ -274,7 +350,7 @@ void atendercliente(int socket)
 					if(respuesta != NULL)
 					{
 						enviar(socket, RESPUESTA_TRUNCATE, respuesta);
-						printf(RED "\t devolviendo RESPUESTA_TRUNCATE\n" RESET);
+						printf(NAR "\t devolviendo RESPUESTA_TRUNCATE\n" RESET);
 					}
 					else
 					{
@@ -284,23 +360,39 @@ void atendercliente(int socket)
 					break;
 
 				case PEDIDO_UNLINK:
-					printf(GRN "\t procesando PEDIDO_UNLINK\n" RESET);
+					printf(PINK "\t procesando PEDIDO_UNLINK\n" RESET);
 
 					respuesta = procesarPedidoUnlink((char*)pedido);
 					if(respuesta != NULL)
 					{
 						enviar(socket, RESPUESTA_UNLINK, respuesta);
-						printf(GRN "\t devolviendo RESPUESTA_UNLINK\n" RESET);
+						printf(PINK "\t devolviendo RESPUESTA_UNLINK\n" RESET);
 					}
 					else
 					{
 						enviar(socket, ENOENTRY, pedido);
-						printf(YEL "\t devolviendo respuesta ENOENT \n" RESET);
+						printf(YEL "\t devolviendo respuesta ERROR \n" RESET);
+					}
+					break;
+
+				case PEDIDO_UTIMENS:
+					printf(NAR "\t procesando UTIMENS \n" RESET);
+
+					respuesta = procesarPedidoUtimens((char*)pedido);
+					if(respuesta != NULL)
+					{
+						enviar(socket, RESPUESTA_UTIMENS, respuesta);
+						printf(NAR "\t devolviendo RESPUESTA_UTIMENS \n" RESET);
+					}
+					else
+					{
+						enviar(socket, RESPUESTA_ERROR, pedido);
+						printf(YEL "\t devolviendo respuesta ERROR \n" RESET);
 					}
 					break;
 
 				case PEDIDO_WRITE:
-					printf( RED "\t procesando PEDIDO_WRITE\n" RESET);
+					printf( PINK2 "\t procesando PEDIDO_WRITE\n" RESET);
 
 					void *bufWrite = NULL;
 					bufWrite = recibirEstructuraWrite(socket, &head);
@@ -309,12 +401,12 @@ void atendercliente(int socket)
 					if(respuesta != NULL)
 					{
 						enviar(socket, RESPUESTA_WRITE, respuesta);
-						printf(RED "\t devolviendo RESPUESTA_WRITE \n" RESET);
+						printf(PINK2 "\t devolviendo RESPUESTA_WRITE \n" RESET);
 					}
 					else
 					{
 						enviar(socket, ENOENTRY, pedido);
-						printf(YEL "\t devolviendo respuesta ENOENT \n" RESET);
+						printf(YEL "\t devolviendo respuesta ERROR \n" RESET);
 					}
 					break;
 
@@ -323,9 +415,6 @@ void atendercliente(int socket)
 					enviar(socket,HANDSHAKE, pedido);
 					break;
 			}
-
-//			free(pedido);
-//			free(respuesta);
 
 		}
 		else
@@ -358,10 +447,36 @@ void printEncabezado()
 	printf("**************** Iniciando servidor..\n\n");
 }
 
-void* procesarPedidoCreate(char *path)//const char *path, mode_t mode,
+void* procesarCrearEntradaTablaDeArchivos(char *path, int* codigo, int modo)
 {
 	char* respuesta = malloc(sizeof(char));
-	respuesta[0] = crearArchivo(path, 1);
+	char r = crearArchivo(path, modo);
+//	respuesta[0] = r;
+	memset(respuesta, 0, sizeof(char));
+	memcpy(respuesta, &r, sizeof(char));
+
+//	printf("	 En crear entrada, recibi respuesta: %c\n", respuesta[0]);
+
+	switch(respuesta[0])
+	{
+		case 's':
+			*codigo = RESPUESTA_CREATE;//esta respuesta la hice funcionar como generica exitosa para create, mkdir, mknod
+			break;
+
+		case  'n'://si no hay espacio en la tabla de archivos
+			*codigo = ERRDQUOT;
+			break;
+
+		case 'x'://nombre de archivo con mas de 17 caracteres
+			*codigo = ERRNAMETOOLONG;
+			break;
+
+		case 'e'://error
+			*codigo = RESPUESTA_ERROR;
+			break;
+	}
+
+	//printf("	 En crear entrada, devuelvo codigo: %d\n", *codigo );
 	return respuesta;
 }
 
@@ -376,13 +491,6 @@ void* procesarPedidoFlush(char *path)
 	printf(MAG "\t path: %s\n" RESET, path);
 	char* respuesta = malloc(sizeof(char));
 	respuesta[0] = flushArchivo(path);
-	return respuesta;
-}
-
-void* procesarPedidoMkdir(char *path)//const char *path, mode_t mode
-{
-	char* respuesta = malloc(sizeof(char));
-	respuesta[0] = crearArchivo(path, 2);
 	return respuesta;
 }
 
@@ -483,7 +591,14 @@ void* procesarPedidoRename(char *paths)//path - newpath
 {
 	char* respuesta = malloc(sizeof(char));
 	respuesta[0] = renombrarArchivo(paths);
-	return respuesta;
+	if(respuesta[0] == 's')
+	{
+		return respuesta;
+	}
+	else
+	{
+		return NULL;
+	}
 }
 
 void* procesarPedidoRmdir(char *path)
@@ -497,7 +612,7 @@ void* procesarPedidoTruncate(off_t newSize, char* path)
 {
 	printf(CYN "\t En procesarPedidoTruncate el nuevo size es: %d\n", (uint32_t)newSize);
 	char* respuesta = malloc(sizeof(char));
-	respuesta[0] = truncar(path, (uint32_t)newSize);
+	respuesta[0] = buscarYtruncar(path, (uint32_t)newSize);
 	return respuesta;
 }
 
@@ -505,6 +620,14 @@ void* procesarPedidoUnlink(char* path)
 {
 	char* respuesta = malloc(sizeof(char));
 	respuesta[0] = borrarArchivo(path);
+	return respuesta;
+}
+
+void* procesarPedidoUtimens(char *path)
+{
+	char* respuesta = malloc(sizeof(char));
+	printf(YEL "\t path: %s\n" RESET, path);
+	respuesta[0] = cambiarUltimoAcceso(path);
 	return respuesta;
 }
 
@@ -534,10 +657,18 @@ void* procesarPedidoWrite(void *buffer)
 	printf(BLU "\t En procesarPedidoWrite el size es: %d\n", *size);
 	printf( "\t En procesarPedidoWrite el offset es: %d\n", (int)*offset);
 	//printf( "\t En procesarPedidoWrite el pathlen es: %d\n", pathLen);
-//	printf( "\t En procesarPedidoWrite el bufLen es: %d\n", *bufLen);
+	//printf( "\t En procesarPedidoWrite el bufLen es: %d\n", *bufLen);
 	//printf( "\t En procesarPedidoWrite el path es: %s\n" RESET, path);
 
-	return writeBuffer(size, offset, path, bufWrite);
+	if(*bufLen > *size)
+	{
+		return writeBuffer((uint32_t*)size,(uint32_t*) offset, path, bufWrite);
+	}
+	else
+	{
+		*bufLen -= 1;
+		return writeBuffer((uint32_t*)bufLen, (uint32_t*)offset, path, bufWrite);
+	}
 }
 
 void liberarRecursos()
@@ -557,72 +688,4 @@ void terminar()
 	exit(0);
 }
 
-int buscarBloqueLibre() {
-	int i;
-	for (i = 0; i < oheader.fs_blocks; ++i) {
-		if (bitarray_test_bit(bitmap, i) == 0) {
-                       //Seteo el bit y lo devuelvo 
-			bitarray_set_bit(bitmap, i);
-			return i;
-		}
-	}
-	return -1;
-}
 
-char borrarArchivo(char* path)
-{
-/*	//lee la tabla de archivos, pone en cero/borrado el estado del archivo y actualiza el bitmap
-	//devuelve 's' para indicar ok al cliente o 'n' si fallo el pedido
-	int posicion;
-
-	osada_file* archivo = buscarArchivo(path, &posicion);
-	if (archivo == NULL)
-	{
-		printf(RED "\t No se encontro el archivo\n" RESET);
-		return 'n';
-	}
-
-//si encuentra el archivo, lo borro
-while (tablaDeArchivos[file].bloqueInicial != 0) {
-			j = tablaDeArchivos[file].bloqueInicial;
-			bitarray_clean_bit(bitmap, j);
-			tablaDeArchivos[file].bloqueInicial = tablaDeAsignaciones[j];
-			tablaDeAsignaciones[j] = 0;
-		}
-		tablaDeArchivos[file].bloqueInicial = -1;
-		tablaDeArchivos[file].bloquePadre = -1;
-		tablaDeArchivos[file].estado = BORRADO;
-		tablaDeArchivos[file].tamanioArchivo = 0;
-		log_trace(log, "Se ah borrado el archivo: %s", tablaDeArchivos[file].nombreArchivo);
-		sincronizarMemoria();
-		return 1;
-
-		archivo->state = 0;
-		escribirArchivo(posicion, archivo);
-
-		//TODO: falta actualizar el bitmap
-
-	printf(YEL "\t Se borro el archivo: %s\n" RESET, archivo->fname);
-*/
-	return 's';
-}
-
-uint32_t bitmapOcupados() {
-	int i;
-	uint32_t ocupados = 0;
-	for (i = 0; i < oheader.fs_blocks * BLOCK_SIZE * 8; ++i) {
-		if (bitarray_test_bit(bitmap, i))
-			ocupados++;
-	}
-	return ocupados;
-}
-
-void sincronizarMemoria() {
-	//memcpy(data, &fileHeader, BLOCK_SIZE);
-//	memcpy(data + BLOCK_SIZE, bitmap, oheader.fs_blocks);
-	//memcpy(data + (1 + N) * BLOCK_SIZE, tablaDeArchivos, 1024 * BLOCK_SIZE);
-	//memcpy(data + (1025 + N) * BLOCK_SIZE, tablaDeAsignaciones, A);
-	//memcpy(data + (1025 + N + A) * BLOCK_SIZE, bloquesDeDatos, X);
-	//log_trace(log, "Memoria sincronizada");
-
-}
