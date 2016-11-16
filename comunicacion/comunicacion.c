@@ -93,7 +93,7 @@ int crearSocket(char ip[], char puerto[])
 	return serverSocket;
 }
 
-int enviarPorSocket(int fdCliente, const void * mensaje, int tamanioBytes)
+int enviarPorSocket(int fdCliente, void* mensaje, int tamanioBytes)
 {
 	int bytes_enviados = 0;
 	int totalBytes = 0;
@@ -153,27 +153,29 @@ int calcularTamanioMensaje(int head, void* mensaje)
 	switch(head)
 	{
 		case HANDSHAKE:
-		case PEDIDO_GETATTR:
+		case PEDIDO_CREATE:
 		case PEDIDO_FLUSH:
+		case PEDIDO_GETATTR:
+		case PEDIDO_MKDIR:
+		case PEDIDO_MKNOD:
+		case PEDIDO_OPEN:
 		case PEDIDO_READDIR:
 		case RESPUESTA_READDIR:
-		case PEDIDO_UNLINK:
-		case PEDIDO_MKDIR:
-		case PEDIDO_OPEN:
-		case PEDIDO_RMDIR:
-		case PEDIDO_RENAME:
-		case PEDIDO_CREATE:
-		case PEDIDO_TRUNCATE:
 		case PEDIDO_RELEASE:
+		case PEDIDO_RENAME:
+		case PEDIDO_RMDIR:
+		case PEDIDO_TRUNCATE:
+		case PEDIDO_UNLINK:
+		case PEDIDO_UTIMENS:
 			tamanio = strlen((char*) mensaje) + 1;
 			break;
 
 		case PEDIDO_TRUNCATE_NEW_SIZE:
-      tamanio = sizeof(off_t);
+			tamanio = sizeof(off_t);
 			break;
 
 		case RESPUESTA_READ:
-			printf(YEL "\t Entre en RESPUESTA_READ en calcularTamanioMensaje(), devuelvo un sizeof(int)\n" RESET);
+			//printf(YEL "\t Entre en RESPUESTA_READ en calcularTamanioMensaje(), devuelvo un sizeof(int)\n" RESET);
 			tamanio = sizeof(int);
 			break;
 
@@ -189,20 +191,28 @@ int calcularTamanioMensaje(int head, void* mensaje)
 			tamanio = sizeof(t_writebuf);
 			break;
 
+		case ERRDQUOT:
+		case ERRFBIG:
+		case ERRNAMETOOLONG:
+		case ERROR:
 		case RESPUESTA_CREATE:
+		case RESPUESTA_ERROR:
 		case RESPUESTA_FLUSH:
 		case RESPUESTA_MKDIR:
+		case RESPUESTA_MKNOD:
 		case RESPUESTA_OPEN:
 		case RESPUESTA_RMDIR:
 		case RESPUESTA_RENAME:
 		case RESPUESTA_UNLINK:
 		case RESPUESTA_RELEASE:
 		case RESPUESTA_TRUNCATE:
+		case RESPUESTA_UTIMENS:
+
 			tamanio = sizeof(char);
 			break;
 
-    case RESPUESTA_WRITE:
-      tamanio = sizeof(uint32_t);
+		case RESPUESTA_WRITE:
+			tamanio = sizeof(uint32_t);
 			break;
 
 		case ENOENTRY:
@@ -250,20 +260,28 @@ void* serializar(int head, void* mensaje, int tamanio)
 
 	switch(head)
 	{
+		case ENOENTRY:
+		case ERRDQUOT:
+		case ERRFBIG:
+		case ERRNAMETOOLONG:
+		case ERROR:
+		case RESPUESTA_ERROR:
+
 		case HANDSHAKE:
 
 		case PEDIDO_CREATE:
-		case PEDIDO_GETATTR://quiero enviar un path
-    case PEDIDO_FLUSH:
+		case PEDIDO_GETATTR:
+				case PEDIDO_FLUSH:
 		case PEDIDO_MKDIR:
 		case PEDIDO_OPEN:
 		case PEDIDO_READ:
-		case PEDIDO_READDIR:// envio un path
+		case PEDIDO_READDIR:
 		case PEDIDO_RMDIR:
 		case PEDIDO_RENAME:
 		case PEDIDO_TRUNCATE:
 		case PEDIDO_TRUNCATE_NEW_SIZE:
 		case PEDIDO_UNLINK:
+		case PEDIDO_UTIMENS:
 		case PEDIDO_WRITE:
 
 		case RESPUESTA_CREATE:
@@ -276,9 +294,8 @@ void* serializar(int head, void* mensaje, int tamanio)
 		case RESPUESTA_RENAME:
 		case RESPUESTA_TRUNCATE:
 		case RESPUESTA_UNLINK:
+		case RESPUESTA_UTIMENS:
 		case RESPUESTA_WRITE:
-
-		case ENOENTRY:
 
 			buffer = malloc(tamanio);
 			memcpy(buffer, mensaje, tamanio);
@@ -397,10 +414,10 @@ void* recibirEstructuraRead(int socketEmisor,int* head)
 
 	void* bufferEntero = serializarPedidoRead(buffer, path);
 
-	free(path);
-	free(buffer);
-	path = NULL;
-	buffer = NULL;
+	// free(path);
+	// free(buffer);
+	// path = NULL;
+	// buffer = NULL;
 	return bufferEntero;
 } // Se debe castear el mensaje al recibirse (indicar el tipo de dato que debe matchear con el void*)
 
@@ -419,6 +436,8 @@ void* serializarPedidoRead(t_readbuf* response, char* path)
 	desplazamiento += sizeof(int);
 	memcpy(buffer + desplazamiento, path, response->pathLen);//chequear aca por si path necesita & o *
 	//printf(MAG "\t En serializarPedidoRead el path es:%s\n" RESET, path);
+	free(response);
+	free(path);
 	return buffer;
 }
 
@@ -581,7 +600,8 @@ void* serializarPedidoWrite(t_writebuf* response, char* path, char* bufWrite)
 int enviarEstructuraWrite(int fdReceptor, int head, char* path, char* bufWrite, t_writebuf* mensaje)
 {
 	int desplazamiento = 0;
-	int tamanioMensaje = sizeof(t_writebuf) + strlen(path) + strlen(bufWrite) + 2;
+	//int tamanioMensaje = sizeof(t_writebuf) + strlen(path) + strlen(bufWrite) + 2;
+	int tamanioMensaje = sizeof(t_writebuf) + strlen(path) + mensaje->bufLen + 1;
 	int tamanioTotalAEnviar = 0;
 	//printf(MAG "\t En enviarEstructuraWrite path:%s\n ",path);
 	void *mensajeSerializado = serializarPedidoWrite( mensaje, path, bufWrite);

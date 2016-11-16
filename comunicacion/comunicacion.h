@@ -34,8 +34,9 @@
 #include <stddef.h>
 
 
-#define HANDSHAKE  777
+#define HANDSHAKE 777
 #define ERROR -1
+
 #define PEDIDO_GETATTR 12
 #define PEDIDO_READDIR 13
 #define PEDIDO_TRUNCATE 14
@@ -66,6 +67,17 @@
 #define PEDIDO_TRUNCATE_NEW_SIZE 37
 #define PEDIDO_FLUSH 38
 #define RESPUESTA_FLUSH 39
+
+#define PEDIDO_UTIMENS 40
+#define RESPUESTA_UTIMENS 47
+
+#define RESPUESTA_ERROR 41
+
+#define ERRDQUOT 42 //archivo 2049, no hay espacio en la tabla de archivos
+#define ERRFBIG 43 //no hay bloques de datos disponibles
+#define ERRNAMETOOLONG 44 //nombres de archivos con mas de 17 caracteres
+#define PEDIDO_MKNOD 45
+#define RESPUESTA_MKNOD 46
 
 //colores para los prints en la consola
 #define RED   "\x1B[31m"
@@ -103,7 +115,7 @@ typedef struct{
 
 //para el  fuse en respuesta read
 typedef struct{
-	char *buf; 
+	char *buf;
 }__attribute__((packed)) t_readRespuesta;
 
 //header para enviar mensajes
@@ -119,7 +131,7 @@ int enviarRespuestaRead(int socket, int head, void* respuesta, uint32_t* tamanio
 int aceptarConexion(int listenningSocket);
 int crearServer(char * puerto);
 int recibirPorSocket(int skServidor, void * buffer, int tamanioBytes);
-int enviarPorSocket(int fdCliente, const void * mensaje, int tamanioBytes);
+int enviarPorSocket(int fdCliente, void* mensaje, int tamanioBytes);
 int calcularTamanioMensaje(int head, void* mensaje);
 void * serializar(int head, void * mensaje, int tamanio);
 void * deserializar(int head, void * buffer, int tamanio);
