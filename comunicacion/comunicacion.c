@@ -192,7 +192,6 @@ int calcularTamanioMensaje(int head, void* mensaje)
 			break;
 
 		case ERRDQUOT:
-		case ERRFBIG:
 		case ERRNAMETOOLONG:
 		case ERROR:
 		case RESPUESTA_CREATE:
@@ -211,6 +210,7 @@ int calcularTamanioMensaje(int head, void* mensaje)
 			tamanio = sizeof(char);
 			break;
 
+		case ERRFBIG:
 		case RESPUESTA_WRITE:
 			tamanio = sizeof(uint32_t);
 			break;

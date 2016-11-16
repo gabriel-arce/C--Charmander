@@ -689,6 +689,13 @@ static int osada_write(const char *path, const char *buf, size_t size, off_t off
 		pedido->size = size;
 		pedido->offset = offset;
 
+		char* pathEnviar = malloc(strlen(path) +1);
+		char* bufEnviar = malloc(size +1);
+		memset(pathEnviar, 0, strlen(path) +1);
+		memset(bufEnviar, 0, size +1);
+		memcpy(pathEnviar, path, strlen(path) +1);
+		memcpy(bufEnviar, buf, size);
+
 		log_info(logCliente, "bufLen: %d", pedido->bufLen);
 
 		uint32_t* tamanio = malloc(sizeof(uint32_t));
@@ -696,7 +703,7 @@ static int osada_write(const char *path, const char *buf, size_t size, off_t off
 
 		pthread_mutex_lock(&mutex_comunicacion);
 			enviar(*socketServidor, PEDIDO_WRITE, pedido);
-		    enviarEstructuraWrite(*socketServidor, PEDIDO_WRITE, path, buf, pedido);
+		    enviarEstructuraWrite(*socketServidor, PEDIDO_WRITE, pathEnviar, bufEnviar, pedido);
 			log_info(logCliente, "	Envie PEDIDO_WRITE");
 			tamanio = (uint32_t*)recibir(*socketServidor,&head);
 		pthread_mutex_unlock(&mutex_comunicacion);

@@ -128,7 +128,7 @@ int buscarEspacioLibre();//esta busca un espacio en la tabla de archivos
 int buscarBitLibre(uint32_t* posicion);//esta la uso para buscar bloques libres en la tabla de datos
 void liberarBits(uint32_t posicion);
 int hayEspacioEnDisco(int cantidadBloques);
-void* writeBuffer(uint32_t* size, uint32_t* offset, char* path, void* bufWrite);
+int writeBuffer(uint32_t* size, uint32_t* offset, char* path, void* bufWrite);
 void* writeFile(uint32_t* size, void* bufWrite, int cantidadBloques, uint32_t offset, int posicionArchivo, osada_file* FCB);
 
 //nuevas--------------------------------------

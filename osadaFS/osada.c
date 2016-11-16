@@ -1149,20 +1149,21 @@ void escribirMenosQueUnBloqueAlFinal(void* bufWrite, uint32_t* posicion, int des
 }
 
 
-void* writeBuffer(uint32_t* size, uint32_t* offset, char* path, void* bufWrite)
+int writeBuffer(uint32_t* size, uint32_t* offset, char* path, void* bufWrite)
 {
 	int posicion = -1;
 
 	if(!existePath(path, &posicion))
 	{
 		printf(RED "\n\t No encontré el path!\n" RESET);
-		return NULL;
+		return -1;
 	}
+
 	osada_file* FCBarchivo = buscarArchivo(path, &posicion);
 	if (FCBarchivo == NULL)
 	{
 		printf(RED "\t En pedido write: No se encontro el archivo: " YEL "%s\n" RESET, nombre(path));
-		return NULL;
+		return -1;
 	}
 	if (*size > 0)
 	{
@@ -1171,15 +1172,14 @@ void* writeBuffer(uint32_t* size, uint32_t* offset, char* path, void* bufWrite)
 		if (hayEspacioEnDisco(cantidadBloques) == 0)
 		{
 			printf(RED "\n\t No hay espacio suficiente para escribir el archivo, cancelando operacion\n" RESET);
-			return NULL;
+			return -2;
 		}
 
-		 cantidadBloques = (uint32_t)(*size / OSADA_BLOCK_SIZE);
+		cantidadBloques = (uint32_t)(*size / OSADA_BLOCK_SIZE);
 		writeFile(size, bufWrite, cantidadBloques, *offset, posicion, FCBarchivo);
 	}
 
-	printf(RED "\n\t Size retornado a FUSE es: %d\n" RESET, *size);
-	return size;
+	return 0;
 }
 
 

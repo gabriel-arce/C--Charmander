@@ -393,20 +393,28 @@ void atendercliente(int socket)
 
 				case PEDIDO_WRITE:
 					printf( PINK "\t procesando PEDIDO_WRITE\n" RESET);
-
+					codigo = RESPUESTA_WRITE;
 					void *bufWrite = NULL;
-					bufWrite = recibirEstructuraWrite(socket, &head);
 
-					respuesta = procesarPedidoWrite(bufWrite);
-					if(respuesta != NULL)
+					bufWrite = recibirEstructuraWrite(socket, &head);
+					respuesta = procesarPedidoWrite(bufWrite, &codigo);
+
+					switch(codigo)
 					{
-						enviar(socket, RESPUESTA_WRITE, respuesta);
-						printf(PINK "\t devolviendo RESPUESTA_WRITE \n" RESET);
-					}
-					else
-					{
-						enviar(socket, RESPUESTA_ERROR, pedido);
-						printf(YEL "\t devolviendo RESPUESTA_ERROR \n" RESET);
+						case RESPUESTA_WRITE:
+							enviar(socket, RESPUESTA_WRITE, respuesta);
+							printf(PINK "\t devolviendo RESPUESTA_WRITE \n" RESET);
+							break;
+
+						case ERRFBIG:
+							enviar(socket, ERRFBIG, respuesta);
+							printf(YEL "\t devolviendo ERRFBIG \n" RESET);
+							break;
+
+					    default:
+							enviar(socket, ENOENTRY, respuesta);
+							printf(PINK2 "\t respondiendo  \n" RESET);
+							break;
 					}
 					break;
 
@@ -631,7 +639,7 @@ void* procesarPedidoUtimens(char *path)
 	return respuesta;
 }
 
-void* procesarPedidoWrite(void *buffer)
+void* procesarPedidoWrite(void *buffer, int* codigo)
 {
 	int desplazamiento = 0;
 	size_t* size = malloc(sizeof(size_t));
@@ -660,15 +668,35 @@ void* procesarPedidoWrite(void *buffer)
 	//printf( "\t En procesarPedidoWrite el bufLen es: %d\n", *bufLen);
 	//printf( "\t En procesarPedidoWrite el path es: %s\n" RESET, path);
 
+	int respuesta  = 0;
 	if(*bufLen > *size)
 	{
-		return writeBuffer((uint32_t*)size,(uint32_t*) offset, path, bufWrite);
+		respuesta = writeBuffer((uint32_t*)size,(uint32_t*) offset, path, bufWrite);
 	}
 	else
 	{
 		*bufLen -= 1;
-		return writeBuffer((uint32_t*)bufLen, (uint32_t*)offset, path, bufWrite);
+		respuesta =  writeBuffer((uint32_t*)bufLen, (uint32_t*)offset, path, bufWrite);
 	}
+
+	switch(respuesta)
+	{
+		case 0:
+			*codigo = RESPUESTA_WRITE;
+			break;
+
+		case -1://no existe path
+			*codigo = ENOENTRY;
+	    	break;
+
+		case  -2://si no hay bloques libres
+			*codigo = ERRFBIG;
+			break;
+	}
+
+	printf("	 En procesarPedidoWrite(), devuelvo codigo: %d\n", *codigo );
+	printf(RED "\n\t Size para FUSE es: %d\n" RESET, *size);
+	return size;
 }
 
 void liberarRecursos()

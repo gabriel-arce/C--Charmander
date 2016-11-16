@@ -105,7 +105,7 @@ void* procesarPedidoRmdir(char *path);
 void* procesarPedidoTruncate(off_t newSize, char* path);
 void* procesarPedidoUnlink(char *path);
 void* procesarPedidoUtimens(char *path);
-void* procesarPedidoWrite(void *buffer);
+void* procesarPedidoWrite(void *buffer, int* codigo);
 
 void terminar();
 
