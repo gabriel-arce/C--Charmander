@@ -93,6 +93,7 @@ int main(int argc, char *argv[])
   osada_oper.open		= osada_open;		// abre un archivo
   osada_oper.release	= osada_release;	// libera un archivo que estuvo abierto
   osada_oper.flush		= osada_flush;
+  osada_oper.access		= osada_access;		// accesos de un fichero
 
   return fuse_main(args.argc, args.argv, &osada_oper, NULL);
 }
@@ -174,10 +175,10 @@ static int osada_getattr(const char *path, struct stat *stbuf)
     	}
 
   }
-/*  else {
+  else {
     log_info(logCliente, "	Recibi ENOENT");
     return -ENOENT;
-  }*/
+  }
 
 }
 
@@ -628,6 +629,10 @@ static int osada_write(const char *path, const char *buf, size_t size, off_t off
     }
   }
   return size;
+}
+
+static int osada_access(const char *filename, int how){
+	return 0;
 }
 
 //funciones para imprimir estados en log-------------------------------------------------------------------------------

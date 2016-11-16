@@ -81,6 +81,8 @@ static int osada_truncate(const char *path, off_t new_size);
 static int osada_unlink(const char *path);
 static int osada_write(const char *path, const char *buf, size_t size, off_t offset, struct fuse_file_info *fi);
 static int osada_open(const char *path, struct fuse_file_info *fi);
+static int osada_access(const char *filename, int how);
+
 
 void printConectado();
 void printEncabezado();
