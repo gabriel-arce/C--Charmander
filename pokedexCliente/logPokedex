@@ -117,3 +117,422 @@
 [INFO] 14:52:57:381 Pokedex/(17466:17476): 	Envie PEDIDO_READDIR
 [INFO] 14:52:57:381 Pokedex/(17466:17476): 	Recibi RESPUESTA_READDIR
 [INFO] 14:52:57:381 Pokedex/(17466:17476): Pokemons/Celadon City/README.txt/Cerulean City/Fuchsia City/Lavender Town/Pallet Town/Pewter City/Saffron City/Vermilion City/Viridian City/
+[INFO] 15:13:32:308 Pokedex/(18049:18049): ****************** Creando archivo Log *******************************************
+[INFO] 15:13:36:636 Pokedex/(18049:18049): ****************** Estableciendo conexion con el servidor... 
+[INFO] 15:13:39:752 Pokedex/(18049:18049): 	Enviando mensaje handshake al servidor
+[INFO] 15:13:41:770 Pokedex/(18049:18049): 	Recibi mensaje handshake  del servidor
+[INFO] 15:13:41:770 Pokedex/(18049:18049): ****************** Se establecio la conexion con exito *********************
+[INFO] 15:13:42:559 Pokedex/(18049:18049): ****************** Llamo a fuse main  ********************************************
+[INFO] 15:13:47:767 Pokedex/(18049:18143): ****************** FUSE: llamada a osada_getattr() ******************************
+[INFO] 15:13:47:767 Pokedex/(18049:18144): ****************** FUSE: llamada a osada_getattr() ******************************
+[INFO] 15:13:47:767 Pokedex/(18049:18143): /.xdg-volume-info
+[INFO] 15:13:47:767 Pokedex/(18049:18144): /
+[INFO] 15:13:47:767 Pokedex/(18049:18143): 	Recibi ENOENT
+[INFO] 15:13:47:768 Pokedex/(18049:18142): ****************** FUSE: llamada a osada_getattr() ******************************
+[INFO] 15:13:47:768 Pokedex/(18049:18142): /autorun.inf
+[INFO] 15:13:47:768 Pokedex/(18049:18142): 	Recibi ENOENT
+[INFO] 15:13:47:768 Pokedex/(18049:18143): ****************** FUSE: llamada a osada_getattr() ******************************
+[INFO] 15:13:47:768 Pokedex/(18049:18143): /.Trash
+[INFO] 15:13:47:768 Pokedex/(18049:18143): 	Recibi ENOENT
+[INFO] 15:13:47:768 Pokedex/(18049:18144): 	Recibi RESPUESTA_GETATTR
+[INFO] 15:13:47:768 Pokedex/(18049:18142): ****************** FUSE: llamada a osada_getattr() ******************************
+[INFO] 15:13:47:768 Pokedex/(18049:18142): /.Trash-1000
+[INFO] 15:13:47:768 Pokedex/(18049:18142): 	Recibi ENOENT
+[INFO] 15:13:47:768 Pokedex/(18049:18143): ******************************************************************************
+[INFO] 15:13:47:768 Pokedex/(18049:18143): ****************** FUSE: llamada a osada_readdir() ***************************
+[INFO] 15:13:47:768 Pokedex/(18049:18143): ******************************************************************************
+[INFO] 15:13:47:768 Pokedex/(18049:18143): /
+[INFO] 15:13:47:768 Pokedex/(18049:18143): 	Envie PEDIDO_READDIR
+[INFO] 15:13:47:769 Pokedex/(18049:18143): 	Recibi RESPUESTA_READDIR
+[INFO] 15:13:47:769 Pokedex/(18049:18143): Pokemons/Celadon City/README.txt/Cerulean City/Fuchsia City/Lavender Town/Pallet Town/Pewter City/Saffron City/Vermilion City/Viridian City/
+[INFO] 15:42:27:44 Pokedex/(18620:18620): ****************** Creando archivo Log *******************************************
+[INFO] 15:42:29:829 Pokedex/(18620:18620): ****************** Estableciendo conexion con el servidor... 
+[INFO] 15:42:33:38 Pokedex/(18620:18620): 	Enviando mensaje handshake al servidor
+[INFO] 15:42:56:84 Pokedex/(18620:18620): 	Recibi mensaje handshake  del servidor
+[INFO] 15:42:56:84 Pokedex/(18620:18620): ****************** Se establecio la conexion con exito *********************
+[INFO] 15:42:58:383 Pokedex/(18620:18620): ****************** Llamo a fuse main  ********************************************
+[INFO] 15:43:22:970 Pokedex/(18620:18749): ****************** FUSE: llamada a osada_getattr() ******************************
+[INFO] 15:43:22:970 Pokedex/(18620:18748): ****************** FUSE: llamada a osada_getattr() ******************************
+[INFO] 15:43:22:970 Pokedex/(18620:18749): /.xdg-volume-info
+[INFO] 15:43:22:970 Pokedex/(18620:18748): /
+[INFO] 15:43:22:970 Pokedex/(18620:18749): 	Recibi ENOENT
+[INFO] 15:43:22:970 Pokedex/(18620:18750): ****************** FUSE: llamada a osada_getattr() ******************************
+[INFO] 15:43:22:970 Pokedex/(18620:18750): /autorun.inf
+[INFO] 15:43:22:970 Pokedex/(18620:18750): 	Recibi ENOENT
+[INFO] 15:43:22:970 Pokedex/(18620:18748): 	Recibi RESPUESTA_GETATTR
+[INFO] 15:43:22:970 Pokedex/(18620:18749): ****************** FUSE: llamada a osada_getattr() ******************************
+[INFO] 15:43:22:970 Pokedex/(18620:18749): /.Trash
+[INFO] 15:43:22:970 Pokedex/(18620:18749): 	Recibi ENOENT
+[INFO] 15:43:22:970 Pokedex/(18620:18750): ******************************************************************************
+[INFO] 15:43:22:970 Pokedex/(18620:18750): ****************** FUSE: llamada a osada_readdir() ***************************
+[INFO] 15:43:22:970 Pokedex/(18620:18750): ******************************************************************************
+[INFO] 15:43:22:970 Pokedex/(18620:18750): /
+[INFO] 15:43:22:970 Pokedex/(18620:18750): 	Envie PEDIDO_READDIR
+[INFO] 15:43:22:970 Pokedex/(18620:18750): 	Recibi RESPUESTA_READDIR
+[INFO] 15:43:22:970 Pokedex/(18620:18750): Pokemons/Celadon City/README.txt/Cerulean City/Fuchsia City/Lavender Town/Pallet Town/Pewter City/Saffron City/Vermilion City/Viridian City/
+[INFO] 15:53:44:878 Pokedex/(19050:19050): ****************** Creando archivo Log *******************************************
+[INFO] 15:53:57:196 Pokedex/(19050:19050): ****************** Estableciendo conexion con el servidor... 
+[INFO] 15:53:59:991 Pokedex/(19050:19050): 	Enviando mensaje handshake al servidor
+[INFO] 15:54:04:984 Pokedex/(19050:19050): 	Recibi mensaje handshake  del servidor
+[INFO] 15:54:04:984 Pokedex/(19050:19050): ****************** Se establecio la conexion con exito *********************
+[INFO] 15:54:06:187 Pokedex/(19050:19050): ****************** Llamo a fuse main  ********************************************
+[INFO] 15:54:09:785 Pokedex/(19050:19141): ****************** FUSE: llamada a osada_getattr() ******************************
+[INFO] 15:54:09:785 Pokedex/(19050:19141): /
+[INFO] 15:54:09:785 Pokedex/(19050:19141): 	Recibi RESPUESTA_GETATTR
+[INFO] 15:54:09:786 Pokedex/(19050:19142): ****************** FUSE: llamada a osada_getattr() ******************************
+[INFO] 15:54:09:786 Pokedex/(19050:19142): /.xdg-volume-info
+[INFO] 15:54:09:786 Pokedex/(19050:19142): 	Recibi ENOENT
+[INFO] 15:54:09:786 Pokedex/(19050:19141): ****************** FUSE: llamada a osada_getattr() ******************************
+[INFO] 15:54:09:786 Pokedex/(19050:19141): /autorun.inf
+[INFO] 15:54:09:786 Pokedex/(19050:19141): 	Recibi ENOENT
+[INFO] 15:54:09:786 Pokedex/(19050:19142): ****************** FUSE: llamada a osada_getattr() ******************************
+[INFO] 15:54:09:786 Pokedex/(19050:19142): /.Trash
+[INFO] 15:54:09:786 Pokedex/(19050:19142): 	Recibi ENOENT
+[INFO] 15:54:09:786 Pokedex/(19050:19141): ******************************************************************************
+[INFO] 15:54:09:786 Pokedex/(19050:19141): ****************** FUSE: llamada a osada_readdir() ***************************
+[INFO] 15:54:09:786 Pokedex/(19050:19141): ******************************************************************************
+[INFO] 15:54:09:786 Pokedex/(19050:19141): /
+[INFO] 15:54:09:786 Pokedex/(19050:19141): 	Envie PEDIDO_READDIR
+[INFO] 15:54:09:787 Pokedex/(19050:19141): 	Recibi RESPUESTA_READDIR
+[INFO] 15:54:09:787 Pokedex/(19050:19141): Pokemons/Celadon City/README.txt/Cerulean City/Fuchsia City/Lavender Town/Pallet Town/Pewter City/Saffron City/Vermilion City/Viridian City/
+[INFO] 16:17:10:239 Pokedex/(19479:19479): ****************** Creando archivo Log *******************************************
+[INFO] 16:17:10:239 Pokedex/(19479:19479): ****************** Estableciendo conexion con el servidor... 
+[INFO] 16:17:10:239 Pokedex/(19479:19479): 	Enviando mensaje handshake al servidor
+[INFO] 16:17:10:239 Pokedex/(19479:19479): 	Recibi mensaje handshake  del servidor
+[INFO] 16:17:10:240 Pokedex/(19479:19479): ****************** Se establecio la conexion con exito *********************
+[INFO] 16:17:10:240 Pokedex/(19479:19479): ****************** Llamo a fuse main  ********************************************
+[INFO] 16:17:10:250 Pokedex/(19479:19483): ****************** FUSE: llamada a osada_getattr() ******************************
+[INFO] 16:17:10:250 Pokedex/(19479:19483): /
+[INFO] 16:17:10:251 Pokedex/(19479:19483): 	Recibi RESPUESTA_GETATTR
+[INFO] 16:17:10:251 Pokedex/(19479:19486): ****************** FUSE: llamada a osada_getattr() ******************************
+[INFO] 16:17:10:251 Pokedex/(19479:19486): /.xdg-volume-info
+[INFO] 16:17:10:251 Pokedex/(19479:19486): 	Recibi ENOENT
+[INFO] 16:17:10:252 Pokedex/(19479:19487): ****************** FUSE: llamada a osada_getattr() ******************************
+[INFO] 16:17:10:252 Pokedex/(19479:19487): /autorun.inf
+[INFO] 16:17:10:252 Pokedex/(19479:19487): 	Recibi ENOENT
+[INFO] 16:17:10:252 Pokedex/(19479:19483): ****************** FUSE: llamada a osada_getattr() ******************************
+[INFO] 16:17:10:252 Pokedex/(19479:19483): /.Trash
+[INFO] 16:17:10:252 Pokedex/(19479:19483): 	Recibi ENOENT
+[INFO] 16:17:10:253 Pokedex/(19479:19486): ****************** FUSE: llamada a osada_getattr() ******************************
+[INFO] 16:17:10:253 Pokedex/(19479:19486): /.Trash-1000
+[INFO] 16:17:10:253 Pokedex/(19479:19486): 	Recibi ENOENT
+[INFO] 16:17:10:254 Pokedex/(19479:19487): ******************************************************************************
+[INFO] 16:17:10:254 Pokedex/(19479:19487): ****************** FUSE: llamada a osada_readdir() ***************************
+[INFO] 16:17:10:254 Pokedex/(19479:19487): ******************************************************************************
+[INFO] 16:17:10:254 Pokedex/(19479:19487): /
+[INFO] 16:17:10:254 Pokedex/(19479:19487): 	Envie PEDIDO_READDIR
+[INFO] 16:17:10:255 Pokedex/(19479:19487): 	Recibi RESPUESTA_READDIR
+[INFO] 16:17:10:255 Pokedex/(19479:19487): Pokemons/Celadon City/README.txt/Cerulean City/Fuchsia City/Lavender Town/Pallet Town/Pewter City/Saffron City/Vermilion City/Viridian City/
+[INFO] 16:24:26:526 Pokedex/(19570:19570): ****************** Creando archivo Log *******************************************
+[INFO] 16:24:26:526 Pokedex/(19570:19570): ****************** Estableciendo conexion con el servidor... 
+[INFO] 16:24:26:526 Pokedex/(19570:19570): 	Enviando mensaje handshake al servidor
+[INFO] 16:24:26:526 Pokedex/(19570:19570): 	Recibi mensaje handshake  del servidor
+[INFO] 16:24:26:526 Pokedex/(19570:19570): ****************** Se establecio la conexion con exito *********************
+[INFO] 16:24:26:527 Pokedex/(19570:19570): ****************** Llamo a fuse main  ********************************************
+[INFO] 16:24:51:29 Pokedex/(19585:19585): ****************** Creando archivo Log *******************************************
+[INFO] 16:24:51:29 Pokedex/(19585:19585): ****************** Estableciendo conexion con el servidor... 
+[INFO] 16:24:51:29 Pokedex/(19585:19585): 	Enviando mensaje handshake al servidor
+[INFO] 16:24:51:30 Pokedex/(19585:19585): 	Recibi mensaje handshake  del servidor
+[INFO] 16:24:51:30 Pokedex/(19585:19585): ****************** Se establecio la conexion con exito *********************
+[INFO] 16:24:51:30 Pokedex/(19585:19585): ****************** Llamo a fuse main  ********************************************
+[INFO] 16:24:51:37 Pokedex/(19585:19591): ****************** FUSE: llamada a osada_getattr() ******************************
+[INFO] 16:24:51:37 Pokedex/(19585:19591): /
+[INFO] 16:24:51:38 Pokedex/(19585:19588): ****************** FUSE: llamada a osada_getattr() ******************************
+[INFO] 16:24:51:38 Pokedex/(19585:19588): /.xdg-volume-info
+[INFO] 16:24:51:38 Pokedex/(19585:19588): 	Recibi ENOENT
+[INFO] 16:24:51:39 Pokedex/(19585:19591): 	Recibi RESPUESTA_GETATTR
+[INFO] 16:24:51:39 Pokedex/(19585:19588): ****************** FUSE: llamada a osada_getattr() ******************************
+[INFO] 16:24:51:39 Pokedex/(19585:19588): /.Trash
+[INFO] 16:24:51:39 Pokedex/(19585:19588): 	Recibi ENOENT
+[INFO] 16:24:51:39 Pokedex/(19585:19591): ******************************************************************************
+[INFO] 16:24:51:39 Pokedex/(19585:19591): ****************** FUSE: llamada a osada_readdir() ***************************
+[INFO] 16:24:51:39 Pokedex/(19585:19591): ******************************************************************************
+[INFO] 16:24:51:39 Pokedex/(19585:19591): /
+[INFO] 16:24:51:39 Pokedex/(19585:19591): 	Envie PEDIDO_READDIR
+[INFO] 16:24:51:40 Pokedex/(19585:19591): 	Recibi RESPUESTA_READDIR
+[INFO] 16:24:51:40 Pokedex/(19585:19591): Pokemons/Celadon City/README.txt/Cerulean City/Fuchsia City/Lavender Town/Pallet Town/Pewter City/Saffron City/Vermilion City/Viridian City/
+[INFO] 16:27:51:982 Pokedex/(19649:19649): ****************** Creando archivo Log *******************************************
+[INFO] 16:27:51:983 Pokedex/(19649:19649): ****************** Estableciendo conexion con el servidor... 
+[INFO] 16:27:51:983 Pokedex/(19649:19649): 	Enviando mensaje handshake al servidor
+[INFO] 16:27:51:983 Pokedex/(19649:19649): 	Recibi mensaje handshake  del servidor
+[INFO] 16:27:51:983 Pokedex/(19649:19649): ****************** Se establecio la conexion con exito *********************
+[INFO] 16:27:51:983 Pokedex/(19649:19649): ****************** Llamo a fuse main  ********************************************
+[INFO] 16:28:31:720 Pokedex/(19679:19679): ****************** Creando archivo Log *******************************************
+[INFO] 16:28:31:720 Pokedex/(19679:19679): ****************** Estableciendo conexion con el servidor... 
+[INFO] 16:28:31:721 Pokedex/(19679:19679): 	Enviando mensaje handshake al servidor
+[INFO] 16:28:31:721 Pokedex/(19679:19679): 	Recibi mensaje handshake  del servidor
+[INFO] 16:28:31:721 Pokedex/(19679:19679): ****************** Se establecio la conexion con exito *********************
+[INFO] 16:28:31:721 Pokedex/(19679:19679): ****************** Llamo a fuse main  ********************************************
+[INFO] 16:28:41:981 Pokedex/(19686:19686): ****************** Creando archivo Log *******************************************
+[INFO] 16:28:41:982 Pokedex/(19686:19686): ****************** Estableciendo conexion con el servidor... 
+[INFO] 16:28:41:982 Pokedex/(19686:19686): 	Enviando mensaje handshake al servidor
+[INFO] 16:28:41:982 Pokedex/(19686:19686): 	Recibi mensaje handshake  del servidor
+[INFO] 16:28:41:983 Pokedex/(19686:19686): ****************** Se establecio la conexion con exito *********************
+[INFO] 16:28:41:983 Pokedex/(19686:19686): ****************** Llamo a fuse main  ********************************************
+[INFO] 16:28:41:992 Pokedex/(19686:19691): ****************** FUSE: llamada a osada_getattr() ******************************
+[INFO] 16:28:41:992 Pokedex/(19686:19691): /
+[INFO] 16:28:41:994 Pokedex/(19686:19692): ****************** FUSE: llamada a osada_getattr() ******************************
+[INFO] 16:28:41:997 Pokedex/(19686:19692): /.xdg-volume-info
+[INFO] 16:28:41:997 Pokedex/(19686:19692): 	Recibi ENOENT
+[INFO] 16:28:41:998 Pokedex/(19686:19691): 	Recibi RESPUESTA_GETATTR
+[INFO] 16:28:41:998 Pokedex/(19686:19691): ****************** FUSE: llamada a osada_getattr() ******************************
+[INFO] 16:28:41:998 Pokedex/(19686:19691): /autorun.inf
+[INFO] 16:28:41:998 Pokedex/(19686:19691): 	Recibi ENOENT
+[INFO] 16:28:41:998 Pokedex/(19686:19692): ****************** FUSE: llamada a osada_getattr() ******************************
+[INFO] 16:28:41:998 Pokedex/(19686:19692): /.Trash
+[INFO] 16:28:41:998 Pokedex/(19686:19692): 	Recibi ENOENT
+[INFO] 16:28:41:999 Pokedex/(19686:19693): ******************************************************************************
+[INFO] 16:28:41:999 Pokedex/(19686:19693): ****************** FUSE: llamada a osada_readdir() ***************************
+[INFO] 16:28:41:999 Pokedex/(19686:19693): ******************************************************************************
+[INFO] 16:28:41:999 Pokedex/(19686:19693): /
+[INFO] 16:28:41:999 Pokedex/(19686:19693): 	Envie PEDIDO_READDIR
+[INFO] 16:28:41:999 Pokedex/(19686:19693): 	Recibi RESPUESTA_READDIR
+[INFO] 16:28:41:999 Pokedex/(19686:19693): Pokemons/Celadon City/README.txt/Cerulean City/Fuchsia City/Lavender Town/Pallet Town/Pewter City/Saffron City/Vermilion City/Viridian City/
+[INFO] 16:32:32:198 Pokedex/(19816:19816): ****************** Creando archivo Log *******************************************
+[INFO] 16:32:32:198 Pokedex/(19816:19816): ****************** Estableciendo conexion con el servidor... 
+[INFO] 16:32:32:199 Pokedex/(19816:19816): 	Enviando mensaje handshake al servidor
+[INFO] 16:32:32:199 Pokedex/(19816:19816): 	Recibi mensaje handshake  del servidor
+[INFO] 16:32:32:199 Pokedex/(19816:19816): ****************** Se establecio la conexion con exito *********************
+[INFO] 16:32:32:199 Pokedex/(19816:19816): ****************** Llamo a fuse main  ********************************************
+[INFO] 16:32:37:441 Pokedex/(19823:19823): ****************** Creando archivo Log *******************************************
+[INFO] 16:32:37:441 Pokedex/(19823:19823): ****************** Estableciendo conexion con el servidor... 
+[INFO] 16:32:37:441 Pokedex/(19823:19823): 	Enviando mensaje handshake al servidor
+[INFO] 16:32:37:442 Pokedex/(19823:19823): 	Recibi mensaje handshake  del servidor
+[INFO] 16:32:37:442 Pokedex/(19823:19823): ****************** Se establecio la conexion con exito *********************
+[INFO] 16:32:37:442 Pokedex/(19823:19823): ****************** Llamo a fuse main  ********************************************
+[INFO] 16:32:37:450 Pokedex/(19823:19828): ****************** FUSE: llamada a osada_getattr() ******************************
+[INFO] 16:32:37:451 Pokedex/(19823:19828): /.xdg-volume-info
+[INFO] 16:32:37:451 Pokedex/(19823:19828): 	Recibi ENOENT
+[INFO] 16:32:37:451 Pokedex/(19823:19828): ****************** FUSE: llamada a osada_getattr() ******************************
+[INFO] 16:32:37:451 Pokedex/(19823:19828): /
+[INFO] 16:32:37:451 Pokedex/(19823:19828): 	Recibi RESPUESTA_GETATTR
+[INFO] 16:32:37:451 Pokedex/(19823:19829): ****************** FUSE: llamada a osada_getattr() ******************************
+[INFO] 16:32:37:451 Pokedex/(19823:19829): /autorun.inf
+[INFO] 16:32:37:452 Pokedex/(19823:19829): 	Recibi ENOENT
+[INFO] 16:32:37:452 Pokedex/(19823:19828): ******************************************************************************
+[INFO] 16:32:37:452 Pokedex/(19823:19828): ****************** FUSE: llamada a osada_readdir() ***************************
+[INFO] 16:32:37:452 Pokedex/(19823:19828): ******************************************************************************
+[INFO] 16:32:37:452 Pokedex/(19823:19828): /
+[INFO] 16:32:37:452 Pokedex/(19823:19828): 	Envie PEDIDO_READDIR
+[INFO] 16:32:37:452 Pokedex/(19823:19828): 	Recibi RESPUESTA_READDIR
+[INFO] 16:32:37:452 Pokedex/(19823:19828): Pokemons/Celadon City/README.txt/Cerulean City/Fuchsia City/Lavender Town/Pallet Town/Pewter City/Saffron City/Vermilion City/Viridian City/
+[INFO] 16:37:21:444 Pokedex/(19889:19889): ****************** Creando archivo Log *******************************************
+[INFO] 16:37:21:444 Pokedex/(19889:19889): ****************** Estableciendo conexion con el servidor... 
+[INFO] 16:37:21:444 Pokedex/(19889:19889): 	Enviando mensaje handshake al servidor
+[INFO] 16:37:21:444 Pokedex/(19889:19889): 	Recibi mensaje handshake  del servidor
+[INFO] 16:37:21:445 Pokedex/(19889:19889): ****************** Se establecio la conexion con exito *********************
+[INFO] 16:37:21:445 Pokedex/(19889:19889): ****************** Llamo a fuse main  ********************************************
+[INFO] 16:37:21:452 Pokedex/(19889:19892): ****************** FUSE: llamada a osada_getattr() ******************************
+[INFO] 16:37:21:452 Pokedex/(19889:19892): /.Trash
+[INFO] 16:37:21:452 Pokedex/(19889:19892): 	Recibi ENOENT
+[INFO] 16:37:21:452 Pokedex/(19889:19892): ****************** FUSE: llamada a osada_getattr() ******************************
+[INFO] 16:37:21:453 Pokedex/(19889:19892): /.Trash-1000
+[INFO] 16:37:21:453 Pokedex/(19889:19892): 	Recibi ENOENT
+[INFO] 16:37:21:453 Pokedex/(19889:19892): ****************** FUSE: llamada a osada_getattr() ******************************
+[INFO] 16:37:21:453 Pokedex/(19889:19892): /
+[INFO] 16:37:21:453 Pokedex/(19889:19892): 	Recibi RESPUESTA_GETATTR
+[INFO] 16:37:21:453 Pokedex/(19889:19892): ******************************************************************************
+[INFO] 16:37:21:453 Pokedex/(19889:19892): ****************** FUSE: llamada a osada_readdir() ***************************
+[INFO] 16:37:21:453 Pokedex/(19889:19892): ******************************************************************************
+[INFO] 16:37:21:453 Pokedex/(19889:19892): /
+[INFO] 16:37:21:453 Pokedex/(19889:19892): 	Envie PEDIDO_READDIR
+[INFO] 16:37:21:454 Pokedex/(19889:19892): 	Recibi RESPUESTA_READDIR
+[INFO] 16:37:21:454 Pokedex/(19889:19892): Pokemons/Celadon City/README.txt/Cerulean City/Fuchsia City/Lavender Town/Pallet Town/Pewter City/Saffron City/Vermilion City/Viridian City/
+[INFO] 16:40:26:549 Pokedex/(19973:19973): ****************** Creando archivo Log *******************************************
+[INFO] 16:40:26:549 Pokedex/(19973:19973): ****************** Estableciendo conexion con el servidor... 
+[INFO] 16:40:26:549 Pokedex/(19973:19973): 	Enviando mensaje handshake al servidor
+[INFO] 16:40:26:549 Pokedex/(19973:19973): 	Recibi mensaje handshake  del servidor
+[INFO] 16:40:26:550 Pokedex/(19973:19973): ****************** Se establecio la conexion con exito *********************
+[INFO] 16:40:26:550 Pokedex/(19973:19973): ****************** Llamo a fuse main  ********************************************
+[INFO] 16:40:35:348 Pokedex/(19979:19979): ****************** Creando archivo Log *******************************************
+[INFO] 16:40:35:349 Pokedex/(19979:19979): ****************** Estableciendo conexion con el servidor... 
+[INFO] 16:40:35:349 Pokedex/(19979:19979): 	Enviando mensaje handshake al servidor
+[INFO] 16:40:35:349 Pokedex/(19979:19979): 	Recibi mensaje handshake  del servidor
+[INFO] 16:40:35:349 Pokedex/(19979:19979): ****************** Se establecio la conexion con exito *********************
+[INFO] 16:40:35:349 Pokedex/(19979:19979): ****************** Llamo a fuse main  ********************************************
+[INFO] 16:40:35:357 Pokedex/(19979:19983): ****************** FUSE: llamada a osada_getattr() ******************************
+[INFO] 16:40:35:357 Pokedex/(19979:19983): /
+[INFO] 16:40:35:358 Pokedex/(19979:19983): 	Recibi RESPUESTA_GETATTR
+[INFO] 16:40:35:358 Pokedex/(19979:19983): ****************** FUSE: llamada a osada_getattr() ******************************
+[INFO] 16:40:35:358 Pokedex/(19979:19983): /.xdg-volume-info
+[INFO] 16:40:35:358 Pokedex/(19979:19983): 	Recibi ENOENT
+[INFO] 16:40:35:359 Pokedex/(19979:19983): ****************** FUSE: llamada a osada_getattr() ******************************
+[INFO] 16:40:35:359 Pokedex/(19979:19983): /autorun.inf
+[INFO] 16:40:35:359 Pokedex/(19979:19983): 	Recibi ENOENT
+[INFO] 16:40:35:359 Pokedex/(19979:19982): ******************************************************************************
+[INFO] 16:40:35:359 Pokedex/(19979:19982): ****************** FUSE: llamada a osada_readdir() ***************************
+[INFO] 16:40:35:360 Pokedex/(19979:19982): ******************************************************************************
+[INFO] 16:40:35:360 Pokedex/(19979:19982): /
+[INFO] 16:40:35:360 Pokedex/(19979:19982): 	Envie PEDIDO_READDIR
+[INFO] 16:40:35:360 Pokedex/(19979:19982): 	Recibi RESPUESTA_READDIR
+[INFO] 16:40:35:360 Pokedex/(19979:19982): Pokemons/Celadon City/README.txt/Cerulean City/Fuchsia City/Lavender Town/Pallet Town/Pewter City/Saffron City/Vermilion City/Viridian City/
+[INFO] 20:10:09:333 Pokedex/(3647:3647): ****************** Creando archivo Log *******************************************
+[INFO] 20:10:09:335 Pokedex/(3647:3647): ****************** Estableciendo conexion con el servidor... 
+[INFO] 20:10:09:335 Pokedex/(3647:3647): 	Enviando mensaje handshake al servidor
+[INFO] 20:10:09:335 Pokedex/(3647:3647): 	Recibi mensaje handshake  del servidor
+[INFO] 20:10:09:335 Pokedex/(3647:3647): ****************** Se establecio la conexion con exito *********************
+[INFO] 20:10:09:335 Pokedex/(3647:3647): ****************** Llamo a fuse main  ********************************************
+[INFO] 20:10:09:340 Pokedex/(3647:3650): ****************** FUSE: llamada a osada_getattr() ******************************
+[INFO] 20:10:09:340 Pokedex/(3647:3650): /.xdg-volume-info
+[INFO] 20:10:09:340 Pokedex/(3647:3650): 	Recibi ENOENT
+[INFO] 20:10:09:340 Pokedex/(3647:3650): ****************** FUSE: llamada a osada_getattr() ******************************
+[INFO] 20:10:09:340 Pokedex/(3647:3650): /autorun.inf
+[INFO] 20:10:09:340 Pokedex/(3647:3650): 	Recibi ENOENT
+[INFO] 20:10:09:341 Pokedex/(3647:3650): ****************** FUSE: llamada a osada_getattr() ******************************
+[INFO] 20:10:09:341 Pokedex/(3647:3650): /
+[INFO] 20:10:09:341 Pokedex/(3647:3650): 	Recibi RESPUESTA_GETATTR
+[INFO] 20:10:09:341 Pokedex/(3647:3652): ******************************************************************************
+[INFO] 20:10:09:341 Pokedex/(3647:3652): ****************** FUSE: llamada a osada_readdir() ***************************
+[INFO] 20:10:09:341 Pokedex/(3647:3652): ******************************************************************************
+[INFO] 20:10:09:341 Pokedex/(3647:3652): /
+[INFO] 20:10:09:341 Pokedex/(3647:3652): 	Envie PEDIDO_READDIR
+[INFO] 20:10:09:342 Pokedex/(3647:3652): 	Recibi RESPUESTA_READDIR
+[INFO] 20:10:09:342 Pokedex/(3647:3652): Pokemons/Celadon City/README.txt/Cerulean City/Fuchsia City/Lavender Town/Pallet Town/Pewter City/Saffron City/Vermilion City/Viridian City/
+[INFO] 20:10:45:129 Pokedex/(3679:3679): ****************** Creando archivo Log *******************************************
+[INFO] 20:10:45:129 Pokedex/(3679:3679): ****************** Estableciendo conexion con el servidor... 
+[INFO] 20:10:45:129 Pokedex/(3679:3679): 	Enviando mensaje handshake al servidor
+[INFO] 20:10:45:129 Pokedex/(3679:3679): 	Recibi mensaje handshake  del servidor
+[INFO] 20:10:45:129 Pokedex/(3679:3679): ****************** Se establecio la conexion con exito *********************
+[INFO] 20:10:45:129 Pokedex/(3679:3679): ****************** Llamo a fuse main  ********************************************
+[INFO] 20:10:45:134 Pokedex/(3679:3685): ****************** FUSE: llamada a osada_getattr() ******************************
+[INFO] 20:10:45:134 Pokedex/(3679:3685): /.xdg-volume-info
+[INFO] 20:10:45:134 Pokedex/(3679:3685): 	Recibi ENOENT
+[INFO] 20:10:45:134 Pokedex/(3679:3685): ****************** FUSE: llamada a osada_getattr() ******************************
+[INFO] 20:10:45:135 Pokedex/(3679:3685): /
+[INFO] 20:10:45:135 Pokedex/(3679:3685): 	Recibi RESPUESTA_GETATTR
+[INFO] 20:10:45:135 Pokedex/(3679:3681): ******************************************************************************
+[INFO] 20:10:45:135 Pokedex/(3679:3681): ****************** FUSE: llamada a osada_readdir() ***************************
+[INFO] 20:10:45:135 Pokedex/(3679:3681): ******************************************************************************
+[INFO] 20:10:45:135 Pokedex/(3679:3681): /
+[INFO] 20:10:45:135 Pokedex/(3679:3681): 	Envie PEDIDO_READDIR
+[INFO] 20:10:45:135 Pokedex/(3679:3681): 	Recibi RESPUESTA_READDIR
+[INFO] 20:10:45:135 Pokedex/(3679:3681): Pokemons/Celadon City/README.txt/Cerulean City/Fuchsia City/Lavender Town/Pallet Town/Pewter City/Saffron City/Vermilion City/Viridian City/
+[INFO] 20:13:20:569 Pokedex/(3792:3792): ****************** Creando archivo Log *******************************************
+[INFO] 20:13:34:361 Pokedex/(3792:3792): ****************** Estableciendo conexion con el servidor... 
+[INFO] 20:13:39:517 Pokedex/(3792:3792): 	Enviando mensaje handshake al servidor
+[INFO] 20:13:41:725 Pokedex/(3792:3792): 	Recibi mensaje handshake  del servidor
+[INFO] 20:13:41:725 Pokedex/(3792:3792): ****************** Se establecio la conexion con exito *********************
+[INFO] 20:13:43:154 Pokedex/(3792:3792): ****************** Llamo a fuse main  ********************************************
+[INFO] 20:14:52:838 Pokedex/(3792:3926): ****************** FUSE: llamada a osada_getattr() ******************************
+[INFO] 20:14:52:838 Pokedex/(3792:3926): /.xdg-volume-info
+[INFO] 20:14:52:838 Pokedex/(3792:3925): ****************** FUSE: llamada a osada_getattr() ******************************
+[INFO] 20:14:52:838 Pokedex/(3792:3925): /
+[INFO] 20:14:52:838 Pokedex/(3792:3926): 	Recibi ENOENT
+[INFO] 20:14:52:838 Pokedex/(3792:3926): ****************** FUSE: llamada a osada_getattr() ******************************
+[INFO] 20:14:52:838 Pokedex/(3792:3926): /autorun.inf
+[INFO] 20:14:52:838 Pokedex/(3792:3926): 	Recibi ENOENT
+[INFO] 20:14:52:838 Pokedex/(3792:3925): 	Recibi RESPUESTA_GETATTR
+[INFO] 20:14:52:838 Pokedex/(3792:3926): ****************** FUSE: llamada a osada_getattr() ******************************
+[INFO] 20:14:52:838 Pokedex/(3792:3926): /.Trash
+[INFO] 20:14:52:838 Pokedex/(3792:3926): 	Recibi ENOENT
+[INFO] 20:14:52:838 Pokedex/(3792:3925): ******************************************************************************
+[INFO] 20:14:52:838 Pokedex/(3792:3925): ****************** FUSE: llamada a osada_readdir() ***************************
+[INFO] 20:14:52:838 Pokedex/(3792:3925): ******************************************************************************
+[INFO] 20:14:52:838 Pokedex/(3792:3925): /
+[INFO] 20:14:52:838 Pokedex/(3792:3925): 	Envie PEDIDO_READDIR
+[INFO] 20:14:52:838 Pokedex/(3792:3925): 	Recibi RESPUESTA_READDIR
+[INFO] 20:14:52:838 Pokedex/(3792:3925): Pokemons/Celadon City/README.txt/Cerulean City/Fuchsia City/Lavender Town/Pallet Town/Pewter City/Saffron City/Vermilion City/Viridian City/
+[INFO] 21:06:46:734 Pokedex/(5255:5255): ****************** Creando archivo Log *******************************************
+[INFO] 21:06:46:734 Pokedex/(5255:5255): ****************** Estableciendo conexion con el servidor... 
+[INFO] 21:06:46:735 Pokedex/(5255:5255): 	Enviando mensaje handshake al servidor
+[INFO] 21:06:46:735 Pokedex/(5255:5255): 	Recibi mensaje handshake  del servidor
+[INFO] 21:06:46:735 Pokedex/(5255:5255): ****************** Se establecio la conexion con exito *********************
+[INFO] 21:06:46:736 Pokedex/(5255:5255): ****************** Llamo a fuse main  ********************************************
+[INFO] 21:08:14:792 Pokedex/(5314:5314): ****************** Creando archivo Log *******************************************
+[INFO] 21:08:14:792 Pokedex/(5314:5314): ****************** Estableciendo conexion con el servidor... 
+[INFO] 21:08:14:792 Pokedex/(5314:5314): 	Enviando mensaje handshake al servidor
+[INFO] 21:08:14:793 Pokedex/(5314:5314): 	Recibi mensaje handshake  del servidor
+[INFO] 21:08:14:793 Pokedex/(5314:5314): ****************** Se establecio la conexion con exito *********************
+[INFO] 21:08:14:793 Pokedex/(5314:5314): ****************** Llamo a fuse main  ********************************************
+[INFO] 21:08:14:798 Pokedex/(5314:5317): ****************** FUSE: llamada a osada_getattr() ******************************
+[INFO] 21:08:14:799 Pokedex/(5314:5317): /.Trash
+[INFO] 21:08:14:799 Pokedex/(5314:5317): ****************** FUSE: llamada a osada_getattr() ******************************
+[INFO] 21:08:14:799 Pokedex/(5314:5317): /.Trash-1000
+[INFO] 21:08:14:800 Pokedex/(5314:5317): ****************** FUSE: llamada a osada_getattr() ******************************
+[INFO] 21:08:14:800 Pokedex/(5314:5317): /.xdg-volume-info
+[INFO] 21:08:14:800 Pokedex/(5314:5317): ****************** FUSE: llamada a osada_getattr() ******************************
+[INFO] 21:08:14:800 Pokedex/(5314:5317): /
+[INFO] 21:08:14:801 Pokedex/(5314:5317): 	Recibi RESPUESTA_GETATTR
+[INFO] 21:08:14:803 Pokedex/(5314:5317): ****************** FUSE: llamada a osada_getattr() ******************************
+[INFO] 21:08:14:803 Pokedex/(5314:5317): /autorun.inf
+[INFO] 21:08:14:804 Pokedex/(5314:5318): ******************************************************************************
+[INFO] 21:08:14:804 Pokedex/(5314:5318): ****************** FUSE: llamada a osada_readdir() ***************************
+[INFO] 21:08:14:804 Pokedex/(5314:5318): ******************************************************************************
+[INFO] 21:08:14:804 Pokedex/(5314:5318): /
+[INFO] 21:08:14:804 Pokedex/(5314:5318): 	Envie PEDIDO_READDIR
+[INFO] 21:08:14:804 Pokedex/(5314:5318): 	Recibi RESPUESTA_READDIR
+[INFO] 21:08:14:805 Pokedex/(5314:5318): Pokemons/Celadon City/README.txt/Cerulean City/Fuchsia City/Lavender Town/Pallet Town/Pewter City/Saffron City/Vermilion City/Viridian City/
+[INFO] 10:32:07:467 Pokedex/(3799:3799): ****************** Creando archivo Log *******************************************
+[INFO] 10:32:22:77 Pokedex/(3799:3799): ****************** Estableciendo conexion con el servidor... 
+[INFO] 10:33:17:758 Pokedex/(3799:3799): 	Enviando mensaje handshake al servidor
+[INFO] 10:34:50:534 Pokedex/(3799:3799): 	Recibi mensaje handshake  del servidor
+[INFO] 10:34:50:534 Pokedex/(3799:3799): ****************** Se establecio la conexion con exito *********************
+[INFO] 10:35:04:34 Pokedex/(3799:3799): ****************** Llamo a fuse main  ********************************************
+[INFO] 10:35:09:704 Pokedex/(3799:3923): ****************** FUSE: llamada a osada_getattr() ******************************
+[INFO] 10:35:09:704 Pokedex/(3799:3923): /.xdg-volume-info
+[INFO] 10:35:09:705 Pokedex/(3799:3924): ****************** FUSE: llamada a osada_getattr() ******************************
+[INFO] 10:35:09:705 Pokedex/(3799:3924): /autorun.inf
+[INFO] 10:35:09:706 Pokedex/(3799:3922): ****************** FUSE: llamada a osada_getattr() ******************************
+[INFO] 10:35:09:706 Pokedex/(3799:3922): /.Trash
+[INFO] 10:35:09:706 Pokedex/(3799:3923): ****************** FUSE: llamada a osada_getattr() ******************************
+[INFO] 10:35:09:706 Pokedex/(3799:3923): /.Trash-1000
+[INFO] 10:35:09:707 Pokedex/(3799:3922): ****************** FUSE: llamada a osada_getattr() ******************************
+[INFO] 10:35:09:707 Pokedex/(3799:3922): /
+[INFO] 10:35:09:707 Pokedex/(3799:3922): 	Recibi RESPUESTA_GETATTR
+[INFO] 10:35:09:707 Pokedex/(3799:3923): ******************************************************************************
+[INFO] 10:35:09:707 Pokedex/(3799:3923): ****************** FUSE: llamada a osada_readdir() ***************************
+[INFO] 10:35:09:708 Pokedex/(3799:3923): ******************************************************************************
+[INFO] 10:35:09:708 Pokedex/(3799:3923): /
+[INFO] 10:35:09:708 Pokedex/(3799:3923): 	Envie PEDIDO_READDIR
+[INFO] 10:35:09:708 Pokedex/(3799:3923): 	Recibi RESPUESTA_READDIR
+[INFO] 10:35:09:708 Pokedex/(3799:3923): Pokemons/Celadon City/README.txt/Cerulean City/Fuchsia City/Lavender Town/Pallet Town/Pewter City/Saffron City/Vermilion City/Viridian City/
+[INFO] 13:34:38:91 Pokedex/(8801:8801): ****************** Creando archivo Log *******************************************
+[INFO] 13:34:38:91 Pokedex/(8801:8801): ****************** Estableciendo conexion con el servidor... 
+[INFO] 13:34:38:91 Pokedex/(8801:8801): 	Enviando mensaje handshake al servidor
+[INFO] 13:34:38:92 Pokedex/(8801:8801): 	Recibi mensaje handshake  del servidor
+[INFO] 13:34:38:92 Pokedex/(8801:8801): ****************** Se establecio la conexion con exito *********************
+[INFO] 13:34:38:92 Pokedex/(8801:8801): ****************** Llamo a fuse main  ********************************************
+[INFO] 13:34:38:105 Pokedex/(8801:8807): ****************** FUSE: llamada a osada_getattr() ******************************
+[INFO] 13:34:38:105 Pokedex/(8801:8807): /.xdg-volume-info
+[INFO] 13:34:38:105 Pokedex/(8801:8807): ****************** FUSE: llamada a osada_getattr() ******************************
+[INFO] 13:34:38:105 Pokedex/(8801:8807): /
+[INFO] 13:34:38:106 Pokedex/(8801:8807): 	Recibi RESPUESTA_GETATTR
+[INFO] 13:34:38:106 Pokedex/(8801:8807): ****************** FUSE: llamada a osada_getattr() ******************************
+[INFO] 13:34:38:106 Pokedex/(8801:8807): /autorun.inf
+[INFO] 13:34:38:107 Pokedex/(8801:8804): ****************** FUSE: llamada a osada_getattr() ******************************
+[INFO] 13:34:38:107 Pokedex/(8801:8804): /.Trash
+[INFO] 13:34:38:107 Pokedex/(8801:8807): ******************************************************************************
+[INFO] 13:34:38:107 Pokedex/(8801:8807): ****************** FUSE: llamada a osada_readdir() ***************************
+[INFO] 13:34:38:107 Pokedex/(8801:8807): ******************************************************************************
+[INFO] 13:34:38:107 Pokedex/(8801:8807): /
+[INFO] 13:34:38:107 Pokedex/(8801:8807): 	Envie PEDIDO_READDIR
+[INFO] 13:34:38:108 Pokedex/(8801:8807): 	Recibi RESPUESTA_READDIR
+[INFO] 13:34:38:108 Pokedex/(8801:8807): Pokemons/Celadon City/README.txt/Cerulean City/Fuchsia City/Lavender Town/Pallet Town/Pewter City/Saffron City/Vermilion City/Viridian City/
+[INFO] 13:35:52:115 Pokedex/(8910:8910): ****************** Creando archivo Log *******************************************
+[INFO] 13:35:52:115 Pokedex/(8910:8910): ****************** Estableciendo conexion con el servidor... 
+[INFO] 13:35:52:116 Pokedex/(8910:8910): 	Enviando mensaje handshake al servidor
+[INFO] 13:35:52:117 Pokedex/(8910:8910): 	Recibi mensaje handshake  del servidor
+[INFO] 13:35:52:117 Pokedex/(8910:8910): ****************** Se establecio la conexion con exito *********************
+[INFO] 13:35:52:117 Pokedex/(8910:8910): ****************** Llamo a fuse main  ********************************************
+[INFO] 13:35:52:126 Pokedex/(8910:8913): ****************** FUSE: llamada a osada_getattr() ******************************
+[INFO] 13:35:52:126 Pokedex/(8910:8913): /.Trash
+[INFO] 13:35:52:126 Pokedex/(8910:8913): 	Recibi ENOENT
+[INFO] 13:35:52:127 Pokedex/(8910:8913): ****************** FUSE: llamada a osada_getattr() ******************************
+[INFO] 13:35:52:127 Pokedex/(8910:8913): /.Trash-1000
+[INFO] 13:35:52:127 Pokedex/(8910:8913): 	Recibi ENOENT
+[INFO] 13:35:52:127 Pokedex/(8910:8913): ****************** FUSE: llamada a osada_getattr() ******************************
+[INFO] 13:35:52:127 Pokedex/(8910:8913): /.xdg-volume-info
+[INFO] 13:35:52:127 Pokedex/(8910:8913): 	Recibi ENOENT
+[INFO] 13:35:52:128 Pokedex/(8910:8914): ****************** FUSE: llamada a osada_getattr() ******************************
+[INFO] 13:35:52:128 Pokedex/(8910:8914): /autorun.inf
+[INFO] 13:35:52:128 Pokedex/(8910:8914): 	Recibi ENOENT
+[INFO] 13:35:52:128 Pokedex/(8910:8917): ****************** FUSE: llamada a osada_getattr() ******************************
+[INFO] 13:35:52:128 Pokedex/(8910:8917): /
+[INFO] 13:35:52:129 Pokedex/(8910:8917): 	Recibi RESPUESTA_GETATTR
+[INFO] 13:35:52:129 Pokedex/(8910:8914): ******************************************************************************
+[INFO] 13:35:52:129 Pokedex/(8910:8914): ****************** FUSE: llamada a osada_readdir() ***************************
+[INFO] 13:35:52:129 Pokedex/(8910:8914): ******************************************************************************
+[INFO] 13:35:52:129 Pokedex/(8910:8914): /
+[INFO] 13:35:52:129 Pokedex/(8910:8914): 	Envie PEDIDO_READDIR
+[INFO] 13:35:52:130 Pokedex/(8910:8914): 	Recibi RESPUESTA_READDIR
+[INFO] 13:35:52:130 Pokedex/(8910:8914): Pokemons/Celadon City/README.txt/Cerulean City/Fuchsia City/Lavender Town/Pallet Town/Pewter City/Saffron City/Vermilion City/Viridian City/

@@ -5,7 +5,7 @@ INSTALL_DIR=/usr/lib
 INSTALL_DIR_INCLUDE=/usr/include
 
 compile:
-	gcc -shared -fPIC -D_FILE_OFFSET_BITS=64 -DFUSE_USE_VERSION=30 comunicacion.c -o $(NIVEL_SO)
+	gcc -shared -fPIC -D_FILE_OFFSET_BITS=64 -DFUSE_USE_VERSION=27 comunicacion.c -o $(NIVEL_SO)
 
 install: compile
 	cp -u $(NIVEL_SO) $(INSTALL_DIR)

@@ -39,7 +39,7 @@
 								<option id="gnu.c.compiler.option.misc.pic.1318534611" name="Position Independent Code (-fPIC)" superClass="gnu.c.compiler.option.misc.pic" useByScannerDiscovery="false" value="true" valueType="boolean"/>
 								<option id="gnu.c.compiler.option.preprocessor.def.symbols.1781617934" name="Defined symbols (-D)" superClass="gnu.c.compiler.option.preprocessor.def.symbols" useByScannerDiscovery="false" valueType="definedSymbols">
 									<listOptionValue builtIn="false" value="_FILE_OFFSET_BITS=64 "/>
-									<listOptionValue builtIn="false" value="FUSE_USE_VERSION=30"/>
+									<listOptionValue builtIn="false" value="FUSE_USE_VERSION=27"/>
 								</option>
 								<inputType id="cdt.managedbuild.tool.gnu.c.compiler.input.1176727725" superClass="cdt.managedbuild.tool.gnu.c.compiler.input"/>
 							</tool>
