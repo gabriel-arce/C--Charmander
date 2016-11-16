@@ -11,7 +11,8 @@ int main(int argc, char ** argv)
 {
 	printEncabezado();
 	inicializarDisco();
-        bitmap = bitarray_create(disco + BLOCK_SIZE, oheader.fs_blocks * BLOCK_SIZE);
+
+    bitmap = bitarray_create(disco + BLOCK_SIZE, oheader.fs_blocks * BLOCK_SIZE);
 	pthread_mutex_lock(&mutex_comunicacion);
 		listenningSocket = crearServer(PUERTO);
 	pthread_mutex_unlock(&mutex_comunicacion);

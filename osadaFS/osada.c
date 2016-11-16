@@ -427,7 +427,7 @@ void inicializarDisco()//TODO: dejar solo las llamadas utiles
 	levantarDatosGenerales(oheader);
 	asignarOffsets();
 	levantarBitmap();
-//	leerTablaArchivos();
+	leerTablaArchivos();
 }
 
 void leerArchivo(uint32_t posicion, osada_file* buf)
@@ -939,13 +939,23 @@ void leerTablaArchivos()
 {
 		osada_file archivo;
 		int i;
-		printf("tabla de archivos\n");
-		printf("    Archivo.fname  parent_directory  file_size  state\n");
-		for(i=0; i< 20; i++)
-		{
+		printf(GRN "\t\t TABLA DE ARCHIVOS\n" RESET);
+		printf("\t\t Archivo.fname  parent_directory  file_size  state\n");
+
+
+		for(i=0; i< 2048; i++){
 			leerArchivo(i, &archivo);
-			printf("%17s\t %8d\t %4d\t %4d\n\n", archivo.fname, archivo.parent_directory, archivo.file_size, archivo.state);
+
+			if (archivo.state != DELETED){
+				//printf("%17s\t %8d\t %4d\t %4d\n\n", archivo.fname, archivo.parent_directory, archivo.file_size, archivo.state);
+
+				if (archivo.state == REGULAR)
+					printf("%25s\t %8d\t %4d\t Fichero\n", archivo.fname, archivo.parent_directory, archivo.file_size);
+				if (archivo.state == DIRECTORY)
+					printf("%25s\t %8d\t %4d\t Directorio\n", archivo.fname, archivo.parent_directory, archivo.file_size);
+			}
 		}
+
 }
 
 void leerTablaAsignaciones()

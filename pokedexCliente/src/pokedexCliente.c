@@ -90,8 +90,8 @@ int main(int argc, char *argv[])
   osada_oper.rename		= osada_rename;		// renombrar un archivo
   osada_oper.create		= osada_create;		// crear y abrir un archivo
   osada_oper.truncate	= osada_truncate;	// redimensionar archivo
-  osada_oper.open		= osada_open;		//abre un archivo
-  osada_oper.release	= osada_release;	//libera un archivo que estuvo abierto
+  osada_oper.open		= osada_open;		// abre un archivo
+  osada_oper.release	= osada_release;	// libera un archivo que estuvo abierto
   osada_oper.flush		= osada_flush;
 
   return fuse_main(args.argc, args.argv, &osada_oper, NULL);
@@ -140,9 +140,14 @@ static int osada_getattr(const char *path, struct stat *stbuf)
 
   memset(stbuf, 0, sizeof(struct stat));
 
-  if ((strcmp(path, "/.Trash") != 0) && (strcmp(path, "/.Trash-1000") != 0) && (strcmp(path, " /.xdg-volume-info") != 0) && (strcmp(path, "/autorun.inf") != 0) && (strcmp(path, "/.xdg-volume-info") != 0))
-  {
-    int head = 0;
+
+  if ((strcmp(path, "/.Trash") != 0) &&
+	  (strcmp(path, "/.Trash-1000") != 0) &&
+	  (strcmp(path, " /.xdg-volume-info") != 0) &&
+	  (strcmp(path, "/autorun.inf") != 0) &&
+	  (strcmp(path, "/.xdg-volume-info") != 0)){
+
+	int head = 0;
     t_stbuf *paquete = NULL;
 
     pthread_mutex_lock(&mutex_comunicacion);
@@ -151,31 +156,29 @@ static int osada_getattr(const char *path, struct stat *stbuf)
       paquete = (t_stbuf*)recibir(*socketServidor,&head);
     pthread_mutex_unlock(&mutex_comunicacion);
 
-    if (head == RESPUESTA_GETATTR)
-    {
+    if (head == RESPUESTA_GETATTR){
       stbuf->st_mode = paquete->mode;
       stbuf->st_nlink = paquete->nlink;
       stbuf->st_size = paquete->size;
 
       log_info(logCliente, "	Recibi RESPUESTA_GETATTR");
       return 0;
-    }
-    else if(head == ENOENT)
-    {
-      log_info(logCliente, "	Recibi ENOENT");
-      return -ENOENT;
-    }
-    else
-    {
-      log_info(logCliente, "	Recibi algo inesperado %d", head);
-      return -ENOENT;
-    }
+
+    } else
+    	if(head == ENOENT){
+    		log_info(logCliente, "	Recibi ENOENT");
+    		return -ENOENT;
+    	} else {
+    		log_info(logCliente, "	Recibi algo inesperado %d", head);
+    		return -ENOENT;
+    	}
+
   }
-  else
-  {
+/*  else {
     log_info(logCliente, "	Recibi ENOENT");
     return -ENOENT;
-  }
+  }*/
+
 }
 
 static int osada_flush(const char *path, struct fuse_file_info *fi)

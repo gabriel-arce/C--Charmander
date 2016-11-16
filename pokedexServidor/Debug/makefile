@@ -26,9 +26,9 @@ endif
 all: pokedexServidor
 
 dependents:
-	-cd /home/gabriel/workspace/Operativos/commons/Debug && $(MAKE) all
-	-cd /home/gabriel/workspace/Operativos/tp-2016-2c-MeQuedeSinPokebolas-/comunicacion/Debug && $(MAKE) all
-	-cd /home/gabriel/workspace/Operativos/tp-2016-2c-MeQuedeSinPokebolas-/osadaFS/Debug && $(MAKE) all
+	-cd /home/gabriel/workspace/Operativos/commons/Debug && $(MAKE) clean all
+	-cd /home/gabriel/workspace/Operativos/tp-2016-2c-MeQuedeSinPokebolas-/comunicacion/Debug && $(MAKE) clean all
+	-cd /home/gabriel/workspace/Operativos/tp-2016-2c-MeQuedeSinPokebolas-/osadaFS/Debug && $(MAKE) clean all
 
 # Tool invocations
 pokedexServidor: $(OBJS) $(USER_OBJS) /home/gabriel/workspace/Operativos/commons/Debug/libcommons.so /home/gabriel/workspace/Operativos/tp-2016-2c-MeQuedeSinPokebolas-/comunicacion/Debug/libcomunicacion.so /home/gabriel/workspace/Operativos/tp-2016-2c-MeQuedeSinPokebolas-/osadaFS/Debug/libosadaFS.so
