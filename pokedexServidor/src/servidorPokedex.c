@@ -301,8 +301,8 @@ void atendercliente(int socket)
 					}
 					else
 					{
-						enviar(socket, ENOENTRY, pedido);
-						printf(YEL "\t devolviendo respuesta ENOENT \n" RESET);
+						enviar(socket, RESPUESTA_ERROR, pedido);
+						printf(YEL "\t devolviendo RESPUESTA_ERROR \n" RESET);
 					}
 					break;
 
@@ -332,8 +332,8 @@ void atendercliente(int socket)
 					}
 					else
 					{
-						enviar(socket, ENOENTRY, pedido);
-						printf(YEL "\t devolviendo respuesta ERROR \n" RESET);
+						enviar(socket, RESPUESTA_ERROR, pedido);
+						printf(YEL "\t devolviendo RESPUESTA_ERROR \n" RESET);
 					}
 					break;
 
@@ -354,8 +354,8 @@ void atendercliente(int socket)
 					}
 					else
 					{
-						enviar(socket, ENOENTRY, pedido);
-						printf(YEL "\t devolviendo respuesta ENOENT \n" RESET);
+						enviar(socket, RESPUESTA_ERROR, pedido);
+						printf(YEL "\t devolviendo RESPUESTA_ERROR \n" RESET);
 					}
 					break;
 
@@ -370,8 +370,8 @@ void atendercliente(int socket)
 					}
 					else
 					{
-						enviar(socket, ENOENTRY, pedido);
-						printf(YEL "\t devolviendo respuesta ERROR \n" RESET);
+						enviar(socket, RESPUESTA_ERROR, pedido);
+						printf(YEL "\t devolviendo RESPUESTA_ERROR \n" RESET);
 					}
 					break;
 
@@ -387,12 +387,12 @@ void atendercliente(int socket)
 					else
 					{
 						enviar(socket, RESPUESTA_ERROR, pedido);
-						printf(YEL "\t devolviendo respuesta ERROR \n" RESET);
+						printf(YEL "\t devolviendo RESPUESTA_ERROR \n" RESET);
 					}
 					break;
 
 				case PEDIDO_WRITE:
-					printf( PINK2 "\t procesando PEDIDO_WRITE\n" RESET);
+					printf( PINK "\t procesando PEDIDO_WRITE\n" RESET);
 
 					void *bufWrite = NULL;
 					bufWrite = recibirEstructuraWrite(socket, &head);
@@ -401,12 +401,12 @@ void atendercliente(int socket)
 					if(respuesta != NULL)
 					{
 						enviar(socket, RESPUESTA_WRITE, respuesta);
-						printf(PINK2 "\t devolviendo RESPUESTA_WRITE \n" RESET);
+						printf(PINK "\t devolviendo RESPUESTA_WRITE \n" RESET);
 					}
 					else
 					{
-						enviar(socket, ENOENTRY, pedido);
-						printf(YEL "\t devolviendo respuesta ERROR \n" RESET);
+						enviar(socket, RESPUESTA_ERROR, pedido);
+						printf(YEL "\t devolviendo RESPUESTA_ERROR \n" RESET);
 					}
 					break;
 
@@ -488,7 +488,7 @@ void* procesarPedidoGetatrr(char *path)
 
 void* procesarPedidoFlush(char *path)
 {
-	printf(MAG "\t path: %s\n" RESET, path);
+	printf("\t path: %s\n", path);
 	char* respuesta = malloc(sizeof(char));
 	respuesta[0] = flushArchivo(path);
 	return respuesta;

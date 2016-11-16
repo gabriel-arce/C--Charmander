@@ -26,27 +26,25 @@ endif
 all: pokedexServidor
 
 dependents:
-	-cd /home/gabriel/workspace/Operativos/commons/Debug && $(MAKE) all
-	-cd /home/gabriel/workspace/Operativos/tp-2016-2c-MeQuedeSinPokebolas-/comunicacion/Debug && $(MAKE) all
-	-cd /home/gabriel/workspace/Operativos/tp-2016-2c-MeQuedeSinPokebolas-/osadaFS/Debug && $(MAKE) all
+	-cd /home/utnso/workspace/tp-2016-2c-MeQuedeSinPokebolas-/comunicacion/Debug && $(MAKE) all
+	-cd /home/utnso/workspace/tp-2016-2c-MeQuedeSinPokebolas-/osadaFS/Debug && $(MAKE) all
 
 # Tool invocations
-pokedexServidor: $(OBJS) $(USER_OBJS) /home/gabriel/workspace/Operativos/commons/Debug/libcommons.so /home/gabriel/workspace/Operativos/tp-2016-2c-MeQuedeSinPokebolas-/comunicacion/Debug/libcomunicacion.so /home/gabriel/workspace/Operativos/tp-2016-2c-MeQuedeSinPokebolas-/osadaFS/Debug/libosadaFS.so
+pokedexServidor: $(OBJS) $(USER_OBJS) /home/utnso/workspace/tp-2016-2c-MeQuedeSinPokebolas-/comunicacion/Debug/libcomunicacion.so /home/utnso/workspace/tp-2016-2c-MeQuedeSinPokebolas-/osadaFS/Debug/libosadaFS.so
 	@echo 'Building target: $@'
 	@echo 'Invoking: GCC C Linker'
-	gcc -L"/home/gabriel/workspace/Operativos/tp-2016-2c-MeQuedeSinPokebolas-/osadaFS/Debug" -L"/home/gabriel/workspace/Operativos/tp-2016-2c-MeQuedeSinPokebolas-/comunicacion/Debug" -L"/home/gabriel/workspace/Operativos/commons/Debug" -o "pokedexServidor" $(OBJS) $(USER_OBJS) $(LIBS)
+	gcc -L"/home/utnso/workspace/tp-2016-2c-MeQuedeSinPokebolas-/osadaFS/Debug" -L"/home/utnso/workspace/tp-2016-2c-MeQuedeSinPokebolas-/comunicacion/Debug" -o "pokedexServidor" $(OBJS) $(USER_OBJS) $(LIBS)
 	@echo 'Finished building target: $@'
 	@echo ' '
 
 # Other Targets
 clean:
-	-$(RM) $(EXECUTABLES)$(OBJS)$(C_DEPS) pokedexServidor
+	-$(RM) $(OBJS)$(C_DEPS)$(EXECUTABLES) pokedexServidor
 	-@echo ' '
 
 .PHONY: all clean dependents
 .SECONDARY:
-/home/gabriel/workspace/Operativos/commons/Debug/libcommons.so:
-/home/gabriel/workspace/Operativos/tp-2016-2c-MeQuedeSinPokebolas-/comunicacion/Debug/libcomunicacion.so:
-/home/gabriel/workspace/Operativos/tp-2016-2c-MeQuedeSinPokebolas-/osadaFS/Debug/libosadaFS.so:
+/home/utnso/workspace/tp-2016-2c-MeQuedeSinPokebolas-/comunicacion/Debug/libcomunicacion.so:
+/home/utnso/workspace/tp-2016-2c-MeQuedeSinPokebolas-/osadaFS/Debug/libosadaFS.so:
 
 -include ../makefile.targets

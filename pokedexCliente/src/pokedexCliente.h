@@ -52,18 +52,18 @@ KEY_VERSION,
 KEY_HELP,
 };
 
-static struct fuse_opt fuse_options[] = {
-	// Este es un parametro definido por nosotros
-	CUSTOM_FUSE_OPT_KEY("--welcome-msg %s", welcome_msg, 0),
-	// Estos son parametros por defecto que ya tiene FUSE
-	FUSE_OPT_KEY("-V", KEY_VERSION),
-	FUSE_OPT_KEY("--version", KEY_VERSION),
-	FUSE_OPT_KEY("-h", KEY_HELP),
-	FUSE_OPT_KEY("--help", KEY_HELP),
-	FUSE_OPT_END,
-};
-
-struct tm *timeinfo;
+//static struct fuse_opt fuse_options[] = {
+//	// Este es un parametro definido por nosotros
+//	CUSTOM_FUSE_OPT_KEY("--welcome-msg %s", welcome_msg, 0),
+//	// Estos son parametros por defecto que ya tiene FUSE
+//	FUSE_OPT_KEY("-V", KEY_VERSION),
+//	FUSE_OPT_KEY("--version", KEY_VERSION),
+//	FUSE_OPT_KEY("-h", KEY_HELP),
+//	FUSE_OPT_KEY("--help", KEY_HELP),
+//	FUSE_OPT_END,
+//};
+//
+//struct tm *timeinfo;
 
 
 
@@ -73,6 +73,8 @@ static int osada_create(const char *path, mode_t mode, struct fuse_file_info *fi
 static int osada_getattr(const char *path, struct stat *stbuf);
 static int osada_flush(const char *path, struct fuse_file_info *fi);
 static int osada_mkdir(const char *path, mode_t mode);
+static int osada_mknod(const char *path, mode_t mode, dev_t rdev);
+static int osada_open(const char *path, struct fuse_file_info *fi);
 static int osada_readdir(const char *path, void *buf, fuse_fill_dir_t filler, off_t offset, struct fuse_file_info *fi);
 static int osada_read(const char *path, char *buf, size_t size, off_t offset, struct fuse_file_info *fi);
 static int osada_release(const char *path, struct fuse_file_info *fi);
@@ -82,7 +84,7 @@ static int osada_truncate(const char *path, off_t new_size);
 static int osada_unlink(const char *path);
 static int osada_utimens(const char* path, const struct timespec ts[2]);
 static int osada_write(const char *path, const char *buf, size_t size, off_t offset, struct fuse_file_info *fi);
-static int osada_open(const char *path, struct fuse_file_info *fi);
+
 
 
 

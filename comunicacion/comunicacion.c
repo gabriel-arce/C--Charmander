@@ -437,7 +437,7 @@ void* serializarPedidoRead(t_readbuf* response, char* path)
 	memcpy(buffer + desplazamiento, path, response->pathLen);//chequear aca por si path necesita & o *
 	//printf(MAG "\t En serializarPedidoRead el path es:%s\n" RESET, path);
 	free(response);
-	free(path);
+//	free(path);
 	return buffer;
 }
 

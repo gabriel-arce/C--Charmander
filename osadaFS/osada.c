@@ -255,9 +255,9 @@ char cambiarUltimoAcceso(char* path)
 {
 	//lee la tabla de archivos y actualiza la fecha de ultima modificacion
 	//devuelve 's' para indicar ok al cliente o 'n' si fallo el pedido
-	int* posicion = 0;
+	int posicion;
 
-	osada_file* FCB = buscarArchivo(path, posicion);
+	osada_file* FCB = buscarArchivo(path, &posicion);
 	if (FCB == NULL)
 	{
 		printf(RED "\t No se encontro el archivo \n" RESET);
@@ -265,9 +265,9 @@ char cambiarUltimoAcceso(char* path)
 	}
 
 	FCB->lastmod = (uint32_t) obtenerFecha();
-    escribirArchivo(*posicion, FCB);
+    escribirArchivo(posicion, FCB);
 
-	printf( YEL "\t Se actualizo la fecha del archivo: %s" RESET, asctime(FCB->lastmod));
+    printf("\t Fecha actualizada \n");
 	return 's';
 }
 
@@ -636,7 +636,7 @@ time_t obtenerFecha()
 
  	time(&tiempo);
 
- 	time_t timeinfo = localtime(&tiempo);
+ 	time_t timeinfo =  (time_t)localtime(&tiempo);
  	//printf(YEL "\t Local Time: %s\r\n" RESET, asctime(timeinfo));
  	return timeinfo;
 
@@ -1178,7 +1178,7 @@ void* writeBuffer(uint32_t* size, uint32_t* offset, char* path, void* bufWrite)
 		writeFile(size, bufWrite, cantidadBloques, *offset, posicion, FCBarchivo);
 	}
 
-	printf(RED "\n\t Este es el print del millón, size retornado es: %d\n" RESET, *size);
+	printf(RED "\n\t Size retornado a FUSE es: %d\n" RESET, *size);
 	return size;
 }
 

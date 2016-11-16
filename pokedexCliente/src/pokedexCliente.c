@@ -73,20 +73,22 @@ int main(int argc, char *argv[])
   PrintFuse();
 
   //Operaciones en FUSE
-  osada_oper.getattr	= osada_getattr;	// obtener atributos
-  osada_oper.readdir	= osada_readdir; 	// leer un directorio
-  osada_oper.read		= osada_read; 		// leer archivo
-  osada_oper.write		= osada_write;		// escribir un archivo
-  osada_oper.unlink		= osada_unlink;		// borrar un archivo
-  osada_oper.mkdir		= osada_mkdir;		// crear un directorio
-  osada_oper.rmdir		= osada_rmdir;		// borrar un directorio
-  osada_oper.rename		= osada_rename;		// renombrar un archivo
-  osada_oper.create		= osada_create;		// crear y abrir un archivo
-  osada_oper.truncate	= osada_truncate;	// redimensionar archivo
-  osada_oper.open		= osada_open;		// abre un archivo
-  osada_oper.release	= osada_release;	// libera un archivo que estuvo abierto
-  osada_oper.flush		= osada_flush;
   osada_oper.access		= osada_access;		// accesos de un fichero
+  osada_oper.create		= osada_create;		// crear y abrir un archivo
+  osada_oper.flush		= osada_flush;
+  osada_oper.getattr	= osada_getattr;	// obtener atributos
+  osada_oper.mkdir		= osada_mkdir;		// crear un directorio
+  osada_oper.mknod		= osada_mknod;		// crear un directorio
+  osada_oper.open		= osada_open;		// abre un archivo
+  osada_oper.read		= osada_read; 		// leer archivo
+  osada_oper.readdir	= osada_readdir; 	// leer un directorio
+  osada_oper.release	= osada_release;	// libera un archivo que estuvo abierto
+  osada_oper.rename		= osada_rename;		// renombrar un archivo
+  osada_oper.rmdir		= osada_rmdir;		// borrar un directorio
+  osada_oper.truncate	= osada_truncate;	// redimensionar archivo
+  osada_oper.unlink		= osada_unlink;		// borrar un archivo
+  osada_oper.utimens	= osada_utimens;	// borrar un archivo
+  osada_oper.write		= osada_write;		// escribir un archivo
 
   return fuse_main(args.argc, args.argv, &osada_oper, NULL);
 }
@@ -484,7 +486,6 @@ static int osada_rename(const char *path, const char *newpath)
 
 	int head = 0;
 	void* paquete = NULL;
-	int offset = 0;
 
 	void *pedido = malloc(strlen(path) + strlen(newpath) + 3);
 	memset(pedido, 0, strlen(path) + strlen(newpath) + 3);
