@@ -16,52 +16,7 @@
 
 #define PUERTO "4969"
 #define BACKLOG 15	// Define cuantas conexiones vamos a mantener pendientes al mismo tiempo
-
-
-#define HANDSHAKE 777
-#define ERROR -1
-
-#define PEDIDO_GETATTR 12
-#define PEDIDO_READDIR 13
-#define PEDIDO_TRUNCATE 14
-#define PEDIDO_READ 15
-#define PEDIDO_WRITE 16
-#define PEDIDO_UNLINK 17
-#define PEDIDO_MKDIR 18
-#define PEDIDO_RMDIR 19
-#define PEDIDO_RENAME 20
-#define PEDIDO_CREATE 21
-
-#define RESPUESTA_GETATTR 22
-#define RESPUESTA_READDIR 23
-#define RESPUESTA_TRUNCATE 24
-#define RESPUESTA_READ 25
-#define RESPUESTA_WRITE 26
-#define RESPUESTA_UNLINK 27
-#define RESPUESTA_MKDIR 28
-#define RESPUESTA_RMDIR 29
-#define RESPUESTA_RENAME 30
-#define RESPUESTA_CREATE 31
-#define ENOENTRY 32
-
-#define PEDIDO_OPEN 33
-#define RESPUESTA_OPEN 34
-#define PEDIDO_RELEASE 35
-#define RESPUESTA_RELEASE 36
-#define PEDIDO_TRUNCATE_NEW_SIZE 37
-#define PEDIDO_FLUSH 38
-#define RESPUESTA_FLUSH 39
-
-#define PEDIDO_UTIMENS 40
-#define RESPUESTA_UTIMENS 47
-#define RESPUESTA_ERROR 41
-
-#define ERRDQUOT 42 //archivo 2049, no hay espacio en la tabla de archivos
-#define ERRFBIG 43 //no hay bloques de datos disponibles
-#define ERRNAMETOOLONG 44 //nombres de archivos con mas de 17 caracteres
-#define PEDIDO_MKNOD 45
-#define RESPUESTA_MKNOD 46
-
+#define ERRNOSPC 48
 //colores para los prints en la consola
 #define RED   "\x1B[31m"
 #define GRN   "\x1B[32m"
@@ -74,6 +29,11 @@
 #define PINK "\033[38;5;168m"//rosa
 #define VIO "\033[38;5;129m"//violeta
 #define PINK2 "\033[38;5;207m"//violeta
+#define ORG "\033[38;5;214m"//naranja
+#define AMB "\033[38;5;100m"//verde
+#define YEL2 "\033[38;5;226m"//verde
+#define RED2 "\033[38;5;196m"//ROJO
+#define COR "\033[1;31m"
 
 #define BLOCK_SIZE	64
 

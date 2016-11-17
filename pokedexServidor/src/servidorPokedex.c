@@ -437,11 +437,11 @@ void atendercliente(int socket)
 //funciones de servidor para atender pedidos de cliente--------------------------------------------
 void printTerminar()
 {
-	printf("\n\n\n**********************************************************************************\n");
-	printf("****************** El servidor cierra la conexion ********************************\n");
-	printf("**********************************************************************************\n");
-	printf("****************** " GRN "Terminar" RESET " ******************************************************\n");
-	printf("**********************************************************************************\n");
+	printf(NAR"**********************************************************************************\n");
+	printf(ORG"****************** El servidor cierra la conexion ********************************\n");
+	printf(YEL"**********************************************************************************\n");
+	printf(YEL2"****************** " GRN "Terminar" YEL2 " ******************************************************\n");
+	printf(AMB"**********************************************************************************\n");
 	printf(GRN "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\n\n\n" RESET);
 }
 
@@ -449,7 +449,7 @@ void printEncabezado()
 {
 	printf(GRN "\n\n\nxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\n" RESET);
 	printf("**********************************************************************************\n");
-	printf("**************** " GRN "POKEDEX SERVIDOR" RESET " ************************************************\n");
+	printf("**************** POKEDEX SERVIDOR ************************************************\n");
 	printf("**********************************************************************************\n\n");
 
 	printf("**************** Iniciando servidor..\n\n");
@@ -689,7 +689,11 @@ void* procesarPedidoWrite(void *buffer, int* codigo)
 			*codigo = ENOENTRY;
 	    	break;
 
-		case  -2://si no hay bloques libres
+		case  -2:// no hay bloques libres
+			*codigo = ERRNOSPC;
+			break;
+
+		case -3: //el tamaño a escribir excede los limites del file system
 			*codigo = ERRFBIG;
 			break;
 	}
@@ -710,7 +714,8 @@ void terminar()
 
 	descargar();
 	liberarRecursos();
-	printf(RED "\n\n------------------ Señal SIGTERM -------------------------------------------------\n" RESET);
+	printf(RED "\n\n****************** Señal SIGTERM *************************************************\n" RESET);
+	printf(RED     "**********************************************************************************\n" RESET);
 	printTerminar();
 
 	exit(0);

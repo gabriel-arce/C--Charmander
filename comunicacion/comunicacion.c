@@ -20,7 +20,7 @@ int aceptarConexion(int listenningSocket)
 
 int crearServer(char* puerto)
 {
-	printf(MAG "\t Puerto donde voy a escuchar conexiones: %s\n" RESET, puerto);
+	printf(MAG "\n\n****************** Puerto donde voy a escuchar conexiones: %s ******************\n" RESET, puerto);
 
 	int status;
 	struct addrinfo hints;
@@ -62,7 +62,8 @@ int crearServer(char* puerto)
 		printf(RED "\t Fallo el listen\n" RESET);
 		return -1;
 	}
-	printf(MAG "\t Socket servidor creado correctamente\n" RESET);
+
+	printf(MAG "****************** Socket servidor creado correctamente **************************\n" RESET);
 	return listenningSocket;
 }
 
@@ -210,6 +211,7 @@ int calcularTamanioMensaje(int head, void* mensaje)
 			tamanio = sizeof(char);
 			break;
 
+		case ERRNOSPC:
 		case ERRFBIG:
 		case RESPUESTA_WRITE:
 			tamanio = sizeof(uint32_t);
@@ -266,12 +268,13 @@ void* serializar(int head, void* mensaje, int tamanio)
 		case ERRNAMETOOLONG:
 		case ERROR:
 		case RESPUESTA_ERROR:
+		case ERRNOSPC:
 
 		case HANDSHAKE:
 
 		case PEDIDO_CREATE:
 		case PEDIDO_GETATTR:
-				case PEDIDO_FLUSH:
+		case PEDIDO_FLUSH:
 		case PEDIDO_MKDIR:
 		case PEDIDO_OPEN:
 		case PEDIDO_READ:

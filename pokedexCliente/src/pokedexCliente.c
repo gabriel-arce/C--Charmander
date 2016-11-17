@@ -715,17 +715,23 @@ static int osada_write(const char *path, const char *buf, size_t size, off_t off
 			free(tamanio);
 			//return *tamanio;
 		}
-		else if (head == ENOENTRY)
+		else if (head == ERRNOSPC)
 		{
 			log_info(logCliente, "	Recibi respuesta ENOSPC en osada_write........................................");
 			free(tamanio);
 			return -ENOSPC;//no hay espacio en disco
 		}
-		else
+		else if (head == ERRFBIG)
 		{
-			log_info(logCliente, "	No recibi RESPUESTA_WRITE en osada_white......................................");
+			log_info(logCliente, "	Recibi respuesta ERRFBIG en osada_write........................................");
 			free(tamanio);
-			return -ENOSPC;
+			return -EFBIG;
+		}
+		else if (head == ENOENTRY)
+		{
+			log_info(logCliente, "	Recibi respuesta ENOENTRY en osada_write........................................");
+			free(tamanio);
+			return -ENOENT;
 		}
 	}
 	return size;

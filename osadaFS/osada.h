@@ -92,7 +92,6 @@ char crearArchivo(char* path, int modo);
 void descargar();
 void escribirArchivo(uint32_t posicion, osada_file* buf);
 void escribirAsignacion(uint32_t posicion, uint32_t* buf);
-void escribirBitmap();
 void escribirBloque(uint32_t bloque, char* buf);
 int esDirectorioVacio(int posicion);
 int existePath(char* path, int* pos);
@@ -132,7 +131,7 @@ int writeBuffer(uint32_t* size, uint32_t* offset, char* path, void* bufWrite);
 void* writeFile(uint32_t* size, void* bufWrite, int cantidadBloques, uint32_t offset, int posicionArchivo, osada_file* FCB);
 
 //nuevas--------------------------------------
-void actualizarFCBArchivo(int posicionArchivo, osada_file* FCB, size_t size, uint32_t* posicionBloque);
+void actualizarFCBArchivo(int posicionArchivo, osada_file* FCB, uint32_t size, uint32_t* posicionBloque);
 void buscarBloque(uint32_t offset, uint32_t* posicionBloque);//esta creo que se va
 void cortado();//esto se va
 int escribirArchivoAsignandoBloquesNuevos(void* bufWrite, int cantidadBloques, uint32_t* posicionBloque, uint32_t* proximoBloque);

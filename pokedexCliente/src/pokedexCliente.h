@@ -6,8 +6,6 @@
  *      Author: guadalupe
  */
 
-
-
 #ifndef POKEDEXCLIENTE_H_
 #define POKEDEXCLIENTE_H_
 
@@ -18,12 +16,7 @@
 #include <comunicacion.h>
 
 #define CUSTOM_FUSE_OPT_KEY(t, p, v) { t, offsetof(struct t_runtime_options, p), v }
-
-//pasar a un .h los pedidos respuestas
-#define HANDSHAKE 777
-
-
-
+#define ERRNOSPC 48
 //Variables Globales
 int* socketServidor;
 t_log* logCliente;

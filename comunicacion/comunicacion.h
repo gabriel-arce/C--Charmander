@@ -69,15 +69,15 @@
 #define RESPUESTA_FLUSH 39
 
 #define PEDIDO_UTIMENS 40
-#define RESPUESTA_UTIMENS 47
+#define RESPUESTA_UTIMENS 41
+#define RESPUESTA_ERROR 42
 
-#define RESPUESTA_ERROR 41
-
-#define ERRDQUOT 42 //archivo 2049, no hay espacio en la tabla de archivos
-#define ERRFBIG 43 //no hay bloques de datos disponibles
-#define ERRNAMETOOLONG 44 //nombres de archivos con mas de 17 caracteres
-#define PEDIDO_MKNOD 45
-#define RESPUESTA_MKNOD 46
+#define ERRDQUOT 43 //archivo 2049, no hay espacio en la tabla de archivos
+#define ERRFBIG 44 //no hay bloques de datos disponibles
+#define ERRNAMETOOLONG 45 //nombres de archivos con mas de 17 caracteres
+#define PEDIDO_MKNOD 46
+#define RESPUESTA_MKNOD 47
+#define ERRNOSPC 48
 
 //colores para los prints en la consola
 #define RED   "\x1B[31m"
