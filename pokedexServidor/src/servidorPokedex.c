@@ -123,7 +123,7 @@ void atendercliente(int socket)
 
 						case RESPUESTA_ERROR:
 							enviar(socket, RESPUESTA_ERROR, respuesta);
-							printf(VIO "\t respondiendo  \n" RESET);
+							printf(MAG "\t respondiendo  \n" RESET);
 							break;
 
 					    default:
@@ -191,12 +191,12 @@ void atendercliente(int socket)
 
 						case RESPUESTA_ERROR:
 							enviar(socket, RESPUESTA_ERROR, respuesta);
-							printf(VIO "\t respondiendo  \n" RESET);
+							printf(MAG "\t respondiendo  \n" RESET);
 							break;
 
 					    default:
 							enviar(socket, RESPUESTA_ERROR, respuesta);
-							printf(PINK2 "\t respondiendo  \n" RESET);
+							printf(MAG "\t respondiendo  \n" RESET);
 							break;
 					}
 					break;
@@ -227,7 +227,7 @@ void atendercliente(int socket)
 
 						case RESPUESTA_ERROR:
 							enviar(socket, RESPUESTA_ERROR, respuesta);
-							printf(VIO "\t respondiendo  \n" RESET);
+							printf(MAG "\t respondiendo  \n" RESET);
 							break;
 					    default:
 							enviar(socket, RESPUESTA_ERROR, respuesta);
@@ -538,8 +538,8 @@ void* procesarPedidoRead(void* buffer, uint32_t* tamanioBuffer)
 	memset(path, 0, pathLen);
 	memcpy(path,  buffer + desplazamiento, pathLen);
 
-	printf(CYN "\t En procesarPedidoRead el size es: %d bytes\n", *size);
-	printf( "\t En procesarPedidoRead el offset es: %d bytes\n", (uint32_t)*offset);
+	printf( "\t size: %d bytes\n", *size);
+	printf( "\t offset: %d bytes\n", (uint32_t)*offset);
 
 	int posicion = -1;
 	if(existePath(path, &posicion))
@@ -580,7 +580,7 @@ void* procesarPedidoRead(void* buffer, uint32_t* tamanioBuffer)
 	}
 	else
 	{
-		printf(RED "\n\t No encontré el path!\n" RESET);
+		printf(RED "\t No encontré el path!\n" RESET);
 		return NULL;
 	}
 
@@ -662,8 +662,8 @@ void* procesarPedidoWrite(void *buffer, int* codigo)
 	void* bufWrite = malloc(*bufLen);
 	memcpy(bufWrite,  buffer + desplazamiento, *bufLen);
 
-	printf(BLU "\t En procesarPedidoWrite el size es: %d\n", *size);
-	printf( "\t En procesarPedidoWrite el offset es: %d\n", (int)*offset);
+	//printf(BLU "\t En procesarPedidoWrite el size es: %d\n", *size);
+	//printf( "\t En procesarPedidoWrite el offset es: %d\n", (int)*offset);
 	//printf( "\t En procesarPedidoWrite el pathlen es: %d\n", pathLen);
 	//printf( "\t En procesarPedidoWrite el bufLen es: %d\n", *bufLen);
 	//printf( "\t En procesarPedidoWrite el path es: %s\n" RESET, path);
@@ -698,8 +698,8 @@ void* procesarPedidoWrite(void *buffer, int* codigo)
 			break;
 	}
 
-	printf("	 En procesarPedidoWrite(), devuelvo codigo: %d\n", *codigo );
-	printf(RED "\n\t Size para FUSE es: %d\n" RESET, *size);
+//	printf("	 En procesarPedidoWrite(), devuelvo codigo: %d\n", *codigo );
+//	printf(RED "\n\t Size para FUSE es: %d\n" RESET, *size);
 	return size;
 }
 

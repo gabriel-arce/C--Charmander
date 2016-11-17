@@ -91,14 +91,14 @@ int agregarArchivo(char* path, int modo)
 
 void agregarBloques(uint32_t size, uint32_t newSize, uint32_t posicion)
 {
-	printf(NAR "\t en agregarBloques() posicion es: %d\n" RESET, posicion);
+	//printf(NAR "\t en agregarBloques() posicion es: %d\n" RESET, posicion);
 	int i;
 	uint32_t posicionAnterior;
 	int cantidadBloquesActual = cantidadDeBloques(size);
 	int cantidadBloquesExtra = cantidadDeBloques(newSize) - cantidadBloquesActual;
 
-	printf(NAR "\t cantidadBloquesActual: %d \n" RESET, cantidadBloquesActual);
-	printf(NAR "\t cantidadBloquesExtra: %d \n" RESET, cantidadBloquesExtra);
+	printf(PINK "\t cantidadBloquesActual: %d \n" RESET, cantidadBloquesActual);
+	printf(PINK "\t cantidadBloquesExtra: %d \n" RESET, cantidadBloquesExtra);
 
 	while(posicion != -1)
 	{
@@ -116,7 +116,7 @@ void agregarBloques(uint32_t size, uint32_t newSize, uint32_t posicion)
 	posicion = -1;
 
 	escribirAsignacion(posicionAnterior, &posicion);
-	printf(NAR "\t saliendo de agregarBloques() \n" RESET);
+	//printf(NAR "\t saliendo de agregarBloques() \n" RESET);
 }
 
 void asignarOffsets()
@@ -380,7 +380,7 @@ int escribirArchivoAsignandoBloquesNuevos(void* bufWrite, int cantidadBloques, u
 	void* bloque = malloc(OSADA_BLOCK_SIZE);
 	memset(bloque, 0, OSADA_BLOCK_SIZE);
 
-	printf(BLU "\t En escribir Archivo Asignando Bloques Nuevos()\n" RESET);
+	//printf(BLU "\t En escribir Archivo Asignando Bloques Nuevos()\n" RESET);
 
 	for(i = 0; i< cantidadBloques; i++)//(cantidadBloques -1); i++)
 	{
@@ -395,13 +395,13 @@ int escribirArchivoAsignandoBloquesNuevos(void* bufWrite, int cantidadBloques, u
 	   memcpy(posicionBloque, proximoBloque, sizeof(uint32_t));
 	}
 
-	printf(CYN "\t sali\n" RESET);
+	//printf(CYN "\t sali\n" RESET);
 	return desplazamiento;
 }
 
 void escribrirArchivoConOffset(uint32_t size, void* bufWrite, uint32_t offset, uint32_t* posicion)//posicion llega con el first block del archivo
 {
-	printf(PINK "\t En escribrirArchivoConOffset() el offset recibido es: %d \n" RESET, offset);
+	printf(FUC "\t En escribrirArchivoConOffset() el offset recibido es: %d \n" RESET, offset);
 
 	posicionarme(&offset, posicion);//esta modifica el offset
 
@@ -422,7 +422,7 @@ void escribrirArchivoConOffset(uint32_t size, void* bufWrite, uint32_t offset, u
 
 void escribrirArchivoSinOffset(uint32_t size, void* bufWrite, uint32_t* posicion)//posicion llega con el first block del archivo
 {
-	printf(PINK "\t En escribrirArchivoSinOffset() \n" RESET);
+	printf(FUC "\t En escribrirArchivoSinOffset() \n" RESET);
 
 	int desplazamiento = 0;
 	if (size > OSADA_BLOCK_SIZE)
@@ -455,39 +455,39 @@ int escribriBloquesEnteros(uint32_t size, void* bufWrite, uint32_t* posicion, in
 	int i;
 	int cantidadBloques = size / OSADA_BLOCK_SIZE;
 	int resto = size % OSADA_BLOCK_SIZE;
-	printf(PINK "\t resto: %d \n" RESET, resto);
+//	printf(PINK "\t resto: %d \n" RESET, resto);
 	void* bloque = malloc(OSADA_BLOCK_SIZE);
 	memset(bloque, 0, OSADA_BLOCK_SIZE);
 	//printf(PINK "\t cantidadBloques: %d \n" RESET, cantidadBloques);
 
 	for(i=0; i< cantidadBloques; i++)
 	{
-		printf(NAR "\t i: %d \n" RESET, i);
+		//printf(NAR "\t i: %d \n" RESET, i);
 		memcpy(bloque, bufWrite + *desplazamiento, OSADA_BLOCK_SIZE);
 		*desplazamiento += OSADA_BLOCK_SIZE;
 		escribirBloque(*posicion, bloque);
 		leerAsignacion(*posicion, posicion);
 		if(*posicion == -1)
 		{
-			printf(PINK2 "\t saliendo de escribriBloquesEnteros() \n" RESET);
+			//printf(PINK2 "\t saliendo de escribriBloquesEnteros() \n" RESET);
 			return resto;
 		}
 	}
 
 	free(bloque);
-	printf(PINK2 "\t saliendo de escribriBloquesEnteros() \n" RESET);
+	//printf(PINK2 "\t saliendo de escribriBloquesEnteros() \n" RESET);
 	return resto;
 }
 
 void escribirMenosQueUnBloqueAlFinal(void* bufWrite, uint32_t* posicion, int desplazamiento, int resto)
 {
-	printf(PINK "\t en escribirMenosQueUnBloqueAlFinal() \n" RESET);
+	printf(FUC "\t en escribirMenosQueUnBloqueAlFinal() \n" RESET);
 	void* bloque = malloc(OSADA_BLOCK_SIZE);
 	memset(bloque, 0, OSADA_BLOCK_SIZE);
 	memcpy(bloque, bufWrite + desplazamiento, resto);
 	escribirBloque(*posicion, bloque);
-	printf(MAG "\t despues de escribirBloque \n" RESET);
-	printf(PINK "\t saliendo de escribirMenosQueUnBloqueAlFinal() \n" RESET);
+	//printf(MAG "\t despues de escribirBloque \n" RESET);
+//	printf(PINK "\t saliendo de escribirMenosQueUnBloqueAlFinal() \n" RESET);
 	free(bloque);
 }
 
@@ -503,7 +503,7 @@ int escribirMenosQueUnBloqueAlPrincipio(uint32_t* size, void* bufWrite, uint32_t
 	escribirBloque(*posicion, bloque);
 	size -=offset;
 	leerAsignacion(*posicion, posicion);
-	printf(PINK "\t offset recibido: %d \n" RESET, (uint32_t)offset);
+//	printf(PINK "\t offset recibido: %d \n" RESET, (uint32_t)offset);
 
 	free(bloque);
 	return desplazamiento;
@@ -514,12 +514,12 @@ void escribirResto(int bytesResto, void* bufWrite, uint32_t* posicionBloque, int
 	void* bloque = malloc(OSADA_BLOCK_SIZE);
 	memset(bloque, 0, OSADA_BLOCK_SIZE);
 
-	printf(PINK "\t bytesResto > 0: %d \n" RESET, bytesResto);
+	//printf(PINK "\t bytesResto > 0: %d \n" RESET, bytesResto);
 
 	uint32_t* flag = malloc(sizeof(uint32_t));
 	*flag = -1;
 
-	printf(PINK "\t Cacho util final(resto): %d, fragmentacion interna en ultimo bloque: %d\n" RESET, bytesResto, OSADA_BLOCK_SIZE - bytesResto);
+	printf(FUC "\t Escribo %d bytes al final, fragmentacion interna en ultimo bloque: %d\n" RESET, bytesResto, OSADA_BLOCK_SIZE - bytesResto);
 
 	memset(bloque, 0, OSADA_BLOCK_SIZE);
 	memcpy(bloque, bufWrite + desplazamiento /*(OSADA_BLOCK_SIZE * i)*/, bytesResto);
@@ -527,7 +527,7 @@ void escribirResto(int bytesResto, void* bufWrite, uint32_t* posicionBloque, int
 	escribirBloque(*posicionBloque, bloque);
 	escribirAsignacion(*posicionBloque, flag);
 
-	printf(FUC "\t termine de guardar todo \n" RESET);
+	//printf(FUC "\t termine de guardar todo \n" RESET);
 	free(bloque);
 	free(flag);
 }
@@ -670,7 +670,7 @@ int hayEspacioEnDisco(int cantidadBloques) //busco espacio para una cantidad de 
 			contador++;
 			if(contador == cantidadBloques)
 			{
-				printf(PINK "\t Hay espacio libre suficiente para escritura\n" RESET);
+				printf(FUC "\t Hay espacio libre suficiente para escritura\n" RESET);
 				return 1;
 			}
 		}
@@ -988,16 +988,15 @@ void* readFile(osada_file* archivo)
 	memset(buffer, 0, OSADA_BLOCK_SIZE * cantidadBloques);
 	memset(bufferAux, 0, OSADA_BLOCK_SIZE);
 
-	printf("\t first_block: %d" , next_block);
+	//printf("\t first_block: %d" , next_block);
 	for (i=0; i < cantidadBloques; i++)
 	{
 		leerDato(next_block, bufferAux);
 		memcpy(buffer + offset, bufferAux, OSADA_BLOCK_SIZE);
 		offset += OSADA_BLOCK_SIZE;
 		leerAsignacion(next_block, &next_block);
-		printf("\t %d" , next_block);
+		//printf("\t %d" , next_block);
 	}
-	printf("\n");
 	memcpy(respuesta, buffer, fileSize);
 
 	free(buffer);
@@ -1043,11 +1042,11 @@ char renombrarArchivo(char* paths)
 
 void sacarBloques(uint32_t size, uint32_t newSize, uint32_t posicion)
 {
-	printf(NAR "\t entrando a sacarBloques() \n" RESET);
+	printf(PINK "\t entrando a sacarBloques() \n" RESET);
 	int i;
 	uint32_t posicionAnterior;
 	int cantidadBloquesNueva = cantidadDeBloques(newSize);
-	printf(NAR "\t cantidadBloquesNueva: %d \n" RESET, cantidadBloquesNueva);
+	printf(PINK "\t cantidadBloquesNueva: %d \n" RESET, cantidadBloquesNueva);
 
 	for(i = 0; i< (cantidadBloquesNueva -1); i++)
 	{
@@ -1059,14 +1058,14 @@ void sacarBloques(uint32_t size, uint32_t newSize, uint32_t posicion)
 	escribirAsignacion(posicion, &flag);
 
 	liberarBits(posicionAnterior);
-	printf(NAR "\t saliendo de sacarBloques() \n" RESET);
+	//printf(NAR "\t saliendo de sacarBloques() \n" RESET);
 }
 
 char truncar(osada_file* FCB, uint32_t newSize, int posicion)
 {
 	if(0 == newSize)
 	{
-		printf(NAR "\t no modifico file size, queda en FCB->file_size: %d\n" RESET, FCB->file_size);
+		printf(NAR "\t no actualizo el file size, queda en %d bytes\n" RESET, FCB->file_size);
 		return 's';
 	}
 	if(FCB->file_size > newSize)
@@ -1080,10 +1079,10 @@ char truncar(osada_file* FCB, uint32_t newSize, int posicion)
 		FCB->file_size = newSize;//si viene de write este newSize es igual a size + offset
 	}
 
-	printf(NAR "\t modifico file size, queda en FCB->file_size: %d\n" RESET, FCB->file_size);
+	printf(NAR "\t Actualizo el file size, queda en %d bytes\n" RESET, FCB->file_size);
 	FCB->lastmod =(uint32_t) obtenerFecha();
 	escribirArchivo(posicion, FCB);
-	printf(CYN "\t escribirArchivo\n" RESET);
+//	printf(CYN "\t escribirArchivo\n" RESET);
 	return 's';
 }
 
@@ -1128,11 +1127,11 @@ void* writeFile(uint32_t* size, void* bufWrite, int cantidadBloques, uint32_t of
 
 	if(cantidadBloques > 0)
 	{
-		printf(MAG "\t Necesito %d bloque/s para guardar un buf de size: %d\n" RESET, cantidadBloques, *size);
+		printf(FUC "\t Necesito %d bloque/s para guardar un buf de: %d bytes\n" RESET, cantidadBloques, *size);
 	}
 	else
 	{
-		printf(MAG "\t Necesito menos que un bloque para guardar un buf de size: %d\n" RESET, *size);
+		printf(FUC "\t Necesito menos que un bloque para guardar un buf de: %d bytes\n" RESET, *size);
 	}
 
 	void* bloque = malloc(OSADA_BLOCK_SIZE);
@@ -1140,7 +1139,7 @@ void* writeFile(uint32_t* size, void* bufWrite, int cantidadBloques, uint32_t of
 
     if(FCB->file_size == 0)//si es un archivo recien creado
     {
-    	printf(FUC "\t es un archivo recien creado \n" RESET);
+    	//printf(FUC "\t es un archivo recien creado \n" RESET);
 
     	actualizarFCBArchivo(posicionArchivo, FCB, *size, posicionBloque);
 
@@ -1153,7 +1152,7 @@ void* writeFile(uint32_t* size, void* bufWrite, int cantidadBloques, uint32_t of
     		escribirResto(bytesResto, bufWrite, posicionBloque, desplazamiento);
     	}
 
-		printf(PINK "\t Se guardo el archivo correctamente, size quedo en: %d \n" RESET, *size);
+		printf(FUC "\t Se guardo el archivo correctamente, size quedo en: %d bytes\n" RESET, *size);
 
 		free(posicionBloque);
 		free(proximoBloque);
@@ -1162,7 +1161,7 @@ void* writeFile(uint32_t* size, void* bufWrite, int cantidadBloques, uint32_t of
     }
 	else
 	{
-		printf(FUC "\t es un archivo creado anteriormente \n" RESET);
+		//printf(FUC "\t es un archivo creado anteriormente \n" RESET);
 		truncar(FCB, (*size + offset), posicionArchivo);//me aseguro que el archivo ya tenga asignados todos los bloques que necesita, si no los tiene se los agrego o se los saco si le sobran
 		if (offset != 0)
 		{
@@ -1173,7 +1172,7 @@ void* writeFile(uint32_t* size, void* bufWrite, int cantidadBloques, uint32_t of
 			escribrirArchivoSinOffset(*size, bufWrite, &(FCB->first_block));
 		}
 
-		printf(FUC "\t Se guardo el archivo correctamente " RED "(todavia falta probar bien)\n" RESET);
+		printf(FUC "\t Se guardo el archivo correctamente \n" RESET);
 		free(posicionBloque);
 		free(proximoBloque);
 		free(bloque);
