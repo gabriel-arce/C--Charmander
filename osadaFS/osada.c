@@ -33,8 +33,40 @@ struct stat fileStat;
 
 char abrirArchivo(char* path)
 {
-	//TODO: chequear que el archivo exista, ver de tener una tabla con archivos abiertos y el modo (lectura o escritura)
+	struct NodoArchivo *archivoLista = (struct NodoArchivo *) malloc(sizeof(struct NodoArchivo));
+
+	printf("Consultando archivo %s ..\n", path);
+
+	if ((archivoLista = buscarArchivoEnLista(path)) == NULL){
+		printf("Error al abrir archivo: archivo %s inexistente\n", path);
+		return 'n';
+	}
+
+	else {
+		if (archivoLista->enUso == EnUso){
+			printf("Error al abrir archivo: archivo en uso\n");
+			return 'n';
+		}
+	}
+
+	//Si llego hasta aca, entonces puede abrir el archivo
+	archivoLista->enUso = EnUso;
+
+	//TODO: chequear que el archivo exista OK
+	//TODO: ver de tener una tabla con archivos abiertos OK
+	//TODO: ver el modo (lectura o escritura), KO
+
 	return 's';
+
+}
+
+struct NodoArchivo *buscarArchivoEnLista(char *nombre){
+	struct NodoArchivo *aux = ListaArchivos;
+
+	while(aux != NULL && aux->nombre != nombre)
+		aux = aux->siguiente;
+
+	return aux;
 }
 
 void actualizarFCBArchivo(int posicionArchivo, osada_file* FCB, uint32_t size, uint32_t* posicionBloque)
@@ -687,7 +719,9 @@ void inicializarDisco()//TODO: dejar solo las llamadas utiles
 	levantarDatosGenerales(oheader);
 	asignarOffsets();
 	levantarBitmap();
-//	leerTablaArchivos();
+
+	//TODO: Necesaria para generar la lista de archivos del FS en cuestion, eliminar de ser necesario el muestreo
+	leerTablaArchivos();
 }
 
 void leerArchivo(uint32_t posicion, osada_file* buf)
@@ -753,7 +787,18 @@ void levantarDatosGenerales(osada_header oheader)
 
 char liberarArchivo(char* path)
 {
-	//TODO: chequear que el archivo exista en la tabla de archivos abiertos y marcarlo como cerrado
+	//TODO: chequear que el archivo exista en la tabla de archivos abiertos, OK
+	struct NodoArchivo *archivoLista;
+
+	printf("Consultando archivo %s ..", path);
+
+	if ((archivoLista = buscarArchivoEnLista(path)) == NULL){
+		printf("Error al abrir archivo.. archivo %s inexistente\n", path);
+		return 'n';
+	}
+
+	//TODO: y marcarlo como cerrado OK
+	archivoLista->enUso = SinUso;
 	return 's';
 }
 
@@ -1189,7 +1234,8 @@ void leerTablaArchivos()
 		printf("\t\t Archivo.fname  parent_directory  file_size  state\n");
 
 
-		for(i=0; i< 2048; i++){
+		for(i = 0; i < 2048; i++){
+
 			leerArchivo(i, &archivo);
 
 			if (archivo.state != DELETED){
@@ -1199,9 +1245,63 @@ void leerTablaArchivos()
 					printf("%25s\t %8d\t %4d\t Fichero\n", archivo.fname, archivo.parent_directory, archivo.file_size);
 				if (archivo.state == DIRECTORY)
 					printf("%25s\t %8d\t %4d\t Directorio\n", archivo.fname, archivo.parent_directory, archivo.file_size);
+
+				agregarArchivoEnLista(archivo);
+
 			}
 		}
 
+		mostrarLista();
+
+}
+
+void agregarArchivoEnLista(osada_file archivo){
+	struct NodoArchivo *nuevo;
+	struct NodoArchivo *aux;
+
+	nuevo = (struct NodoArchivo *) malloc(sizeof(struct NodoArchivo));
+	nuevo->nombre	= malloc(OSADA_FILENAME_LENGTH);
+
+	memset(nuevo->nombre, '\0', sizeof(char) * OSADA_FILENAME_LENGTH);
+	memcpy(nuevo->nombre, archivo.fname, strlen(archivo.fname));
+
+	nuevo->fd			= descriptorArchivo;
+	nuevo->enUso		= SinUso;
+	nuevo->siguiente	= NULL;
+
+	if(ListaArchivos == NULL){
+		ListaArchivos = nuevo;
+
+	} else {
+		aux = ListaArchivos;
+		while(aux->siguiente != NULL)
+			aux = aux->siguiente;
+
+		aux->siguiente = nuevo;
+	}
+}
+
+void mostrarLista(){
+//	struct t_listaArchivos *auxiliar;
+	int i = 0;
+
+//	auxiliar = primero;
+//	ListaArchivos = primero;
+	printf("\nMostrando la lista completa: \n");
+
+	while(ListaArchivos != NULL){
+		printf("Nombre: %s\n", ListaArchivos->nombre);
+		printf("Descriptor: %d\n", ListaArchivos->fd);
+		if (ListaArchivos->enUso == SinUso)
+			printf("Sin Uso\n");
+		else printf("En Uso\n");
+
+		ListaArchivos = ListaArchivos->siguiente;
+		i++;
+	}
+
+	if(i==0)
+		printf("\nLa lista se encuentra vacia..\n");
 }
 
 void leerTablaAsignaciones()
