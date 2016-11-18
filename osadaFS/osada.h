@@ -52,9 +52,24 @@ typedef struct {
 	osada_block_pointer first_block;
 } osada_file;
 
+typedef enum {
+	SinUso,
+	EnUso,
+} osada_uso;
+
 _Static_assert( sizeof(osada_file) == (sizeof(osada_block) / 2.0), "osada_file size does not half osada_block size");
 
+struct NodoArchivo{
+	char *nombre;						//Nombre del archivo
+//	char *path;							//Nombre real
+	int fd;								//descriptor de quien tiene prioridad
+//	struct stat info;					//Estructura stat del archivo
+	osada_uso enUso;					//Flag que determina si esta abie
+	struct NodoArchivo *siguiente;	//Siguiente nodo
+};
 
+struct NodoArchivo *ListaArchivos;
+struct NodoArchivo *ultimo;
 
 //Variables Globales
 char* disco;
@@ -81,6 +96,10 @@ char liberarArchivo(char* path);
 char flushArchivo(char* path);
 
 int agregarArchivo(char* path, int modo);
+
+void agregarArchivoEnLista(osada_file archivo);
+struct NodoArchivo *buscarArchivoEnLista(char *nombre);
+
 void asignarOffsets();
 char borrarArchivo(char* path);
 char borrarDirectorio(char* path);
