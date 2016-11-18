@@ -88,7 +88,15 @@
 #define CYN   "\x1B[36m"
 #define WHT   "\x1B[37m"
 #define RESET "\x1B[0m"
-
+#define NAR "\033[38;5;166m"//naranja
+#define PINK "\033[38;5;168m"//rosa
+#define VIO "\033[38;5;129m"//violeta
+#define PINK2 "\033[38;5;207m"//violeta
+#define ORG "\033[38;5;214m"//naranja
+#define AMB "\033[38;5;100m"//verde
+#define YEL2 "\033[38;5;226m"//verde
+#define RED2 "\033[38;5;196m"//ROJO
+#define COR "\033[1;31m"
 //-----estructuras para paquetes-------------------------------------------------------------------------------------
 
 //para el stat de fuse en getattr
@@ -96,6 +104,7 @@ typedef struct{
 	mode_t  mode;
 	nlink_t  nlink;
 	off_t  size;
+	//time_t mtime;
 }__attribute__((packed)) t_stbuf;
 
 //para fuse en pedido write

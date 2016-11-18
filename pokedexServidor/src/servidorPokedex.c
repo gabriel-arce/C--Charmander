@@ -34,6 +34,12 @@ int main(int argc, char ** argv)
 	pthread_join(thread4, NULL);
 	pthread_join(thread5, NULL);
 
+	pthread_detach(thread1);
+	pthread_detach(thread2);
+	pthread_detach(thread3);
+	pthread_detach(thread4);
+	pthread_detach(thread5);
+
 	close(listenningSocket);
 	descargar();
 
@@ -66,7 +72,7 @@ void* hiloComunicacion(void* arg)
 			}
 			else
 			{
-				printf("\t Devolviendo mensajeHSK %d %s \n", socketCliente, mensajeHSK);
+				printf("\t Devolviendo mensajeHSK %d \n", socketCliente);
 				atendercliente(socketCliente);
 			}
 		}
@@ -485,6 +491,7 @@ void* procesarCrearEntradaTablaDeArchivos(char *path, int* codigo, int modo)
 	}
 
 	//printf("	 En crear entrada, devuelvo codigo: %d\n", *codigo );
+//	free(path);
 	return respuesta;
 }
 
@@ -499,6 +506,7 @@ void* procesarPedidoFlush(char *path)
 	printf("\t path: %s\n", path);
 	char* respuesta = malloc(sizeof(char));
 	respuesta[0] = flushArchivo(path);
+	//free(path);
 	return respuesta;
 }
 
@@ -507,6 +515,7 @@ void* procesarPedidoOpen(char* path)
 	printf("\t path: %s\n", path);
 	char* respuesta = malloc(sizeof(char));
 	respuesta[0] = abrirArchivo(path);
+	//free(path);
 	return respuesta;
 }
 
@@ -515,6 +524,7 @@ void* procesarPedidoRelease(char* path)
 	printf("\t path: %s\n", path);
 	char* respuesta = malloc(sizeof(char));
 	respuesta[0] = liberarArchivo(path);
+//	free(path);
 	return respuesta;
 }
 
@@ -549,6 +559,9 @@ void* procesarPedidoRead(void* buffer, uint32_t* tamanioBuffer)
 		if (archivo == NULL)
 		{
 			printf(RED "\t En pedido read: No se encontro el archivo: %s\n" RESET, nombre(path));
+//			free(path);
+//			free(size);
+//			free(offset);
 			return NULL;
 		}
 
@@ -560,6 +573,10 @@ void* procesarPedidoRead(void* buffer, uint32_t* tamanioBuffer)
 		{
 			//printf(BLU "\t Los bytes en (bytes <= *size) son: %d bytes\n", bytes);
 			memcpy(tamanioBuffer, &bytes, sizeof(uint32_t));
+//			free(path);
+//			free(size);
+//			free(offset);
+//			free(archivo);
 			return archivoCompleto;
 		}
 		else if (bytes <= *size)
@@ -569,23 +586,38 @@ void* procesarPedidoRead(void* buffer, uint32_t* tamanioBuffer)
 			memset(respuesta, 0, bytes);
 			memcpy(tamanioBuffer, &bytes, sizeof(uint32_t));
 			memcpy(respuesta, archivoCompleto + *offset , bytes);
+//			free(path);
+//			free(size);
+//			free(offset);
+//			free(archivo);
+//			free(archivoCompleto);
 			return respuesta;
 		}
 	//	printf(CYN "\t Los bytes en (bytes > *size)son: %d bytes\n", bytes);
 		void* respuesta = malloc(*size);
 		memset(respuesta, 0, *size);
 		memcpy(tamanioBuffer, size, sizeof(uint32_t));
-		memcpy(respuesta, archivoCompleto + *offset , *size);
+		memcpy(respuesta, archivoCompleto + *offset, *size);
+//		free(path);
+//		free(size);
+//		free(offset);
+//		free(archivo);
+//		free(archivoCompleto);
 		return respuesta;
 	}
 	else
 	{
 		printf(RED "\t No encontré el path!\n" RESET);
+//		free(path);
+//		free(size);
+//		free(offset);
 		return NULL;
 	}
 
-	//free(buffer);
 	printf(RED "\t NO DEBERIA ENTRAR ACA\n" RESET);
+//	free(path);
+//	free(size);
+//	free(offset);
 	return NULL;
 }
 
@@ -613,6 +645,7 @@ void* procesarPedidoRmdir(char *path)
 {
 	char* respuesta = malloc(sizeof(char));
 	respuesta[0] = borrarDirectorio(path);
+//	free(path);
 	return respuesta;
 }
 
@@ -621,6 +654,7 @@ void* procesarPedidoTruncate(off_t newSize, char* path)
 	printf(CYN "\t En procesarPedidoTruncate el nuevo size es: %d\n", (uint32_t)newSize);
 	char* respuesta = malloc(sizeof(char));
 	respuesta[0] = buscarYtruncar(path, (uint32_t)newSize);
+//	free(path);
 	return respuesta;
 }
 
@@ -628,6 +662,7 @@ void* procesarPedidoUnlink(char* path)
 {
 	char* respuesta = malloc(sizeof(char));
 	respuesta[0] = borrarArchivo(path);
+//	free(path);
 	return respuesta;
 }
 
@@ -636,6 +671,7 @@ void* procesarPedidoUtimens(char *path)
 	char* respuesta = malloc(sizeof(char));
 	printf(YEL "\t path: %s\n" RESET, path);
 	respuesta[0] = cambiarUltimoAcceso(path);
+//	free(path);
 	return respuesta;
 }
 
@@ -644,7 +680,7 @@ void* procesarPedidoWrite(void *buffer, int* codigo)
 	int desplazamiento = 0;
 	size_t* size = malloc(sizeof(size_t));
 	off_t* offset = malloc(sizeof(off_t));
-	int pathLen;// = malloc(sizeof(int));
+	int pathLen;
 	int* bufLen = malloc(sizeof(int));
 
 	memcpy(size, buffer, sizeof(size_t));
@@ -672,6 +708,7 @@ void* procesarPedidoWrite(void *buffer, int* codigo)
 	if(*bufLen > *size)
 	{
 		respuesta = writeBuffer((uint32_t*)size,(uint32_t*) offset, path, bufWrite);
+		free(bufLen);
 	}
 	else
 	{
@@ -698,14 +735,12 @@ void* procesarPedidoWrite(void *buffer, int* codigo)
 			break;
 	}
 
-//	printf("	 En procesarPedidoWrite(), devuelvo codigo: %d\n", *codigo );
-//	printf(RED "\n\t Size para FUSE es: %d\n" RESET, *size);
 	return size;
 }
 
 void liberarRecursos()
 {
-
+	 bitarray_destroy(bitmap);
 }
 
 void terminar()

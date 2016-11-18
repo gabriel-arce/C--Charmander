@@ -17,20 +17,18 @@
 
 #define CUSTOM_FUSE_OPT_KEY(t, p, v) { t, offsetof(struct t_runtime_options, p), v }
 #define ERRNOSPC 48
+
 //Variables Globales
 int* socketServidor;
 t_log* logCliente;
 
 char* puntoDeMontaje;
-char mensaje[6] = "\0";
 //char* ip;
 //char* puerto;
 
 char ip[10];
 char puerto[5];
 
-int iret1;
-pthread_t thread_Planificador;
 pthread_mutex_t mutex_comunicacion  = PTHREAD_MUTEX_INITIALIZER;
 
 struct t_runtime_options
@@ -45,20 +43,7 @@ KEY_VERSION,
 KEY_HELP,
 };
 
-//static struct fuse_opt fuse_options[] = {
-//	// Este es un parametro definido por nosotros
-//	CUSTOM_FUSE_OPT_KEY("--welcome-msg %s", welcome_msg, 0),
-//	// Estos son parametros por defecto que ya tiene FUSE
-//	FUSE_OPT_KEY("-V", KEY_VERSION),
-//	FUSE_OPT_KEY("--version", KEY_VERSION),
-//	FUSE_OPT_KEY("-h", KEY_HELP),
-//	FUSE_OPT_KEY("--help", KEY_HELP),
-//	FUSE_OPT_END,
-//};
-//
 //struct tm *timeinfo;
-
-
 
 //Funciones
 static int osada_access(const char *filename, int how);
@@ -78,9 +63,7 @@ static int osada_unlink(const char *path);
 static int osada_utimens(const char* path, const struct timespec ts[2]);
 static int osada_write(const char *path, const char *buf, size_t size, off_t offset, struct fuse_file_info *fi);
 
-
-
-
+void liberarRecursos();
 void printConectado();
 void printEncabezado();
 void printErrorConexion();
@@ -89,6 +72,5 @@ void printMensajeInesperado(int head);
 void printServidorDesconectado();
 
 void terminar();
-
 
 #endif /* POKEDEXCLIENTE_H_ */
