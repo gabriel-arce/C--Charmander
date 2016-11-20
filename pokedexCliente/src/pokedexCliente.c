@@ -374,7 +374,7 @@ static int osada_readdir(const char *path, void *buf, fuse_fill_dir_t filler, of
 		log_info(logCliente, "	Recibi RESPUESTA_READDIR");
 		log_info(logCliente, (char*)paquete);
 
-		char *token =NULL;// malloc(strlen(paquete)+1);
+		char *token = NULL;
 
 		token = strtok(paquete, "/");
 
@@ -785,8 +785,8 @@ void printServidorDesconectado()
 
 void printTerminar()
 {
-	printf(NAR"**********************************************************************************\n");
-	printf(ORG"****************** El cliente cierra la conexion *********************************\n");
+	printf(NAR"\n\n**********************************************************************************\n");
+	printf(ORG"****************** El cliente aborta la conexion *********************************\n");
 	printf(YEL"**********************************************************************************\n");
 	printf(YEL2"****************** " GRN "Terminar" YEL2 " ******************************************************\n");
 	printf(AMB"**********************************************************************************\n");

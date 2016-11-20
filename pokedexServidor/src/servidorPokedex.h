@@ -10,7 +10,6 @@
 #include <signal.h>
 #include <pthread.h>
 
-
 #ifndef SERVIDORPOKEDEX_H_
 #define SERVIDORPOKEDEX_H_
 
@@ -40,12 +39,11 @@
 //Variables Globales
 t_log logServidor;
 int	listenningSocket;
-t_bitarray* bitmap;
 pthread_mutex_t mutex_comunicacion  = PTHREAD_MUTEX_INITIALIZER;
 
 void atendercliente(int socket);
 void* hiloComunicacion(void* arg);
-void liberarRecursos(); //TODO
+void liberarRecursos();
 void printEncabezado();
 void printTerminar();
 
@@ -56,7 +54,7 @@ void* procesarPedidoGetatrr(char *path);
 void* procesarPedidoFlush(char *path);
 void* procesarPedidoMkdir(char *path, int* codigo);
 void* procesarPedidoMknod(char *path, int* codigo);
-void* procesarPedidoOpen(char* path);
+void* procesarPedidoOpen(char* path, int* codigo);
 void* procesarPedidoRead(void* buffer, uint32_t* tamanioBuffer);
 void* procesarPedidoReaddir(char *path);
 void* procesarPedidoRelease(char* path);

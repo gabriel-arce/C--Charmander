@@ -469,7 +469,7 @@ int enviarRespuestaRead(int socket, int head, void* respuesta, uint32_t* tamanio
 
 	// Envío la totalidad del paquete de una:
 	int enviados = enviarPorSocket(socket, buffer, tamanioAEnviar);
-
+    free(tamanioBuffer);
 	return enviados;
 }
 
