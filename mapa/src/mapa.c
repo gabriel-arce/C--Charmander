@@ -17,6 +17,13 @@ void leer_metadata_mapa(char * metadata_path) {
 
 	t_config * conf_file = config_create(ruta);
 
+	if (conf_file == NULL) {
+		pthread_mutex_lock(&mutex_log);
+		log_trace(logger, "[ERROR]: Config NULL en leer_metadata_mapa.");
+		pthread_mutex_unlock(&mutex_log);
+		exit(EXIT_FAILURE);
+	}
+
 	metadata = malloc(sizeof(t_metadata_mapa));
 	metadata->planificador = malloc(sizeof(t_planificador));
 
@@ -72,7 +79,9 @@ void cargar_pokenests() {
 	DIR * d = opendir(dir_pokenests);
 
 	if (!d) {
+		pthread_mutex_lock(&mutex_log);
 		log_trace(logger, "No se pudo abrir el directorio: [ %s ]", dir_pokenests);
+		pthread_mutex_unlock(&mutex_log);
 		exit(EXIT_FAILURE);
 	}
 
@@ -90,15 +99,19 @@ void cargar_pokenests() {
 		if (entry->d_type & DT_DIR) {
 
 			if (strcmp(d_name, "..") != 0 && strcmp(d_name, ".") != 0) {
-				int path_length;
-				char path[PATH_MAX];
-
-				path_length = snprintf(path, PATH_MAX, "%s/%s", dir_pokenests,
-						d_name);
-				if (path_length >= PATH_MAX) {
-					log_trace(logger, "[ERROR]: Ruta demasiado larga.");
-					exit(EXIT_FAILURE);
-				}
+//				int path_length;
+//				char path[PATH_MAX];
+//
+//				path_length = snprintf(path, PATH_MAX, "%s/%s", dir_pokenests,
+//						d_name);
+//				if (path_length >= PATH_MAX) {
+//					pthread_mutex_lock(&mutex_log);
+//					log_trace(logger, "[ERROR]: Ruta demasiado larga.");
+//					pthread_mutex_unlock(&mutex_log);
+//					exit(EXIT_FAILURE);
+//				}
+				char * path = string_new();
+				string_append_with_format(&path, "%s/%s", dir_pokenests, d_name);
 
 				//now create the logical pokenest
 				t_pokenest * pknst = malloc(sizeof(t_pokenest));
@@ -108,6 +121,14 @@ void cargar_pokenests() {
 
 				//read its files
 				DIR * d_pknst = opendir(path);
+
+				if (d_pknst == NULL) {
+					pthread_mutex_lock(&mutex_log);
+					log_trace(logger, "[ERROR]: No se pudo abrir el directorio: %s", path);
+					pthread_mutex_unlock(&mutex_log);
+					exit(EXIT_FAILURE);
+				}
+
 				while(1) {
 					struct dirent * f_pknst = readdir(d_pknst);
 
@@ -117,14 +138,24 @@ void cargar_pokenests() {
 					if ( (f_pknst->d_type & DT_DIR ) || (strcmp(f_pknst->d_name, "..") == 0) || (strcmp(f_pknst->d_name, ".") == 0) )
 						continue;
 
-					char path_f_pknst[PATH_MAX];
+//					char path_f_pknst[PATH_MAX];
+//
+//					snprintf(path_f_pknst, PATH_MAX, "%s/%s", path, f_pknst->d_name);
 
-					snprintf(path_f_pknst, PATH_MAX, "%s/%s", path, f_pknst->d_name);
+					char * path_f_pknst = string_new();
+					string_append_with_format(&path_f_pknst, "%s/%s", path, f_pknst->d_name);
 
 					// if its the metadata go on
 					if ( string_equals_ignore_case(f_pknst->d_name, "metadata") ) {
 
 						t_config * m_pknst = config_create(path_f_pknst);
+
+						if (m_pknst == NULL) {
+							pthread_mutex_lock(&mutex_log);
+							log_trace(logger, "[ERROR]: Config NULL en cargar_pokenests() en la ruta %s", path_f_pknst);
+							pthread_mutex_unlock(&mutex_log);
+							exit(EXIT_FAILURE);
+						}
 
 						char * id = getStringProperty(m_pknst, "Identificador");
 						pknst->identificador = (char) id[0];
@@ -149,6 +180,13 @@ void cargar_pokenests() {
 					// else its a pokemon
 					t_config * dat_pkm = config_create(path_f_pknst);
 
+					if (dat_pkm == NULL) {
+						pthread_mutex_lock(&mutex_log);
+						log_trace(logger, "[ERROR]: Config NULL en cargar_pokenests()");
+						pthread_mutex_unlock(&mutex_log);
+						exit(EXIT_FAILURE);
+					}
+
 					t_pkm * pkm = malloc(sizeof(t_pkm));
 					pkm->nombre = string_duplicate(d_name);
 					pkm->nombreArchivo = string_duplicate(f_pknst->d_name);
@@ -159,6 +197,7 @@ void cargar_pokenests() {
 					list_add(pknst->pokemones, pkm);
 
 					free(dat_pkm);
+					free(path_f_pknst);
 				}
 
 				// <<------ END OF PROCESSING A NEW POKENEST
@@ -167,13 +206,17 @@ void cargar_pokenests() {
 				//Interfaz grafica
 //				CrearCaja(items_mapa, pknst->identificador, pknst->posicion->x,
 //						pknst->posicion->y, list_size(pknst->pokemones));
+
+				free(path);
 			}
 		}
 	}
 
 	/* Release everything. */
 	if (closedir(d)) {
-		log_trace(logger, "[ERROR]: No se pudo abrir el directorio: [ %s ]", dir_pokenests);
+		pthread_mutex_lock(&mutex_log);
+		log_trace(logger, "[ERROR]: No se pudo cerrar el directorio: [ %s ]", dir_pokenests);
+		pthread_mutex_unlock(&mutex_log);
 		exit(EXIT_FAILURE);
 	}
 
@@ -726,8 +769,6 @@ int atrapar_pokemon(t_entrenador * entrenador) {
 
 	usleep(metadata->planificador->retardo_turno);
 
-	time(&(entrenador->momentoBloqueado));
-
 	quantum_actual = 0;
 	keep_running = false;
 
@@ -737,7 +778,7 @@ int atrapar_pokemon(t_entrenador * entrenador) {
 	entrenador_bloqueado->entrenador = entrenador;
 	entrenador_bloqueado->pokenest = pokenest;
 
-	t_list * l = cola_de_bloqueados;
+	time(&(entrenador->momentoBloqueado));
 
 	pthread_mutex_lock(&mutex_cola_bloqueados);
 	list_add(cola_de_bloqueados, entrenador_bloqueado);
@@ -769,9 +810,18 @@ int procesar_objetivo_cumplido(t_entrenador * entrenador) {
 	//tiempo bloqueado
 	//cuantos dl
 	void * datos = malloc(datos_size);
+	int offset = 0;
+	memset(datos, 0, datos_size);
 	memcpy(datos, &(tiempo_tot_mapa), sizeof(double));
-	memcpy(datos + sizeof(double), &(entrenador->tiempoBloqueado), sizeof(double));
-	memcpy(datos + 2*sizeof(double), &(entrenador->deadlocksInvolucrados), sizeof(int));
+	offset += sizeof(double);
+	memcpy(datos + offset, &(entrenador->tiempoBloqueado), sizeof(double));
+	offset += sizeof(double);
+	memcpy(datos + offset, &(entrenador->deadlocksInvolucrados), sizeof(int));
+
+	printf("datos size = %d\n", datos_size);
+	printf("tiempo total = %.2f\n", tiempo_tot_mapa);
+	printf("dls = %d\n", entrenador->deadlocksInvolucrados);
+	printf("tiempo bloqueado = %.2f\n", entrenador->tiempoBloqueado);
 
 	enviar_header(_DATOS_FINALES, datos_size, entrenador->socket);
 	send(entrenador->socket, datos, datos_size, 0);
@@ -779,6 +829,8 @@ int procesar_objetivo_cumplido(t_entrenador * entrenador) {
 	desconexion_entrenador(entrenador, 0);
 
 //	pthread_mutex_lock(&(entrenador->mutex_entrenador));
+
+	free(datos);
 
 	return EXIT_SUCCESS;
 }
@@ -851,8 +903,7 @@ int generar_captura(t_entrenador * entrenador, t_pokenest * pokenest, t_pkm * po
 	list_add(entrenador->pokemonesCapturados, pokemon);
 	entrenador->conoce_ubicacion = false;
 	entrenador->bloqueado = false;
-	entrenador->tiempoBloqueado += difftime(&(tiempo_desbloqueo),
-			&(entrenador->momentoBloqueado));
+	entrenador->tiempoBloqueado += difftime(tiempo_desbloqueo, entrenador->momentoBloqueado);
 	entrenador->momentoBloqueado = 0;
 	pthread_mutex_unlock(&(entrenador->mutex_entrenador));
 
