@@ -33,18 +33,18 @@ struct stat fileStat;
 
 char abrirArchivo(char* path)
 {
-	struct NodoArchivo *archivoLista = (struct NodoArchivo *) malloc(sizeof(struct NodoArchivo));
+/*	struct NodoArchivo *archivoLista = (struct NodoArchivo *) malloc(sizeof(struct NodoArchivo));
 
-	printf("Consultando archivo %s ..\n", path);
+	printf(RED "Consultando archivo %s ..\n" RESET, nombre(path));
 
-	if ((archivoLista = buscarArchivoEnLista(path)) == NULL){
+	if ((archivoLista = buscarArchivoEnLista(nombre(path))) == NULL){
 		printf("Error al abrir archivo: archivo %s inexistente\n", path);
 		return 'n';
 	}
 
 	else {
 		if (archivoLista->enUso == EnUso){
-			printf("Error al abrir archivo: archivo en uso\n");
+			printf(RED "Error al abrir archivo: archivo en uso\n" RESET);
 			return 'n';
 		}
 	}
@@ -55,15 +55,19 @@ char abrirArchivo(char* path)
 	//TODO: chequear que el archivo exista OK
 	//TODO: ver de tener una tabla con archivos abiertos OK
 	//TODO: ver el modo (lectura o escritura), KO
-	return 's';
+	*/ return 's';
 
 }
 
 struct NodoArchivo *buscarArchivoEnLista(char *nombre){
 	struct NodoArchivo *aux = ListaArchivos;
 
-	while(aux != NULL && aux->nombre != nombre)
+	mostrarLista();
+
+	while(aux != NULL && aux->nombre != nombre){
+		printf("archivo encontrado.. %s\n", aux->nombre);
 		aux = aux->siguiente;
+		}
 
 	return aux;
 }
@@ -1345,8 +1349,9 @@ void agregarArchivoEnLista(osada_file archivo){
 
 	} else {
 		aux = ListaArchivos;
-		while(aux->siguiente != NULL)
+		while(aux->siguiente != NULL){
 			aux = aux->siguiente;
+		}
 
 		aux->siguiente = nuevo;
 	}

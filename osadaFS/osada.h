@@ -68,7 +68,7 @@ struct NodoArchivo{
 	struct NodoArchivo *siguiente;	//Siguiente nodo
 };
 
-struct NodoArchivo *ListaArchivos;
+static struct NodoArchivo *ListaArchivos;
 struct NodoArchivo *ultimo;
 
 //Variables Globales
