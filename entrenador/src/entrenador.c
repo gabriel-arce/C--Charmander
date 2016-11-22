@@ -144,9 +144,21 @@ void rutina(int signal){
 			break;
 
 		case SIGTERM:
-
+			if(metadata->vidas > 0){
+				metadata->vidas --;
+			}
+			else{
 			muereEntrenador = true;
+			}
 			puts("Se ha quitado una vida al entrenador");
+			break;
+
+		case SIGINT:
+			limpiar_pokemons_en_directorio();
+			rm_de_medallas();
+			//TODO special_free de pokemones
+			finalizarEntrenador();
+			liberarRecursos();
 			break;
 
 		default: puts("Codigo de señal invalida");
@@ -555,7 +567,7 @@ void muerteEntrenador(){
 
 		case 1:
 			metadata->reintentos += 1;
-			//todo borrar medallas
+			rm_de_medallas();
 			desconectarseDeMapa();
 			finalizarEntrenador();
 			inicializarSinmuertesNiReintentos();
@@ -565,6 +577,11 @@ void muerteEntrenador(){
 
 		case 0:
 			contestaConOtroCaracter = false;
+			limpiar_pokemons_en_directorio();
+			rm_de_medallas();
+			//TODO special_free de pokemones
+			finalizarEntrenador();
+			liberarRecursos();
 			exit(EXIT_SUCCESS);
 			break;
 
@@ -619,7 +636,6 @@ void rm_de_medallas() {
 
 void finalizarEntrenador(){
 
-	//rm_de_medallas();
 	free(metadata->nombre);
 	free(ubicacionActual);
 	queue_destroy_and_destroy_elements(metadata->viaje, (void*) destruirHojaDeViaje);
@@ -682,4 +698,11 @@ char * generar_ruta_archivo(char * ruta) {
 	free(aux);
 
 	return path;
+}
+
+void liberarRecursos(){
+	free(pokedex_path);
+	free(nombreEntrenador);
+	free(rutaMedallas);
+	free(rutaDirDeBill);
 }

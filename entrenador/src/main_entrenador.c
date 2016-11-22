@@ -36,6 +36,7 @@ int main(int argc, char ** argv) {
 	imprimirLogro();
 	finalizarEntrenador();
 
+
 	close(socket_entrenador);
 
 	return EXIT_SUCCESS;

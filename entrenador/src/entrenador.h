@@ -117,5 +117,6 @@ void rm_de_medallas();
 void copiar_archivo(char * source, char * destination);
 char * obtener_nombre_pokemon(char * ruta);
 char * generar_ruta_archivo(char * ruta);
+void liberarRecursos();
 
 #endif /* ENTRENADOR_H_ */
