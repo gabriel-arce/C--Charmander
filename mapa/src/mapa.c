@@ -313,7 +313,9 @@ void run_trainer_server() {
 					addrlen = sizeof(clientaddr);
 
 					if ((newfd = accept(listener, (struct sockaddr *) &clientaddr, (socklen_t *) &addrlen)) == -1) {
+						pthread_mutex_lock(&mutex_log);
 						log_trace(logger, "[ERROR]: Server-accept() error");
+						pthread_mutex_unlock(&mutex_log);
 					} else {
 
 						pthread_mutex_lock(&mutex_servidor);
@@ -344,6 +346,11 @@ void run_trainer_server() {
 
 int procesar_nuevo_entrenador(int socket_entrenador, int buffer_size) {
 	t_entrenador * nuevo_entrenador = recibir_datos_entrenador(socket_entrenador, buffer_size);
+
+	pthread_mutex_lock(&mutex_log);
+	log_trace(logger, "Nueva conexion desde el socket %d, entrenador %c",
+			nuevo_entrenador->socket, nuevo_entrenador->simbolo_entrenador);
+	pthread_mutex_unlock(&mutex_log);
 
 	if (nuevo_entrenador == NULL)
 		return -1;
@@ -573,6 +580,8 @@ int calcularDistanciaAPokenest(t_entrenador* entrenador){
 
 int trainer_handler(t_entrenador * entrenador) {
 
+	pthread_mutex_lock(&mutex_servidor);
+
 	int buffer_size = sizeof(t_header);
 	void * buffer_in = malloc(buffer_size);
 
@@ -581,8 +590,12 @@ int trainer_handler(t_entrenador * entrenador) {
 	t_header * header = deserializar_header(buffer_in);
 
 	//DESCONEXION DE UN ENTRENADOR
-	if (nbytes_recv <= 0)
-		return desconexion_entrenador(entrenador, nbytes_recv);
+	if (nbytes_recv <= 0) {
+		desconexion_entrenador(entrenador, nbytes_recv);
+		free(header);
+		pthread_mutex_unlock(&mutex_servidor);
+		return EXIT_FAILURE;
+	}
 
 	//OPERACIONES ENTRENADOR
 	switch (header->identificador) {
@@ -600,6 +613,8 @@ int trainer_handler(t_entrenador * entrenador) {
 	}
 
 	free(header);
+
+	pthread_mutex_unlock(&mutex_servidor);
 
 	return EXIT_SUCCESS;
 }
@@ -661,6 +676,8 @@ int desconexion_entrenador(t_entrenador * entrenador, int nbytes_recv) {
 
 int enviar_ubicacion_pokenest(t_entrenador * entrenador, int id_pokenest) {
 
+	printf("Enviar ubicacion, entrenador:	%c\n", entrenador->simbolo_entrenador);
+
 	int _on_error() {
 		t_posicion * pos_error = malloc(sizeof(t_posicion));
 		pos_error->x = -1;
@@ -711,6 +728,8 @@ int enviar_ubicacion_pokenest(t_entrenador * entrenador, int id_pokenest) {
 }
 
 int avanzar_posicion_entrenador(t_entrenador * entrenador, int buffer_size) {
+
+	printf("Avanzar:	%c\n", entrenador->simbolo_entrenador);
 
 	int _on_error() {
 		keep_running = false;
@@ -778,6 +797,8 @@ int atrapar_pokemon(t_entrenador * entrenador) {
 	entrenador_bloqueado->entrenador = entrenador;
 	entrenador_bloqueado->pokenest = pokenest;
 
+	printf("Atrapar (%c, %c)\n", entrenador->simbolo_entrenador, pokenest->identificador);
+
 	time(&(entrenador->momentoBloqueado));
 
 	pthread_mutex_lock(&mutex_cola_bloqueados);
@@ -818,11 +839,6 @@ int procesar_objetivo_cumplido(t_entrenador * entrenador) {
 	offset += sizeof(double);
 	memcpy(datos + offset, &(entrenador->deadlocksInvolucrados), sizeof(int));
 
-	printf("datos size = %d\n", datos_size);
-	printf("tiempo total = %.2f\n", tiempo_tot_mapa);
-	printf("dls = %d\n", entrenador->deadlocksInvolucrados);
-	printf("tiempo bloqueado = %.2f\n", entrenador->tiempoBloqueado);
-
 	enviar_header(_DATOS_FINALES, datos_size, entrenador->socket);
 	send(entrenador->socket, datos, datos_size, 0);
 
@@ -852,7 +868,6 @@ void atender_bloqueados() {
 
 	int cantidad_bloqueados = 0;
 	int i;
-	int resultado;
 
 	while (true) {
 		waitSemaforo(semaforo_de_bloqueados);
