@@ -35,7 +35,7 @@ int main(int argc, char ** argv) {
 
 	imprimirLogro();
 	finalizarEntrenador();
-
+	liberarRecursos();
 
 	close(socket_entrenador);
 
