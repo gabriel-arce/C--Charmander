@@ -1,6 +1,6 @@
 # Completar con sus paths
 
-OSADA_SO=libosada.so
+OSADA_SO=libosadaFS.so
 INSTALL_DIR=/usr/lib
 INSTALL_DIR_INCLUDE=/usr/include
 
