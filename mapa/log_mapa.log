@@ -248,3 +248,7 @@
 ***_Matriz Asignados_***
 |  0  0  |
  
+[INFO] 16:15:20:921 MAPA log file/(5124:5124): MAPA PuebloPaleta iniciado.
+[TRACE] 16:15:34:223 MAPA log file/(5124:5132): Nueva conexion desde el socket 7, entrenador @
+[TRACE] 16:15:40:93 MAPA log file/(5124:5131): Se desconecto el entrenador @ en el socket 7
+[TRACE] 16:18:42:423 MAPA log file/(5124:5132): Nueva conexion desde el socket 8, entrenador @

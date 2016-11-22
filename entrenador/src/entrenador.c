@@ -389,8 +389,8 @@ void verificarSiQuedanObjetivosEnMapa(){
 }
 
 void procesarDatos(void * datos) {
-	int tiempo_en_el_mapa = 0;
-	int tiempo_bloqueado = 0;
+	double tiempo_en_el_mapa = 0;
+	double tiempo_bloqueado = 0;
 	int dls_involucrado = 0;
 
 	int offset = sizeof(double);
