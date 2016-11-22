@@ -141,6 +141,7 @@ bool keep_running;
 t_entrenador * entrenador_corriendo;
 fd_set master_fdset;
 int quantum_actual;
+bool cambio_metadata;
 
 //variables de la GUI
 t_list * items_mapa;
@@ -211,6 +212,7 @@ int generar_captura(t_entrenador * entrenador, t_pokenest * pokenest, t_pkm * po
 int agregar_a_cola(t_entrenador * entrenador, t_list * cola, pthread_mutex_t mutex);
 t_entrenador * pop_entrenador();
 t_list * snapshot_list(t_list * source_list);
+void releer_metadada();
 
 //***Envios y serializaciones***
 t_pkm * recibirPokemon(int socket);

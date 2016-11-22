@@ -11,6 +11,7 @@ int main(int argc, char ** argv) {
 
 	signal(SIGUSR1,rutina);
 	signal(SIGTERM, rutina);
+	signal(SIGINT, rutina);
 
 	if (chequear_argumentos(argc, TOTAL_ARGS) == -1) {
 		return EXIT_FAILURE;

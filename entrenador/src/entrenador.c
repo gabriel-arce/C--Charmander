@@ -66,7 +66,6 @@ int leer_metadata_entrenador(char * metada_path) {
 	list_destroy_and_destroy_elements(hoja_de_viaje, (void *) free);
 
 	metadata->vidas = getIntProperty(conf_file, "vidas");
-	metadata->reintentos = getIntProperty(conf_file, "reintentos");
 
 	free(conf_file);
 
@@ -78,7 +77,6 @@ void imprimir_metadata() {
 	printf("nombre: %s\n", metadata->nombre);
 	printf("simbolo: %c\n", metadata->simbolo);
 	printf("vidas: %d\n", metadata->vidas);
-	printf("reintentos: %d\n", metadata->reintentos);
 
 	printf("\n**Hoja de viaje**\n");
 
@@ -156,9 +154,9 @@ void rutina(int signal){
 		case SIGINT:
 			limpiar_pokemons_en_directorio();
 			rm_de_medallas();
-			//TODO special_free de pokemones
 			finalizarEntrenador();
 			liberarRecursos();
+			exit(EXIT_SUCCESS);
 			break;
 
 		default: puts("Codigo de señal invalida");
@@ -170,19 +168,18 @@ void rutina(int signal){
 //-------------------Funciones
 
 void inicializarEntrenador(){
-	cargarMetadata();
+	inicializarSinmuertesNiReintentos();
 	setRutaMedallas();
 	setRutaDirDeBill();
 	cantidadDeMuertes = 0;
 	tiempoDeJuego = 0;
 	tiempoBloqueado = 0;
 	deadlocksInvolucrados = 0;
-	metadata->reintentos = 0;
-	inicializarSinmuertesNiReintentos();
+	reintentos = 0;
 }
 
 void inicializarSinmuertesNiReintentos(){
-
+	cargarMetadata();
 	socket_entrenador = -1;
 	ubicacionProximaPokenest = malloc(sizeof(t_posicion));
 	pokemonesCapturados = list_create();
@@ -191,6 +188,7 @@ void inicializarSinmuertesNiReintentos(){
 	muereEntrenador = false;
 	ubicacionActual = malloc(sizeof(t_posicion));
 }
+
 void cargarMetadata(){
 
 	char * ruta = string_duplicate(pokedex_path);
@@ -556,17 +554,18 @@ void muerteEntrenador(){
 		char  respuesta;
 		bool contestaConOtroCaracter = true;
 
-		printf("No quedan vidas disponibles, cantidad de reintentos: %d \n", metadata->reintentos);
+		printf("No quedan vidas disponibles, cantidad de reintentos: %d \n", reintentos);
 		puts("¿Desea reiniciar el juego?");
 		puts("1/0");
 
 		while(contestaConOtroCaracter){
-		scanf(respuesta);
+//		scanf(respuesta);
+		respuesta = fgetc(stdin);
 
 		switch(respuesta){
 
-		case 1:
-			metadata->reintentos += 1;
+		case '1':
+			reintentos += 1;
 			rm_de_medallas();
 			desconectarseDeMapa();
 			finalizarEntrenador();
@@ -575,11 +574,10 @@ void muerteEntrenador(){
 			contestaConOtroCaracter = false;
 			break;
 
-		case 0:
+		case '0':
 			contestaConOtroCaracter = false;
 			limpiar_pokemons_en_directorio();
 			rm_de_medallas();
-			//TODO special_free de pokemones
 			finalizarEntrenador();
 			liberarRecursos();
 			exit(EXIT_SUCCESS);
@@ -593,13 +591,18 @@ void muerteEntrenador(){
 
 }
 
+void pokemon_destroyer(t_pkm * p) {
+	free(p->nombre);
+	free(p->nombreArchivo);
+}
+
 void desconectarseDeMapa(){
 
-//	close(socket_entrenador);
+	close(socket_entrenador);
 	limpiar_pokemons_en_directorio();
-	//TODO Falta hacer un especial_free por cada pokemon
-	list_clean(pokemonesCapturados);
+	list_destroy_and_destroy_elements(pokemonesCapturados, (void *) pokemon_destroyer);
 	pokenestLocalizada = false;
+	mapaActual = NULL;
 
 }
 
@@ -612,20 +615,32 @@ void rm_pokemon(char * dir_pkm) {
 	free(comando);
 }
 
+void rm_de_pokemons() {
+	char * comando = string_duplicate("rm -f ");
+	string_append(&(comando), rutaDirDeBill);
+	string_append(&(comando), "*");
+
+	system(comando);
+
+	free(comando);
+}
+
 void limpiar_pokemons_en_directorio() {
-	int i;
-	int pkms = list_size(pokemonesCapturados);
-
-	for (i = 0; i < pkms; i++) {
-		t_pkm * p = list_get(pokemonesCapturados, i);
-
-		if (p->mapa == mapaActual->socket)
-			rm_pokemon(p->nombreArchivo);
-	}
+//	int i;
+//	int pkms = list_size(pokemonesCapturados);
+//
+//	for (i = 0; i < pkms; i++) {
+//		t_pkm * p = list_get(pokemonesCapturados, i);
+//
+//		//TODO CAMBIAR A SIMBOLO DEL MAPA
+//		if (p->mapa == mapaActual->socket)
+//			rm_pokemon(p->nombreArchivo);
+//	}
+	rm_de_pokemons();
 }
 
 void rm_de_medallas() {
-	char * comando = string_duplicate("rm -r ");
+	char * comando = string_duplicate("rm -f ");
 	string_append(&(comando), rutaMedallas);
 	string_append(&(comando), "*");
 
@@ -639,11 +654,17 @@ void finalizarEntrenador(){
 	free(metadata->nombre);
 	free(ubicacionActual);
 	queue_destroy_and_destroy_elements(metadata->viaje, (void*) destruirHojaDeViaje);
-	free(ubicacionProximaPokenest);
-	list_destroy(pokemonesCapturados);
-	queue_destroy(mapaActual->objetivos);
-	free(mapaActual);
-	free(pokemonMasFuerte);
+
+	if (ubicacionProximaPokenest != NULL)
+		free(ubicacionProximaPokenest);
+
+	if (mapaActual != NULL)
+		free(mapaActual);
+
+	if (pokemonMasFuerte != NULL)
+		free(pokemonMasFuerte);
+
+	free(metadata);
 
 }
 

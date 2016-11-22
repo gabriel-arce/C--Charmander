@@ -74,6 +74,7 @@ double tiempoDeJuego;
 char * rutaMedallas;
 char * rutaDirDeBill;
 bool muereEntrenador;
+int reintentos;
 
 //------------------Funciones
 
@@ -118,5 +119,6 @@ void copiar_archivo(char * source, char * destination);
 char * obtener_nombre_pokemon(char * ruta);
 char * generar_ruta_archivo(char * ruta);
 void liberarRecursos();
+void rm_de_pokemons();
 
 #endif /* ENTRENADOR_H_ */

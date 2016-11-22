@@ -69,6 +69,7 @@ void inicializar_variables() {
 	entrenador_corriendo = NULL;
 	items_mapa = list_create();
 	cola_de_bloqueados = list_create();
+	cambio_metadata = false;
 }
 
 void destruir_variables() {

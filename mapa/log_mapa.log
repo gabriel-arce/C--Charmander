@@ -252,3 +252,38 @@
 [TRACE] 16:15:34:223 MAPA log file/(5124:5132): Nueva conexion desde el socket 7, entrenador @
 [TRACE] 16:15:40:93 MAPA log file/(5124:5131): Se desconecto el entrenador @ en el socket 7
 [TRACE] 16:18:42:423 MAPA log file/(5124:5132): Nueva conexion desde el socket 8, entrenador @
+[INFO] 12:32:46:495 MAPA log file/(3257:3257): MAPA PuebloPaleta iniciado.
+[TRACE] 12:33:22:262 MAPA log file/(3257:3259): Nueva conexion desde el socket 7, entrenador @
+[TRACE] 12:34:57:370 MAPA log file/(3257:3258): [ERROR]: Error en el recv desde el socket 7
+[INFO] 12:35:27:352 MAPA log file/(3383:3383): MAPA PuebloPaleta iniciado.
+[TRACE] 12:35:51:901 MAPA log file/(3383:3387): Nueva conexion desde el socket 7, entrenador #
+[TRACE] 12:40:29:39 MAPA log file/(3383:3386): [ERROR]: Error en el recv desde el socket 7
+[TRACE] 12:40:29:39 MAPA log file/(3383:3387): Nueva conexion desde el socket 8, entrenador #
+[TRACE] 12:40:30:46 MAPA log file/(3383:3386): Se desconecto el entrenador # en el socket 8
+[INFO] 12:42:36:242 MAPA log file/(3541:3541): MAPA PuebloPaleta iniciado.
+[TRACE] 12:42:48:800 MAPA log file/(3541:3544): Nueva conexion desde el socket 7, entrenador #
+[TRACE] 12:44:25:611 MAPA log file/(3541:3543): Se desconecto el entrenador # en el socket 7
+[INFO] 12:48:50:392 MAPA log file/(3712:3712): MAPA PuebloPaleta iniciado.
+[TRACE] 12:49:16:5 MAPA log file/(3712:3714): Nueva conexion desde el socket 7, entrenador #
+[TRACE] 12:50:46:612 MAPA log file/(3712:3713): Se desconecto el entrenador # en el socket 7
+[INFO] 12:51:26:677 MAPA log file/(3852:3852): MAPA PuebloPaleta iniciado.
+[TRACE] 12:52:02:837 MAPA log file/(3852:3855): Nueva conexion desde el socket 7, entrenador #
+[TRACE] 12:54:15:750 MAPA log file/(3852:3854): Se desconecto el entrenador # en el socket 7
+[INFO] 12:55:45:300 MAPA log file/(3970:3970): MAPA PuebloPaleta iniciado.
+[TRACE] 12:55:54:171 MAPA log file/(3970:3972): Nueva conexion desde el socket 7, entrenador #
+[TRACE] 12:59:29:315 MAPA log file/(3970:3971): Se desconecto el entrenador # en el socket 7
+[INFO] 13:22:36:631 MAPA log file/(4444:4444): MAPA PuebloPaleta iniciado.
+[TRACE] 13:23:16:941 MAPA log file/(4444:4446): Nueva conexion desde el socket 7, entrenador #
+[TRACE] 13:23:58:259 MAPA log file/(4444:4445): Se desconecto el entrenador # en el socket 7
+[INFO] 13:34:51:878 MAPA log file/(4779:4779): MAPA PuebloPaleta iniciado.
+[TRACE] 13:35:10:997 MAPA log file/(4779:4783): Nueva conexion desde el socket 7, entrenador #
+[TRACE] 13:35:50:887 MAPA log file/(4779:4782): Se desconecto el entrenador # en el socket 7
+[TRACE] 13:38:09:472 MAPA log file/(4779:4783): Nueva conexion desde el socket 7, entrenador #
+[TRACE] 13:41:01:601 MAPA log file/(4779:4782): Se desconecto el entrenador # en el socket 7
+[INFO] 15:11:51:632 MAPA log file/(6604:6604): MAPA PuebloPaleta iniciado.
+[TRACE] 15:11:57:989 MAPA log file/(6604:6611): Nueva conexion desde el socket 7, entrenador #
+[INFO] 15:16:24:590 MAPA log file/(6743:6743): MAPA PuebloPaleta iniciado.
+[INFO] 15:18:26:781 MAPA log file/(6848:6848): MAPA PuebloPaleta iniciado.
+[TRACE] 15:18:38:29 MAPA log file/(6848:6855): Nueva conexion desde el socket 7, entrenador #
+[INFO] 15:19:08:195 MAPA log file/(6931:6931): MAPA PuebloPaleta iniciado.
+[TRACE] 15:19:16:77 MAPA log file/(6931:6938): Nueva conexion desde el socket 7, entrenador #

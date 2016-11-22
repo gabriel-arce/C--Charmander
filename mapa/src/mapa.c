@@ -297,7 +297,9 @@ void run_trainer_server() {
 		read_fds = master_fdset;
 
 		if (select(fdmax + 1, &read_fds, NULL, NULL, NULL) == -1) {
+			pthread_mutex_lock(&mutex_log);
 			log_trace(logger, "[ERROR]: Server-select() error");
+			pthread_mutex_unlock(&mutex_log);
 			exit(1);
 		}
 
@@ -346,6 +348,7 @@ void run_trainer_server() {
 
 int procesar_nuevo_entrenador(int socket_entrenador, int buffer_size) {
 	t_entrenador * nuevo_entrenador = recibir_datos_entrenador(socket_entrenador, buffer_size);
+	printf("Nueva conexion del entrenador %c\n", nuevo_entrenador->simbolo_entrenador);
 
 	pthread_mutex_lock(&mutex_log);
 	log_trace(logger, "Nueva conexion desde el socket %d, entrenador %c",
@@ -464,7 +467,7 @@ int correr_rr() {
 	entrenador_corriendo = entrenador_listo;
 
 	// Ejecuto al entrenador listo
-	while ( keep_running ) {
+	while ( keep_running && !cambio_metadata ) {
 
 		pthread_mutex_lock(&mutex_planificador_turno);
 
@@ -498,6 +501,11 @@ int correr_rr() {
 			signalSemaforo(semaforo_de_listos);
 	}
 
+	if (cambio_metadata) {
+		cambio_metadata = false;
+		releer_metadada();
+	}
+
 	entrenador_corriendo = NULL;
 
 	return EXIT_SUCCESS;
@@ -510,12 +518,15 @@ int correr_srdf() {
 	keep_running = true;
 
 	void una_operacion(t_entrenador * ent) {
+
+		pthread_mutex_lock(&mutex_planificador_turno);
 		result = trainer_handler(ent);
-		enviar_header(_RESULTADO_OPERACION, result, ent->socket);
 
 		if (result == EXIT_FAILURE) {
 			keep_running = false;
 		}
+
+		pthread_mutex_unlock(&mutex_planificador_turno);
 	}
 
 	// Paso 1: Atiedo una sola operacion de a aquellos que no
@@ -525,6 +536,9 @@ int correr_srdf() {
 
 		if ( !(e->conoce_ubicacion) ) {
 			una_operacion(e);
+			list_remove(cola_de_listos, i);
+			agregar_a_cola(e, cola_de_listos, mutex_cola_listos);
+			i--;
 		}
 	}
 
@@ -533,7 +547,7 @@ int correr_srdf() {
 	t_entrenador * entrenador = calcularSRDF();
 	entrenador_corriendo = entrenador;
 
-	while (keep_running) {
+	while (keep_running && !cambio_metadata) {
 		if ( (entrenador->bloqueado) || (entrenador->objetivo_cumplido) ) {
 			keep_running = false;
 			break;
@@ -542,13 +556,19 @@ int correr_srdf() {
 		}
 	}
 
-	entrenador_corriendo = NULL;
+	if (cambio_metadata) {
+		cambio_metadata = false;
+		releer_metadada();
 
-	// Verifico si el entrenador vuelve a la cola de listos
-	if ( (!(entrenador->bloqueado)) && (!(entrenador->objetivo_cumplido)) && (result != EXIT_FAILURE) ) {
-		if (agregar_a_cola(entrenador, cola_de_listos, mutex_cola_listos) != -1)
+		if ( (!(entrenador->bloqueado)) && (!(entrenador->objetivo_cumplido)) && (result != EXIT_FAILURE) ) {
+			pthread_mutex_lock(&mutex_cola_listos);
+			list_add_in_index(cola_de_listos, 0, entrenador);
 			signalSemaforo(semaforo_de_listos);
+			pthread_mutex_unlock(&mutex_cola_listos);
+		}
 	}
+
+	entrenador_corriendo = NULL;
 
 	return result;
 }
@@ -559,7 +579,7 @@ t_entrenador * calcularSRDF(){
 
 	list_sort(cola_de_listos, (void*) entrenadorMasCercaDePokenest);
 
-	entrenadorConMenorDistancia = list_get(cola_de_listos,0);
+	entrenadorConMenorDistancia = pop_entrenador();
 
 	return entrenadorConMenorDistancia;
 
@@ -854,14 +874,21 @@ int procesar_objetivo_cumplido(t_entrenador * entrenador) {
 //**********************************************************************************
 
 void signal_handler(int signal) {
+
 	if (signal == SIGUSR2) {
-		pthread_mutex_lock(&mutex_planificador_turno);
-		keep_running = false;
-		quantum_actual = 0;
-		destruir_metadata();
-		leer_metadata_mapa(ruta_directorio);
-		pthread_mutex_unlock(&mutex_planificador_turno);
+
+		if (entrenador_corriendo != NULL) {
+			cambio_metadata = true;
+		} else {
+			releer_metadada();
+		}
+
 	}
+}
+
+void releer_metadada() {
+	destruir_metadata();
+	leer_metadata_mapa(ruta_directorio);
 }
 
 void atender_bloqueados() {
