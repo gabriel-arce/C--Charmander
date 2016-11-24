@@ -324,7 +324,7 @@ void atraparPokemon(){
 		switch (header_in->identificador) {
 		case _CAPTURAR_PKM:
 
-			puts("pkm capturado");
+			puts("pkm capturado");						//TODO falta enviar el pokemon completo
 
 			char * ruta = (char *) malloc(header_in->tamanio + 1);
 			memset(ruta, '\0', header_in->tamanio);
@@ -517,8 +517,6 @@ void imprimirLogro(){
 
 bool batallaPokemon(){ 					//retorna true si muere
 
-	enviar_header(_PKM_MAS_FUERTE, sizeof(t_pkm), socket_entrenador);
-
 	enviarPokemon(pokemonMasFuerte,  socket_entrenador);
 
 
@@ -675,7 +673,7 @@ void destruirHojaDeViaje(t_mapa * mapa){
 
 void enviarPokemon(t_pkm * pokemon, int socket){
 
-	int pokemonSerializadoSize = (sizeof(pokemon->nivel)) + (string_length(pokemon->nombre)) + (string_length(pokemon->nombreArchivo)) + (2 * (sizeof(int)));
+	int pokemonSerializadoSize = (string_length(pokemon->nombre)) + (string_length(pokemon->nombreArchivo)) + (2 * (sizeof(int))) + sizeof(char) + sizeof(bool);
 
 	void * pokemonSerializado = serializarPokemon(pokemonMasFuerte);
 
