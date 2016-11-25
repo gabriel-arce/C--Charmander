@@ -51,7 +51,7 @@ void * serializarPokemon(t_pkm * pokemon){
 	int nombreSize = (string_length(pokemon->nombre));
 	int nombreArchivoSize = (string_length(pokemon->nombreArchivo));
 
-	int pokemonSerializadoSize = (sizeof(pokemon->nivel)) + nombreSize + nombreArchivoSize + (2 * (sizeof(int)));
+	int pokemonSerializadoSize = nombreSize + nombreArchivoSize + (2 * (sizeof(int))) + sizeof(bool) + sizeof(char);
 
 	void* pokemonSerializado = malloc(pokemonSerializadoSize);
 
@@ -59,10 +59,13 @@ void * serializarPokemon(t_pkm * pokemon){
 	memcpy(pokemonSerializado,&nombreSize,sizeof(int));
 	memcpy(pokemonSerializado + 4,&nombreArchivoSize , sizeof(int));
 	memcpy(pokemonSerializado + 8,&(pokemon->nivel) , sizeof(int));
-	memcpy(pokemonSerializado + 12, pokemon->nombre, nombreSize);
-	memcpy(pokemonSerializado + 12 + nombreSize, pokemon->nombreArchivo, nombreArchivoSize);
+	memcpy(pokemonSerializado + 12,&(pokemon->mapa) , sizeof(int));
+	memcpy(pokemonSerializado + 16, pokemon->nombre, nombreSize);
+	memcpy(pokemonSerializado + 16 + nombreSize, pokemon->nombreArchivo, nombreArchivoSize);
+	memcpy(pokemonSerializado + 16 + nombreSize + nombreArchivoSize, pokemon->capturado, sizeof(bool));
 
 	return pokemonSerializado;
+
 }
 
 t_pkm * deserializarPokemon(void* pokemonSerializado){

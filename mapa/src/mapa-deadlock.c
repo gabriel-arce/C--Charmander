@@ -433,20 +433,31 @@ t_entrenador * let_the_battle_begins() {
 //	if (dls->elements_count == 1)
 //		return list_get(dls, 0);
 
-	t_pokemon * winner = obtener_el_mas_poronga((t_entrenador *) list_get(dls, 0));
-	t_pokemon * loser = NULL;
+	t_pokemon * loser = obtener_el_mas_poronga((t_entrenador *) list_get(dls, 0));
+	t_pokemon * perdedorNuevo = NULL;
+	t_entrenador * entrenadorQueSeSalva;
 
 	int i;
 	for (i = 1; i < dls->elements_count; i++) {
 		t_pokemon * opponent = obtener_el_mas_poronga((t_entrenador *) list_get(dls, i));
 
-		loser = pkmn_battle(winner, opponent);
+		perdedorNuevo = pkmn_battle(loser, opponent);
 
-		if (loser == winner)
-			winner = opponent;
+		if (perdedorNuevo != loser){
+			entrenadorQueSeSalva = buscar_entrenador_del_pkm(loser, dls);
+
+			loser = opponent;
+		}
+		else{
+			entrenadorQueSeSalva = buscar_entrenador_del_pkm(opponent, dls);
+		}
+
+	enviar_header(_RESULTADO_BATALLA, 1, entrenadorQueSeSalva->socket );  //envio que no se murio   //TODO catchear error
 	}
 
 	t_entrenador * el_entrenador_que_PERDIO = buscar_entrenador_del_pkm(loser, dls);
+
+	enviar_header(_RESULTADO_BATALLA, 0, el_entrenador_que_PERDIO->socket ); //envio que se murio	//TODO catchear error
 
 	list_destroy(dls);
 
@@ -454,9 +465,26 @@ t_entrenador * let_the_battle_begins() {
 }
 
 t_pokemon * obtener_el_mas_poronga(t_entrenador * entrenador) {
-	t_pkm * p = list_get(entrenador->pokemonesCapturados, 0);
+	t_pkm * p = malloc(sizeof(t_pkm));
 
-	//TODO PEDIRLE AL ENTRENADOR EL QUE LA TIENE MAS LARGA
+	//Le avisa al entrenador que hay batalla
+	enviar_header(_BATALLA,0,entrenador->socket);
+	t_header* headerpkmMasFuerte = recibir_header(entrenador->socket);
+
+	if(headerpkmMasFuerte->identificador != _PKM_MAS_FUERTE){
+		//TODO catchear error
+	}
+	else{
+		void* pkmnSerializado = malloc(headerpkmMasFuerte->tamanio);
+
+		if(recv(entrenador->socket,pkmnSerializado,headerpkmMasFuerte->tamanio,0) < 0){
+			//TODO catchear error;
+		}
+
+		p = deserializarPokemon(pkmnSerializado);
+
+	}
+
 
 	t_pokemon * pkm = create_pokemon(factory, p->nombre, p->nivel);
 

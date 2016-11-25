@@ -175,9 +175,10 @@ t_pkm * deserializarPokemon(void* pokemonSerializado){
 	pokemon->nombreArchivo = (char *) malloc(sizeof(char) * nombreArchivoSize);
 
 	memcpy(&pokemon->nivel, pokemonSerializado + 8, 4);
-	memcpy(pokemon->nombre, pokemonSerializado + 12, nombreSize);
-	memcpy(pokemon->nombreArchivo, pokemonSerializado + 12 + nombreSize,
-			nombreArchivoSize);
+	memcpy(&pokemon->mapa, pokemonSerializado + 12, 4);
+	memcpy(pokemon->nombre, pokemonSerializado + 16, nombreSize);
+	memcpy(pokemon->nombreArchivo, pokemonSerializado + 16 + nombreSize,nombreArchivoSize);
+	memcpy(pokemon->capturado, pokemonSerializado + 16 + nombreSize + nombreArchivoSize ,sizeof(bool));
 
 	return pokemon;
 }
