@@ -178,7 +178,9 @@ void imprimir_matriz_en_log(t_matriz * matriz, char * nombre_matriz) {
 	}
 	string_append(&mat, " \0");
 
+	pthread_mutex_lock(&mutex_log);
 	log_trace(logger, mat);
+	pthread_mutex_unlock(&mutex_log);
 
 	free(mat);
 }
@@ -195,7 +197,9 @@ void imprimir_vector_en_log(int * vector, char * nombre_vector, int rows) {
 	}
 	string_append(&vec, " ]\0");
 
+	pthread_mutex_lock(&mutex_log);
 	log_trace(logger, vec);
+	pthread_mutex_unlock(&mutex_log);
 
 	free(vec);
 }
@@ -212,7 +216,9 @@ void imprimir_pokenests_en_log() {
 	}
 	string_append(&list, " ]\0");
 
+	pthread_mutex_lock(&mutex_log);
 	log_trace(logger, list);
+	pthread_mutex_unlock(&mutex_log);
 
 	free(list);
 }
@@ -229,7 +235,9 @@ void imprimir_entrenadores_en_log() {
 	}
 	string_append(&list, " ]\0");
 
+	pthread_mutex_lock(&mutex_log);
 	log_trace(logger, list);
+	pthread_mutex_unlock(&mutex_log);
 
 	free(list);
 }

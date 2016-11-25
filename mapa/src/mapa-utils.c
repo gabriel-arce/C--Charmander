@@ -451,8 +451,9 @@ int the_number_of_the_beast(t_pkm * beast) {
 	int i;
 	char * num_on_string = NULL;
 
+	char c;
 	for(i = length_name; i < length_arch; i++) {
-		char c = beast->nombreArchivo[i];
+		c = beast->nombreArchivo[i];
 
 		if (c == '.')
 			break;
@@ -460,7 +461,7 @@ int the_number_of_the_beast(t_pkm * beast) {
 
 	int length_number = i - length_name;
 
-	num_on_string = malloc(1 + (length_number * sizeof(char)));
+	num_on_string = (char *) malloc(1 + (length_number * sizeof(char)));
 	num_on_string[length_number + 1] = '\0';
 	memcpy(num_on_string, beast->nombreArchivo + length_name, length_number);
 
@@ -469,4 +470,56 @@ int the_number_of_the_beast(t_pkm * beast) {
 	free(num_on_string);
 
 	return THE_number;
+}
+
+void loguear_cola_de_listos() {
+	pthread_mutex_lock(&mutex_cola_listos);
+
+	char * list_print = string_new();
+	string_append_with_format(&list_print, "\n%s: ", "LISTOS: ");
+
+	int i;
+
+	string_append(&list_print, "[ ");
+	for (i = 0; i < cola_de_listos->elements_count; i++) {
+		t_entrenador * e = list_get(cola_de_listos, i);
+		string_append_with_format(&list_print, " %c(%s) ",
+				e->simbolo_entrenador, e->nombre_entrenador);
+	}
+	string_append(&list_print, " ]\0");
+
+	pthread_mutex_lock(&mutex_log);
+	log_trace(logger, list_print);
+	pthread_mutex_unlock(&mutex_log);
+
+	free(list_print);
+
+	pthread_mutex_unlock(&mutex_cola_listos);
+}
+
+void loguear_cola_de_bloqueados() {
+	pthread_mutex_lock(&mutex_cola_bloqueados);
+
+	if (cola_de_bloqueados->elements_count > 0) {
+		char * list_print = string_new();
+		string_append_with_format(&list_print, "\n%s: ", "BLOQUEADOS: ");
+
+		int i;
+
+		string_append(&list_print, "[ ");
+		for (i = 0; i < cola_de_bloqueados->elements_count; i++) {
+			t_bloqueado * b = list_get(cola_de_bloqueados, i);
+			string_append_with_format(&list_print, " %c(%s) ",
+					b->entrenador->simbolo_entrenador, b->entrenador->nombre_entrenador);
+		}
+		string_append(&list_print, " ]\0");
+
+		pthread_mutex_lock(&mutex_log);
+		log_trace(logger, list_print);
+		pthread_mutex_unlock(&mutex_log);
+
+		free(list_print);
+	}
+
+	pthread_mutex_unlock(&mutex_cola_bloqueados);
 }

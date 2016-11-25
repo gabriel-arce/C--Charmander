@@ -67,6 +67,7 @@ void cargar_medalla() {
 }
 
 void crear_archivo_log() {
+	remove(LOG_FILE);
 	logger = log_create(LOG_FILE, "MAPA log file", false, LOG_LEVEL_TRACE);
 	log_info(logger, "MAPA %s iniciado.", nombreMapa);
 }
@@ -158,7 +159,9 @@ void cargar_pokenests() {
 						}
 
 						char * id = getStringProperty(m_pknst, "Identificador");
-						pknst->identificador = (char) id[0];
+//						pknst->identificador = (char) id[0];
+						memcpy(&(pknst->identificador), id, 1);
+						free(id);
 
 						char * posicion = getStringProperty(m_pknst, "Posicion");
 						char ** _x_y = string_split(posicion, ";");
@@ -208,6 +211,7 @@ void cargar_pokenests() {
 //						pknst->posicion->y, list_size(pknst->pokemones));
 
 				free(path);
+				closedir(d_pknst);
 			}
 		}
 	}
@@ -257,13 +261,17 @@ void run_trainer_server() {
 
 	/* get the listener */
 	if ((listener = socket(AF_INET, SOCK_STREAM, 0)) == -1)	{
-		perror("Server-socket() error");
+		pthread_mutex_lock(&mutex_log);
+		log_trace(logger, "[ERROR]: Server-socket() error");
+		pthread_mutex_unlock(&mutex_log);
 		exit(1);
 	}
 
 	/*"address already in use" error message */
 	if (setsockopt(listener, SOL_SOCKET, SO_REUSEADDR, &optval, sizeof(int)) == -1) {
+		pthread_mutex_lock(&mutex_log);
 		log_trace(logger, "[ERROR]: Server-setsockopt() error");
+		pthread_mutex_unlock(&mutex_log);
 		exit(1);
 	}
 
@@ -275,13 +283,17 @@ void run_trainer_server() {
 	memset(&(serveraddr.sin_zero), '\0', 8);
 
 	if (bind(listener, (struct sockaddr *) &serveraddr, sizeof(serveraddr)) == -1) {
+		pthread_mutex_lock(&mutex_log);
 		log_trace(logger, "[ERROR]: Server-bind() error");
+		pthread_mutex_unlock(&mutex_log);
 		exit(1);
 	}
 
 	/* listen */
 	if (listen(listener, 10) == -1) {
+		pthread_mutex_lock(&mutex_log);
 		log_trace(logger, "[ERROR]: Server-listen() error");
+		pthread_mutex_unlock(&mutex_log);
 		exit(1);
 	}
 
@@ -319,9 +331,6 @@ void run_trainer_server() {
 						log_trace(logger, "[ERROR]: Server-accept() error");
 						pthread_mutex_unlock(&mutex_log);
 					} else {
-
-						pthread_mutex_lock(&mutex_servidor);
-
 						FD_SET(newfd, &master_fdset); /* add to master set */
 
 						if (newfd > fdmax)
@@ -335,9 +344,6 @@ void run_trainer_server() {
 							close(newfd);
 							FD_CLR(newfd, &read_fds);
 						}
-
-						pthread_mutex_unlock(&mutex_servidor);
-
 					}
 
 				}
@@ -389,8 +395,9 @@ t_entrenador * recibir_datos_entrenador(int socket_entrenador, int data_buffer_s
 	trainer_sesion->simbolo_entrenador = (char) simbolo;
 	offset += sizeof(int);
 	int name_size = data_buffer_size - offset;
-	trainer_sesion->nombre_entrenador = malloc(sizeof(char) * name_size);
+	trainer_sesion->nombre_entrenador = malloc(1 + sizeof(char) * name_size);
 	memcpy(trainer_sesion->nombre_entrenador, data_buffer + offset, name_size);
+	trainer_sesion->nombre_entrenador[name_size] = '\0';
 
 	free(data_buffer);
 
@@ -427,6 +434,7 @@ void run_scheduler_thread() {
 
 	while (true) {
 		waitSemaforo(semaforo_de_listos);
+		loguear_cola_de_listos();
 		//corro el algoritmo
 		//TODO catchear el resultado de run_algorithm
 		if (run_algorithm() == EXIT_FAILURE)
@@ -600,8 +608,6 @@ int calcularDistanciaAPokenest(t_entrenador* entrenador){
 
 int trainer_handler(t_entrenador * entrenador) {
 
-	pthread_mutex_lock(&mutex_servidor);
-
 	int buffer_size = sizeof(t_header);
 	void * buffer_in = malloc(buffer_size);
 
@@ -613,7 +619,6 @@ int trainer_handler(t_entrenador * entrenador) {
 	if (nbytes_recv <= 0) {
 		desconexion_entrenador(entrenador, nbytes_recv);
 		free(header);
-		pthread_mutex_unlock(&mutex_servidor);
 		return EXIT_FAILURE;
 	}
 
@@ -633,8 +638,6 @@ int trainer_handler(t_entrenador * entrenador) {
 	}
 
 	free(header);
-
-	pthread_mutex_unlock(&mutex_servidor);
 
 	return EXIT_SUCCESS;
 }
@@ -898,11 +901,17 @@ void atender_bloqueados() {
 
 	while (true) {
 		waitSemaforo(semaforo_de_bloqueados);
+		loguear_cola_de_bloqueados();
 
 		//TODO GUARDA CON ESTO!!!!
 		pthread_mutex_lock(&mutex_cola_bloqueados);
 
 		cantidad_bloqueados = list_size(cola_de_bloqueados);
+
+		if (cantidad_bloqueados <= 0) {
+			pthread_mutex_unlock(&mutex_cola_bloqueados);
+			continue;
+		}
 
 		for (i = 0; i < cantidad_bloqueados; i++) {
 			t_bloqueado * b = list_get(cola_de_bloqueados, i);

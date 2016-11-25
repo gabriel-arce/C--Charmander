@@ -163,6 +163,8 @@ void sacar_de_listos(t_entrenador * entrenador);
 void sacar_de_conectados(t_entrenador * entrenador);
 void sacar_de_bloqueados(t_entrenador * entrenador);
 int the_number_of_the_beast(t_pkm * beast);
+void loguear_cola_de_listos();
+void loguear_cola_de_bloqueados();
 
 //****Conection and threads ****
 void run_trainer_server();
