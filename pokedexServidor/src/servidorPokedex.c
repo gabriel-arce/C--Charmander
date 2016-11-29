@@ -560,8 +560,11 @@ char verificar_permiso_archivo(char *path){
 		nodo = list_get(ListaArchivos, i);
 		if(strcmp(nodo->nombre,aux) == 0){
 			//Lo encontro..
-			if (nodo->enUso == SinUso)
-				respuesta = 's';	//Se puede utilizar
+			if (nodo->enUso == SinUso){
+				respuesta 	= 's';	//Se puede utilizar
+				nodo->enUso = EnUso;
+				list_replace(ListaArchivos, i, nodo);
+				}
 			else
 				respuesta = 'n';
 
