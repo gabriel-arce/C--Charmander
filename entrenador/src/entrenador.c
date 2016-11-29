@@ -675,7 +675,7 @@ void enviarPokemon(t_pkm * pokemon, int socket){
 
 	int pokemonSerializadoSize = (string_length(pokemon->nombre)) + (string_length(pokemon->nombreArchivo)) + (2 * (sizeof(int))) + sizeof(char) + sizeof(bool);
 
-	void * pokemonSerializado = serializarPokemon(pokemonMasFuerte);
+	void * pokemonSerializado = serializarPokemon(pokemon);
 
 	enviar_header(_PKM_MAS_FUERTE, pokemonSerializadoSize,socket);
 

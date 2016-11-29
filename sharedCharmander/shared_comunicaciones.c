@@ -73,3 +73,23 @@ int recibir_handshake(int socket) {
 	return handshake_id;
 }
 //----------------------------------------------------->
+
+
+t_pkm * recibirPokemon(int socket){
+
+	t_header * header_in = recibir_header(socket);
+
+	void* buffer_in = malloc(header_in->tamanio);
+
+	if (recv(socket,buffer_in,header_in->tamanio,0) < 0) {
+		free(buffer_in);
+		return NULL;
+	}
+
+	t_pkm * pokemon = deserializarPokemon(buffer_in);
+
+	free(header_in);
+	free(buffer_in);
+
+	return pokemon;
+}

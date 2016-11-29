@@ -22,4 +22,6 @@ t_header * recibir_header(int socket);
 int enviar_handshake(int socket, int id);
 int recibir_handshake(int socket);
 
+t_pkm * recibirPokemon(int socket);
+
 #endif /* SHARED_COMUNICACIONES_H_ */
