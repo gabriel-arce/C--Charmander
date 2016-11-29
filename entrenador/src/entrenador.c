@@ -688,6 +688,7 @@ void destruirHojaDeViaje(t_mapa * mapa){
 	queue_destroy(mapa->objetivos);
 }
 
+<<<<<<< HEAD
 //void enviarPokemon(t_pkm * pokemon, int socket){
 //
 //	int pokemonSerializadoSize = (string_length(pokemon->nombre)) + (string_length(pokemon->nombreArchivo)) + (2 * (sizeof(int))) + sizeof(char) + sizeof(bool);
@@ -699,6 +700,20 @@ void destruirHojaDeViaje(t_mapa * mapa){
 //	send(socket,pokemonSerializado,pokemonSerializadoSize,0);
 //
 //}
+=======
+void enviarPokemon(t_pkm * pokemon, int socket){
+
+	int pokemonSerializadoSize = (string_length(pokemon->nombre)) + (string_length(pokemon->nombreArchivo)) + (2 * (sizeof(int))) + sizeof(char) + sizeof(bool);
+
+	void * pokemonSerializado = serializarPokemon(pokemon);
+
+	enviar_header(_PKM_MAS_FUERTE, pokemonSerializadoSize,socket);
+
+	send(socket,pokemonSerializado,pokemonSerializadoSize,0);
+
+}
+
+>>>>>>> a9ab9132ad5d0f7707d7b17bc4e0a3845737cf8f
 
 void copiar_archivo(char * source, char * destination) {
 	char * comando = string_new();

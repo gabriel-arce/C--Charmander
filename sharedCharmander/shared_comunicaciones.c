@@ -73,6 +73,7 @@ int recibir_handshake(int socket) {
 	return handshake_id;
 }
 //----------------------------------------------------->
+
 int serializarYEnviarPokemon(int id_header, t_pkm * pokemon, int socket) {
 
 	int nombreSize = (string_length(pokemon->nombre));
@@ -148,4 +149,3 @@ t_pkm * recibirYDeserializarPokemon(int socket, int bytes_recv) {
 
 	return pokemon;
 }
-

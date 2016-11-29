@@ -217,7 +217,6 @@ t_list * snapshot_list(t_list * source_list);
 void releer_metadada();
 
 //***Envios y serializaciones***
-t_pkm * recibirPokemon(int socket);
 int enviar_ruta_pkm(char * ruta, int socket);
 
 #endif /* MAPA_H_ */

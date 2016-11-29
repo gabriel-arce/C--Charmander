@@ -142,48 +142,6 @@ bool esta_en_pokenest(t_entrenador * entrenador) {
 			&& (entrenador->posicion->y == entrenador->posicionObjetivo->y));
 }
 
-t_pkm * recibirPokemon(int socket){
-
-	t_header * header_in = recibir_header(socket);
-
-	void* buffer_in = malloc(header_in->tamanio);
-
-	if (recv(socket,buffer_in,header_in->tamanio,0) < 0) {
-		free(buffer_in);
-		return NULL;
-	}
-
-	//t_pkm * pokemon = deserializarPokemon(buffer_in);
-	t_pkm * pokemon = NULL;
-
-	free(header_in);
-	free(buffer_in);
-
-	return pokemon;
-}
-
-//t_pkm * deserializarPokemon(void* pokemonSerializado){
-//
-//	t_pkm * pokemon = malloc(sizeof(t_pkm));
-//
-//	int nombreSize;
-//	int nombreArchivoSize;
-//
-//	memcpy(&nombreSize, pokemonSerializado, 4);
-//	memcpy(&nombreArchivoSize, pokemonSerializado + 4, 4);
-//
-//	pokemon->nombre = (char *) malloc(sizeof(char) * nombreSize);
-//	pokemon->nombreArchivo = (char *) malloc(sizeof(char) * nombreArchivoSize);
-//
-//	memcpy(&pokemon->nivel, pokemonSerializado + 8, 4);
-//	memcpy(&pokemon->mapa, pokemonSerializado + 12, 4);
-//	memcpy(pokemon->nombre, pokemonSerializado + 16, nombreSize);
-//	memcpy(pokemon->nombreArchivo, pokemonSerializado + 16 + nombreSize,nombreArchivoSize);
-//	memcpy(pokemon->capturado, pokemonSerializado + 16 + nombreSize + nombreArchivoSize ,sizeof(bool));
-//
-//	return pokemon;
-//}
-
 t_entrenador * buscar_entrenador_por_simbolo(char symbol_expected) {
 	t_entrenador * entrenador = NULL;
 
