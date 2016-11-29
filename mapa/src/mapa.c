@@ -19,7 +19,7 @@ void leer_metadata_mapa(char * metadata_path) {
 
 	if (conf_file == NULL) {
 		pthread_mutex_lock(&mutex_log);
-		log_trace(logger, "[ERROR]: Config NULL en leer_metadata_mapa.");
+		log_error(logger, "Config NULL en leer_metadata_mapa.");
 		pthread_mutex_unlock(&mutex_log);
 		exit(EXIT_FAILURE);
 	}
@@ -40,7 +40,7 @@ void leer_metadata_mapa(char * metadata_path) {
 			if (cola_de_prioridad_SRDF != NULL)
 				cola_de_prioridad_SRDF = list_create();
 		} else {
-			log_trace(logger, "[ERROR]: Algoritmo no reconocido.");
+			log_error(logger, "Algoritmo no reconocido.");
 			exit(EXIT_FAILURE);
 		}
 	}
@@ -100,17 +100,7 @@ void cargar_pokenests() {
 		if (entry->d_type & DT_DIR) {
 
 			if (strcmp(d_name, "..") != 0 && strcmp(d_name, ".") != 0) {
-//				int path_length;
-//				char path[PATH_MAX];
-//
-//				path_length = snprintf(path, PATH_MAX, "%s/%s", dir_pokenests,
-//						d_name);
-//				if (path_length >= PATH_MAX) {
-//					pthread_mutex_lock(&mutex_log);
-//					log_trace(logger, "[ERROR]: Ruta demasiado larga.");
-//					pthread_mutex_unlock(&mutex_log);
-//					exit(EXIT_FAILURE);
-//				}
+
 				char * path = string_new();
 				string_append_with_format(&path, "%s/%s", dir_pokenests, d_name);
 
@@ -125,11 +115,12 @@ void cargar_pokenests() {
 
 				if (d_pknst == NULL) {
 					pthread_mutex_lock(&mutex_log);
-					log_trace(logger, "[ERROR]: No se pudo abrir el directorio: %s", path);
+					log_error(logger, "No se pudo abrir el directorio: %s", path);
 					pthread_mutex_unlock(&mutex_log);
 					exit(EXIT_FAILURE);
 				}
 
+				//primero cargo el metadata del pokenest
 				while(1) {
 					struct dirent * f_pknst = readdir(d_pknst);
 
@@ -139,35 +130,34 @@ void cargar_pokenests() {
 					if ( (f_pknst->d_type & DT_DIR ) || (strcmp(f_pknst->d_name, "..") == 0) || (strcmp(f_pknst->d_name, ".") == 0) )
 						continue;
 
-//					char path_f_pknst[PATH_MAX];
-//
-//					snprintf(path_f_pknst, PATH_MAX, "%s/%s", path, f_pknst->d_name);
-
 					char * path_f_pknst = string_new();
 					string_append_with_format(&path_f_pknst, "%s/%s", path, f_pknst->d_name);
 
-					// if its the metadata go on
-					if ( string_equals_ignore_case(f_pknst->d_name, "metadata") ) {
+					if (string_equals_ignore_case(f_pknst->d_name,
+							"metadata")) {
 
 						t_config * m_pknst = config_create(path_f_pknst);
 
 						if (m_pknst == NULL) {
 							pthread_mutex_lock(&mutex_log);
-							log_trace(logger, "[ERROR]: Config NULL en cargar_pokenests() en la ruta %s", path_f_pknst);
+							log_error(logger,
+									"Config NULL en cargar_pokenests() en la ruta %s",
+									path_f_pknst);
 							pthread_mutex_unlock(&mutex_log);
 							exit(EXIT_FAILURE);
 						}
 
 						char * id = getStringProperty(m_pknst, "Identificador");
-//						pknst->identificador = (char) id[0];
+						//						pknst->identificador = (char) id[0];
 						memcpy(&(pknst->identificador), id, 1);
 						free(id);
 
-						char * posicion = getStringProperty(m_pknst, "Posicion");
+						char * posicion = getStringProperty(m_pknst,
+								"Posicion");
 						char ** _x_y = string_split(posicion, ";");
 
-						pknst->posicion->x = atoi( _x_y[0] );
-						pknst->posicion->y = atoi( _x_y[1] );
+						pknst->posicion->x = atoi(_x_y[0]);
+						pknst->posicion->y = atoi(_x_y[1]);
 
 						pknst->tipo = getStringProperty(m_pknst, "Tipo");
 
@@ -180,14 +170,41 @@ void cargar_pokenests() {
 						continue;
 					}
 
+					free(path_f_pknst);
+				}
+
+				rewinddir(d_pknst);
+
+				//despues cargo los pokemons
+				while(1) {
+					struct dirent * f_pknst = readdir(d_pknst);
+
+					if (!f_pknst)
+						break;
+
+					if ( (f_pknst->d_type & DT_DIR ) || (strcmp(f_pknst->d_name, "..") == 0) || (strcmp(f_pknst->d_name, ".") == 0) )
+						continue;
+
+					char * path_f_pknst = string_new();
+					string_append_with_format(&path_f_pknst, "%s/%s", path, f_pknst->d_name);
+
+					// if its the metadata go on
+					if ( string_equals_ignore_case(f_pknst->d_name, "metadata") )
+						continue;
+
 					// else its a pokemon
 					t_config * dat_pkm = config_create(path_f_pknst);
 
 					if (dat_pkm == NULL) {
 						pthread_mutex_lock(&mutex_log);
-						log_trace(logger, "[ERROR]: Config NULL en cargar_pokenests()");
+						log_error(logger, "Config NULL en cargar_pokenests()");
 						pthread_mutex_unlock(&mutex_log);
 						exit(EXIT_FAILURE);
+					}
+
+					if (!config_has_property(dat_pkm, "Nivel")) {
+						free(dat_pkm);
+						continue;
 					}
 
 					t_pkm * pkm = malloc(sizeof(t_pkm));
@@ -219,7 +236,7 @@ void cargar_pokenests() {
 	/* Release everything. */
 	if (closedir(d)) {
 		pthread_mutex_lock(&mutex_log);
-		log_trace(logger, "[ERROR]: No se pudo cerrar el directorio: [ %s ]", dir_pokenests);
+		log_error(logger, "No se pudo cerrar el directorio: [ %s ]", dir_pokenests);
 		pthread_mutex_unlock(&mutex_log);
 		exit(EXIT_FAILURE);
 	}
@@ -262,7 +279,7 @@ void run_trainer_server() {
 	/* get the listener */
 	if ((listener = socket(AF_INET, SOCK_STREAM, 0)) == -1)	{
 		pthread_mutex_lock(&mutex_log);
-		log_trace(logger, "[ERROR]: Server-socket() error");
+		log_error(logger, "Server-socket() error");
 		pthread_mutex_unlock(&mutex_log);
 		exit(1);
 	}
@@ -270,7 +287,7 @@ void run_trainer_server() {
 	/*"address already in use" error message */
 	if (setsockopt(listener, SOL_SOCKET, SO_REUSEADDR, &optval, sizeof(int)) == -1) {
 		pthread_mutex_lock(&mutex_log);
-		log_trace(logger, "[ERROR]: Server-setsockopt() error");
+		log_error(logger, "Server-setsockopt() error");
 		pthread_mutex_unlock(&mutex_log);
 		exit(1);
 	}
@@ -284,7 +301,7 @@ void run_trainer_server() {
 
 	if (bind(listener, (struct sockaddr *) &serveraddr, sizeof(serveraddr)) == -1) {
 		pthread_mutex_lock(&mutex_log);
-		log_trace(logger, "[ERROR]: Server-bind() error");
+		log_error(logger, "Server-bind() error");
 		pthread_mutex_unlock(&mutex_log);
 		exit(1);
 	}
@@ -292,7 +309,7 @@ void run_trainer_server() {
 	/* listen */
 	if (listen(listener, 10) == -1) {
 		pthread_mutex_lock(&mutex_log);
-		log_trace(logger, "[ERROR]: Server-listen() error");
+		log_error(logger, "Server-listen() error");
 		pthread_mutex_unlock(&mutex_log);
 		exit(1);
 	}
@@ -310,7 +327,7 @@ void run_trainer_server() {
 
 		if (select(fdmax + 1, &read_fds, NULL, NULL, NULL) == -1) {
 			pthread_mutex_lock(&mutex_log);
-			log_trace(logger, "[ERROR]: Server-select() error");
+			log_error(logger, "Server-select() error");
 			pthread_mutex_unlock(&mutex_log);
 			exit(1);
 		}
@@ -328,7 +345,7 @@ void run_trainer_server() {
 
 					if ((newfd = accept(listener, (struct sockaddr *) &clientaddr, (socklen_t *) &addrlen)) == -1) {
 						pthread_mutex_lock(&mutex_log);
-						log_trace(logger, "[ERROR]: Server-accept() error");
+						log_error(logger, "Server-accept() error");
 						pthread_mutex_unlock(&mutex_log);
 					} else {
 						FD_SET(newfd, &master_fdset); /* add to master set */
@@ -369,7 +386,9 @@ int procesar_nuevo_entrenador(int socket_entrenador, int buffer_size) {
 //	nivel_gui_dibujar(items_mapa, nombreMapa);
 //	pthread_mutex_unlock(&mutex_gui);
 
+	pthread_mutex_lock(&mutex_entrenadores);
 	list_add(entrenadores_conectados, nuevo_entrenador);
+	pthread_mutex_unlock(&mutex_entrenadores);
 
 	//manda a listos al entrenador
 	if (agregar_a_cola(nuevo_entrenador, cola_de_listos, mutex_cola_listos) != -1)
@@ -652,7 +671,7 @@ int desconexion_entrenador(t_entrenador * entrenador, int nbytes_recv) {
 
 	if (nbytes_recv < 0) {
 		pthread_mutex_lock(&mutex_log);
-		log_trace(logger, "[ERROR]: Error en el recv desde el socket %d", entrenador->socket);
+		log_error(logger, "Error en el recv desde el socket %d", entrenador->socket);
 		pthread_mutex_unlock(&mutex_log);
 	}
 
@@ -935,21 +954,41 @@ void atender_bloqueados() {
 
 int generar_captura(t_entrenador * entrenador, t_pokenest * pokenest, t_pkm * pokemon) {
 
-	int _on_error() {
-		pokemon->capturado = false;
-		pthread_mutex_lock(&(entrenador->mutex_entrenador));
-		entrenador->conoce_ubicacion = true;
-		pokemon_remover(pokemon, entrenador->pokemonesCapturados);
-		pthread_mutex_unlock(&(entrenador->mutex_entrenador));
-		//interfaz grafica
-		//incrementar_recurso(pokenest->identificador);
-		return -1;
+	int _on_error() { //failed to send pkm
+		//vuelve a enviarle
+		if ( serializarYEnviarPokemon(_CAPTURAR_PKM, pokemon, entrenador->socket) == EXIT_FAILURE ) {
+			//fallo la segunda vez
+			pokemon->capturado = false;
+			pthread_mutex_lock(&mutex_log);
+			log_error(logger,
+					"Error al tratar de enviar el pokemon al entrenador %c .",
+					entrenador->simbolo_entrenador);
+			pthread_mutex_unlock(&mutex_log);
+			desconexion_entrenador(entrenador, -1);
+			//interfaz grafica
+			//incrementar_recurso(pokenest->identificador);
+			return -1;
+		} else {
+			return 0;
+		}
+	}
+
+	pokemon->capturado = true;
+
+	//LE ENVIA EL POKEMON AL ENTRENADOR
+	if (serializarYEnviarPokemon(_CAPTURAR_PKM, pokemon, entrenador->socket) == EXIT_FAILURE) {
+		if ( _on_error() == -1 ) {
+			pthread_mutex_lock(&mutex_log);
+			log_error(logger, "Error en enviar el pokemon <<%s>> al entrenador %c .", pokemon->nombreArchivo, entrenador->simbolo_entrenador);
+			pthread_mutex_unlock(&mutex_log);
+			return EXIT_FAILURE;
+		}
+
 	}
 
 	time_t tiempo_desbloqueo;
 	time(&tiempo_desbloqueo);
 
-	pokemon->capturado = true;
 	pthread_mutex_lock(&(entrenador->mutex_entrenador));
 	list_add(entrenador->pokemonesCapturados, pokemon);
 	entrenador->conoce_ubicacion = false;
@@ -957,13 +996,6 @@ int generar_captura(t_entrenador * entrenador, t_pokenest * pokenest, t_pkm * po
 	entrenador->tiempoBloqueado += difftime(tiempo_desbloqueo, entrenador->momentoBloqueado);
 	entrenador->momentoBloqueado = 0;
 	pthread_mutex_unlock(&(entrenador->mutex_entrenador));
-
-	char * ruta_pkm = string_duplicate(ruta_directorio);
-	string_append_with_format(&ruta_pkm, "Mapas/%s/PokeNests/%s/%s", nombreMapa,
-			pokenest->nombre, pokemon->nombreArchivo);
-
-	if (enviar_ruta_pkm(ruta_pkm, entrenador->socket) == -1)
-		return _on_error();
 
 //	Interfaz grafica
 	//pthread_mutex_lock(&mutex_gui);
@@ -973,8 +1005,13 @@ int generar_captura(t_entrenador * entrenador, t_pokenest * pokenest, t_pkm * po
 
 	t_header * header = recibir_header(entrenador->socket);
 
-	if (header == NULL)
-		return _on_error();
+	if (header == NULL) {
+		pthread_mutex_lock(&mutex_log);
+		log_error(logger, "Header NULL en generar_captura().");
+		pthread_mutex_unlock(&mutex_log);
+		desconexion_entrenador(entrenador, -1);
+		return EXIT_FAILURE;
+	}
 
 	switch (header->identificador) {
 		case _QUEDAN_OBJETIVOS:

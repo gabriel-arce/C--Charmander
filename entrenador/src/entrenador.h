@@ -107,7 +107,7 @@ void destruirHojaDeViaje();
 void rutina(int signal);
 void enviarUbicacionAMapa();
 void enviarPokemon(t_pkm * pokemon, int socket);
-void copiarPokemon(char * ruta_pkm, t_pkm * pokemonAtrapado);
+void copiarPokemon(t_pkm * pokemonAtrapado);
 void copiarMedalla();
 void procesarDatos(void * datos);
 void setRutaMedallas();

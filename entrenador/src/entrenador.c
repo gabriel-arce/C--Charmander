@@ -311,7 +311,6 @@ void enviarUbicacionAMapa(){
 }
 
 void atraparPokemon(){
-	t_pkm * pokemonAtrapado = malloc(sizeof(t_pkm));
 
 	enviar_header(_CAPTURAR_PKM,0,socket_entrenador);
 
@@ -324,25 +323,32 @@ void atraparPokemon(){
 		switch (header_in->identificador) {
 		case _CAPTURAR_PKM:
 
-			puts("pkm capturado");						//TODO falta enviar el pokemon completo
-
-			char * ruta = (char *) malloc(header_in->tamanio + 1);
-			memset(ruta, '\0', header_in->tamanio);
-			recv(socket_entrenador, ruta, header_in->tamanio, 0);
-			memset(ruta + header_in->tamanio, '\0', 1);
-
-			pokemonAtrapado->nombreArchivo = generar_ruta_archivo(ruta);
-
-			copiarPokemon(ruta, pokemonAtrapado);
-
 			pokemonCapturadoOEntrenadorMuerto = true;
+
+			t_pkm * pokemonAtrapado = recibirYDeserializarPokemon(socket_entrenador, header_in->tamanio);
+
+			if (pokemonAtrapado == NULL) {
+				muereEntrenador = true;
+				break;
+			}
+
+			//PRINTEO PKM PARA TEST
+			printf("Nombre: %s\n", pokemonAtrapado->nombre);
+			printf("Archivo: %s\n", pokemonAtrapado->nombreArchivo);
+			printf("Nivel: %d\n", pokemonAtrapado->nivel);
+			printf("Capturado: %s\n", pokemonAtrapado->capturado ? "true" : "false");
+			printf("ID_PKNST: %c\n", pokemonAtrapado->id_pokenest);
+
 			list_add(pokemonesCapturados, pokemonAtrapado);
+
+			puts("pkm capturado");
+
+			copiarPokemon(pokemonAtrapado);
 
 			verificarNivelPokemon(pokemonAtrapado);
 			verificarSiQuedanObjetivosEnMapa();
 			pokenestLocalizada = false;
 
-			free(ruta);
 			break;
 
 		case _BATALLA:
@@ -409,7 +415,7 @@ void setRutaMedallas() {
 
 void copiarMedalla() {
 	char * ruta_medalla = string_duplicate(pokedex_path);
-	string_append_with_format(&(ruta_medalla), "Mapas/%s/medalla-%s.jpg",
+	string_append_with_format(&(ruta_medalla), "Mapas/%s/medalla-%s.jpg\0",
 			mapaActual->nombre_mapa, mapaActual->nombre_mapa);
 
 	copiar_archivo(ruta_medalla, rutaMedallas);
@@ -417,16 +423,15 @@ void copiarMedalla() {
 	free(ruta_medalla);
 }
 
-void copiarPokemon(char * ruta_pkm, t_pkm * pokemonAtrapado){
+void copiarPokemon(t_pkm * pokemonAtrapado) {
+	char * ruta_pkm = string_new();
+	string_append_with_format(&ruta_pkm, "%sMapas/%s/PokeNests/%s/%s\0", pokedex_path,
+			mapaActual->nombre_mapa, pokemonAtrapado->nombre,
+			pokemonAtrapado->nombreArchivo);
 
 	copiar_archivo(ruta_pkm, rutaDirDeBill);
 
-	t_config * conf_file = config_create(ruta_pkm);
-
-	pokemonAtrapado->nombre = obtener_nombre_pokemon(ruta_pkm);
-	pokemonAtrapado->nivel = getIntProperty(conf_file, "Nivel");
-
-	free(conf_file);
+	free(ruta_pkm);
 }
 
 char * obtener_nombre_pokemon(char * ruta) {
@@ -517,14 +522,25 @@ void imprimirLogro(){
 
 bool batallaPokemon(){ 					//retorna true si muere
 
-	enviarPokemon(pokemonMasFuerte,  socket_entrenador);
-
+//	enviarPokemon(pokemonMasFuerte,  socket_entrenador);
+	if ( serializarYEnviarPokemon(_PKM_MAS_FUERTE, pokemonMasFuerte, socket_entrenador) == EXIT_FAILURE ) {
+		puts("Error en el envio del pokemon mas fuerte.");
+		return false;
+	}
 
 	t_header * header = recibir_header(socket_entrenador); //mapa envia si entrenador gana la batalla o no
+
+	if (header == NULL) {
+		puts("Error en la recepcion del header en batallaPokemon().");
+		muereEntrenador = true;
+		return true;
+	}
 
 	if (header->identificador != _RESULTADO_BATALLA) {
 
 		puts("identificador de header desconocido");
+		muereEntrenador = true;
+		return true;
 
 	} else {
 
@@ -534,6 +550,7 @@ bool batallaPokemon(){ 					//retorna true si muere
 			return true;
 		}
 	}
+
 	return false;
 }
 
@@ -671,18 +688,17 @@ void destruirHojaDeViaje(t_mapa * mapa){
 	queue_destroy(mapa->objetivos);
 }
 
-void enviarPokemon(t_pkm * pokemon, int socket){
-
-	int pokemonSerializadoSize = (string_length(pokemon->nombre)) + (string_length(pokemon->nombreArchivo)) + (2 * (sizeof(int))) + sizeof(char) + sizeof(bool);
-
-	void * pokemonSerializado = serializarPokemon(pokemonMasFuerte);
-
-	enviar_header(_PKM_MAS_FUERTE, pokemonSerializadoSize,socket);
-
-	send(socket,pokemonSerializado,pokemonSerializadoSize,0);
-
-}
-
+//void enviarPokemon(t_pkm * pokemon, int socket){
+//
+//	int pokemonSerializadoSize = (string_length(pokemon->nombre)) + (string_length(pokemon->nombreArchivo)) + (2 * (sizeof(int))) + sizeof(char) + sizeof(bool);
+//
+//	void * pokemonSerializado = serializarPokemon(pokemonMasFuerte);
+//
+//	enviar_header(_PKM_MAS_FUERTE, pokemonSerializadoSize,socket);
+//
+//	send(socket,pokemonSerializado,pokemonSerializadoSize,0);
+//
+//}
 
 void copiar_archivo(char * source, char * destination) {
 	char * comando = string_new();
