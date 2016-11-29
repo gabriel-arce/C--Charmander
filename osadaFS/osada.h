@@ -68,7 +68,13 @@ struct NodoArchivo{
 	struct NodoArchivo *siguiente;	//Siguiente nodo
 };
 
-static struct NodoArchivo *ListaArchivos;
+typedef struct {
+	char *nombre;						//Nombre del archivo
+	uint32_t fd;						//descriptor de quien tiene prioridad
+	osada_uso enUso;					//Flag que determina si esta abie
+} t_nodoArchivo;
+
+//struct NodoArchivo *ListaArchivos;
 struct NodoArchivo *ultimo;
 
 //Variables Globales
@@ -92,7 +98,7 @@ struct stat fileStat;
 char abrirArchivo(char* path);
 void actualizarFCBArchivo(int posicionArchivo, osada_file* FCB, uint32_t size, uint32_t* posicionBloque);
 int agregarArchivo(char* path, int modo);
-void agregarArchivoEnLista(osada_file archivo);
+void agregarArchivoEnLista(osada_file archivo, t_list *lista);
 void agregarBloques(uint32_t size, uint32_t newSize, uint32_t posicion);
 void asignarOffsets();
 char borrarArchivo(char* path);
@@ -128,7 +134,7 @@ void leerAsignacion(uint32_t posicion, uint32_t* buf);
 void leerBloque(uint32_t cantidadBloques, char* buf);
 void leerDato(uint32_t posicion, osada_block* buf);
 void leerHeader();
-void leerTablaArchivos();
+t_list *leerTablaArchivos();
 void leerTablaAsignaciones();
 void leerTablaDatos();
 void levantarDatosGenerales(osada_header oheader);

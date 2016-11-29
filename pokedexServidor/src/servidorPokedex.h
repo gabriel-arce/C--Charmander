@@ -65,6 +65,9 @@ void* procesarPedidoUnlink(char *path);
 void* procesarPedidoUtimens(char *path);
 void* procesarPedidoWrite(void *buffer, int* codigo);
 
+void mostrar_lista_archivos();
+char verificar_permiso_archivo(char *path);
+
 void terminar();
 
 #endif /* SERVIDORPOKEDEX_H_ */
