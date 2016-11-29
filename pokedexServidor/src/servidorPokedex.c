@@ -7,11 +7,17 @@
 
 #include "servidorPokedex.h"
 
+t_list *ListaArchivos;
 
 int main(int argc, char ** argv)
 {
+	ListaArchivos = list_create();
+
 	printEncabezado();
 	inicializarDisco();
+
+	ListaArchivos = leerTablaArchivos();
+	mostrar_lista_archivos();
 
 	pthread_mutex_lock(&mutex_comunicacion);
 		listenningSocket = crearServer(PUERTO);
@@ -525,7 +531,11 @@ void* procesarPedidoOpen(char* path, int* codigo)
 {
 	printf("\t path: %s\n", path);
 	char* respuesta = malloc(sizeof(char));
-	respuesta[0] = abrirArchivo(path);
+	//respuesta[0] = abrirArchivo(path);
+
+	printf("Consultando fichero %s.. \n", path);
+
+	respuesta[0] = verificar_permiso_archivo(path);
 
 	if(respuesta[0] == 's')
 		*codigo = RESPUESTA_OPEN;
@@ -536,6 +546,53 @@ void* procesarPedidoOpen(char* path, int* codigo)
 
 	free(path);
 	return respuesta;
+}
+
+char verificar_permiso_archivo(char *path){
+	int i;
+	char respuesta;
+	char *aux = malloc(OSADA_FILENAME_LENGTH);
+	t_nodoArchivo *nodo;
+
+	aux = nombre(path);
+
+	for(i = 0; i < list_size(ListaArchivos); i++){
+		nodo = list_get(ListaArchivos, i);
+		if(strcmp(nodo->nombre,aux) == 0){
+			//Lo encontro..
+			if (nodo->enUso == SinUso)
+				respuesta = 's';	//Se puede utilizar
+			else
+				respuesta = 'n';
+
+			break;
+		}
+	}
+
+	if (strcmp(nodo->nombre,aux) != 0)	//No lo encontro, entonces no existe el fichero..
+		respuesta = 'n';
+
+	return respuesta;
+}
+
+void mostrar_lista_archivos(){
+	int i;
+	t_nodoArchivo *nodo;
+
+	nodo			= malloc(sizeof(t_nodoArchivo));
+	nodo->nombre	= malloc(OSADA_FILENAME_LENGTH);
+
+	printf("Ficheros actualmente en el FS..\n");
+	for(i = 0; i < list_size(ListaArchivos); i++){
+		nodo = list_get(ListaArchivos, i);
+		printf("Fichero: %s\n", nodo->nombre);
+	}
+
+	if (i == 0)
+		printf("No hay archivos en la lista..\n");
+
+	//free(nodo->nombre);
+	//free(nodo);
 }
 
 void* procesarPedidoRelease(char* path)
