@@ -49,7 +49,10 @@ void leer_metadata_mapa(char * metadata_path) {
 	metadata->planificador->retardo_turno = getIntProperty(conf_file, "retardo");
 
 	metadata->ip = getStringProperty(conf_file, "IP");
+	if (metadata->ip == NULL) log_error(logger, "IP no encontrada");
+
 	metadata->puerto = getIntProperty(conf_file, "Puerto");
+	if (metadata->puerto == NULL) log_error(logger, "Puerto no encontrado");
 
 	cargar_medalla();
 
