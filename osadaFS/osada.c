@@ -794,7 +794,7 @@ void levantarDatosGenerales(osada_header oheader)
 char liberarArchivo(char* path)
 {
 	//TODO: chequear que el archivo exista en la tabla de archivos abiertos, OK
-	struct NodoArchivo *archivoLista;
+/*	struct NodoArchivo *archivoLista;
 
 	printf("Consultando archivo %s ..", path);
 
@@ -804,7 +804,7 @@ char liberarArchivo(char* path)
 	}
 
 	//TODO: y marcarlo como cerrado OK
-	archivoLista->enUso = SinUso;
+	archivoLista->enUso = SinUso;*/
 	return 's';
 }
 
