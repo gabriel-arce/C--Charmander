@@ -660,6 +660,8 @@ int existePath(char* path, int* pos)
 char flushArchivo(char* path)
 {
 	//TODO: ver si me sirve para mantener los archivos abiertos
+	printf("Paso por flush..\n");
+
 	return 's';
 }
 

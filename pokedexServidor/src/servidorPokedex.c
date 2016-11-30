@@ -17,7 +17,7 @@ int main(int argc, char ** argv)
 	inicializarDisco();
 
 	ListaArchivos = leerTablaArchivos();
-	mostrar_lista_archivos();
+	//mostrar_lista_archivos();
 
 	pthread_mutex_lock(&mutex_comunicacion);
 		listenningSocket = crearServer(PUERTO);
@@ -32,6 +32,7 @@ int main(int argc, char ** argv)
 	pthread_create(&thread3, NULL, hiloComunicacion, NULL);
 	pthread_create(&thread4, NULL, hiloComunicacion, NULL);
 	pthread_create(&thread5, NULL, hiloComunicacion, NULL);
+
 
 	signal(SIGINT,terminar);
 	signal(SIGTERM,terminar);
@@ -523,6 +524,22 @@ void* procesarPedidoFlush(char *path)
 {
 	printf("\t path: %s\n", path);
 	char* respuesta = malloc(sizeof(char));
+
+	int i;
+	char *aux = malloc(OSADA_FILENAME_LENGTH);
+	t_nodoArchivo *nodo;
+
+	aux = nombre(path);
+
+	for(i = 0; i < list_size(ListaArchivos); i++){
+		nodo = list_get(ListaArchivos, i);
+		if(strcmp(nodo->nombre,aux) == 0){
+			nodo->enUso = SinUso;
+			list_replace(ListaArchivos, i, nodo);
+			printf("Estado actual: Sin Uso");
+		}
+	}
+
 	respuesta[0] = flushArchivo(path);
 	return respuesta;
 }
@@ -539,7 +556,7 @@ void* procesarPedidoOpen(char* path, int* codigo)
 
 	if(respuesta[0] == 's')
 		*codigo = RESPUESTA_OPEN;
-	if (respuesta[0] == 'n')
+	if(respuesta[0] == 'n')
 		*codigo = ENOENTRY;
 //	else
 //		*codigo = BLOQUEADO;
@@ -564,10 +581,12 @@ char verificar_permiso_archivo(char *path){
 				respuesta 	= 's';	//Se puede utilizar
 				nodo->enUso = EnUso;
 				list_replace(ListaArchivos, i, nodo);
+				printf(RED "Puede utilizar el fichero\n" RESET);
 				}
-			else
+			else {
 				respuesta = 'n';
-
+				printf(RED "No puede utilizar el fichero\n" RESET);
+				}
 			break;
 		}
 	}
