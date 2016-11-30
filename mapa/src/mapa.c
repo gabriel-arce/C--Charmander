@@ -841,6 +841,10 @@ int atrapar_pokemon(t_entrenador * entrenador) {
 
 	printf("Atrapar (%c, %c)\n", entrenador->simbolo_entrenador, pokenest->identificador);
 
+	pthread_mutex_lock(&mutex_log);
+	log_trace(logger, "Entrenador Bloqueado %c - Pokenest %c .", entrenador->simbolo_entrenador, pokenest->identificador);
+	pthread_mutex_unlock(&mutex_log);
+
 	time(&(entrenador->momentoBloqueado));
 
 	pthread_mutex_lock(&mutex_cola_bloqueados);
@@ -983,7 +987,6 @@ int generar_captura(t_entrenador * entrenador, t_pokenest * pokenest, t_pkm * po
 			pthread_mutex_unlock(&mutex_log);
 			return EXIT_FAILURE;
 		}
-
 	}
 
 	time_t tiempo_desbloqueo;
@@ -996,6 +999,10 @@ int generar_captura(t_entrenador * entrenador, t_pokenest * pokenest, t_pkm * po
 	entrenador->tiempoBloqueado += difftime(tiempo_desbloqueo, entrenador->momentoBloqueado);
 	entrenador->momentoBloqueado = 0;
 	pthread_mutex_unlock(&(entrenador->mutex_entrenador));
+
+	pthread_mutex_lock(&mutex_log);
+	log_trace(logger, "El entrenador %c atrapo a %s .", entrenador->simbolo_entrenador, pokemon->nombre);
+	pthread_mutex_unlock(&mutex_log);
 
 //	Interfaz grafica
 	//pthread_mutex_lock(&mutex_gui);

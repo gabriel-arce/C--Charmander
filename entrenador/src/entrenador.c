@@ -193,7 +193,7 @@ void cargarMetadata(){
 
 	char * ruta = string_duplicate(pokedex_path);
 
-	string_append_with_format(&ruta, "Entrenadores/%s/metadata/metadata", nombreEntrenador);
+	string_append_with_format(&ruta, "Entrenadores/%s/metadata", nombreEntrenador);
 
 	leer_metadata_entrenador(ruta);
 
@@ -459,7 +459,7 @@ char * obtener_nombre_pokemon(char * ruta) {
 void setRutaDirDeBill() {
 	rutaDirDeBill = string_duplicate(pokedex_path);
 	//TODO cuidado cuando tengamos el fs posta
-	string_append_with_format(&rutaDirDeBill, "Entrenadores/%s/Dir-de-Bill/", nombreEntrenador);
+	string_append_with_format(&rutaDirDeBill, "Entrenadores/%s/Dir%s de%s Bill/", nombreEntrenador, "\\", "\\");
 }
 
 void verificarNivelPokemon(t_pkm * pokemon){
@@ -687,33 +687,6 @@ void destruirHojaDeViaje(t_mapa * mapa){
 	free(mapa->nombre_mapa);
 	queue_destroy(mapa->objetivos);
 }
-
-<<<<<<< HEAD
-//void enviarPokemon(t_pkm * pokemon, int socket){
-//
-//	int pokemonSerializadoSize = (string_length(pokemon->nombre)) + (string_length(pokemon->nombreArchivo)) + (2 * (sizeof(int))) + sizeof(char) + sizeof(bool);
-//
-//	void * pokemonSerializado = serializarPokemon(pokemonMasFuerte);
-//
-//	enviar_header(_PKM_MAS_FUERTE, pokemonSerializadoSize,socket);
-//
-//	send(socket,pokemonSerializado,pokemonSerializadoSize,0);
-//
-//}
-=======
-void enviarPokemon(t_pkm * pokemon, int socket){
-
-	int pokemonSerializadoSize = (string_length(pokemon->nombre)) + (string_length(pokemon->nombreArchivo)) + (2 * (sizeof(int))) + sizeof(char) + sizeof(bool);
-
-	void * pokemonSerializado = serializarPokemon(pokemon);
-
-	enviar_header(_PKM_MAS_FUERTE, pokemonSerializadoSize,socket);
-
-	send(socket,pokemonSerializado,pokemonSerializadoSize,0);
-
-}
-
->>>>>>> a9ab9132ad5d0f7707d7b17bc4e0a3845737cf8f
 
 void copiar_archivo(char * source, char * destination) {
 	char * comando = string_new();
