@@ -120,5 +120,6 @@ char * obtener_nombre_pokemon(char * ruta);
 char * generar_ruta_archivo(char * ruta);
 void liberarRecursos();
 void rm_de_pokemons();
+t_mapa *  copiarMapa(t_mapa * mapaACopiar);
 
 #endif /* ENTRENADOR_H_ */

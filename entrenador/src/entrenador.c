@@ -204,7 +204,8 @@ void cargarMetadata(){
 
 void conectarseConSiguienteMapa(){
 
-	mapaActual = queue_peek(metadata->viaje);
+	mapaActual = copiarMapa(queue_peek(metadata->viaje));
+
 
 	if (mapaActual == NULL) {
 		printf("\nerror\n");
@@ -233,6 +234,13 @@ void conectarseConSiguienteMapa(){
 		pokenestLocalizada = false;
 	}
 }
+
+t_mapa *  copiarMapa(t_mapa * mapaACopiar){
+	t_mapa * mapaCopiado = malloc(sizeof(t_mapa));
+	memcpy(mapaCopiado,mapaACopiar,sizeof(t_mapa));
+	return mapaCopiado;
+}
+
 
 void cargar_mapa() {
 	char * ruta_del_mapa = string_duplicate(pokedex_path);
