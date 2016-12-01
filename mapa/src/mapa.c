@@ -672,17 +672,28 @@ int desconexion_entrenador(t_entrenador * entrenador, int nbytes_recv) {
 		pthread_mutex_unlock(&mutex_log);
 	}
 
-	if (nbytes_recv < 0) {
+	if (nbytes_recv == -1) {
 		pthread_mutex_lock(&mutex_log);
-		log_error(logger, "Error en el recv desde el socket %d", entrenador->socket);
+		log_error(logger, "Error en el recv desde el socket %d, entrenador %c", entrenador->socket, entrenador->simbolo_entrenador);
+		pthread_mutex_unlock(&mutex_log);
+	}
+
+	if (nbytes_recv == -2) {
+		pthread_mutex_lock(&mutex_log);
+		log_error(logger, "Se desconecto el entrenador %c por haber finalizado en mapa", entrenador->simbolo_entrenador);
 		pthread_mutex_unlock(&mutex_log);
 	}
 
 	if (nbytes_recv == 1) {
 		pthread_mutex_lock(&mutex_log);
-		log_trace(logger, "[DEADLOCK]: Se desconecto el entrenador %c por haber perdido la batalla");
+		log_trace(logger, "[DEADLOCK]: Se desconecto el entrenador %c por haber perdido la batalla", entrenador->simbolo_entrenador);
 		pthread_mutex_unlock(&mutex_log);
 	}
+
+	puts("<<<<<<<<<<<<<<<<<<<<  ANTES DE DESCONEXION  >>>>>>>>>>>>>>>>>>>>>>>>>>");
+	imprimir_lista(cola_de_bloqueados, "Cola de bloqueados");
+	imprimir_lista(cola_de_listos, "Cola de listos");
+	imprimir_lista(entrenadores_conectados, "Entrenadores conectados");
 
 	FD_CLR(entrenador->socket, &master_fdset);
 	shutdown(entrenador->socket, 2);
@@ -696,9 +707,11 @@ int desconexion_entrenador(t_entrenador * entrenador, int nbytes_recv) {
 	sacar_de_conectados(entrenador);
 
 	//fijarse a nivel pokenest las colas de bloqueados
-	pthread_mutex_lock(&mutex_cola_bloqueados);
-	sacar_de_bloqueados(entrenador);
-	pthread_mutex_unlock(&mutex_cola_bloqueados);
+	if (nbytes_recv != -2) {
+		pthread_mutex_lock(&mutex_cola_bloqueados);
+		sacar_de_bloqueados(entrenador);
+		pthread_mutex_unlock(&mutex_cola_bloqueados);
+	} //else (nbytes_recv == -2) -> el porque ya finalizo en el mapa y ya no está mas en bloqueados
 
 	//liberar pokemons capturados
 	liberar_pokemons(entrenador);
@@ -715,6 +728,13 @@ int desconexion_entrenador(t_entrenador * entrenador, int nbytes_recv) {
 	free(entrenador->nombre_entrenador);
 	free(entrenador->posicion);
 	free(entrenador->posicionObjetivo);
+	//TODO VER BIEN ESTO!!!!
+	free(entrenador);
+
+	puts("<<<<<<<<<<<<<<<<<<<<  DESPUES DE DESCONEXION  >>>>>>>>>>>>>>>>>>>>>>>>>>");
+	imprimir_lista(cola_de_bloqueados, "Cola de bloqueados");
+	imprimir_lista(cola_de_listos, "Cola de listos");
+	imprimir_lista(entrenadores_conectados, "Entrenadores conectados");
 
 	return EXIT_FAILURE;
 }
@@ -858,6 +878,19 @@ int atrapar_pokemon(t_entrenador * entrenador) {
 	return EXIT_SUCCESS;
 }
 
+void imprimir_lista(t_list * l, char * tittle) {
+	int i;
+
+	puts(tittle);
+	printf("[");
+	for (i = 0; i < l->elements_count; i++) {
+		t_entrenador * e = list_get(l, i);
+
+		printf(" %c ", e->simbolo_entrenador);
+	}
+	printf("]\n");
+}
+
 int procesar_objetivo_cumplido(t_entrenador * entrenador) {
 
 //	pthread_mutex_lock(&(entrenador->mutex_entrenador));
@@ -891,7 +924,7 @@ int procesar_objetivo_cumplido(t_entrenador * entrenador) {
 	enviar_header(_DATOS_FINALES, datos_size, entrenador->socket);
 	send(entrenador->socket, datos, datos_size, 0);
 
-	desconexion_entrenador(entrenador, 0);
+	desconexion_entrenador(entrenador, -2);
 
 //	pthread_mutex_lock(&(entrenador->mutex_entrenador));
 
@@ -1030,7 +1063,6 @@ int generar_captura(t_entrenador * entrenador, t_pokenest * pokenest, t_pkm * po
 				signalSemaforo(semaforo_de_listos);
 			break;
 		case _OBJETIVO_CUMPLIDO:
-			// TODO deberia crear un hilo dettach para que pueda seguir con los demas bloqueados
 			procesar_objetivo_cumplido(entrenador);
 			break;
 		default:

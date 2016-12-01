@@ -29,7 +29,7 @@ t_pkmn_factory * factory;
 
 // ******* GENERALES *******
 int run_deadlock_algorithm();
-void snapshot_del_sistema();
+int snapshot_del_sistema();
 void imprimir_matriz_en_log(t_matriz * matriz, char * nombre_matriz);
 void imprimir_vector_en_log(int * vector, char * nombre_vector, int rows);
 void imprimir_pokenests_en_log();

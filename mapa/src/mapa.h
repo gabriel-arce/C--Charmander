@@ -165,6 +165,7 @@ void sacar_de_bloqueados(t_entrenador * entrenador);
 int the_number_of_the_beast(t_pkm * beast);
 void loguear_cola_de_listos();
 void loguear_cola_de_bloqueados();
+void imprimir_lista(t_list * l, char * tittle);
 
 //****Conection and threads ****
 void run_trainer_server();

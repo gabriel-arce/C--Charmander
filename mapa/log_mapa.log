@@ -1,2 +1,807 @@
-[INFO] 21:16:29:889 MAPA log file/(4518:4518): MAPA Verde iniciado.
-[ERROR] 21:16:29:889 MAPA log file/(4518:4518): Config NULL en leer_metadata_mapa.
+[INFO] 23:51:31:118 MAPA log file/(8007:8007): MAPA Home iniciado.
+[TRACE] 23:51:35:772 MAPA log file/(8007:8014): Nueva conexion desde el socket 5, entrenador &
+[TRACE] 23:51:35:772 MAPA log file/(8007:8013): 
+LISTOS: : [  &(Ash)  ]
+[TRACE] 23:51:38:198 MAPA log file/(8007:8014): Nueva conexion desde el socket 6, entrenador @
+[TRACE] 23:51:38:781 MAPA log file/(8007:8013): 
+LISTOS: : [  @(Red)  &(Ash)  ]
+[TRACE] 23:51:41:784 MAPA log file/(8007:8013): 
+LISTOS: : [  &(Ash)  @(Red)  ]
+[TRACE] 23:51:44:786 MAPA log file/(8007:8013): 
+LISTOS: : [  @(Red)  &(Ash)  ]
+[TRACE] 23:51:47:788 MAPA log file/(8007:8013): 
+LISTOS: : [  &(Ash)  @(Red)  ]
+[TRACE] 23:51:50:790 MAPA log file/(8007:8013): 
+LISTOS: : [  @(Red)  &(Ash)  ]
+[TRACE] 23:51:53:792 MAPA log file/(8007:8013): 
+LISTOS: : [  &(Ash)  @(Red)  ]
+[TRACE] 23:51:56:794 MAPA log file/(8007:8013): 
+LISTOS: : [  @(Red)  &(Ash)  ]
+[TRACE] 23:51:59:795 MAPA log file/(8007:8013): 
+LISTOS: : [  &(Ash)  @(Red)  ]
+[TRACE] 23:52:02:797 MAPA log file/(8007:8013): 
+LISTOS: : [  @(Red)  &(Ash)  ]
+[TRACE] 23:52:05:800 MAPA log file/(8007:8013): 
+LISTOS: : [  &(Ash)  @(Red)  ]
+[TRACE] 23:52:06:801 MAPA log file/(8007:8013): Entrenador Bloqueado & - Pokenest G .
+[TRACE] 23:52:06:801 MAPA log file/(8007:8013): 
+LISTOS: : [  @(Red)  ]
+[TRACE] 23:52:06:801 MAPA log file/(8007:8015): 
+BLOQUEADOS: : [  &(Ash)  ]
+[TRACE] 23:52:06:801 MAPA log file/(8007:8015): El entrenador & atrapo a Geodude .
+[TRACE] 23:52:08:802 MAPA log file/(8007:8013): Entrenador Bloqueado @ - Pokenest P .
+[TRACE] 23:52:08:802 MAPA log file/(8007:8013): 
+LISTOS: : [  &(Ash)  ]
+[TRACE] 23:52:08:802 MAPA log file/(8007:8015): 
+BLOQUEADOS: : [  @(Red)  ]
+[TRACE] 23:52:08:802 MAPA log file/(8007:8015): El entrenador @ atrapo a Pikachu .
+[TRACE] 23:52:11:804 MAPA log file/(8007:8013): 
+LISTOS: : [  @(Red)  &(Ash)  ]
+[TRACE] 23:52:14:806 MAPA log file/(8007:8013): 
+LISTOS: : [  &(Ash)  @(Red)  ]
+[TRACE] 23:52:17:808 MAPA log file/(8007:8013): 
+LISTOS: : [  @(Red)  &(Ash)  ]
+[TRACE] 23:52:20:811 MAPA log file/(8007:8013): 
+LISTOS: : [  &(Ash)  @(Red)  ]
+[TRACE] 23:52:23:812 MAPA log file/(8007:8013): 
+LISTOS: : [  @(Red)  &(Ash)  ]
+[TRACE] 23:52:26:814 MAPA log file/(8007:8013): 
+LISTOS: : [  &(Ash)  @(Red)  ]
+[TRACE] 23:52:29:816 MAPA log file/(8007:8013): 
+LISTOS: : [  @(Red)  &(Ash)  ]
+[TRACE] 23:52:32:818 MAPA log file/(8007:8013): 
+LISTOS: : [  &(Ash)  @(Red)  ]
+[TRACE] 23:52:35:819 MAPA log file/(8007:8013): Entrenador Bloqueado & - Pokenest P .
+[TRACE] 23:52:35:819 MAPA log file/(8007:8013): 
+LISTOS: : [  @(Red)  ]
+[TRACE] 23:52:35:819 MAPA log file/(8007:8015): 
+BLOQUEADOS: : [  &(Ash)  ]
+[TRACE] 23:52:38:821 MAPA log file/(8007:8013): 
+LISTOS: : [  @(Red)  ]
+[TRACE] 23:52:39:822 MAPA log file/(8007:8016): 
+***_POKENESTS:_***
+[  G  B  P  R  ]
+[TRACE] 23:52:39:823 MAPA log file/(8007:8016): 
+***_Vector de disponibles_***
+[  0  1  0  1  ]
+[TRACE] 23:52:39:823 MAPA log file/(8007:8016): 
+***_ENTRENADORES:_***
+[  &  @  ]
+[TRACE] 23:52:39:823 MAPA log file/(8007:8016): 
+***_Matriz Asignados_***
+|  1  0  0  0  |
+|  0  0  1  0  |
+ 
+[TRACE] 23:52:39:823 MAPA log file/(8007:8016): 
+***_Matriz Solicitudes_***
+|  0  0  1  0  |
+|  0  0  0  0  |
+ 
+[TRACE] 23:52:39:823 MAPA log file/(8007:8016): [DEADLOCK] fin del algoritmo con 0 entrenadores en dl.
+[TRACE] 23:52:41:825 MAPA log file/(8007:8013): 
+LISTOS: : [  @(Red)  ]
+[TRACE] 23:52:42:826 MAPA log file/(8007:8016): 
+***_POKENESTS:_***
+[  G  B  P  R  ]
+[TRACE] 23:52:42:827 MAPA log file/(8007:8016): 
+***_Vector de disponibles_***
+[  0  1  0  1  ]
+[TRACE] 23:52:42:827 MAPA log file/(8007:8016): 
+***_ENTRENADORES:_***
+[  &  @  ]
+[TRACE] 23:52:42:827 MAPA log file/(8007:8016): 
+***_Matriz Asignados_***
+|  1  0  0  0  |
+|  0  0  1  0  |
+ 
+[TRACE] 23:52:42:827 MAPA log file/(8007:8016): 
+***_Matriz Solicitudes_***
+|  0  0  1  0  |
+|  0  0  0  0  |
+ 
+[TRACE] 23:52:42:827 MAPA log file/(8007:8016): [DEADLOCK] fin del algoritmo con 0 entrenadores en dl.
+[TRACE] 23:52:43:828 MAPA log file/(8007:8016): 
+***_POKENESTS:_***
+[  G  B  P  R  ]
+[TRACE] 23:52:43:828 MAPA log file/(8007:8016): 
+***_Vector de disponibles_***
+[  0  1  0  1  ]
+[TRACE] 23:52:43:828 MAPA log file/(8007:8016): 
+***_ENTRENADORES:_***
+[  &  @  ]
+[TRACE] 23:52:43:828 MAPA log file/(8007:8016): 
+***_Matriz Asignados_***
+|  1  0  0  0  |
+|  0  0  1  0  |
+ 
+[TRACE] 23:52:43:828 MAPA log file/(8007:8016): 
+***_Matriz Solicitudes_***
+|  0  0  1  0  |
+|  0  0  0  0  |
+ 
+[TRACE] 23:52:43:828 MAPA log file/(8007:8016): [DEADLOCK] fin del algoritmo con 0 entrenadores en dl.
+[TRACE] 23:52:44:830 MAPA log file/(8007:8013): 
+LISTOS: : [  @(Red)  ]
+[TRACE] 23:52:45:831 MAPA log file/(8007:8016): 
+***_POKENESTS:_***
+[  G  B  P  R  ]
+[TRACE] 23:52:45:831 MAPA log file/(8007:8016): 
+***_Vector de disponibles_***
+[  0  1  0  1  ]
+[TRACE] 23:52:45:831 MAPA log file/(8007:8016): 
+***_ENTRENADORES:_***
+[  &  @  ]
+[TRACE] 23:52:45:831 MAPA log file/(8007:8016): 
+***_Matriz Asignados_***
+|  1  0  0  0  |
+|  0  0  1  0  |
+ 
+[TRACE] 23:52:45:831 MAPA log file/(8007:8016): 
+***_Matriz Solicitudes_***
+|  0  0  1  0  |
+|  0  0  0  0  |
+ 
+[TRACE] 23:52:45:831 MAPA log file/(8007:8016): [DEADLOCK] fin del algoritmo con 0 entrenadores en dl.
+[TRACE] 23:52:47:833 MAPA log file/(8007:8016): 
+***_POKENESTS:_***
+[  G  B  P  R  ]
+[TRACE] 23:52:47:833 MAPA log file/(8007:8016): 
+***_Vector de disponibles_***
+[  0  1  0  1  ]
+[TRACE] 23:52:47:833 MAPA log file/(8007:8016): 
+***_ENTRENADORES:_***
+[  &  @  ]
+[TRACE] 23:52:47:833 MAPA log file/(8007:8016): 
+***_Matriz Asignados_***
+|  1  0  0  0  |
+|  0  0  1  0  |
+ 
+[TRACE] 23:52:47:833 MAPA log file/(8007:8016): 
+***_Matriz Solicitudes_***
+|  0  0  1  0  |
+|  0  0  0  0  |
+ 
+[TRACE] 23:52:47:833 MAPA log file/(8007:8016): [DEADLOCK] fin del algoritmo con 0 entrenadores en dl.
+[TRACE] 23:52:47:833 MAPA log file/(8007:8013): 
+LISTOS: : [  @(Red)  ]
+[TRACE] 23:52:48:834 MAPA log file/(8007:8016): 
+***_POKENESTS:_***
+[  G  B  P  R  ]
+[TRACE] 23:52:48:834 MAPA log file/(8007:8016): 
+***_Vector de disponibles_***
+[  0  1  0  1  ]
+[TRACE] 23:52:48:834 MAPA log file/(8007:8016): 
+***_ENTRENADORES:_***
+[  &  @  ]
+[TRACE] 23:52:48:834 MAPA log file/(8007:8016): 
+***_Matriz Asignados_***
+|  1  0  0  0  |
+|  0  0  1  0  |
+ 
+[TRACE] 23:52:48:834 MAPA log file/(8007:8016): 
+***_Matriz Solicitudes_***
+|  0  0  1  0  |
+|  0  0  0  0  |
+ 
+[TRACE] 23:52:48:834 MAPA log file/(8007:8016): [DEADLOCK] fin del algoritmo con 0 entrenadores en dl.
+[TRACE] 23:52:50:836 MAPA log file/(8007:8013): 
+LISTOS: : [  @(Red)  ]
+[TRACE] 23:52:51:837 MAPA log file/(8007:8013): Entrenador Bloqueado @ - Pokenest B .
+[TRACE] 23:52:51:837 MAPA log file/(8007:8015): 
+BLOQUEADOS: : [  &(Ash)  @(Red)  ]
+[TRACE] 23:52:51:837 MAPA log file/(8007:8015): El entrenador @ atrapo a Bulbasaur .
+[TRACE] 23:52:51:837 MAPA log file/(8007:8013): 
+LISTOS: : [  @(Red)  ]
+[TRACE] 23:52:51:883 MAPA log file/(8007:8016): 
+***_POKENESTS:_***
+[  G  B  P  R  ]
+[TRACE] 23:52:51:883 MAPA log file/(8007:8016): 
+***_Vector de disponibles_***
+[  0  0  0  1  ]
+[TRACE] 23:52:51:883 MAPA log file/(8007:8016): 
+***_ENTRENADORES:_***
+[  &  @  ]
+[TRACE] 23:52:51:883 MAPA log file/(8007:8016): 
+***_Matriz Asignados_***
+|  1  0  0  0  |
+|  0  1  1  0  |
+ 
+[TRACE] 23:52:51:883 MAPA log file/(8007:8016): 
+***_Matriz Solicitudes_***
+|  0  0  1  0  |
+|  0  0  0  0  |
+ 
+[TRACE] 23:52:51:883 MAPA log file/(8007:8016): [DEADLOCK] fin del algoritmo con 0 entrenadores en dl.
+[TRACE] 23:52:52:884 MAPA log file/(8007:8016): 
+***_POKENESTS:_***
+[  G  B  P  R  ]
+[TRACE] 23:52:52:884 MAPA log file/(8007:8016): 
+***_Vector de disponibles_***
+[  0  0  0  1  ]
+[TRACE] 23:52:52:884 MAPA log file/(8007:8016): 
+***_ENTRENADORES:_***
+[  &  @  ]
+[TRACE] 23:52:52:884 MAPA log file/(8007:8016): 
+***_Matriz Asignados_***
+|  1  0  0  0  |
+|  0  1  1  0  |
+ 
+[TRACE] 23:52:52:884 MAPA log file/(8007:8016): 
+***_Matriz Solicitudes_***
+|  0  0  1  0  |
+|  0  0  0  0  |
+ 
+[TRACE] 23:52:52:884 MAPA log file/(8007:8016): [DEADLOCK] fin del algoritmo con 0 entrenadores en dl.
+[TRACE] 23:52:54:886 MAPA log file/(8007:8016): 
+***_POKENESTS:_***
+[  G  B  P  R  ]
+[TRACE] 23:52:54:887 MAPA log file/(8007:8016): 
+***_Vector de disponibles_***
+[  0  0  0  1  ]
+[TRACE] 23:52:54:887 MAPA log file/(8007:8016): 
+***_ENTRENADORES:_***
+[  &  @  ]
+[TRACE] 23:52:54:887 MAPA log file/(8007:8016): 
+***_Matriz Asignados_***
+|  1  0  0  0  |
+|  0  1  1  0  |
+ 
+[TRACE] 23:52:54:887 MAPA log file/(8007:8016): 
+***_Matriz Solicitudes_***
+|  0  0  1  0  |
+|  0  0  0  0  |
+ 
+[TRACE] 23:52:54:887 MAPA log file/(8007:8016): [DEADLOCK] fin del algoritmo con 0 entrenadores en dl.
+[TRACE] 23:52:54:887 MAPA log file/(8007:8013): 
+LISTOS: : [  @(Red)  ]
+[TRACE] 23:52:56:889 MAPA log file/(8007:8016): 
+***_POKENESTS:_***
+[  G  B  P  R  ]
+[TRACE] 23:52:56:889 MAPA log file/(8007:8016): 
+***_Vector de disponibles_***
+[  0  0  0  1  ]
+[TRACE] 23:52:56:889 MAPA log file/(8007:8016): 
+***_ENTRENADORES:_***
+[  &  @  ]
+[TRACE] 23:52:56:889 MAPA log file/(8007:8016): 
+***_Matriz Asignados_***
+|  1  0  0  0  |
+|  0  1  1  0  |
+ 
+[TRACE] 23:52:56:889 MAPA log file/(8007:8016): 
+***_Matriz Solicitudes_***
+|  0  0  1  0  |
+|  0  0  0  0  |
+ 
+[TRACE] 23:52:56:889 MAPA log file/(8007:8016): [DEADLOCK] fin del algoritmo con 0 entrenadores en dl.
+[TRACE] 23:52:57:890 MAPA log file/(8007:8013): 
+LISTOS: : [  @(Red)  ]
+[TRACE] 23:52:58:891 MAPA log file/(8007:8016): 
+***_POKENESTS:_***
+[  G  B  P  R  ]
+[TRACE] 23:52:58:891 MAPA log file/(8007:8016): 
+***_Vector de disponibles_***
+[  0  0  0  1  ]
+[TRACE] 23:52:58:891 MAPA log file/(8007:8016): 
+***_ENTRENADORES:_***
+[  &  @  ]
+[TRACE] 23:52:58:891 MAPA log file/(8007:8016): 
+***_Matriz Asignados_***
+|  1  0  0  0  |
+|  0  1  1  0  |
+ 
+[TRACE] 23:52:58:891 MAPA log file/(8007:8016): 
+***_Matriz Solicitudes_***
+|  0  0  1  0  |
+|  0  0  0  0  |
+ 
+[TRACE] 23:52:58:891 MAPA log file/(8007:8016): [DEADLOCK] fin del algoritmo con 0 entrenadores en dl.
+[TRACE] 23:52:59:892 MAPA log file/(8007:8016): 
+***_POKENESTS:_***
+[  G  B  P  R  ]
+[TRACE] 23:52:59:892 MAPA log file/(8007:8016): 
+***_Vector de disponibles_***
+[  0  0  0  1  ]
+[TRACE] 23:52:59:892 MAPA log file/(8007:8016): 
+***_ENTRENADORES:_***
+[  &  @  ]
+[TRACE] 23:52:59:893 MAPA log file/(8007:8016): 
+***_Matriz Asignados_***
+|  1  0  0  0  |
+|  0  1  1  0  |
+ 
+[TRACE] 23:52:59:893 MAPA log file/(8007:8016): 
+***_Matriz Solicitudes_***
+|  0  0  1  0  |
+|  0  0  0  0  |
+ 
+[TRACE] 23:52:59:893 MAPA log file/(8007:8016): [DEADLOCK] fin del algoritmo con 0 entrenadores en dl.
+[TRACE] 23:53:00:894 MAPA log file/(8007:8013): 
+LISTOS: : [  @(Red)  ]
+[TRACE] 23:53:01:895 MAPA log file/(8007:8016): 
+***_POKENESTS:_***
+[  G  B  P  R  ]
+[TRACE] 23:53:01:895 MAPA log file/(8007:8016): 
+***_Vector de disponibles_***
+[  0  0  0  1  ]
+[TRACE] 23:53:01:895 MAPA log file/(8007:8016): 
+***_ENTRENADORES:_***
+[  &  @  ]
+[TRACE] 23:53:01:895 MAPA log file/(8007:8016): 
+***_Matriz Asignados_***
+|  1  0  0  0  |
+|  0  1  1  0  |
+ 
+[TRACE] 23:53:01:895 MAPA log file/(8007:8016): 
+***_Matriz Solicitudes_***
+|  0  0  1  0  |
+|  0  0  0  0  |
+ 
+[TRACE] 23:53:01:895 MAPA log file/(8007:8016): [DEADLOCK] fin del algoritmo con 0 entrenadores en dl.
+[TRACE] 23:53:03:898 MAPA log file/(8007:8016): 
+***_POKENESTS:_***
+[  G  B  P  R  ]
+[TRACE] 23:53:03:898 MAPA log file/(8007:8016): 
+***_Vector de disponibles_***
+[  0  0  0  1  ]
+[TRACE] 23:53:03:898 MAPA log file/(8007:8016): 
+***_ENTRENADORES:_***
+[  &  @  ]
+[TRACE] 23:53:03:898 MAPA log file/(8007:8016): 
+***_Matriz Asignados_***
+|  1  0  0  0  |
+|  0  1  1  0  |
+ 
+[TRACE] 23:53:03:898 MAPA log file/(8007:8016): 
+***_Matriz Solicitudes_***
+|  0  0  1  0  |
+|  0  0  0  0  |
+ 
+[TRACE] 23:53:03:898 MAPA log file/(8007:8016): [DEADLOCK] fin del algoritmo con 0 entrenadores en dl.
+[TRACE] 23:53:03:898 MAPA log file/(8007:8013): 
+LISTOS: : [  @(Red)  ]
+[TRACE] 23:53:05:900 MAPA log file/(8007:8016): 
+***_POKENESTS:_***
+[  G  B  P  R  ]
+[TRACE] 23:53:05:900 MAPA log file/(8007:8016): 
+***_Vector de disponibles_***
+[  0  0  0  1  ]
+[TRACE] 23:53:05:900 MAPA log file/(8007:8016): 
+***_ENTRENADORES:_***
+[  &  @  ]
+[TRACE] 23:53:05:900 MAPA log file/(8007:8016): 
+***_Matriz Asignados_***
+|  1  0  0  0  |
+|  0  1  1  0  |
+ 
+[TRACE] 23:53:05:900 MAPA log file/(8007:8016): 
+***_Matriz Solicitudes_***
+|  0  0  1  0  |
+|  0  0  0  0  |
+ 
+[TRACE] 23:53:05:900 MAPA log file/(8007:8016): [DEADLOCK] fin del algoritmo con 0 entrenadores en dl.
+[TRACE] 23:53:06:901 MAPA log file/(8007:8013): Entrenador Bloqueado @ - Pokenest G .
+[TRACE] 23:53:06:901 MAPA log file/(8007:8015): 
+BLOQUEADOS: : [  &(Ash)  @(Red)  ]
+[TRACE] 23:53:06:901 MAPA log file/(8007:8016): 
+***_POKENESTS:_***
+[  G  B  P  R  ]
+[TRACE] 23:53:06:902 MAPA log file/(8007:8016): 
+***_Vector de disponibles_***
+[  0  0  0  1  ]
+[TRACE] 23:53:06:902 MAPA log file/(8007:8016): 
+***_ENTRENADORES:_***
+[  &  @  ]
+[TRACE] 23:53:06:902 MAPA log file/(8007:8016): 
+***_Matriz Asignados_***
+|  1  0  0  0  |
+|  0  1  1  0  |
+ 
+[TRACE] 23:53:06:902 MAPA log file/(8007:8016): 
+***_Matriz Solicitudes_***
+|  0  0  1  0  |
+|  1  0  0  0  |
+ 
+[TRACE] 23:53:06:902 MAPA log file/(8007:8016): [DEADLOCK] fin del algoritmo con 2 entrenadores en dl.
+[TRACE] 23:53:06:902 MAPA log file/(8007:8016): [DEADLOCK] El entrenador &(Ash) ha perdido la batalla.
+[TRACE] 23:53:06:903 MAPA log file/(8007:8016): [DEADLOCK]: Se desconecto el entrenador P por haber perdido la batalla
+[TRACE] 23:53:31:587 MAPA log file/(8007:8014): Nueva conexion desde el socket 7, entrenador &
+[TRACE] 23:53:31:597 MAPA log file/(8007:8013): 
+LISTOS: : [  &(Ash)  ]
+[TRACE] 23:53:36:414 MAPA log file/(8007:8013): 
+LISTOS: : [  &(Ash)  ]
+[TRACE] 23:53:47:519 MAPA log file/(8007:8013): 
+LISTOS: : [  &(Ash)  ]
+[TRACE] 23:53:47:523 MAPA log file/(8007:8015): 
+BLOQUEADOS: : [  @(Red)  ]
+[TRACE] 23:53:47:524 MAPA log file/(8007:8015): El entrenador @ atrapo a Geodude .
+[TRACE] 23:53:58:625 MAPA log file/(8007:8015): El entrenador @ ha logrado su objetivo.
+[TRACE] 23:54:06:219 MAPA log file/(8007:8013): 
+LISTOS: : [  &(Ash)  ]
+[TRACE] 23:54:32:452 MAPA log file/(8007:8016): 
+***_POKENESTS:_***
+[  G  B  P  R  ]
+[TRACE] 23:54:32:452 MAPA log file/(8007:8016): 
+***_Vector de disponibles_***
+[  0  0  0  1  ]
+[TRACE] 23:54:32:452 MAPA log file/(8007:8016): 
+***_ENTRENADORES:_***
+[  @  &  ]
+[TRACE] 23:54:32:452 MAPA log file/(8007:8016): 
+***_Matriz Asignados_***
+|  1  1  1  0  |
+|  0  0  0  0  |
+ 
+[TRACE] 23:54:32:452 MAPA log file/(8007:8016): 
+***_Matriz Solicitudes_***
+|  0  0  0  0  |
+|  0  0  0  0  |
+ 
+[TRACE] 23:54:32:452 MAPA log file/(8007:8016): [DEADLOCK] fin del algoritmo con 0 entrenadores en dl.
+[TRACE] 23:54:35:470 MAPA log file/(8007:8013): 
+LISTOS: : [  &(Ash)  ]
+[TRACE] 23:54:38:502 MAPA log file/(8007:8013): 
+LISTOS: : [  &(Ash)  ]
+[TRACE] 23:54:40:524 MAPA log file/(8007:8013): Entrenador Bloqueado & - Pokenest B .
+[TRACE] 23:54:40:524 MAPA log file/(8007:8015): 
+BLOQUEADOS: : [  &(Ash)  ]
+[TRACE] 23:54:40:524 MAPA log file/(8007:8016): 
+***_POKENESTS:_***
+[  G  B  P  R  ]
+[TRACE] 23:54:40:524 MAPA log file/(8007:8016): 
+***_Vector de disponibles_***
+[  0  0  0  1  ]
+[TRACE] 23:54:40:524 MAPA log file/(8007:8016): 
+***_ENTRENADORES:_***
+[  @  &  ]
+[TRACE] 23:54:40:524 MAPA log file/(8007:8016): 
+***_Matriz Asignados_***
+|  1  1  1  0  |
+|  0  0  0  0  |
+ 
+[TRACE] 23:54:40:524 MAPA log file/(8007:8016): 
+***_Matriz Solicitudes_***
+|  0  0  0  0  |
+|  0  1  0  0  |
+ 
+[TRACE] 23:54:40:524 MAPA log file/(8007:8016): [DEADLOCK] fin del algoritmo con 0 entrenadores en dl.
+[TRACE] 23:54:41:27 MAPA log file/(8007:8016): 
+***_POKENESTS:_***
+[  G  B  P  R  ]
+[TRACE] 23:54:41:27 MAPA log file/(8007:8016): 
+***_Vector de disponibles_***
+[  0  0  0  1  ]
+[TRACE] 23:54:41:27 MAPA log file/(8007:8016): 
+***_ENTRENADORES:_***
+[  @  &  ]
+[TRACE] 23:54:41:27 MAPA log file/(8007:8016): 
+***_Matriz Asignados_***
+|  1  1  1  0  |
+|  0  0  0  0  |
+ 
+[TRACE] 23:54:41:27 MAPA log file/(8007:8016): 
+***_Matriz Solicitudes_***
+|  0  0  0  0  |
+|  0  1  0  0  |
+ 
+[TRACE] 23:54:41:27 MAPA log file/(8007:8016): [DEADLOCK] fin del algoritmo con 0 entrenadores en dl.
+[TRACE] 23:54:41:528 MAPA log file/(8007:8016): 
+***_POKENESTS:_***
+[  G  B  P  R  ]
+[TRACE] 23:54:41:528 MAPA log file/(8007:8016): 
+***_Vector de disponibles_***
+[  0  0  0  1  ]
+[TRACE] 23:54:41:528 MAPA log file/(8007:8016): 
+***_ENTRENADORES:_***
+[  @  &  ]
+[TRACE] 23:54:41:528 MAPA log file/(8007:8016): 
+***_Matriz Asignados_***
+|  1  1  1  0  |
+|  0  0  0  0  |
+ 
+[TRACE] 23:54:41:528 MAPA log file/(8007:8016): 
+***_Matriz Solicitudes_***
+|  0  0  0  0  |
+|  0  1  0  0  |
+ 
+[TRACE] 23:54:41:528 MAPA log file/(8007:8016): [DEADLOCK] fin del algoritmo con 0 entrenadores en dl.
+[TRACE] 23:54:42:34 MAPA log file/(8007:8016): 
+***_POKENESTS:_***
+[  G  B  P  R  ]
+[TRACE] 23:54:42:34 MAPA log file/(8007:8016): 
+***_Vector de disponibles_***
+[  0  0  0  1  ]
+[TRACE] 23:54:42:34 MAPA log file/(8007:8016): 
+***_ENTRENADORES:_***
+[  @  &  ]
+[TRACE] 23:54:42:34 MAPA log file/(8007:8016): 
+***_Matriz Asignados_***
+|  1  1  1  0  |
+|  0  0  0  0  |
+ 
+[TRACE] 23:54:42:34 MAPA log file/(8007:8016): 
+***_Matriz Solicitudes_***
+|  0  0  0  0  |
+|  0  1  0  0  |
+ 
+[TRACE] 23:54:42:34 MAPA log file/(8007:8016): [DEADLOCK] fin del algoritmo con 0 entrenadores en dl.
+[TRACE] 23:54:42:539 MAPA log file/(8007:8016): 
+***_POKENESTS:_***
+[  G  B  P  R  ]
+[TRACE] 23:54:42:539 MAPA log file/(8007:8016): 
+***_Vector de disponibles_***
+[  0  0  0  1  ]
+[TRACE] 23:54:42:539 MAPA log file/(8007:8016): 
+***_ENTRENADORES:_***
+[  @  &  ]
+[TRACE] 23:54:42:539 MAPA log file/(8007:8016): 
+***_Matriz Asignados_***
+|  1  1  1  0  |
+|  0  0  0  0  |
+ 
+[TRACE] 23:54:42:539 MAPA log file/(8007:8016): 
+***_Matriz Solicitudes_***
+|  0  0  0  0  |
+|  0  1  0  0  |
+ 
+[TRACE] 23:54:42:539 MAPA log file/(8007:8016): [DEADLOCK] fin del algoritmo con 0 entrenadores en dl.
+[TRACE] 23:54:43:44 MAPA log file/(8007:8016): 
+***_POKENESTS:_***
+[  G  B  P  R  ]
+[TRACE] 23:54:43:44 MAPA log file/(8007:8016): 
+***_Vector de disponibles_***
+[  0  0  0  1  ]
+[TRACE] 23:54:43:44 MAPA log file/(8007:8016): 
+***_ENTRENADORES:_***
+[  @  &  ]
+[TRACE] 23:54:43:44 MAPA log file/(8007:8016): 
+***_Matriz Asignados_***
+|  1  1  1  0  |
+|  0  0  0  0  |
+ 
+[TRACE] 23:54:43:44 MAPA log file/(8007:8016): 
+***_Matriz Solicitudes_***
+|  0  0  0  0  |
+|  0  1  0  0  |
+ 
+[TRACE] 23:54:43:44 MAPA log file/(8007:8016): [DEADLOCK] fin del algoritmo con 0 entrenadores en dl.
+[TRACE] 23:54:43:550 MAPA log file/(8007:8016): 
+***_POKENESTS:_***
+[  G  B  P  R  ]
+[TRACE] 23:54:43:551 MAPA log file/(8007:8016): 
+***_Vector de disponibles_***
+[  0  0  0  1  ]
+[TRACE] 23:54:43:551 MAPA log file/(8007:8016): 
+***_ENTRENADORES:_***
+[  @  &  ]
+[TRACE] 23:54:43:551 MAPA log file/(8007:8016): 
+***_Matriz Asignados_***
+|  1  1  1  0  |
+|  0  0  0  0  |
+ 
+[TRACE] 23:54:43:551 MAPA log file/(8007:8016): 
+***_Matriz Solicitudes_***
+|  0  0  0  0  |
+|  0  1  0  0  |
+ 
+[TRACE] 23:54:43:551 MAPA log file/(8007:8016): [DEADLOCK] fin del algoritmo con 0 entrenadores en dl.
+[TRACE] 23:54:44:54 MAPA log file/(8007:8016): 
+***_POKENESTS:_***
+[  G  B  P  R  ]
+[TRACE] 23:54:44:54 MAPA log file/(8007:8016): 
+***_Vector de disponibles_***
+[  0  0  0  1  ]
+[TRACE] 23:54:44:54 MAPA log file/(8007:8016): 
+***_ENTRENADORES:_***
+[  @  &  ]
+[TRACE] 23:54:44:54 MAPA log file/(8007:8016): 
+***_Matriz Asignados_***
+|  1  1  1  0  |
+|  0  0  0  0  |
+ 
+[TRACE] 23:54:44:54 MAPA log file/(8007:8016): 
+***_Matriz Solicitudes_***
+|  0  0  0  0  |
+|  0  1  0  0  |
+ 
+[TRACE] 23:54:44:54 MAPA log file/(8007:8016): [DEADLOCK] fin del algoritmo con 0 entrenadores en dl.
+[TRACE] 23:54:44:557 MAPA log file/(8007:8016): 
+***_POKENESTS:_***
+[  G  B  P  R  ]
+[TRACE] 23:54:44:557 MAPA log file/(8007:8016): 
+***_Vector de disponibles_***
+[  0  0  0  1  ]
+[TRACE] 23:54:44:557 MAPA log file/(8007:8016): 
+***_ENTRENADORES:_***
+[  @  &  ]
+[TRACE] 23:54:44:557 MAPA log file/(8007:8016): 
+***_Matriz Asignados_***
+|  1  1  1  0  |
+|  0  0  0  0  |
+ 
+[TRACE] 23:54:44:558 MAPA log file/(8007:8016): 
+***_Matriz Solicitudes_***
+|  0  0  0  0  |
+|  0  1  0  0  |
+ 
+[TRACE] 23:54:44:558 MAPA log file/(8007:8016): [DEADLOCK] fin del algoritmo con 0 entrenadores en dl.
+[TRACE] 23:54:45:63 MAPA log file/(8007:8016): 
+***_POKENESTS:_***
+[  G  B  P  R  ]
+[TRACE] 23:54:45:63 MAPA log file/(8007:8016): 
+***_Vector de disponibles_***
+[  0  0  0  1  ]
+[TRACE] 23:54:45:63 MAPA log file/(8007:8016): 
+***_ENTRENADORES:_***
+[  @  &  ]
+[TRACE] 23:54:45:63 MAPA log file/(8007:8016): 
+***_Matriz Asignados_***
+|  1  1  1  0  |
+|  0  0  0  0  |
+ 
+[TRACE] 23:54:45:63 MAPA log file/(8007:8016): 
+***_Matriz Solicitudes_***
+|  0  0  0  0  |
+|  0  1  0  0  |
+ 
+[TRACE] 23:54:45:63 MAPA log file/(8007:8016): [DEADLOCK] fin del algoritmo con 0 entrenadores en dl.
+[TRACE] 23:54:45:566 MAPA log file/(8007:8016): 
+***_POKENESTS:_***
+[  G  B  P  R  ]
+[TRACE] 23:54:45:566 MAPA log file/(8007:8016): 
+***_Vector de disponibles_***
+[  0  0  0  1  ]
+[TRACE] 23:54:45:566 MAPA log file/(8007:8016): 
+***_ENTRENADORES:_***
+[  @  &  ]
+[TRACE] 23:54:45:566 MAPA log file/(8007:8016): 
+***_Matriz Asignados_***
+|  1  1  1  0  |
+|  0  0  0  0  |
+ 
+[TRACE] 23:54:45:566 MAPA log file/(8007:8016): 
+***_Matriz Solicitudes_***
+|  0  0  0  0  |
+|  0  1  0  0  |
+ 
+[TRACE] 23:54:45:566 MAPA log file/(8007:8016): [DEADLOCK] fin del algoritmo con 0 entrenadores en dl.
+[TRACE] 23:54:46:68 MAPA log file/(8007:8016): 
+***_POKENESTS:_***
+[  G  B  P  R  ]
+[TRACE] 23:54:46:68 MAPA log file/(8007:8016): 
+***_Vector de disponibles_***
+[  0  0  0  1  ]
+[TRACE] 23:54:46:68 MAPA log file/(8007:8016): 
+***_ENTRENADORES:_***
+[  @  &  ]
+[TRACE] 23:54:46:68 MAPA log file/(8007:8016): 
+***_Matriz Asignados_***
+|  1  1  1  0  |
+|  0  0  0  0  |
+ 
+[TRACE] 23:54:46:68 MAPA log file/(8007:8016): 
+***_Matriz Solicitudes_***
+|  0  0  0  0  |
+|  0  1  0  0  |
+ 
+[TRACE] 23:54:46:68 MAPA log file/(8007:8016): [DEADLOCK] fin del algoritmo con 0 entrenadores en dl.
+[TRACE] 23:54:46:574 MAPA log file/(8007:8016): 
+***_POKENESTS:_***
+[  G  B  P  R  ]
+[TRACE] 23:54:46:574 MAPA log file/(8007:8016): 
+***_Vector de disponibles_***
+[  0  0  0  1  ]
+[TRACE] 23:54:46:574 MAPA log file/(8007:8016): 
+***_ENTRENADORES:_***
+[  @  &  ]
+[TRACE] 23:54:46:574 MAPA log file/(8007:8016): 
+***_Matriz Asignados_***
+|  1  1  1  0  |
+|  0  0  0  0  |
+ 
+[TRACE] 23:54:46:574 MAPA log file/(8007:8016): 
+***_Matriz Solicitudes_***
+|  0  0  0  0  |
+|  0  1  0  0  |
+ 
+[TRACE] 23:54:46:574 MAPA log file/(8007:8016): [DEADLOCK] fin del algoritmo con 0 entrenadores en dl.
+[TRACE] 23:54:47:75 MAPA log file/(8007:8016): 
+***_POKENESTS:_***
+[  G  B  P  R  ]
+[TRACE] 23:54:47:75 MAPA log file/(8007:8016): 
+***_Vector de disponibles_***
+[  0  0  0  1  ]
+[TRACE] 23:54:47:75 MAPA log file/(8007:8016): 
+***_ENTRENADORES:_***
+[  @  &  ]
+[TRACE] 23:54:47:75 MAPA log file/(8007:8016): 
+***_Matriz Asignados_***
+|  1  1  1  0  |
+|  0  0  0  0  |
+ 
+[TRACE] 23:54:47:75 MAPA log file/(8007:8016): 
+***_Matriz Solicitudes_***
+|  0  0  0  0  |
+|  0  1  0  0  |
+ 
+[TRACE] 23:54:47:75 MAPA log file/(8007:8016): [DEADLOCK] fin del algoritmo con 0 entrenadores en dl.
+[TRACE] 23:54:47:578 MAPA log file/(8007:8016): 
+***_POKENESTS:_***
+[  G  B  P  R  ]
+[TRACE] 23:54:47:578 MAPA log file/(8007:8016): 
+***_Vector de disponibles_***
+[  0  0  0  1  ]
+[TRACE] 23:54:47:578 MAPA log file/(8007:8016): 
+***_ENTRENADORES:_***
+[  @  &  ]
+[TRACE] 23:54:47:578 MAPA log file/(8007:8016): 
+***_Matriz Asignados_***
+|  1  1  1  0  |
+|  0  0  0  0  |
+ 
+[TRACE] 23:54:47:578 MAPA log file/(8007:8016): 
+***_Matriz Solicitudes_***
+|  0  0  0  0  |
+|  0  1  0  0  |
+ 
+[TRACE] 23:54:47:578 MAPA log file/(8007:8016): [DEADLOCK] fin del algoritmo con 0 entrenadores en dl.
+[TRACE] 23:54:48:80 MAPA log file/(8007:8016): 
+***_POKENESTS:_***
+[  G  B  P  R  ]
+[TRACE] 23:54:48:80 MAPA log file/(8007:8016): 
+***_Vector de disponibles_***
+[  0  0  0  1  ]
+[TRACE] 23:54:48:80 MAPA log file/(8007:8016): 
+***_ENTRENADORES:_***
+[  @  &  ]
+[TRACE] 23:54:48:80 MAPA log file/(8007:8016): 
+***_Matriz Asignados_***
+|  1  1  1  0  |
+|  0  0  0  0  |
+ 
+[TRACE] 23:54:48:80 MAPA log file/(8007:8016): 
+***_Matriz Solicitudes_***
+|  0  0  0  0  |
+|  0  1  0  0  |
+ 
+[TRACE] 23:54:48:80 MAPA log file/(8007:8016): [DEADLOCK] fin del algoritmo con 0 entrenadores en dl.
+[TRACE] 23:54:48:580 MAPA log file/(8007:8016): 
+***_POKENESTS:_***
+[  G  B  P  R  ]
+[TRACE] 23:54:48:583 MAPA log file/(8007:8016): 
+***_Vector de disponibles_***
+[  0  0  0  1  ]
+[TRACE] 23:54:48:583 MAPA log file/(8007:8016): 
+***_ENTRENADORES:_***
+[  @  &  ]
+[TRACE] 23:54:48:583 MAPA log file/(8007:8016): 
+***_Matriz Asignados_***
+|  1  1  1  0  |
+|  0  0  0  0  |
+ 
+[TRACE] 23:54:48:583 MAPA log file/(8007:8016): 
+***_Matriz Solicitudes_***
+|  0  0  0  0  |
+|  0  1  0  0  |
+ 
+[TRACE] 23:54:48:583 MAPA log file/(8007:8016): [DEADLOCK] fin del algoritmo con 0 entrenadores en dl.
+[TRACE] 23:54:49:86 MAPA log file/(8007:8016): 
+***_POKENESTS:_***
+[  G  B  P  R  ]
+[TRACE] 23:54:49:86 MAPA log file/(8007:8016): 
+***_Vector de disponibles_***
+[  0  0  0  1  ]
+[TRACE] 23:54:49:86 MAPA log file/(8007:8016): 
+***_ENTRENADORES:_***
+[  @  &  ]
+[TRACE] 23:54:49:86 MAPA log file/(8007:8016): 
+***_Matriz Asignados_***
+|  1  1  1  0  |
+|  0  0  0  0  |
+ 
+[TRACE] 23:54:49:86 MAPA log file/(8007:8016): 
+***_Matriz Solicitudes_***
+|  0  0  0  0  |
+|  0  1  0  0  |
+ 
+[TRACE] 23:54:49:86 MAPA log file/(8007:8016): [DEADLOCK] fin del algoritmo con 0 entrenadores en dl.

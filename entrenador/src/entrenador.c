@@ -316,10 +316,17 @@ void atraparPokemon(){
 
 	//escuchar y hay dos posibilidades, (deadlock y vuelvo a escuchar) o (pokemon y sigo la rutina)
 
-	t_header * header_in = recibir_header(socket_entrenador);
+	t_header * header_in = NULL;
 	bool pokemonCapturadoOEntrenadorMuerto = false;
 
 	while (!pokemonCapturadoOEntrenadorMuerto) {
+		header_in = recibir_header(socket_entrenador);
+
+		if (header_in == NULL) {
+			pokemonCapturadoOEntrenadorMuerto = true;
+			continue;
+		}
+
 		switch (header_in->identificador) {
 		case _CAPTURAR_PKM:
 
@@ -360,9 +367,9 @@ void atraparPokemon(){
 			exit(EXIT_FAILURE);
 			break;
 		}
-	}
 
-	free(header_in);
+		free(header_in);
+	}
 }
 
 void verificarSiQuedanObjetivosEnMapa(){
@@ -548,16 +555,38 @@ bool batallaPokemon(){ 					//retorna true si muere
 			puts("El entrenador ha perdido una batalla pokemon");
 			muereEntrenador = true;
 			return true;
+		} else {
+			puts("El entrenador ha ganado la batalla pokemon");
 		}
 	}
 
 	return false;
 }
 
-void muerteEntrenador(){
+void muerteEntrenador() {
 	muereEntrenador = false;
 	cantidadDeMuertes += 1;
 	puts("El entrenador a muerto");
+
+
+	/*
+	 * FIJATE CUANDO SE VUELVE A CONECTAR A UN MAPA QUE
+	 * DEBERIA REINICIAR TODO PERO AL PARECER SIGUE
+	 * CON EL SIGUIENTE OBJETIVO
+	 *
+	 * EJ: EN LA PRUEBA01 CORRIENDO ASH Y RED EN SIMULTANEO
+	 * LOS OBJETIVOS DE ASH EN HOME SON [G P B].
+	 * A G LO ATRAPA SIN PROBLEMAS, PERO LUEGO EN P SE BLOQUEA
+	 * PORQUE RED YA LO HABIA ATRAPADO Y NO HABIA RECURSOS DISPONIBLES
+	 * ...COMO RED YA ESTABA BLOQUEADO PORQUE TENIA QUE ATRAPAR
+	 * A G (ASH YA LO HABIA HECHO) ENTONCES ENTRAR EN DEADLOCK ASH Y RED
+	 * CORRE EL ALGORITMO Y FINALIZA CON ASH COMO VICTIMA
+	 * ENTONCES SE TIENE QUE DESCONECTAR DE HOME PERO AL VOLVER
+	 * A CONECTARSE EL SIGUIENTE OBJETIVO DE ÉL ES B EN LUEGAR DE G, O SEA
+	 * EL PRIMERO. A LO QUE VOY ES QUE SE SALTEA EL PKM POR EL CUAL
+	 * SE HABIA BLOQUEADO Y SIGUE CON EL SIGUIENTE CUANDO EN REALIDAD
+	 * DEBERIA COMENZAR TODO DE NUEVO.
+	 */
 
 	if(metadata->vidas > 0){
 		metadata->vidas -= 1;

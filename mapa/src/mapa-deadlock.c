@@ -26,12 +26,8 @@ void run_deadlock_thread() {
 
 int run_deadlock_algorithm() {
 
-	snapshot_del_sistema();
-
-	if (temp_entrenadores->elements_count < 2) {
-		release_all();
+	if (snapshot_del_sistema() == -1)
 		return 0;
-	}
 
 	int pos = 0;
 	//AUN NO SE SI LO VOY A NECESITAR
@@ -84,7 +80,10 @@ int run_deadlock_algorithm() {
 	if (cantidad_en_DL > 1) {
 		if (metadata->batalla) {
 			loser = let_the_battle_begins();
-			//desconexion_entrenador(loser, -1);
+			pthread_mutex_lock(&mutex_log);
+			log_trace(logger, "[DEADLOCK] El entrenador %c(%s) ha perdido la batalla.", loser->simbolo_entrenador, loser->nombre_entrenador);
+			pthread_mutex_unlock(&mutex_log);
+			desconexion_entrenador(loser, 1);
 		}
 	}
 
@@ -116,9 +115,14 @@ void destroy_vector(int * vector) {
 	free(vector);
 }
 
-void snapshot_del_sistema() {
+int snapshot_del_sistema() {
 
 	pthread_mutex_lock(&mutex_planificador_turno);
+
+	if (entrenadores_conectados->elements_count <= 1) {
+		pthread_mutex_unlock(&mutex_planificador_turno);
+		return -1;
+	}
 
 	pthread_mutex_lock(&mutex_pokenests);
 	temp_pokenests = snapshot_list(lista_de_pokenests);
@@ -144,6 +148,8 @@ void snapshot_del_sistema() {
 	pthread_mutex_unlock(&mutex_planificador_turno);
 
 	marcados = crear_vector(temp_entrenadores->elements_count);
+
+	return 0;
 }
 
 t_matriz * crear_matriz(int filas, int columnas) {
@@ -424,52 +430,54 @@ t_entrenador * let_the_battle_begins() {
 
 	t_list * dls = obtener_los_dls();
 
-	t_pokemon * loser = obtener_el_mas_poronga((t_entrenador *) list_get(dls, 0));
-	t_pokemon * perdedorNuevo = NULL;
-	t_entrenador * entrenadorQueSeSalva;
+	t_entrenador * entrenador_que_perdio = list_get(dls, 0);
+	t_pokemon * pkm_del_que_perdio = obtener_el_mas_poronga(entrenador_que_perdio);
+	t_entrenador * entrenador_que_gano = NULL;
+
+	t_pokemon * loser = NULL;
 
 	int i;
 	for (i = 1; i < dls->elements_count; i++) {
-		t_pokemon * opponent = obtener_el_mas_poronga((t_entrenador *) list_get(dls, i));
+		t_entrenador * entrenador_oponente = list_get(dls, i);
+		t_pokemon * opponent = obtener_el_mas_poronga(entrenador_oponente);
 
-		perdedorNuevo = pkmn_battle(loser, opponent);
+		loser = pkmn_battle(pkm_del_que_perdio, opponent);
 
-		if (perdedorNuevo != loser){
-			entrenadorQueSeSalva = buscar_entrenador_del_pkm(loser, dls);
-
-			loser = opponent;
-		} else {
-			entrenadorQueSeSalva = buscar_entrenador_del_pkm(opponent, dls);
-		}
-
-		//envio que no se murio
-		if ( enviar_header(_RESULTADO_BATALLA, 1, entrenadorQueSeSalva->socket ) == -1 ) {
-			//second chance
-			if ( enviar_header(_RESULTADO_BATALLA, 1, entrenadorQueSeSalva->socket) == -1 ) {
-				//ya fue lo mato a éste
-				pthread_mutex_lock(&mutex_log);
-				log_error(
-						"Error al enviar el resultado de la batalla al entrenador %c que gano la batalla => es seleccionado para la muerte",
-						entrenadorQueSeSalva->simbolo_entrenador);
-				pthread_mutex_unlock(&mutex_log);
-				return entrenadorQueSeSalva;
-			}
+		if (pkm_del_que_perdio == loser){
+			//sigue peleando
+			entrenador_que_gano = entrenador_oponente;
+		} else { //opponent == loser
+			pkm_del_que_perdio = opponent;
+			entrenador_que_gano = entrenador_que_perdio;
+			entrenador_que_perdio = entrenador_oponente;
 		}
 	}
 
-	t_entrenador * el_entrenador_que_PERDIO = buscar_entrenador_del_pkm(loser, dls);
-
-	//envio que se murio
-	if (enviar_header(_RESULTADO_BATALLA, 0, el_entrenador_que_PERDIO->socket ) == -1) {
+	void _on_error(char simb) {
 		pthread_mutex_lock(&mutex_log);
-		log_error(logger, "Error al enviar el resultado de la batalla al entrenador %c .", el_entrenador_que_PERDIO->simbolo_entrenador);
+		log_error(logger,
+				"Error al enviar el resultado de la batalla al entrenador %c .",
+				simb);
 		pthread_mutex_unlock(&mutex_log);
-		//no intento enviarselo de nuevo porque de cualquier modo lo termino matando
+	}
+
+	for (i = 0; i < dls->elements_count; i++) {
+		t_entrenador * e = list_get(dls, i);
+
+		if (e->simbolo_entrenador == entrenador_que_perdio->simbolo_entrenador) {
+			//envio que perdio
+			if (enviar_header(_RESULTADO_BATALLA, 0, e->socket) == -1)
+				_on_error(e->simbolo_entrenador);
+		} else {
+			//envio que gano
+			if (enviar_header(_RESULTADO_BATALLA, 1, e->socket) == -1)
+				_on_error(e->simbolo_entrenador);
+		}
 	}
 
 	list_destroy(dls);
 
-	return el_entrenador_que_PERDIO;
+	return entrenador_que_perdio;
 }
 
 t_pokemon * obtener_el_mas_poronga(t_entrenador * entrenador) {
