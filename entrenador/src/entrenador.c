@@ -117,7 +117,8 @@ int enviar_datos_a_mapa(int socket, char simbolo, char * nombre) {
 	int buffer_size = sizeof(int) + string_length(nombre);
 	void * data_buffer = malloc(buffer_size);
 
-	enviar_header(1, buffer_size, socket);
+	if(enviar_header(1, buffer_size, socket) < 0)
+		puts("Error al enviar header de datos");
 
 	int num_simbolo = (int) simbolo;
 
@@ -226,8 +227,8 @@ void conectarseConSiguienteMapa(){
 
 		printf("Conectado con %s \n", mapaActual->nombre_mapa);
 
-		enviar_datos_a_mapa(socket_entrenador, metadata->simbolo,
-				metadata->nombre);
+		if(enviar_datos_a_mapa(socket_entrenador, metadata->simbolo,metadata->nombre) == -1)
+			puts("Error al enviar datos a mapa");
 
 		ubicacionActual->x = 0;
 		ubicacionActual->y = 0;
@@ -279,7 +280,8 @@ void solicitarUbicacionDelProximoPokenest(){
 
 void enviarSolicitudUbicacionPokenest(char id_pokemon){
 
-	enviar_header(_UBICACION_POKENEST, (int) id_pokemon, socket_entrenador);
+	if (enviar_header(_UBICACION_POKENEST, (int) id_pokemon, socket_entrenador) < 0)
+		puts("Error al enviar header de ubicacion de pokenest");
 
 	int tamanio_coord = sizeof(t_posicion);
 	void * coordenadas = malloc(tamanio_coord);
@@ -318,23 +320,27 @@ void avanzarHaciaElPokenest(){
 
 	enviarUbicacionAMapa();
 
-	recibir_header(socket_entrenador);
+	if(recibir_header(socket_entrenador) < 0)
+		puts("Error al recibir confirmacion de avanzar");
 }
 
 void enviarUbicacionAMapa(){
 
-	enviar_header(_MOVER_XY, sizeof(t_posicion), socket_entrenador);
+	if(enviar_header(_MOVER_XY, sizeof(t_posicion), socket_entrenador) < 0)
+		puts("Error al enviar header de ubicacion a mapa");
 
 	void* buffer_out = malloc(sizeof(t_posicion));
 	memcpy(buffer_out,&(ubicacionActual->x),4);
 	memcpy(buffer_out + 4,&(ubicacionActual->y),4);
 
-	send(socket_entrenador,buffer_out,sizeof(t_posicion),0);
+	if(send(socket_entrenador,buffer_out,sizeof(t_posicion),0) < 0 )
+		puts("Error al enviar ubicacion");
 }
 
 void atraparPokemon(){
 
-	enviar_header(_CAPTURAR_PKM,0,socket_entrenador);
+	if (enviar_header(_CAPTURAR_PKM,0,socket_entrenador) < 0)
+		puts("Error al enviar header de capturar pokemon");
 
 	//escuchar y hay dos posibilidades, (deadlock y vuelvo a escuchar) o (pokemon y sigo la rutina)
 
@@ -396,15 +402,10 @@ void atraparPokemon(){
 
 void verificarSiQuedanObjetivosEnMapa(){
 	if (queue_size(mapaActual->objetivos) == 0) {
-		enviar_header(_OBJETIVO_CUMPLIDO, 0, socket_entrenador);
+		if(enviar_header(_OBJETIVO_CUMPLIDO, 0, socket_entrenador) < 0)
+			puts("Error al enviar header de objetivo cumplido");
 
-		t_header * header = recibir_header(socket_entrenador);
-		void * datos = malloc(header->tamanio);
-		recv(socket_entrenador, datos, header->tamanio, 0);
-
-		procesarDatos(datos);
-		free(datos);
-		free(header);
+		recibirDatosFinales();
 
 		copiarMedalla();
 		desconectarseDeMapa();
@@ -417,8 +418,25 @@ void verificarSiQuedanObjetivosEnMapa(){
 		}
 	} else {
 
-		enviar_header(_QUEDAN_OBJETIVOS, 0, socket_entrenador);
+		if(enviar_header(_QUEDAN_OBJETIVOS, 0, socket_entrenador) < 0)
+			puts("Error al enviar header de quedan objetivos");
 	}
+}
+
+void recibirDatosFinales(){
+	t_header * header = recibir_header(socket_entrenador);
+
+			if(header == NULL)
+				puts("Error al recibir header de los datos finales");
+
+			void * datos = malloc(header->tamanio);
+
+			if(recv(socket_entrenador, datos, header->tamanio, 0) < 0)
+				puts("Error al recibir los datos finales");
+
+			procesarDatos(datos);
+			free(datos);
+			free(header);
 }
 
 void procesarDatos(void * datos) {
@@ -540,7 +558,7 @@ bool estoyEnPokenest() {
 
 void imprimirLogro(){
 
-	puts("******--------******");
+	puts("***************************--------***************************");
 	puts("Te has convertido en un maestro pokemon!");
 	printf("El tiempo total de tu aventura fue de: %f segundos \n ", tiempoDeJuego);
 	printf("Pasaste %f segundos bloqueado \n", tiempoBloqueado);
@@ -559,6 +577,9 @@ bool batallaPokemon(){ 					//retorna true si muere
 
 	t_header * header = recibir_header(socket_entrenador); //mapa envia si entrenador gana la batalla o no
 
+	if(header == NULL)
+		puts("Error al recibir el header de respuesta de batalla");
+
 	if (header == NULL) {
 		puts("Error en la recepcion del header en batallaPokemon().");
 		muereEntrenador = true;
@@ -574,6 +595,7 @@ bool batallaPokemon(){ 					//retorna true si muere
 	} else {
 
 		if (header->tamanio == 0) {
+			recibirDatosFinales();
 			puts("El entrenador ha perdido una batalla pokemon");
 			muereEntrenador = true;
 			return true;
