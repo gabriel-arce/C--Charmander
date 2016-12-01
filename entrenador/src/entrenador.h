@@ -121,5 +121,6 @@ char * generar_ruta_archivo(char * ruta);
 void liberarRecursos();
 void rm_de_pokemons();
 t_mapa *  copiarMapa(t_mapa * mapaACopiar);
+void recibirDatosFinales();
 
 #endif /* ENTRENADOR_H_ */

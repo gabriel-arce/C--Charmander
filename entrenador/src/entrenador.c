@@ -391,19 +391,7 @@ void verificarSiQuedanObjetivosEnMapa(){
 		if(enviar_header(_OBJETIVO_CUMPLIDO, 0, socket_entrenador) < 0)
 			puts("Error al enviar header de objetivo cumplido");
 
-		t_header * header = recibir_header(socket_entrenador);
-
-		if(header == NULL)
-			puts("Error al recibir header de los datos finales");
-
-		void * datos = malloc(header->tamanio);
-
-		if(recv(socket_entrenador, datos, header->tamanio, 0) < 0)
-			puts("Error al recibir los datos finales");
-
-		procesarDatos(datos);
-		free(datos);
-		free(header);
+		recibirDatosFinales();
 
 		copiarMedalla();
 		desconectarseDeMapa();
@@ -419,6 +407,22 @@ void verificarSiQuedanObjetivosEnMapa(){
 		if(enviar_header(_QUEDAN_OBJETIVOS, 0, socket_entrenador) < 0)
 			puts("Error al enviar header de quedan objetivos");
 	}
+}
+
+void recibirDatosFinales(){
+	t_header * header = recibir_header(socket_entrenador);
+
+			if(header == NULL)
+				puts("Error al recibir header de los datos finales");
+
+			void * datos = malloc(header->tamanio);
+
+			if(recv(socket_entrenador, datos, header->tamanio, 0) < 0)
+				puts("Error al recibir los datos finales");
+
+			procesarDatos(datos);
+			free(datos);
+			free(header);
 }
 
 void procesarDatos(void * datos) {
@@ -540,7 +544,7 @@ bool estoyEnPokenest() {
 
 void imprimirLogro(){
 
-	puts("******--------******");
+	puts("***************************--------***************************");
 	puts("Te has convertido en un maestro pokemon!");
 	printf("El tiempo total de tu aventura fue de: %f segundos \n ", tiempoDeJuego);
 	printf("Pasaste %f segundos bloqueado \n", tiempoBloqueado);
@@ -577,6 +581,7 @@ bool batallaPokemon(){ 					//retorna true si muere
 	} else {
 
 		if (header->tamanio == 0) {
+			recibirDatosFinales();
 			puts("El entrenador ha perdido una batalla pokemon");
 			muereEntrenador = true;
 			return true;
