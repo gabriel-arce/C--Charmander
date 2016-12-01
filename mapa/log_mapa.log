@@ -1,16 +1,349 @@
-[INFO] 17:47:08:48 MAPA log file/(5955:5955): MAPA Azul iniciado.
-[TRACE] 17:48:48:178 MAPA log file/(5955:5962): Nueva conexion desde el socket 5, entrenador @
-[TRACE] 17:48:48:178 MAPA log file/(5955:5961): 
+[INFO] 19:05:44:50 MAPA log file/(8899:8899): MAPA Home iniciado.
+[TRACE] 19:05:50:946 MAPA log file/(8899:8906): Nueva conexion desde el socket 5, entrenador @
+[TRACE] 19:05:50:946 MAPA log file/(8899:8905): 
 LISTOS: : [  @(Red)  ]
-[TRACE] 17:48:48:424 MAPA log file/(5955:5961): Entrenador Bloqueado @ - Pokenest C .
-[TRACE] 17:48:48:424 MAPA log file/(5955:5963): 
-BLOQUEADOS: : [  @(Red)  ]
-[TRACE] 17:48:48:424 MAPA log file/(5955:5963): El entrenador @ atrapo a Chansey .
-[TRACE] 17:48:48:469 MAPA log file/(5955:5961): 
+[TRACE] 19:05:53:50 MAPA log file/(8899:8905): 
 LISTOS: : [  @(Red)  ]
-[TRACE] 17:48:48:631 MAPA log file/(5955:5961): Entrenador Bloqueado @ - Pokenest Z .
-[TRACE] 17:48:48:631 MAPA log file/(5955:5963): 
+[TRACE] 19:05:53:181 MAPA log file/(8899:8906): Nueva conexion desde el socket 6, entrenador &
+[TRACE] 19:05:55:153 MAPA log file/(8899:8905): 
+LISTOS: : [  &(Ash)  @(Red)  ]
+[TRACE] 19:05:57:256 MAPA log file/(8899:8905): 
+LISTOS: : [  @(Red)  &(Ash)  ]
+[TRACE] 19:05:59:358 MAPA log file/(8899:8905): 
+LISTOS: : [  &(Ash)  @(Red)  ]
+[TRACE] 19:06:01:473 MAPA log file/(8899:8905): 
+LISTOS: : [  @(Red)  &(Ash)  ]
+[TRACE] 19:06:03:576 MAPA log file/(8899:8905): 
+LISTOS: : [  &(Ash)  @(Red)  ]
+[TRACE] 19:06:05:678 MAPA log file/(8899:8905): 
+LISTOS: : [  @(Red)  &(Ash)  ]
+[TRACE] 19:06:07:780 MAPA log file/(8899:8905): 
+LISTOS: : [  &(Ash)  @(Red)  ]
+[TRACE] 19:06:09:882 MAPA log file/(8899:8905): 
+LISTOS: : [  @(Red)  &(Ash)  ]
+[TRACE] 19:06:11:283 MAPA log file/(8899:8905): Entrenador Bloqueado @ - Pokenest P .
+[TRACE] 19:06:11:283 MAPA log file/(8899:8905): 
+LISTOS: : [  &(Ash)  ]
+[TRACE] 19:06:11:283 MAPA log file/(8899:8907): 
 BLOQUEADOS: : [  @(Red)  ]
-[TRACE] 17:48:48:631 MAPA log file/(5955:5963): El entrenador @ atrapo a Zubat .
-[TRACE] 17:48:48:674 MAPA log file/(5955:5963): El entrenador @ ha logrado su objetivo.
-[ERROR] 17:48:48:674 MAPA log file/(5955:5963): Se desconecto el entrenador @ por haber finalizado en mapa
+[TRACE] 19:06:11:283 MAPA log file/(8899:8907): El entrenador @ atrapo a Pikachu .
+[TRACE] 19:06:13:385 MAPA log file/(8899:8905): 
+LISTOS: : [  @(Red)  &(Ash)  ]
+[TRACE] 19:06:15:487 MAPA log file/(8899:8905): 
+LISTOS: : [  &(Ash)  @(Red)  ]
+[TRACE] 19:06:16:187 MAPA log file/(8899:8905): Entrenador Bloqueado & - Pokenest G .
+[TRACE] 19:06:16:187 MAPA log file/(8899:8905): 
+LISTOS: : [  @(Red)  ]
+[TRACE] 19:06:16:187 MAPA log file/(8899:8907): 
+BLOQUEADOS: : [  &(Ash)  ]
+[TRACE] 19:06:16:187 MAPA log file/(8899:8907): El entrenador & atrapo a Geodude .
+[TRACE] 19:06:18:290 MAPA log file/(8899:8905): 
+LISTOS: : [  &(Ash)  @(Red)  ]
+[TRACE] 19:06:20:392 MAPA log file/(8899:8905): 
+LISTOS: : [  @(Red)  &(Ash)  ]
+[TRACE] 19:06:20:392 MAPA log file/(8899:8908): 
+***_POKENESTS:_***
+[  G  B  P  R  ]
+[TRACE] 19:06:20:392 MAPA log file/(8899:8908): 
+***_Vector de disponibles_***
+[  0  1  0  1  ]
+[TRACE] 19:06:20:392 MAPA log file/(8899:8908): 
+***_ENTRENADORES:_***
+[  @  &  ]
+[TRACE] 19:06:20:392 MAPA log file/(8899:8908): 
+***_Matriz Asignados_***
+|  0  0  1  0  |
+|  1  0  0  0  |
+ 
+[TRACE] 19:06:20:392 MAPA log file/(8899:8908): 
+***_Matriz Solicitudes_***
+|  0  0  0  0  |
+|  0  0  0  0  |
+ 
+[TRACE] 19:06:20:392 MAPA log file/(8899:8908): [DEADLOCK] fin del algoritmo con 0 entrenadores en dl.
+[TRACE] 19:06:22:495 MAPA log file/(8899:8905): 
+LISTOS: : [  &(Ash)  @(Red)  ]
+[TRACE] 19:06:24:597 MAPA log file/(8899:8905): 
+LISTOS: : [  @(Red)  &(Ash)  ]
+[TRACE] 19:06:26:700 MAPA log file/(8899:8905): 
+LISTOS: : [  &(Ash)  @(Red)  ]
+[TRACE] 19:06:28:803 MAPA log file/(8899:8905): 
+LISTOS: : [  @(Red)  &(Ash)  ]
+[TRACE] 19:06:30:904 MAPA log file/(8899:8905): 
+LISTOS: : [  &(Ash)  @(Red)  ]
+[TRACE] 19:06:33:8 MAPA log file/(8899:8905): 
+LISTOS: : [  @(Red)  &(Ash)  ]
+[TRACE] 19:06:35:111 MAPA log file/(8899:8905): 
+LISTOS: : [  &(Ash)  @(Red)  ]
+[TRACE] 19:06:37:212 MAPA log file/(8899:8905): Entrenador Bloqueado & - Pokenest P .
+[TRACE] 19:06:37:212 MAPA log file/(8899:8905): 
+LISTOS: : [  @(Red)  ]
+[TRACE] 19:06:37:212 MAPA log file/(8899:8907): 
+BLOQUEADOS: : [  &(Ash)  ]
+[TRACE] 19:06:39:314 MAPA log file/(8899:8905): 
+LISTOS: : [  @(Red)  ]
+[TRACE] 19:06:41:416 MAPA log file/(8899:8908): 
+***_POKENESTS:_***
+[  G  B  P  R  ]
+[TRACE] 19:06:41:416 MAPA log file/(8899:8908): 
+***_Vector de disponibles_***
+[  0  1  0  1  ]
+[TRACE] 19:06:41:416 MAPA log file/(8899:8908): 
+***_ENTRENADORES:_***
+[  @  &  ]
+[TRACE] 19:06:41:416 MAPA log file/(8899:8908): 
+***_Matriz Asignados_***
+|  0  0  1  0  |
+|  1  0  0  0  |
+ 
+[TRACE] 19:06:41:417 MAPA log file/(8899:8908): 
+***_Matriz Solicitudes_***
+|  0  0  0  0  |
+|  0  0  1  0  |
+ 
+[TRACE] 19:06:41:417 MAPA log file/(8899:8908): [DEADLOCK] fin del algoritmo con 0 entrenadores en dl.
+[TRACE] 19:06:41:417 MAPA log file/(8899:8905): 
+LISTOS: : [  @(Red)  ]
+[TRACE] 19:06:42:823 MAPA log file/(8899:8908): 
+***_POKENESTS:_***
+[  G  B  P  R  ]
+[TRACE] 19:06:42:823 MAPA log file/(8899:8908): 
+***_Vector de disponibles_***
+[  0  1  0  1  ]
+[TRACE] 19:06:42:823 MAPA log file/(8899:8908): 
+***_ENTRENADORES:_***
+[  @  &  ]
+[TRACE] 19:06:42:823 MAPA log file/(8899:8908): 
+***_Matriz Asignados_***
+|  0  0  1  0  |
+|  1  0  0  0  |
+ 
+[TRACE] 19:06:42:823 MAPA log file/(8899:8908): 
+***_Matriz Solicitudes_***
+|  0  0  0  0  |
+|  0  0  1  0  |
+ 
+[TRACE] 19:06:42:823 MAPA log file/(8899:8908): [DEADLOCK] fin del algoritmo con 0 entrenadores en dl.
+[TRACE] 19:06:43:524 MAPA log file/(8899:8905): 
+LISTOS: : [  @(Red)  ]
+[TRACE] 19:06:44:225 MAPA log file/(8899:8905): Entrenador Bloqueado @ - Pokenest B .
+[TRACE] 19:06:44:225 MAPA log file/(8899:8907): 
+BLOQUEADOS: : [  &(Ash)  @(Red)  ]
+[TRACE] 19:06:44:225 MAPA log file/(8899:8907): El entrenador @ atrapo a Bulbasaur .
+[TRACE] 19:06:44:225 MAPA log file/(8899:8905): 
+LISTOS: : [  @(Red)  ]
+[TRACE] 19:06:44:271 MAPA log file/(8899:8908): 
+***_POKENESTS:_***
+[  G  B  P  R  ]
+[TRACE] 19:06:44:271 MAPA log file/(8899:8908): 
+***_Vector de disponibles_***
+[  0  0  0  1  ]
+[TRACE] 19:06:44:271 MAPA log file/(8899:8908): 
+***_ENTRENADORES:_***
+[  @  &  ]
+[TRACE] 19:06:44:272 MAPA log file/(8899:8908): 
+***_Matriz Asignados_***
+|  0  1  1  0  |
+|  1  0  0  0  |
+ 
+[TRACE] 19:06:44:272 MAPA log file/(8899:8908): 
+***_Matriz Solicitudes_***
+|  0  0  0  0  |
+|  0  0  1  0  |
+ 
+[TRACE] 19:06:44:272 MAPA log file/(8899:8908): [DEADLOCK] fin del algoritmo con 0 entrenadores en dl.
+[TRACE] 19:06:45:675 MAPA log file/(8899:8908): 
+***_POKENESTS:_***
+[  G  B  P  R  ]
+[TRACE] 19:06:45:675 MAPA log file/(8899:8908): 
+***_Vector de disponibles_***
+[  0  0  0  1  ]
+[TRACE] 19:06:45:675 MAPA log file/(8899:8908): 
+***_ENTRENADORES:_***
+[  @  &  ]
+[TRACE] 19:06:45:675 MAPA log file/(8899:8908): 
+***_Matriz Asignados_***
+|  0  1  1  0  |
+|  1  0  0  0  |
+ 
+[TRACE] 19:06:45:675 MAPA log file/(8899:8908): 
+***_Matriz Solicitudes_***
+|  0  0  0  0  |
+|  0  0  1  0  |
+ 
+[TRACE] 19:06:45:675 MAPA log file/(8899:8908): [DEADLOCK] fin del algoritmo con 0 entrenadores en dl.
+[TRACE] 19:06:46:376 MAPA log file/(8899:8905): 
+LISTOS: : [  @(Red)  ]
+[TRACE] 19:06:47:77 MAPA log file/(8899:8908): 
+***_POKENESTS:_***
+[  G  B  P  R  ]
+[TRACE] 19:06:47:77 MAPA log file/(8899:8908): 
+***_Vector de disponibles_***
+[  0  0  0  1  ]
+[TRACE] 19:06:47:77 MAPA log file/(8899:8908): 
+***_ENTRENADORES:_***
+[  @  &  ]
+[TRACE] 19:06:47:78 MAPA log file/(8899:8908): 
+***_Matriz Asignados_***
+|  0  1  1  0  |
+|  1  0  0  0  |
+ 
+[TRACE] 19:06:47:78 MAPA log file/(8899:8908): 
+***_Matriz Solicitudes_***
+|  0  0  0  0  |
+|  0  0  1  0  |
+ 
+[TRACE] 19:06:47:78 MAPA log file/(8899:8908): [DEADLOCK] fin del algoritmo con 0 entrenadores en dl.
+[TRACE] 19:06:48:479 MAPA log file/(8899:8905): 
+LISTOS: : [  @(Red)  ]
+[TRACE] 19:06:49:180 MAPA log file/(8899:8908): 
+***_POKENESTS:_***
+[  G  B  P  R  ]
+[TRACE] 19:06:49:180 MAPA log file/(8899:8908): 
+***_Vector de disponibles_***
+[  0  0  0  1  ]
+[TRACE] 19:06:49:181 MAPA log file/(8899:8908): 
+***_ENTRENADORES:_***
+[  @  &  ]
+[TRACE] 19:06:49:181 MAPA log file/(8899:8908): 
+***_Matriz Asignados_***
+|  0  1  1  0  |
+|  1  0  0  0  |
+ 
+[TRACE] 19:06:49:181 MAPA log file/(8899:8908): 
+***_Matriz Solicitudes_***
+|  0  0  0  0  |
+|  0  0  1  0  |
+ 
+[TRACE] 19:06:49:181 MAPA log file/(8899:8908): [DEADLOCK] fin del algoritmo con 0 entrenadores en dl.
+[TRACE] 19:06:50:583 MAPA log file/(8899:8908): 
+***_POKENESTS:_***
+[  G  B  P  R  ]
+[TRACE] 19:06:50:583 MAPA log file/(8899:8908): 
+***_Vector de disponibles_***
+[  0  0  0  1  ]
+[TRACE] 19:06:50:583 MAPA log file/(8899:8908): 
+***_ENTRENADORES:_***
+[  @  &  ]
+[TRACE] 19:06:50:583 MAPA log file/(8899:8908): 
+***_Matriz Asignados_***
+|  0  1  1  0  |
+|  1  0  0  0  |
+ 
+[TRACE] 19:06:50:583 MAPA log file/(8899:8908): 
+***_Matriz Solicitudes_***
+|  0  0  0  0  |
+|  0  0  1  0  |
+ 
+[TRACE] 19:06:50:583 MAPA log file/(8899:8908): [DEADLOCK] fin del algoritmo con 0 entrenadores en dl.
+[TRACE] 19:06:50:583 MAPA log file/(8899:8905): 
+LISTOS: : [  @(Red)  ]
+[TRACE] 19:06:51:285 MAPA log file/(8899:8908): 
+***_POKENESTS:_***
+[  G  B  P  R  ]
+[TRACE] 19:06:51:285 MAPA log file/(8899:8908): 
+***_Vector de disponibles_***
+[  0  0  0  1  ]
+[TRACE] 19:06:51:285 MAPA log file/(8899:8908): 
+***_ENTRENADORES:_***
+[  @  &  ]
+[TRACE] 19:06:51:285 MAPA log file/(8899:8908): 
+***_Matriz Asignados_***
+|  0  1  1  0  |
+|  1  0  0  0  |
+ 
+[TRACE] 19:06:51:285 MAPA log file/(8899:8908): 
+***_Matriz Solicitudes_***
+|  0  0  0  0  |
+|  0  0  1  0  |
+ 
+[TRACE] 19:06:51:285 MAPA log file/(8899:8908): [DEADLOCK] fin del algoritmo con 0 entrenadores en dl.
+[TRACE] 19:06:52:688 MAPA log file/(8899:8908): 
+***_POKENESTS:_***
+[  G  B  P  R  ]
+[TRACE] 19:06:52:688 MAPA log file/(8899:8908): 
+***_Vector de disponibles_***
+[  0  0  0  1  ]
+[TRACE] 19:06:52:688 MAPA log file/(8899:8908): 
+***_ENTRENADORES:_***
+[  @  &  ]
+[TRACE] 19:06:52:688 MAPA log file/(8899:8908): 
+***_Matriz Asignados_***
+|  0  1  1  0  |
+|  1  0  0  0  |
+ 
+[TRACE] 19:06:52:689 MAPA log file/(8899:8908): 
+***_Matriz Solicitudes_***
+|  0  0  0  0  |
+|  0  0  1  0  |
+ 
+[TRACE] 19:06:52:689 MAPA log file/(8899:8908): [DEADLOCK] fin del algoritmo con 0 entrenadores en dl.
+[TRACE] 19:06:52:689 MAPA log file/(8899:8905): 
+LISTOS: : [  @(Red)  ]
+[TRACE] 19:06:54:91 MAPA log file/(8899:8908): 
+***_POKENESTS:_***
+[  G  B  P  R  ]
+[TRACE] 19:06:54:91 MAPA log file/(8899:8908): 
+***_Vector de disponibles_***
+[  0  0  0  1  ]
+[TRACE] 19:06:54:91 MAPA log file/(8899:8908): 
+***_ENTRENADORES:_***
+[  @  &  ]
+[TRACE] 19:06:54:91 MAPA log file/(8899:8908): 
+***_Matriz Asignados_***
+|  0  1  1  0  |
+|  1  0  0  0  |
+ 
+[TRACE] 19:06:54:91 MAPA log file/(8899:8908): 
+***_Matriz Solicitudes_***
+|  0  0  0  0  |
+|  0  0  1  0  |
+ 
+[TRACE] 19:06:54:91 MAPA log file/(8899:8908): [DEADLOCK] fin del algoritmo con 0 entrenadores en dl.
+[TRACE] 19:06:54:792 MAPA log file/(8899:8905): Entrenador Bloqueado @ - Pokenest G .
+[TRACE] 19:06:54:792 MAPA log file/(8899:8907): 
+BLOQUEADOS: : [  &(Ash)  @(Red)  ]
+[TRACE] 19:06:54:792 MAPA log file/(8899:8908): 
+***_POKENESTS:_***
+[  G  B  P  R  ]
+[TRACE] 19:06:54:792 MAPA log file/(8899:8908): 
+***_Vector de disponibles_***
+[  0  0  0  1  ]
+[TRACE] 19:06:54:793 MAPA log file/(8899:8908): 
+***_ENTRENADORES:_***
+[  @  &  ]
+[TRACE] 19:06:54:793 MAPA log file/(8899:8908): 
+***_Matriz Asignados_***
+|  0  1  1  0  |
+|  1  0  0  0  |
+ 
+[TRACE] 19:06:54:793 MAPA log file/(8899:8908): 
+***_Matriz Solicitudes_***
+|  1  0  0  0  |
+|  0  0  1  0  |
+ 
+[TRACE] 19:06:54:793 MAPA log file/(8899:8908): [DEADLOCK] fin del algoritmo con 2 entrenadores en dl.
+[TRACE] 19:06:54:794 MAPA log file/(8899:8908): [DEADLOCK] El entrenador &(Ash) ha perdido la batalla.
+[TRACE] 19:06:54:794 MAPA log file/(8899:8908): [DEADLOCK]: Se desconecto el entrenador & por haber perdido la batalla
+[TRACE] 19:06:54:794 MAPA log file/(8899:8907): 
+BLOQUEADOS: : [  @(Red)  ]
+[TRACE] 19:06:58:31 MAPA log file/(8899:8906): Nueva conexion desde el socket 6, entrenador &
+[TRACE] 19:06:58:36 MAPA log file/(8899:8907): El entrenador @ atrapo a Geodude .
+[TRACE] 19:06:58:36 MAPA log file/(8899:8905): 
+LISTOS: : [  &(Ash)  ]
+[TRACE] 19:06:58:52 MAPA log file/(8899:8907): El entrenador @ ha logrado su objetivo.
+[ERROR] 19:06:58:53 MAPA log file/(8899:8907): Se desconecto el entrenador @ por haber finalizado en mapa
+[TRACE] 19:07:00:138 MAPA log file/(8899:8905): 
+LISTOS: : [  &(Ash)  ]
+[TRACE] 19:07:02:241 MAPA log file/(8899:8905): 
+LISTOS: : [  &(Ash)  ]
+[TRACE] 19:07:04:345 MAPA log file/(8899:8905): 
+LISTOS: : [  &(Ash)  ]
+[TRACE] 19:07:06:448 MAPA log file/(8899:8905): 
+LISTOS: : [  &(Ash)  ]
+[TRACE] 19:07:08:551 MAPA log file/(8899:8905): 
+LISTOS: : [  &(Ash)  ]
+[TRACE] 19:07:09:251 MAPA log file/(8899:8905): Entrenador Bloqueado & - Pokenest G .
+[TRACE] 19:07:09:252 MAPA log file/(8899:8907): 
+BLOQUEADOS: : [  &(Ash)  ]
+[ERROR] 19:08:37:344 MAPA log file/(8899:8906): Server-select() error

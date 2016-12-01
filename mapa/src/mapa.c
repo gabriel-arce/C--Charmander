@@ -724,11 +724,11 @@ int desconexion_entrenador(t_entrenador * entrenador, int nbytes_recv) {
 //	pthread_mutex_unlock(&mutex_gui);
 
 	//entrenador_destroyer(entrenador);
-	entrenador->simbolo_entrenador = ' ';
-	free(entrenador->nombre_entrenador);
-	free(entrenador->posicion);
-	free(entrenador->posicionObjetivo);
-	//TODO VER BIEN ESTO!!!!
+//	entrenador->simbolo_entrenador = ' ';
+//	free(entrenador->nombre_entrenador);
+//	free(entrenador->posicion);
+//	free(entrenador->posicionObjetivo);
+//	//TODO VER BIEN ESTO!!!!
 	//free(entrenador);
 
 	puts("<<<<<<<<<<<<<<<<<<<<  DESPUES DE DESCONEXION  >>>>>>>>>>>>>>>>>>>>>>>>>>");
@@ -1091,6 +1091,12 @@ int enviar_datos_finales_entrenador(t_entrenador * entrenador) {
 
 	if (send(entrenador->socket, datos, datos_size, 0) == -1)
 		return -1;
+
+	puts("*******DATOS QUE ENVIO*******");
+	printf("ENTRENADOR: %c(%s)\n", entrenador->simbolo_entrenador, entrenador->nombre_entrenador);
+	printf("total: %f\n", tiempo_tot_mapa);
+	printf("tiempo en bloqueado: %f\n", entrenador->tiempoBloqueado);
+	printf("DLs involucrado: %d\n", entrenador->deadlocksInvolucrados);
 
 	free(datos);
 

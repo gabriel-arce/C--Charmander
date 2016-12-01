@@ -78,6 +78,9 @@ int run_deadlock_algorithm() {
 	t_entrenador * loser = NULL;
 
 	if (cantidad_en_DL > 1) {
+
+		usleep(5000000);
+
 		if (metadata->batalla) {
 			loser = let_the_battle_begins();
 			pthread_mutex_lock(&mutex_log);
@@ -486,6 +489,13 @@ t_entrenador * let_the_battle_begins() {
 int avisar_que_perdio_la_batalla(t_entrenador * entrenador) {
 	if (enviar_header(_RESULTADO_BATALLA, 0, entrenador->socket) == -1)
 		return -1;
+
+	time_t tiempo_desbloqueo;
+	time(&tiempo_desbloqueo);
+
+	entrenador->bloqueado = false;
+	entrenador->tiempoBloqueado += difftime(tiempo_desbloqueo, entrenador->momentoBloqueado);
+	entrenador->momentoBloqueado = 0;
 
 	if (enviar_datos_finales_entrenador(entrenador) == -1)
 		return -1;
