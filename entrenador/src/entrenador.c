@@ -204,8 +204,8 @@ void cargarMetadata(){
 
 void conectarseConSiguienteMapa(){
 
-	mapaActual = copiarMapa(queue_peek(metadata->viaje));
-
+	t_mapa * mapa_peek = (t_mapa *) queue_peek(metadata->viaje);
+	mapaActual = copiarMapa(mapa_peek);
 
 	if (mapaActual == NULL) {
 		printf("\nerror\n");
@@ -237,7 +237,21 @@ void conectarseConSiguienteMapa(){
 
 t_mapa *  copiarMapa(t_mapa * mapaACopiar){
 	t_mapa * mapaCopiado = malloc(sizeof(t_mapa));
-	memcpy(mapaCopiado,mapaACopiar,sizeof(t_mapa));
+//	memcpy(&(mapaCopiado->socket), &(mapaACopiar->socket), 4);
+	mapaCopiado->nombre_mapa = string_duplicate(mapaACopiar->nombre_mapa);
+	mapaCopiado->objetivos = queue_create();
+
+	int i;
+	char * obj = NULL;
+	char * obj_copy = NULL;
+	for(i = 0; i < mapaACopiar->objetivos->elements->elements_count; i++) {
+		obj = (char *) list_get(mapaACopiar->objetivos->elements, i);
+		obj_copy = string_duplicate(obj);
+
+		list_add(mapaCopiado->objetivos->elements, obj_copy);
+	}
+
+//	memcpy(mapaCopiado,mapaACopiar,sizeof(t_mapa));
 	return mapaCopiado;
 }
 
@@ -576,26 +590,6 @@ void muerteEntrenador() {
 	cantidadDeMuertes += 1;
 	puts("El entrenador a muerto");
 
-
-	/*
-	 * FIJATE CUANDO SE VUELVE A CONECTAR A UN MAPA QUE
-	 * DEBERIA REINICIAR TODO PERO AL PARECER SIGUE
-	 * CON EL SIGUIENTE OBJETIVO
-	 *
-	 * EJ: EN LA PRUEBA01 CORRIENDO ASH Y RED EN SIMULTANEO
-	 * LOS OBJETIVOS DE ASH EN HOME SON [G P B].
-	 * A G LO ATRAPA SIN PROBLEMAS, PERO LUEGO EN P SE BLOQUEA
-	 * PORQUE RED YA LO HABIA ATRAPADO Y NO HABIA RECURSOS DISPONIBLES
-	 * ...COMO RED YA ESTABA BLOQUEADO PORQUE TENIA QUE ATRAPAR
-	 * A G (ASH YA LO HABIA HECHO) ENTONCES ENTRAR EN DEADLOCK ASH Y RED
-	 * CORRE EL ALGORITMO Y FINALIZA CON ASH COMO VICTIMA
-	 * ENTONCES SE TIENE QUE DESCONECTAR DE HOME PERO AL VOLVER
-	 * A CONECTARSE EL SIGUIENTE OBJETIVO DE ÉL ES B EN LUEGAR DE G, O SEA
-	 * EL PRIMERO. A LO QUE VOY ES QUE SE SALTEA EL PKM POR EL CUAL
-	 * SE HABIA BLOQUEADO Y SIGUE CON EL SIGUIENTE CUANDO EN REALIDAD
-	 * DEBERIA COMENZAR TODO DE NUEVO.
-	 */
-
 	if(metadata->vidas > 0){
 		metadata->vidas -= 1;
 		desconectarseDeMapa();
@@ -652,10 +646,13 @@ void desconectarseDeMapa(){
 
 	close(socket_entrenador);
 	limpiar_pokemons_en_directorio();
-	list_destroy_and_destroy_elements(pokemonesCapturados, (void *) pokemon_destroyer);
+	list_clean_and_destroy_elements(pokemonesCapturados, (void *) pokemon_destroyer);
 	pokenestLocalizada = false;
-	mapaActual = NULL;
 
+	if(pokemonMasFuerte)
+		pokemonMasFuerte = NULL;
+
+	mapaActual = NULL;
 }
 
 void rm_pokemon(char * dir_pkm) {

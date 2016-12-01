@@ -691,7 +691,7 @@ int desconexion_entrenador(t_entrenador * entrenador, int nbytes_recv) {
 	}
 
 	puts("<<<<<<<<<<<<<<<<<<<<  ANTES DE DESCONEXION  >>>>>>>>>>>>>>>>>>>>>>>>>>");
-	imprimir_lista(cola_de_bloqueados, "Cola de bloqueados");
+	imprimir_bloqueados();
 	imprimir_lista(cola_de_listos, "Cola de listos");
 	imprimir_lista(entrenadores_conectados, "Entrenadores conectados");
 
@@ -729,10 +729,10 @@ int desconexion_entrenador(t_entrenador * entrenador, int nbytes_recv) {
 	free(entrenador->posicion);
 	free(entrenador->posicionObjetivo);
 	//TODO VER BIEN ESTO!!!!
-	free(entrenador);
+	//free(entrenador);
 
 	puts("<<<<<<<<<<<<<<<<<<<<  DESPUES DE DESCONEXION  >>>>>>>>>>>>>>>>>>>>>>>>>>");
-	imprimir_lista(cola_de_bloqueados, "Cola de bloqueados");
+	imprimir_bloqueados();
 	imprimir_lista(cola_de_listos, "Cola de listos");
 	imprimir_lista(entrenadores_conectados, "Entrenadores conectados");
 
@@ -891,6 +891,19 @@ void imprimir_lista(t_list * l, char * tittle) {
 	printf("]\n");
 }
 
+void imprimir_bloqueados() {
+	int i;
+
+	puts("Cola de bloqueados");
+	printf("[");
+	for (i = 0; i < cola_de_bloqueados->elements_count; i++) {
+		t_bloqueado * b = list_get(cola_de_bloqueados, i);
+
+		printf(" (%c,%c) ", b->entrenador->simbolo_entrenador, b->pokenest->identificador);
+	}
+	printf("]\n");
+}
+
 int procesar_objetivo_cumplido(t_entrenador * entrenador) {
 
 //	pthread_mutex_lock(&(entrenador->mutex_entrenador));
@@ -902,33 +915,11 @@ int procesar_objetivo_cumplido(t_entrenador * entrenador) {
 	entrenador->objetivo_cumplido = true;
 
 	//calculo los tiempos y se los envio
-	time_t tiempo_actual;
-	time(&(tiempo_actual));
-	double tiempo_tot_mapa = difftime(tiempo_actual, entrenador->tiempoDeIngresoAlMapa); //[seg]
-
-	int datos_size = 2*sizeof(double) + sizeof(int);
-
-	//datos:
-	//tiempo total en el mapa
-	//tiempo bloqueado
-	//cuantos dl
-	void * datos = malloc(datos_size);
-	int offset = 0;
-	memset(datos, 0, datos_size);
-	memcpy(datos, &(tiempo_tot_mapa), sizeof(double));
-	offset += sizeof(double);
-	memcpy(datos + offset, &(entrenador->tiempoBloqueado), sizeof(double));
-	offset += sizeof(double);
-	memcpy(datos + offset, &(entrenador->deadlocksInvolucrados), sizeof(int));
-
-	enviar_header(_DATOS_FINALES, datos_size, entrenador->socket);
-	send(entrenador->socket, datos, datos_size, 0);
+	enviar_datos_finales_entrenador(entrenador);
 
 	desconexion_entrenador(entrenador, -2);
 
 //	pthread_mutex_lock(&(entrenador->mutex_entrenador));
-
-	free(datos);
 
 	return EXIT_SUCCESS;
 }
@@ -1070,4 +1061,38 @@ int generar_captura(t_entrenador * entrenador, t_pokenest * pokenest, t_pkm * po
 	}
 
 	return EXIT_SUCCESS;
+}
+
+int enviar_datos_finales_entrenador(t_entrenador * entrenador) {
+
+	//calculo los tiempos y se los envio
+	time_t tiempo_actual;
+	time(&(tiempo_actual));
+	double tiempo_tot_mapa = difftime(tiempo_actual,
+			entrenador->tiempoDeIngresoAlMapa); //[seg]
+
+	int datos_size = 2 * sizeof(double) + sizeof(int);
+
+	//datos:
+	//tiempo total en el mapa
+	//tiempo bloqueado
+	//cuantos dl
+	void * datos = malloc(datos_size);
+	int offset = 0;
+	memset(datos, 0, datos_size);
+	memcpy(datos, &(tiempo_tot_mapa), sizeof(double));
+	offset += sizeof(double);
+	memcpy(datos + offset, &(entrenador->tiempoBloqueado), sizeof(double));
+	offset += sizeof(double);
+	memcpy(datos + offset, &(entrenador->deadlocksInvolucrados), sizeof(int));
+
+	if (enviar_header(_DATOS_FINALES, datos_size, entrenador->socket) == -1)
+		return -1;
+
+	if (send(entrenador->socket, datos, datos_size, 0) == -1)
+		return -1;
+
+	free(datos);
+
+	return 0;
 }

@@ -463,10 +463,13 @@ t_entrenador * let_the_battle_begins() {
 
 	for (i = 0; i < dls->elements_count; i++) {
 		t_entrenador * e = list_get(dls, i);
+		e->deadlocksInvolucrados++;
 
 		if (e->simbolo_entrenador == entrenador_que_perdio->simbolo_entrenador) {
 			//envio que perdio
-			if (enviar_header(_RESULTADO_BATALLA, 0, e->socket) == -1)
+			//como perdio le tengo que mandar los datos:
+			//deadlocks involucrados / tiempo bloqueado / tiempo de aventura
+			if (avisar_que_perdio_la_batalla(entrenador_que_perdio) == -1)
 				_on_error(e->simbolo_entrenador);
 		} else {
 			//envio que gano
@@ -478,6 +481,16 @@ t_entrenador * let_the_battle_begins() {
 	list_destroy(dls);
 
 	return entrenador_que_perdio;
+}
+
+int avisar_que_perdio_la_batalla(t_entrenador * entrenador) {
+	if (enviar_header(_RESULTADO_BATALLA, 0, entrenador->socket) == -1)
+		return -1;
+
+	if (enviar_datos_finales_entrenador(entrenador) == -1)
+		return -1;
+
+	return 0;
 }
 
 t_pokemon * obtener_el_mas_poronga(t_entrenador * entrenador) {
