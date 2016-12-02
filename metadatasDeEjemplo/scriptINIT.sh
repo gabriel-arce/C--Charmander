@@ -14,7 +14,7 @@ function instalarGUI() {
     sudo apt-get install libncurses5-dev
     cd /home/utnso/workspace/so-nivel-gui-library
     make
-    sudo make isntall
+    sudo make install
 }
 
 function instalarPKMNUTILS() {
@@ -24,24 +24,17 @@ function instalarPKMNUTILS() {
 }
 
 function instalarREPOTP() {
-    local repo= "/home/utnso/workspace/tp-2016-2c-MeQuedeSinPokebolas-"
-    cd $repo
-    cd /sharedCharmander
+    cd /home/utnso/workspace/tp-2016-2c-MeQuedeSinPokebolas-/sharedCharmander
     make
     sudo make install
-    cd ..
-    cd /comunicacion
+    cd /home/utnso/workspace/tp-2016-2c-MeQuedeSinPokebolas-/comunicacion
     make
     sudo make install
-    cd ..
-    cd /mapa
+    cd /home/utnso/workspace/tp-2016-2c-MeQuedeSinPokebolas-/mapa
     make
-    sudo make install
-    cd ..
-    cd /entrenador
+    cd /home/utnso/workspace/tp-2016-2c-MeQuedeSinPokebolas-/entrenador
     make
-    sudo make install
-    cd $repo
+    #falta el de pokedexCliente y pokedexServidor
 }
 
 export INSTALL_DIR=/usr/lib
@@ -71,7 +64,6 @@ clonar $repoTP
 instalarCOMMONS
 instalarGUI
 instalarPKMNUTILS
-instalarOSADA
 isntalarREPOTP
 
 
