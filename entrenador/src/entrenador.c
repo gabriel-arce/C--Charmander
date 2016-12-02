@@ -40,8 +40,9 @@ int leer_metadata_entrenador(char * metada_path) {
 
 	t_list * hoja_de_viaje = getListProperty(conf_file, "hojaDeViaje");
 
-	if (hoja_de_viaje == NULL)
-		return -1;
+	if (hoja_de_viaje == NULL){
+		finalizacionAbrupta();
+	}
 
 	int ciudades = list_size(hoja_de_viaje);
 	printf("%d", ciudades);
@@ -67,7 +68,7 @@ int leer_metadata_entrenador(char * metada_path) {
 
 	metadata->vidas = getIntProperty(conf_file, "vidas");
 
-	free(conf_file);
+	config_destroy(conf_file);
 
 	return 0;
 }
@@ -128,6 +129,8 @@ int enviar_datos_a_mapa(int socket, char simbolo, char * nombre) {
 
 	if (send(socket, data_buffer, buffer_size, 0) < 0)
 		return -1;
+
+	free(data_buffer);
 
 	return EXIT_SUCCESS;
 }
@@ -270,7 +273,7 @@ void cargar_mapa() {
 	mapaActual->puerto = getIntProperty(m_mapa, "Puerto");
 
 	free(ruta_del_mapa);
-	free(m_mapa);
+	config_destroy(m_mapa);
 }
 
 void solicitarUbicacionDelProximoPokenest(){
@@ -279,6 +282,7 @@ void solicitarUbicacionDelProximoPokenest(){
 	id_pokemon = queue_pop(mapaActual->objetivos);
 
 	enviarSolicitudUbicacionPokenest(id_pokemon[0]);
+	free(id_pokemon);
 }
 
 void enviarSolicitudUbicacionPokenest(char id_pokemon){
@@ -325,10 +329,14 @@ void avanzarHaciaElPokenest(){
 
 	enviarUbicacionAMapa();
 
-	if(recibir_header(socket_entrenador) < 0){
+	t_header * header;
+	header = recibir_header(socket_entrenador);
+
+	if(header == NULL){
 		puts("Error al recibir confirmacion de avanzar");
 		finalizacionAbrupta();
 				}
+	free(header);
 }
 
 void enviarUbicacionAMapa(){
@@ -346,6 +354,7 @@ void enviarUbicacionAMapa(){
 		puts("Error al enviar ubicacion");
 		finalizacionAbrupta();
 				}
+	free(buffer_out);
 }
 
 void atraparPokemon(){
@@ -364,8 +373,8 @@ void atraparPokemon(){
 		header_in = recibir_header(socket_entrenador);
 
 		if (header_in == NULL) {
-			pokemonCapturadoOEntrenadorMuerto = true;
-			continue;
+			puts("Error al recibir header");
+			finalizacionAbrupta();
 		}
 
 		switch (header_in->identificador) {
@@ -376,8 +385,7 @@ void atraparPokemon(){
 			t_pkm * pokemonAtrapado = recibirYDeserializarPokemon(socket_entrenador, header_in->tamanio);
 
 			if (pokemonAtrapado == NULL) {
-				muereEntrenador = true;
-				break;
+				finalizacionAbrupta();
 			}
 
 			//PRINTEO PKM PARA TEST
@@ -424,7 +432,9 @@ void verificarSiQuedanObjetivosEnMapa(){
 
 		copiarMedalla();
 		desconectarseDeMapa();
-		queue_pop(metadata->viaje);
+
+		t_mapa* mapa = queue_pop(metadata->viaje);
+		liberarMapa(mapa);
 
 		if (queue_size(metadata->viaje) == 0) {
 			finDelJuego = true;
@@ -618,7 +628,7 @@ bool batallaPokemon(){ 					//retorna true si muere
 			puts("El entrenador ha ganado la batalla pokemon");
 		}
 	}
-
+	free(header);
 	return false;
 }
 
@@ -689,6 +699,9 @@ void desconectarseDeMapa(){
 	if(pokemonMasFuerte)
 		pokemonMasFuerte = NULL;
 
+	if(mapaActual != NULL)
+		liberarMapa(mapaActual);
+
 	mapaActual = NULL;
 }
 
@@ -737,9 +750,14 @@ void rm_de_medallas() {
 
 void finalizarEntrenador(){
 
-	free(metadata->nombre);
-	free(ubicacionActual);
-	queue_destroy_and_destroy_elements(metadata->viaje, (void*) destruirHojaDeViaje);
+	if(metadata->nombre != NULL)
+		free(metadata->nombre);
+
+	if(ubicacionActual != NULL)
+		free(ubicacionActual);
+
+	if(metadata->viaje != NULL)
+		queue_destroy_and_destroy_elements(metadata->viaje, (void*) destruirHojaDeViaje);
 
 	if (ubicacionProximaPokenest != NULL)
 		free(ubicacionProximaPokenest);
@@ -750,7 +768,8 @@ void finalizarEntrenador(){
 	if (pokemonMasFuerte != NULL)
 		free(pokemonMasFuerte);
 
-	free(metadata);
+	if(metadata != NULL)
+		free(metadata);
 
 }
 
@@ -795,16 +814,30 @@ char * generar_ruta_archivo(char * ruta) {
 }
 
 void liberarRecursos(){
-	free(pokedex_path);
-	free(nombreEntrenador);
-	free(rutaMedallas);
-	free(rutaDirDeBill);
+	if(pokedex_path != NULL)
+		free(pokedex_path);
+
+	if(nombreEntrenador != NULL)
+		free(nombreEntrenador);
+
+	if(rutaMedallas != NULL)
+		free(rutaMedallas);
+
+	if(rutaDirDeBill != NULL)
+		free(rutaDirDeBill);
 }
 
 void finalizacionAbrupta(){
-	rm_de_pokemons();
+	desconectarseDeMapa();
 	rm_de_medallas();
 	finalizarEntrenador();
 	liberarRecursos();
 	exit(EXIT_FAILURE);
+}
+
+void liberarMapa(t_mapa* mapa){
+	free(mapa->ip);
+	free(mapa->nombre_mapa);
+	queue_destroy(mapa->objetivos);
+	free(mapa);
 }
