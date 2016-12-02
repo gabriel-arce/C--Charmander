@@ -16,6 +16,7 @@ int main(int argc, char ** argv) {
 	crear_archivo_log();
 
 	signal(SIGUSR2, signal_handler);
+	signal(SIGINT, signal_handler);
 
 	if (chequear_argumentos(argc, TOTAL_ARGS) == -1) {
 		//TODO LOGEAR EL ERROR
