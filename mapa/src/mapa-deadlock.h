@@ -29,7 +29,7 @@ t_pkmn_factory * factory;
 
 // ******* GENERALES *******
 int run_deadlock_algorithm();
-void snapshot_del_sistema();
+int snapshot_del_sistema();
 void imprimir_matriz_en_log(t_matriz * matriz, char * nombre_matriz);
 void imprimir_vector_en_log(int * vector, char * nombre_vector, int rows);
 void imprimir_pokenests_en_log();
@@ -63,6 +63,7 @@ t_list * obtener_los_dls();
 t_entrenador * let_the_battle_begins();
 t_entrenador * buscar_entrenador_del_pkm(t_pokemon * pkm, t_list * lista);
 t_pokemon * obtener_el_mas_poronga(t_entrenador * entrenador);
+int avisar_que_perdio_la_batalla(t_entrenador * entrenador);
 
 
 #endif /* MAPA_DEADLOCK_H_ */

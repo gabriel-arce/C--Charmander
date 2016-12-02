@@ -17,7 +17,7 @@ void run_deadlock_thread() {
 
 		if (run_deadlock_algorithm() == -1) {
 			pthread_mutex_lock(&mutex_log);
-			log_trace(logger, "[ERROR]: El algoritmo de deteccion de deadlock devolvio un resultado de error.");
+			log_error(logger, "[DEADLOCK]: El algoritmo de deteccion de deadlock devolvio un resultado de error.");
 			pthread_mutex_unlock(&mutex_log);
 			break;
 		}
@@ -26,12 +26,8 @@ void run_deadlock_thread() {
 
 int run_deadlock_algorithm() {
 
-	snapshot_del_sistema();
-
-	if (temp_entrenadores->elements_count < 2) {
-		release_all();
+	if (snapshot_del_sistema() == -1)
 		return 0;
-	}
 
 	int pos = 0;
 	//AUN NO SE SI LO VOY A NECESITAR
@@ -81,10 +77,16 @@ int run_deadlock_algorithm() {
 	pthread_mutex_unlock(&mutex_log);
 	t_entrenador * loser = NULL;
 
-	if (cantidad_en_DL > 0) {
+	if (cantidad_en_DL > 1) {
+
+		usleep(5000000);
+
 		if (metadata->batalla) {
 			loser = let_the_battle_begins();
-			//desconexion_entrenador(loser, -1);
+			pthread_mutex_lock(&mutex_log);
+			log_trace(logger, "[DEADLOCK] El entrenador %c(%s) ha perdido la batalla.", loser->simbolo_entrenador, loser->nombre_entrenador);
+			pthread_mutex_unlock(&mutex_log);
+			desconexion_entrenador(loser, 1);
 		}
 	}
 
@@ -116,7 +118,14 @@ void destroy_vector(int * vector) {
 	free(vector);
 }
 
-void snapshot_del_sistema() {
+int snapshot_del_sistema() {
+
+	pthread_mutex_lock(&mutex_planificador_turno);
+
+	if (entrenadores_conectados->elements_count <= 1) {
+		pthread_mutex_unlock(&mutex_planificador_turno);
+		return -1;
+	}
 
 	pthread_mutex_lock(&mutex_pokenests);
 	temp_pokenests = snapshot_list(lista_de_pokenests);
@@ -139,7 +148,11 @@ void snapshot_del_sistema() {
 	imprimir_matriz_en_log(solicitudes, "Matriz Solicitudes");
 	pthread_mutex_unlock(&mutex_log);
 
+	pthread_mutex_unlock(&mutex_planificador_turno);
+
 	marcados = crear_vector(temp_entrenadores->elements_count);
+
+	return 0;
 }
 
 t_matriz * crear_matriz(int filas, int columnas) {
@@ -178,9 +191,7 @@ void imprimir_matriz_en_log(t_matriz * matriz, char * nombre_matriz) {
 	}
 	string_append(&mat, " \0");
 
-	pthread_mutex_lock(&mutex_log);
 	log_trace(logger, mat);
-	pthread_mutex_unlock(&mutex_log);
 
 	free(mat);
 }
@@ -197,9 +208,7 @@ void imprimir_vector_en_log(int * vector, char * nombre_vector, int rows) {
 	}
 	string_append(&vec, " ]\0");
 
-	pthread_mutex_lock(&mutex_log);
 	log_trace(logger, vec);
-	pthread_mutex_unlock(&mutex_log);
 
 	free(vec);
 }
@@ -216,9 +225,7 @@ void imprimir_pokenests_en_log() {
 	}
 	string_append(&list, " ]\0");
 
-	pthread_mutex_lock(&mutex_log);
 	log_trace(logger, list);
-	pthread_mutex_unlock(&mutex_log);
 
 	free(list);
 }
@@ -235,9 +242,7 @@ void imprimir_entrenadores_en_log() {
 	}
 	string_append(&list, " ]\0");
 
-	pthread_mutex_lock(&mutex_log);
 	log_trace(logger, list);
-	pthread_mutex_unlock(&mutex_log);
 
 	free(list);
 }
@@ -428,67 +433,127 @@ t_entrenador * let_the_battle_begins() {
 
 	t_list * dls = obtener_los_dls();
 
-	// TODO analizar bien el tema de que si tengo uno solo en dl si es realmente dl o starvation
-	// En caso de que solo sea uno no tiene sentido armar bardo
-//	if (dls->elements_count == 1)
-//		return list_get(dls, 0);
+	t_entrenador * entrenador_que_perdio = list_get(dls, 0);
+	t_pokemon * pkm_del_que_perdio = obtener_el_mas_poronga(entrenador_que_perdio);
+	t_entrenador * entrenador_que_gano = NULL;
 
-	t_pokemon * loser = obtener_el_mas_poronga((t_entrenador *) list_get(dls, 0));
-	t_pokemon * perdedorNuevo = NULL;
-	t_entrenador * entrenadorQueSeSalva;
+	t_pokemon * loser = NULL;
 
 	int i;
 	for (i = 1; i < dls->elements_count; i++) {
-		t_pokemon * opponent = obtener_el_mas_poronga((t_entrenador *) list_get(dls, i));
+		t_entrenador * entrenador_oponente = list_get(dls, i);
+		t_pokemon * opponent = obtener_el_mas_poronga(entrenador_oponente);
 
-		perdedorNuevo = pkmn_battle(loser, opponent);
+		loser = pkmn_battle(pkm_del_que_perdio, opponent);
 
-		if (perdedorNuevo != loser){
-			entrenadorQueSeSalva = buscar_entrenador_del_pkm(loser, dls);
-
-			loser = opponent;
+		if (pkm_del_que_perdio == loser){
+			//sigue peleando
+			entrenador_que_gano = entrenador_oponente;
+		} else { //opponent == loser
+			pkm_del_que_perdio = opponent;
+			entrenador_que_gano = entrenador_que_perdio;
+			entrenador_que_perdio = entrenador_oponente;
 		}
-		else{
-			entrenadorQueSeSalva = buscar_entrenador_del_pkm(opponent, dls);
-		}
-
-	enviar_header(_RESULTADO_BATALLA, 1, entrenadorQueSeSalva->socket );  //envio que no se murio   //TODO catchear error
 	}
 
-	t_entrenador * el_entrenador_que_PERDIO = buscar_entrenador_del_pkm(loser, dls);
+	void _on_error(char simb) {
+		pthread_mutex_lock(&mutex_log);
+		log_error(logger,
+				"Error al enviar el resultado de la batalla al entrenador %c .",
+				simb);
+		pthread_mutex_unlock(&mutex_log);
+	}
 
-	enviar_header(_RESULTADO_BATALLA, 0, el_entrenador_que_PERDIO->socket ); //envio que se murio	//TODO catchear error
+	for (i = 0; i < dls->elements_count; i++) {
+		t_entrenador * e = list_get(dls, i);
+		e->deadlocksInvolucrados++;
+
+		if (e->simbolo_entrenador == entrenador_que_perdio->simbolo_entrenador) {
+			//envio que perdio
+			//como perdio le tengo que mandar los datos:
+			//deadlocks involucrados / tiempo bloqueado / tiempo de aventura
+			if (avisar_que_perdio_la_batalla(entrenador_que_perdio) == -1)
+				_on_error(e->simbolo_entrenador);
+		} else {
+			//envio que gano
+			if (enviar_header(_RESULTADO_BATALLA, 1, e->socket) == -1)
+				_on_error(e->simbolo_entrenador);
+		}
+	}
 
 	list_destroy(dls);
 
-	return el_entrenador_que_PERDIO;
+	return entrenador_que_perdio;
+}
+
+int avisar_que_perdio_la_batalla(t_entrenador * entrenador) {
+	if (enviar_header(_RESULTADO_BATALLA, 0, entrenador->socket) == -1)
+		return -1;
+
+	time_t tiempo_desbloqueo;
+	time(&tiempo_desbloqueo);
+
+	entrenador->bloqueado = false;
+	entrenador->tiempoBloqueado += difftime(tiempo_desbloqueo, entrenador->momentoBloqueado);
+	entrenador->momentoBloqueado = 0;
+
+	if (enviar_datos_finales_entrenador(entrenador) == -1)
+		return -1;
+
+	return 0;
 }
 
 t_pokemon * obtener_el_mas_poronga(t_entrenador * entrenador) {
-	t_pkm * p = malloc(sizeof(t_pkm));
+
+	t_pokemon * _on_error() {
+		//devuelvo un pokemon igualmente, pero en error este entrenador pierde (o deberia...)
+		return create_pokemon(factory, "pikachu", 1);
+	}
 
 	//Le avisa al entrenador que hay batalla
-	enviar_header(_BATALLA,0,entrenador->socket);
+	if ( enviar_header(_BATALLA, 0, entrenador->socket) < 0 ) {
+		pthread_mutex_lock(&mutex_log);
+		log_error(logger, "No se pudo enviar el header _BATALLA a entrenador %c .", entrenador->simbolo_entrenador);
+		pthread_mutex_unlock(&mutex_log);
+		return _on_error();
+	}
+
 	t_header* headerpkmMasFuerte = recibir_header(entrenador->socket);
 
+	if (headerpkmMasFuerte == NULL) {
+		pthread_mutex_lock(&mutex_log);
+		log_error(logger,
+				"Header NULL del pokemon para la batalla. Entrenador: %c",
+				entrenador->simbolo_entrenador);
+		pthread_mutex_unlock(&mutex_log);
+		return _on_error();
+	}
+
 	if(headerpkmMasFuerte->identificador != _PKM_MAS_FUERTE){
-		//TODO catchear error
-	}
-	else{
-		void* pkmnSerializado = malloc(headerpkmMasFuerte->tamanio);
-
-		if(recv(entrenador->socket,pkmnSerializado,headerpkmMasFuerte->tamanio,0) < 0){
-			//TODO catchear error;
-		}
-
-		p = deserializarPokemon(pkmnSerializado);
-
+		pthread_mutex_lock(&mutex_log);
+		log_error(logger, "Id_header incorrecto. Se esperaba: _PKM_MAS_FUERTE");
+		pthread_mutex_unlock(&mutex_log);
+		return _on_error();
 	}
 
+	t_pkm * pokemonMasFuerte = recibirYDeserializarPokemon(entrenador->socket,
+			headerpkmMasFuerte->tamanio);
 
-	t_pokemon * pkm = create_pokemon(factory, p->nombre, p->nivel);
+	if (pokemonMasFuerte == NULL) {
+		pthread_mutex_lock(&mutex_log);
+		log_error(logger,
+				"Error en el recv del pokemon mas fuerte. Entrenador: %c",
+				entrenador->simbolo_entrenador);
+		pthread_mutex_unlock(&mutex_log);
+		return _on_error();
+	}
 
-	return pkm;
+	t_pokemon * pkm_to_return = create_pokemon(factory, pokemonMasFuerte->nombre, pokemonMasFuerte->nivel);
+	free(pokemonMasFuerte->nombre);
+	free(pokemonMasFuerte->nombreArchivo);
+	free(pokemonMasFuerte);
+
+	return pkm_to_return;
 }
 
 t_entrenador * buscar_entrenador_del_pkm(t_pokemon * pkm, t_list * lista) {

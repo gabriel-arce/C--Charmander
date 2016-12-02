@@ -21,6 +21,8 @@ char* disco;
 off_t tamanioArchivo;
 int32_t descriptorArchivo;
 osada_header oheader;
+struct NodoArchivo *ListaArchivos;
+struct NodoArchivo *ultimo;
 
 int offsetBitmap;
 int offsetTablaArchivos;
@@ -35,7 +37,47 @@ struct stat fileStat;
 
 char abrirArchivo(char* path)
 {
+
 	return 's';
+
+//	struct NodoArchivo *archivoLista = (struct NodoArchivo *) malloc(sizeof(struct NodoArchivo));
+
+
+//	printf(RED "Consultando archivo %s ..\n" RESET, nombre(path));
+
+/*	if ((archivoLista = buscarArchivoEnLista(nombre(path))) == NULL){
+		printf("Error al abrir archivo: archivo %s inexistente\n", path);
+		return 'n';
+	}
+
+	else {
+		if (archivoLista->enUso == EnUso){
+			printf(RED "Error al abrir archivo: archivo en uso\n" RESET);
+			return 'n';
+		}
+	}*/
+
+	//Si llego hasta aca, entonces puede abrir el archivo
+//	archivoLista->enUso = EnUso;
+
+	//TODO: chequear que el archivo exista OK
+	//TODO: ver de tener una tabla con archivos abiertos OK
+	//TODO: ver el modo (lectura o escritura), KO
+	//return 's';
+
+}
+
+struct NodoArchivo *buscarArchivoEnLista(char *nombre){
+	struct NodoArchivo *aux = ListaArchivos;
+
+	mostrarLista();
+
+	while(aux != NULL && aux->nombre != nombre){
+		printf("archivo encontrado.. %s\n", aux->nombre);
+		aux = aux->siguiente;
+		}
+
+	return aux;
 }
 
 void actualizarFCBArchivo(int posicionArchivo, osada_file* FCB, uint32_t size, uint32_t* posicionBloque)
@@ -288,7 +330,7 @@ char cambiarUltimoAcceso(char* path)
 	    printf(FUC"\t Fecha last mod archivo.lastmod %s" RESET, ctime(&timeinfo));
 
 	//printf("\t Fecha actualizada, %s", ctime(FCB->lastmod));// asctime(FCB->lastmod));
-	printf(MAG "\t Fecha last mod uint32: %d\n" RESET,FCB->lastmod);
+//	printf(MAG "\t Fecha last mod uint32: %d\n" RESET,FCB->lastmod);
 	free(FCB);
 	FCB = NULL;
 	//printf("\t Fecha actualizada,  %s", asctime(timeinfo));
@@ -653,6 +695,7 @@ int existePath(char* path, int* pos)
 
 char flushArchivo(char* path)
 {
+	//printf("Paso por flush..\n");
 	return 's';
 }
 
@@ -676,7 +719,7 @@ void* getAttr(char* path)
 
 	time_t tiempo =(time_t)archivo.lastmod;
 	//time(&tiempo);
-    printf(FUC"\t Fecha last mod archivo.lastmod %s" RESET, ctime(&tiempo));
+    //printf(FUC"\t Fecha last mod archivo.lastmod %s" RESET, ctime(&tiempo));
 
     pthread_rwlock_unlock(&(RWlock[pos]));
 
@@ -800,6 +843,7 @@ int intentarOAgregar(int parentDir, char* nombreArchivo, osada_file* nuevo)//bus
 	archivo = NULL;
 
 	return -1;
+
 }
 
 void leerArchivo(uint32_t posicion, osada_file* buf)
@@ -855,12 +899,23 @@ void levantarDatosGenerales(osada_header oheader)
 
 char liberarArchivo(char* path)
 {
+
+	//TODO: chequear que el archivo exista en la tabla de archivos abiertos, OK
+/*	struct NodoArchivo *archivoLista;
+
+	printf("Consultando archivo %s ..", path);
+
+	if ((archivoLista = buscarArchivoEnLista(path)) == NULL){
+		printf(RED "Error al abrir archivo.. archivo %s inexistente\n" RESET, path);
+		return 'n';
+	}
+
+	//TODO: y marcarlo como cerrado OK
+	archivoLista->enUso = SinUso;*/
+
 	return 's';
 }
-//pthread_mutex_unlock(&lockTablaArchivos);
-//pthread_rwlock_wrlock(&(RWlock[posicion]));
-//pthread_rwlock_unlock(&(RWlock[posicion]));
-//pthread_rwlock_unlock(&(RWlock[i]));
+
 void liberarBits(uint32_t posicion)
 {
 		pthread_mutex_lock(&mutexBitmap);
@@ -1382,3 +1437,115 @@ void* writeFile(uint32_t* size, void* bufWrite, int cantidadBloques, uint32_t of
 		return size;
 	}
 }
+
+//funciones para probar la lectura correcta del disco----------------------------------------------------------------------
+t_list *leerTablaArchivos(){
+	t_list *lista = list_create();
+
+	osada_file archivo;
+	int i;
+	printf(GRN "\t\t TABLA DE ARCHIVOS\n" RESET);
+	printf("\t\t Archivo.fname  parent_directory  file_size  state\n");
+
+	for(i = 0; i < 2048; i++){
+
+		leerArchivo(i, &archivo);
+
+		if (archivo.state != DELETED){
+			//printf("%17s\t %8d\t %4d\t %4d\n\n", archivo.fname, archivo.parent_directory, archivo.file_size, archivo.state);
+
+			if (archivo.state == REGULAR)
+				printf("%25s\t %8d\t %4d\t Fichero\n", archivo.fname, archivo.parent_directory, archivo.file_size);
+			if (archivo.state == DIRECTORY)
+				printf("%25s\t %8d\t %4d\t Directorio\n", archivo.fname, archivo.parent_directory, archivo.file_size);
+
+			agregarArchivoEnLista(archivo, lista);
+
+		}
+	}
+
+	//mostrarLista();
+	return lista;
+}
+
+void agregarArchivoEnLista(osada_file archivo, t_list *lista){
+	struct NodoArchivo *nuevo;
+	struct NodoArchivo *aux;
+
+	t_nodoArchivo *nuevo2 = malloc(sizeof (t_nodoArchivo));
+	nuevo2->nombre = malloc(OSADA_FILENAME_LENGTH);
+
+	nuevo = (struct NodoArchivo *) malloc(sizeof(struct NodoArchivo));
+	nuevo2->nombre	= malloc(OSADA_FILENAME_LENGTH);
+
+	memset(nuevo2->nombre, '\0', sizeof(char) * OSADA_FILENAME_LENGTH);
+	memcpy(nuevo2->nombre, archivo.fname, strlen(archivo.fname));
+
+	nuevo2->fd			= descriptorArchivo;
+	nuevo2->enUso		= SinUso;
+	nuevo->siguiente	= NULL;
+
+	list_add(lista, nuevo2);
+
+/*
+	if(ListaArchivos == NULL){
+		ListaArchivos = nuevo;
+
+	} else {
+		aux = ListaArchivos;
+		while(aux->siguiente != NULL){
+			aux = aux->siguiente;
+		}
+
+		aux->siguiente = nuevo;
+	}
+*/
+}
+
+void mostrarLista(){
+//	struct t_listaArchivos *auxiliar;
+	int i = 0;
+
+//	auxiliar = primero;
+//	ListaArchivos = primero;
+	printf("\nMostrando la lista completa: \n");
+
+	while(ListaArchivos != NULL){
+		printf("Nombre: %s\n", ListaArchivos->nombre);
+		printf("Descriptor: %d\n", ListaArchivos->fd);
+		if (ListaArchivos->enUso == SinUso)
+			printf("Sin Uso\n");
+		else printf("En Uso\n");
+
+		ListaArchivos = ListaArchivos->siguiente;
+		i++;
+	}
+
+	if(i==0)
+		printf("\nLa lista se encuentra vacia..\n");
+}
+
+void leerTablaAsignaciones()
+{
+	uint32_t asignacion;
+		uint32_t i;
+		printf(GRN "Tabla de asignaciones\n" RESET);
+		for(i=0; i< 100; i++)
+		{
+			leerAsignacion(i, &asignacion);
+				printf("\t La posicion: %d esta linkeada con:%d \n",i, asignacion);
+		}
+}
+
+void leerTablaDatos()
+{
+	osada_block bloque;
+		int i;
+		printf("tabla de datos\n");
+		for(i=0; i< 100; i++)
+		{
+			leerDato(i, &bloque);
+			printf("%s \n", bloque);
+		}
+}
+

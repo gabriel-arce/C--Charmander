@@ -165,6 +165,8 @@ void sacar_de_bloqueados(t_entrenador * entrenador);
 int the_number_of_the_beast(t_pkm * beast);
 void loguear_cola_de_listos();
 void loguear_cola_de_bloqueados();
+void imprimir_lista(t_list * l, char * tittle);
+void imprimir_bloqueados();
 
 //****Conection and threads ****
 void run_trainer_server();
@@ -217,7 +219,7 @@ t_list * snapshot_list(t_list * source_list);
 void releer_metadada();
 
 //***Envios y serializaciones***
-t_pkm * recibirPokemon(int socket);
 int enviar_ruta_pkm(char * ruta, int socket);
+int enviar_datos_finales_entrenador(t_entrenador * entrenador);
 
 #endif /* MAPA_H_ */

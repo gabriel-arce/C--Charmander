@@ -7,6 +7,7 @@
 
 #include "servidorPokedex.h"
 
+
 t_queue* threadQueue;
 
 pthread_t thread1;
@@ -16,8 +17,14 @@ int main(int argc, char ** argv)
 {
     threadQueue = queue_create();
 
+//    t_list *ListaArchivos;
+
 	printEncabezado();
 	inicializarDisco();
+
+//	ListaArchivos = list_create();
+//	ListaArchivos = leerTablaArchivos();
+	//mostrar_lista_archivos();
 
 	sem_init(&semThreads, 0, MAX_THREADS);
 	listenningSocket = crearServer(PUERTO);
@@ -28,7 +35,6 @@ int main(int argc, char ** argv)
 
 	pthread_join(thread1, NULL);
 	pthread_detach(thread1);
-
 	close(listenningSocket);
 	descargar();
 
@@ -564,6 +570,22 @@ void* procesarPedidoFlush(char *path)
 {
 	printf("\t path: %s\n", path);
 	char* respuesta = malloc(sizeof(char));
+
+//	int i;
+//	char *aux = malloc(OSADA_FILENAME_LENGTH);
+//	t_nodoArchivo *nodo;
+//
+//	aux = nombre(path);
+//
+//	for(i = 0; i < list_size(ListaArchivos); i++){
+//		nodo = list_get(ListaArchivos, i);
+//		if(strcmp(nodo->nombre,aux) == 0){
+//			nodo->enUso = SinUso;
+//			list_replace(ListaArchivos, i, nodo);
+//			printf("Estado actual: Sin Uso");
+//		}
+//	}
+
 	respuesta[0] = flushArchivo(path);
 	return respuesta;
 }
@@ -574,9 +596,13 @@ void* procesarPedidoOpen(char* path, int* codigo)
 	char* respuesta = malloc(sizeof(char));
 	respuesta[0] = abrirArchivo(path);
 
+	//printf("Consultando fichero %s.. \n", path);
+
+	//respuesta[0] = verificar_permiso_archivo(path);
+
 	if(respuesta[0] == 's')
 		*codigo = RESPUESTA_OPEN;
-	if (respuesta[0] == 'n')
+	if(respuesta[0] == 'n')
 		*codigo = ENOENTRY;
 //	else
 //		*codigo = BLOQUEADO;
@@ -584,6 +610,58 @@ void* procesarPedidoOpen(char* path, int* codigo)
 	free(path);
 	path = NULL;
 	return respuesta;
+}
+
+//char verificar_permiso_archivo(char *path){
+//	int i;
+//	char respuesta;
+//	char *aux = malloc(OSADA_FILENAME_LENGTH);
+//	t_nodoArchivo *nodo;
+//
+//	aux = nombre(path);
+//
+//	for(i = 0; i < list_size(ListaArchivos); i++){
+//		nodo = list_get(ListaArchivos, i);
+//		if(strcmp(nodo->nombre,aux) == 0){
+//			//Lo encontro..
+//			if (nodo->enUso == SinUso){
+//				respuesta 	= 's';	//Se puede utilizar
+//				nodo->enUso = EnUso;
+//				list_replace(ListaArchivos, i, nodo);
+//				printf(RED "Puede utilizar el fichero\n" RESET);
+//				}
+//			else {
+//				respuesta = 'n';
+//				printf(RED "No puede utilizar el fichero\n" RESET);
+//				}
+//			break;
+//		}
+//	}
+//
+//	if (strcmp(nodo->nombre,aux) != 0)	//No lo encontro, entonces no existe el fichero..
+//		respuesta = 'n';
+//
+//	return respuesta;
+//}
+
+void mostrar_lista_archivos(){
+//	int i;
+//	t_nodoArchivo *nodo;
+//
+//	nodo			= malloc(sizeof(t_nodoArchivo));
+//	nodo->nombre	= malloc(OSADA_FILENAME_LENGTH);
+//
+//	printf("Ficheros actualmente en el FS..\n");
+//	for(i = 0; i < list_size(ListaArchivos); i++){
+//		nodo = list_get(ListaArchivos, i);
+//		printf("Fichero: %s\n", nodo->nombre);
+//	}
+//
+//	if (i == 0)
+//		printf("No hay archivos en la lista..\n");
+
+	//free(nodo->nombre);
+	//free(nodo);
 }
 
 void* procesarPedidoRelease(char* path)

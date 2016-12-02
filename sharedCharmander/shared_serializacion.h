@@ -89,7 +89,6 @@ typedef struct {
 	char* nombreArchivo;
 	char* nombre;
 	int nivel;
-	int mapa;
 	bool capturado;
 	char id_pokenest;
 } t_pkm;
@@ -98,9 +97,6 @@ t_header * crear_header(int id, int size);
 
 void * serializar_header(int id, int size);
 t_header * deserializar_header(void * buffer);
-
-void * serializarPokemon(t_pkm * pokemon);
-t_pkm * deserializarPokemon(void* pokemonSerializado);
 
 int recibirInt(int socket);
 void enviarInt32(uint32_t mensaje, int socket) ;

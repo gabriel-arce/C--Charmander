@@ -46,44 +46,6 @@ t_header * deserializar_header(void * buffer) {
 	return header;
 }
 
-void * serializarPokemon(t_pkm * pokemon){
-
-	int nombreSize = (string_length(pokemon->nombre));
-	int nombreArchivoSize = (string_length(pokemon->nombreArchivo));
-
-	int pokemonSerializadoSize = nombreSize + nombreArchivoSize + (2 * (sizeof(int))) + sizeof(bool) + sizeof(char);
-
-	void* pokemonSerializado = malloc(pokemonSerializadoSize);
-
-
-	memcpy(pokemonSerializado,&nombreSize,sizeof(int));
-	memcpy(pokemonSerializado + 4,&nombreArchivoSize , sizeof(int));
-	memcpy(pokemonSerializado + 8,&(pokemon->nivel) , sizeof(int));
-	memcpy(pokemonSerializado + 12,&(pokemon->mapa) , sizeof(int));
-	memcpy(pokemonSerializado + 16, pokemon->nombre, nombreSize);
-	memcpy(pokemonSerializado + 16 + nombreSize, pokemon->nombreArchivo, nombreArchivoSize);
-	memcpy(pokemonSerializado + 16 + nombreSize + nombreArchivoSize, pokemon->capturado, sizeof(bool));
-
-	return pokemonSerializado;
-
-}
-
-t_pkm * deserializarPokemon(void* pokemonSerializado){
-	t_pkm * pokemon = malloc(sizeof(t_pkm));
-	int nombreSize;
-	int nombreArchivoSize;
-
-	memcpy(&nombreSize,pokemonSerializado,sizeof(int));
-	memcpy(&nombreArchivoSize,pokemonSerializado + sizeof(int),sizeof(int));
-
-	memcpy(&pokemon->nivel,pokemonSerializado + 2*(sizeof(int)), sizeof(int));
-	memcpy(pokemon->nombre, pokemonSerializado + 3*(sizeof(int)), nombreSize);
-	memcpy(pokemon->nombreArchivo,pokemonSerializado + 3*(sizeof(int)) + nombreSize, nombreArchivoSize);
-
-	return pokemon;
-}
-
-
 int enviarPorSocket(int fdCliente, const void * mensaje, int tamanioBytes)
 {
 	int bytes_enviados = 0;

@@ -59,6 +59,25 @@ typedef enum {
 
 _Static_assert( sizeof(osada_file) == (sizeof(osada_block) / 2.0), "osada_file size does not half osada_block size");
 
+struct NodoArchivo{
+	char *nombre;						//Nombre del archivo
+//	char *path;							//Nombre real
+	int fd;								//descriptor de quien tiene prioridad
+//	struct stat info;					//Estructura stat del archivo
+	osada_uso enUso;					//Flag que determina si esta abie
+	struct NodoArchivo *siguiente;	//Siguiente nodo
+};
+
+typedef struct {
+	char *nombre;						//Nombre del archivo
+	uint32_t fd;						//descriptor de quien tiene prioridad
+	osada_uso enUso;					//Flag que determina si esta abie
+} t_nodoArchivo;
+
+//struct NodoArchivo *ListaArchivos;
+struct NodoArchivo *ultimo;
+
+
 char* disco;
 off_t tamanioArchivo;
 int32_t descriptorArchivo;
@@ -88,7 +107,12 @@ int intentarOAgregar(int parentDir, char* nombreArchivo, osada_file* nuevo);
 //Funciones
 char abrirArchivo(char* path);
 void actualizarFCBArchivo(int posicionArchivo, osada_file* FCB, uint32_t size, uint32_t* posicionBloque);
-int agregarArchivo(char* path, int modo, char* nombreArchivo);
+
+//int agregarArchivo(char* path, int modo, char* nombreArchivo);
+//
+//int agregarArchivo(char* path, int modo);
+void agregarArchivoEnLista(osada_file archivo, t_list *lista);
+
 void agregarBloques(uint32_t size, uint32_t newSize, uint32_t posicion);
 void asignarOffsets();
 char borrarArchivo(char* path);
@@ -123,7 +147,7 @@ void leerArchivo(uint32_t posicion, osada_file* buf);
 void leerAsignacion(uint32_t posicion, uint32_t* buf);
 void leerDato(uint32_t posicion, osada_block* buf);
 void leerHeader();
-void leerTablaArchivos();
+t_list *leerTablaArchivos();
 void leerTablaAsignaciones();
 void leerTablaDatos();
 void levantarDatosGenerales(osada_header oheader);

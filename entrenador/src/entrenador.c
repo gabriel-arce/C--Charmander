@@ -117,7 +117,8 @@ int enviar_datos_a_mapa(int socket, char simbolo, char * nombre) {
 	int buffer_size = sizeof(int) + string_length(nombre);
 	void * data_buffer = malloc(buffer_size);
 
-	enviar_header(1, buffer_size, socket);
+	if(enviar_header(1, buffer_size, socket) < 0)
+		puts("Error al enviar header de datos");
 
 	int num_simbolo = (int) simbolo;
 
@@ -193,7 +194,7 @@ void cargarMetadata(){
 
 	char * ruta = string_duplicate(pokedex_path);
 
-	string_append_with_format(&ruta, "Entrenadores/%s/metadata/metadata", nombreEntrenador);
+	string_append_with_format(&ruta, "Entrenadores/%s/metadata", nombreEntrenador);
 
 	leer_metadata_entrenador(ruta);
 
@@ -204,7 +205,8 @@ void cargarMetadata(){
 
 void conectarseConSiguienteMapa(){
 
-	mapaActual = queue_peek(metadata->viaje);
+	t_mapa * mapa_peek = (t_mapa *) queue_peek(metadata->viaje);
+	mapaActual = copiarMapa(mapa_peek);
 
 	if (mapaActual == NULL) {
 		printf("\nerror\n");
@@ -225,14 +227,35 @@ void conectarseConSiguienteMapa(){
 
 		printf("Conectado con %s \n", mapaActual->nombre_mapa);
 
-		enviar_datos_a_mapa(socket_entrenador, metadata->simbolo,
-				metadata->nombre);
+		if(enviar_datos_a_mapa(socket_entrenador, metadata->simbolo,metadata->nombre) == -1)
+			puts("Error al enviar datos a mapa");
 
 		ubicacionActual->x = 0;
 		ubicacionActual->y = 0;
 		pokenestLocalizada = false;
 	}
 }
+
+t_mapa *  copiarMapa(t_mapa * mapaACopiar){
+	t_mapa * mapaCopiado = malloc(sizeof(t_mapa));
+//	memcpy(&(mapaCopiado->socket), &(mapaACopiar->socket), 4);
+	mapaCopiado->nombre_mapa = string_duplicate(mapaACopiar->nombre_mapa);
+	mapaCopiado->objetivos = queue_create();
+
+	int i;
+	char * obj = NULL;
+	char * obj_copy = NULL;
+	for(i = 0; i < mapaACopiar->objetivos->elements->elements_count; i++) {
+		obj = (char *) list_get(mapaACopiar->objetivos->elements, i);
+		obj_copy = string_duplicate(obj);
+
+		list_add(mapaCopiado->objetivos->elements, obj_copy);
+	}
+
+//	memcpy(mapaCopiado,mapaACopiar,sizeof(t_mapa));
+	return mapaCopiado;
+}
+
 
 void cargar_mapa() {
 	char * ruta_del_mapa = string_duplicate(pokedex_path);
@@ -257,7 +280,8 @@ void solicitarUbicacionDelProximoPokenest(){
 
 void enviarSolicitudUbicacionPokenest(char id_pokemon){
 
-	enviar_header(_UBICACION_POKENEST, (int) id_pokemon, socket_entrenador);
+	if (enviar_header(_UBICACION_POKENEST, (int) id_pokemon, socket_entrenador) < 0)
+		puts("Error al enviar header de ubicacion de pokenest");
 
 	int tamanio_coord = sizeof(t_posicion);
 	void * coordenadas = malloc(tamanio_coord);
@@ -296,53 +320,70 @@ void avanzarHaciaElPokenest(){
 
 	enviarUbicacionAMapa();
 
-	recibir_header(socket_entrenador);
+	if(recibir_header(socket_entrenador) < 0)
+		puts("Error al recibir confirmacion de avanzar");
 }
 
 void enviarUbicacionAMapa(){
 
-	enviar_header(_MOVER_XY, sizeof(t_posicion), socket_entrenador);
+	if(enviar_header(_MOVER_XY, sizeof(t_posicion), socket_entrenador) < 0)
+		puts("Error al enviar header de ubicacion a mapa");
 
 	void* buffer_out = malloc(sizeof(t_posicion));
 	memcpy(buffer_out,&(ubicacionActual->x),4);
 	memcpy(buffer_out + 4,&(ubicacionActual->y),4);
 
-	send(socket_entrenador,buffer_out,sizeof(t_posicion),0);
+	if(send(socket_entrenador,buffer_out,sizeof(t_posicion),0) < 0 )
+		puts("Error al enviar ubicacion");
 }
 
 void atraparPokemon(){
-	t_pkm * pokemonAtrapado = malloc(sizeof(t_pkm));
 
-	enviar_header(_CAPTURAR_PKM,0,socket_entrenador);
+	if (enviar_header(_CAPTURAR_PKM,0,socket_entrenador) < 0)
+		puts("Error al enviar header de capturar pokemon");
 
 	//escuchar y hay dos posibilidades, (deadlock y vuelvo a escuchar) o (pokemon y sigo la rutina)
 
-	t_header * header_in = recibir_header(socket_entrenador);
+	t_header * header_in = NULL;
 	bool pokemonCapturadoOEntrenadorMuerto = false;
 
 	while (!pokemonCapturadoOEntrenadorMuerto) {
+		header_in = recibir_header(socket_entrenador);
+
+		if (header_in == NULL) {
+			pokemonCapturadoOEntrenadorMuerto = true;
+			continue;
+		}
+
 		switch (header_in->identificador) {
 		case _CAPTURAR_PKM:
 
-			puts("pkm capturado");						//TODO falta enviar el pokemon completo
-
-			char * ruta = (char *) malloc(header_in->tamanio + 1);
-			memset(ruta, '\0', header_in->tamanio);
-			recv(socket_entrenador, ruta, header_in->tamanio, 0);
-			memset(ruta + header_in->tamanio, '\0', 1);
-
-			pokemonAtrapado->nombreArchivo = generar_ruta_archivo(ruta);
-
-			copiarPokemon(ruta, pokemonAtrapado);
-
 			pokemonCapturadoOEntrenadorMuerto = true;
+
+			t_pkm * pokemonAtrapado = recibirYDeserializarPokemon(socket_entrenador, header_in->tamanio);
+
+			if (pokemonAtrapado == NULL) {
+				muereEntrenador = true;
+				break;
+			}
+
+			//PRINTEO PKM PARA TEST
+			printf("Nombre: %s\n", pokemonAtrapado->nombre);
+			printf("Archivo: %s\n", pokemonAtrapado->nombreArchivo);
+			printf("Nivel: %d\n", pokemonAtrapado->nivel);
+			printf("Capturado: %s\n", pokemonAtrapado->capturado ? "true" : "false");
+			printf("ID_PKNST: %c\n", pokemonAtrapado->id_pokenest);
+
 			list_add(pokemonesCapturados, pokemonAtrapado);
+
+			puts("pkm capturado");
+
+			copiarPokemon(pokemonAtrapado);
 
 			verificarNivelPokemon(pokemonAtrapado);
 			verificarSiQuedanObjetivosEnMapa();
 			pokenestLocalizada = false;
 
-			free(ruta);
 			break;
 
 		case _BATALLA:
@@ -354,22 +395,17 @@ void atraparPokemon(){
 			exit(EXIT_FAILURE);
 			break;
 		}
-	}
 
-	free(header_in);
+		free(header_in);
+	}
 }
 
 void verificarSiQuedanObjetivosEnMapa(){
 	if (queue_size(mapaActual->objetivos) == 0) {
-		enviar_header(_OBJETIVO_CUMPLIDO, 0, socket_entrenador);
+		if(enviar_header(_OBJETIVO_CUMPLIDO, 0, socket_entrenador) < 0)
+			puts("Error al enviar header de objetivo cumplido");
 
-		t_header * header = recibir_header(socket_entrenador);
-		void * datos = malloc(header->tamanio);
-		recv(socket_entrenador, datos, header->tamanio, 0);
-
-		procesarDatos(datos);
-		free(datos);
-		free(header);
+		recibirDatosFinales();
 
 		copiarMedalla();
 		desconectarseDeMapa();
@@ -382,8 +418,25 @@ void verificarSiQuedanObjetivosEnMapa(){
 		}
 	} else {
 
-		enviar_header(_QUEDAN_OBJETIVOS, 0, socket_entrenador);
+		if(enviar_header(_QUEDAN_OBJETIVOS, 0, socket_entrenador) < 0)
+			puts("Error al enviar header de quedan objetivos");
 	}
+}
+
+void recibirDatosFinales(){
+	t_header * header = recibir_header(socket_entrenador);
+
+			if(header == NULL)
+				puts("Error al recibir header de los datos finales");
+
+			void * datos = malloc(header->tamanio);
+
+			if(recv(socket_entrenador, datos, header->tamanio, 0) < 0)
+				puts("Error al recibir los datos finales");
+
+			procesarDatos(datos);
+			free(datos);
+			free(header);
 }
 
 void procesarDatos(void * datos) {
@@ -409,7 +462,7 @@ void setRutaMedallas() {
 
 void copiarMedalla() {
 	char * ruta_medalla = string_duplicate(pokedex_path);
-	string_append_with_format(&(ruta_medalla), "Mapas/%s/medalla-%s.jpg",
+	string_append_with_format(&(ruta_medalla), "Mapas/%s/medalla-%s.jpg\0",
 			mapaActual->nombre_mapa, mapaActual->nombre_mapa);
 
 	copiar_archivo(ruta_medalla, rutaMedallas);
@@ -417,16 +470,15 @@ void copiarMedalla() {
 	free(ruta_medalla);
 }
 
-void copiarPokemon(char * ruta_pkm, t_pkm * pokemonAtrapado){
+void copiarPokemon(t_pkm * pokemonAtrapado) {
+	char * ruta_pkm = string_new();
+	string_append_with_format(&ruta_pkm, "%sMapas/%s/PokeNests/%s/%s\0", pokedex_path,
+			mapaActual->nombre_mapa, pokemonAtrapado->nombre,
+			pokemonAtrapado->nombreArchivo);
 
 	copiar_archivo(ruta_pkm, rutaDirDeBill);
 
-	t_config * conf_file = config_create(ruta_pkm);
-
-	pokemonAtrapado->nombre = obtener_nombre_pokemon(ruta_pkm);
-	pokemonAtrapado->nivel = getIntProperty(conf_file, "Nivel");
-
-	free(conf_file);
+	free(ruta_pkm);
 }
 
 char * obtener_nombre_pokemon(char * ruta) {
@@ -454,7 +506,7 @@ char * obtener_nombre_pokemon(char * ruta) {
 void setRutaDirDeBill() {
 	rutaDirDeBill = string_duplicate(pokedex_path);
 	//TODO cuidado cuando tengamos el fs posta
-	string_append_with_format(&rutaDirDeBill, "Entrenadores/%s/Dir-de-Bill/", nombreEntrenador);
+	string_append_with_format(&rutaDirDeBill, "Entrenadores/%s/Dir%s de%s Bill/", nombreEntrenador, "\\", "\\");
 }
 
 void verificarNivelPokemon(t_pkm * pokemon){
@@ -506,7 +558,7 @@ bool estoyEnPokenest() {
 
 void imprimirLogro(){
 
-	puts("******--------******");
+	puts("***************************--------***************************");
 	puts("Te has convertido en un maestro pokemon!");
 	printf("El tiempo total de tu aventura fue de: %f segundos \n ", tiempoDeJuego);
 	printf("Pasaste %f segundos bloqueado \n", tiempoBloqueado);
@@ -517,27 +569,45 @@ void imprimirLogro(){
 
 bool batallaPokemon(){ 					//retorna true si muere
 
-	enviarPokemon(pokemonMasFuerte,  socket_entrenador);
-
+//	enviarPokemon(pokemonMasFuerte,  socket_entrenador);
+	if ( serializarYEnviarPokemon(_PKM_MAS_FUERTE, pokemonMasFuerte, socket_entrenador) == EXIT_FAILURE ) {
+		puts("Error en el envio del pokemon mas fuerte.");
+		return false;
+	}
 
 	t_header * header = recibir_header(socket_entrenador); //mapa envia si entrenador gana la batalla o no
+
+	if(header == NULL)
+		puts("Error al recibir el header de respuesta de batalla");
+
+	if (header == NULL) {
+		puts("Error en la recepcion del header en batallaPokemon().");
+		muereEntrenador = true;
+		return true;
+	}
 
 	if (header->identificador != _RESULTADO_BATALLA) {
 
 		puts("identificador de header desconocido");
+		muereEntrenador = true;
+		return true;
 
 	} else {
 
 		if (header->tamanio == 0) {
+			recibirDatosFinales();
 			puts("El entrenador ha perdido una batalla pokemon");
 			muereEntrenador = true;
 			return true;
+		} else {
+			puts("El entrenador ha ganado la batalla pokemon");
 		}
 	}
+
 	return false;
 }
 
-void muerteEntrenador(){
+void muerteEntrenador() {
 	muereEntrenador = false;
 	cantidadDeMuertes += 1;
 	puts("El entrenador a muerto");
@@ -598,10 +668,13 @@ void desconectarseDeMapa(){
 
 	close(socket_entrenador);
 	limpiar_pokemons_en_directorio();
-	list_destroy_and_destroy_elements(pokemonesCapturados, (void *) pokemon_destroyer);
+	list_clean_and_destroy_elements(pokemonesCapturados, (void *) pokemon_destroyer);
 	pokenestLocalizada = false;
-	mapaActual = NULL;
 
+	if(pokemonMasFuerte)
+		pokemonMasFuerte = NULL;
+
+	mapaActual = NULL;
 }
 
 void rm_pokemon(char * dir_pkm) {
@@ -670,19 +743,6 @@ void destruirHojaDeViaje(t_mapa * mapa){
 	free(mapa->nombre_mapa);
 	queue_destroy(mapa->objetivos);
 }
-
-void enviarPokemon(t_pkm * pokemon, int socket){
-
-	int pokemonSerializadoSize = (string_length(pokemon->nombre)) + (string_length(pokemon->nombreArchivo)) + (2 * (sizeof(int))) + sizeof(char) + sizeof(bool);
-
-	void * pokemonSerializado = serializarPokemon(pokemonMasFuerte);
-
-	enviar_header(_PKM_MAS_FUERTE, pokemonSerializadoSize,socket);
-
-	send(socket,pokemonSerializado,pokemonSerializadoSize,0);
-
-}
-
 
 void copiar_archivo(char * source, char * destination) {
 	char * comando = string_new();

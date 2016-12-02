@@ -107,7 +107,7 @@ void destruirHojaDeViaje();
 void rutina(int signal);
 void enviarUbicacionAMapa();
 void enviarPokemon(t_pkm * pokemon, int socket);
-void copiarPokemon(char * ruta_pkm, t_pkm * pokemonAtrapado);
+void copiarPokemon(t_pkm * pokemonAtrapado);
 void copiarMedalla();
 void procesarDatos(void * datos);
 void setRutaMedallas();
@@ -120,5 +120,7 @@ char * obtener_nombre_pokemon(char * ruta);
 char * generar_ruta_archivo(char * ruta);
 void liberarRecursos();
 void rm_de_pokemons();
+t_mapa *  copiarMapa(t_mapa * mapaACopiar);
+void recibirDatosFinales();
 
 #endif /* ENTRENADOR_H_ */

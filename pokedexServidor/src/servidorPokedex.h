@@ -14,7 +14,7 @@
 #define SERVIDORPOKEDEX_H_
 
 #define PUERTO "4969"
-#define BACKLOG 15	// Define cuantas conexiones vamos a mantener pendientes al mismo tiempo
+//#define BACKLOG 15	// Define cuantas conexiones vamos a mantener pendientes al mismo tiempo
 #define ERRNOSPC 48
 
 //colores para los prints en la consola
@@ -64,6 +64,9 @@ void* procesarPedidoTruncate(off_t newSize, char* path);
 void* procesarPedidoUnlink(char *path);
 void* procesarPedidoUtimens(char *path);
 void* procesarPedidoWrite(void *buffer, int* codigo);
+
+void mostrar_lista_archivos();
+char verificar_permiso_archivo(char *path);
 
 void terminar();
 //void threadsDestroyer(pthread_t* thread);
