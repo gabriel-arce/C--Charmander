@@ -104,9 +104,8 @@ int conectarse_a_un_mapa(int puerto, char * ip) {
 	socket_fd = clienteDelServidor(ip, puerto);
 
 	if (socket_fd == -1) {
-		perror("Error al intentar conectarse a un mapa");
-		limpiar_pokemons_en_directorio();
-		exit(EXIT_FAILURE);
+		puts("Error al intentar conectarse a un mapa");
+		finalizacionAbrupta();
 	}
 
 	return socket_fd;
@@ -117,8 +116,10 @@ int enviar_datos_a_mapa(int socket, char simbolo, char * nombre) {
 	int buffer_size = sizeof(int) + string_length(nombre);
 	void * data_buffer = malloc(buffer_size);
 
-	if(enviar_header(1, buffer_size, socket) < 0)
+	if(enviar_header(1, buffer_size, socket) < 0){
 		puts("Error al enviar header de datos");
+		finalizacionAbrupta();
+	}
 
 	int num_simbolo = (int) simbolo;
 
@@ -210,7 +211,7 @@ void conectarseConSiguienteMapa(){
 
 	if (mapaActual == NULL) {
 		printf("\nerror\n");
-		exit(1);
+		finalizacionAbrupta();
 	}
 
 	cargar_mapa();
@@ -220,15 +221,17 @@ void conectarseConSiguienteMapa(){
 
 	if (socket_entrenador < 0) {
 
-		printf("No es posible conectarse con el mapa: %s \n",
-				mapaActual->nombre_mapa);
+		printf("No es posible conectarse con el mapa: %s \n",mapaActual->nombre_mapa);
+		finalizacionAbrupta();
 
 	} else {
 
 		printf("Conectado con %s \n", mapaActual->nombre_mapa);
 
-		if(enviar_datos_a_mapa(socket_entrenador, metadata->simbolo,metadata->nombre) == -1)
+		if(enviar_datos_a_mapa(socket_entrenador, metadata->simbolo,metadata->nombre) == -1){
 			puts("Error al enviar datos a mapa");
+			finalizacionAbrupta();
+		}
 
 		ubicacionActual->x = 0;
 		ubicacionActual->y = 0;
@@ -280,23 +283,25 @@ void solicitarUbicacionDelProximoPokenest(){
 
 void enviarSolicitudUbicacionPokenest(char id_pokemon){
 
-	if (enviar_header(_UBICACION_POKENEST, (int) id_pokemon, socket_entrenador) < 0)
+	if (enviar_header(_UBICACION_POKENEST, (int) id_pokemon, socket_entrenador) < 0){
 		puts("Error al enviar header de ubicacion de pokenest");
+		finalizacionAbrupta();
+		}
 
 	int tamanio_coord = sizeof(t_posicion);
 	void * coordenadas = malloc(tamanio_coord);
 
 	if(recv(socket_entrenador, coordenadas, tamanio_coord, 0) < 0) {
-		perror("Error en el recv de _UBICACION_POKENEST");
-		pokenestLocalizada = false;
+		puts("Error en el recv de _UBICACION_POKENEST");
+		finalizacionAbrupta();
 	}
 
 	memcpy(&(ubicacionProximaPokenest->x), coordenadas, 4);
 	memcpy(&(ubicacionProximaPokenest->y), coordenadas + 4, 4);
 
 	if ((ubicacionProximaPokenest->x == -1)||(ubicacionProximaPokenest->y == -1)) {
-		perror("Error en las coordenadas recibidas");
-		pokenestLocalizada = false;
+		puts("Error en las coordenadas recibidas");
+		finalizacionAbrupta();
 	}
 
 	pokenestLocalizada = true;
@@ -320,27 +325,35 @@ void avanzarHaciaElPokenest(){
 
 	enviarUbicacionAMapa();
 
-	if(recibir_header(socket_entrenador) < 0)
+	if(recibir_header(socket_entrenador) < 0){
 		puts("Error al recibir confirmacion de avanzar");
+		finalizacionAbrupta();
+				}
 }
 
 void enviarUbicacionAMapa(){
 
-	if(enviar_header(_MOVER_XY, sizeof(t_posicion), socket_entrenador) < 0)
+	if(enviar_header(_MOVER_XY, sizeof(t_posicion), socket_entrenador) < 0){
 		puts("Error al enviar header de ubicacion a mapa");
+		finalizacionAbrupta();
+				}
 
 	void* buffer_out = malloc(sizeof(t_posicion));
 	memcpy(buffer_out,&(ubicacionActual->x),4);
 	memcpy(buffer_out + 4,&(ubicacionActual->y),4);
 
-	if(send(socket_entrenador,buffer_out,sizeof(t_posicion),0) < 0 )
+	if(send(socket_entrenador,buffer_out,sizeof(t_posicion),0) < 0 ){
 		puts("Error al enviar ubicacion");
+		finalizacionAbrupta();
+				}
 }
 
 void atraparPokemon(){
 
-	if (enviar_header(_CAPTURAR_PKM,0,socket_entrenador) < 0)
+	if (enviar_header(_CAPTURAR_PKM,0,socket_entrenador) < 0){
 		puts("Error al enviar header de capturar pokemon");
+		finalizacionAbrupta();
+				}
 
 	//escuchar y hay dos posibilidades, (deadlock y vuelvo a escuchar) o (pokemon y sigo la rutina)
 
@@ -392,7 +405,7 @@ void atraparPokemon(){
 
 		default:
 			puts("identificador de header invalido");
-			exit(EXIT_FAILURE);
+			finalizacionAbrupta();
 			break;
 		}
 
@@ -402,8 +415,10 @@ void atraparPokemon(){
 
 void verificarSiQuedanObjetivosEnMapa(){
 	if (queue_size(mapaActual->objetivos) == 0) {
-		if(enviar_header(_OBJETIVO_CUMPLIDO, 0, socket_entrenador) < 0)
+		if(enviar_header(_OBJETIVO_CUMPLIDO, 0, socket_entrenador) < 0){
 			puts("Error al enviar header de objetivo cumplido");
+			finalizacionAbrupta();
+					}
 
 		recibirDatosFinales();
 
@@ -418,21 +433,27 @@ void verificarSiQuedanObjetivosEnMapa(){
 		}
 	} else {
 
-		if(enviar_header(_QUEDAN_OBJETIVOS, 0, socket_entrenador) < 0)
+		if(enviar_header(_QUEDAN_OBJETIVOS, 0, socket_entrenador) < 0){
 			puts("Error al enviar header de quedan objetivos");
+			finalizacionAbrupta();
+					}
 	}
 }
 
 void recibirDatosFinales(){
 	t_header * header = recibir_header(socket_entrenador);
 
-			if(header == NULL)
+			if(header == NULL){
 				puts("Error al recibir header de los datos finales");
+				finalizacionAbrupta();
+						}
 
 			void * datos = malloc(header->tamanio);
 
-			if(recv(socket_entrenador, datos, header->tamanio, 0) < 0)
+			if(recv(socket_entrenador, datos, header->tamanio, 0) < 0){
 				puts("Error al recibir los datos finales");
+				finalizacionAbrupta();
+						}
 
 			procesarDatos(datos);
 			free(datos);
@@ -572,26 +593,20 @@ bool batallaPokemon(){ 					//retorna true si muere
 //	enviarPokemon(pokemonMasFuerte,  socket_entrenador);
 	if ( serializarYEnviarPokemon(_PKM_MAS_FUERTE, pokemonMasFuerte, socket_entrenador) == EXIT_FAILURE ) {
 		puts("Error en el envio del pokemon mas fuerte.");
-		return false;
+		finalizacionAbrupta();
 	}
 
 	t_header * header = recibir_header(socket_entrenador); //mapa envia si entrenador gana la batalla o no
 
-	if(header == NULL)
+	if(header == NULL){
 		puts("Error al recibir el header de respuesta de batalla");
-
-	if (header == NULL) {
-		puts("Error en la recepcion del header en batallaPokemon().");
-		muereEntrenador = true;
-		return true;
-	}
+		finalizacionAbrupta();
+				}
 
 	if (header->identificador != _RESULTADO_BATALLA) {
 
 		puts("identificador de header desconocido");
-		muereEntrenador = true;
-		return true;
-
+		finalizacionAbrupta();
 	} else {
 
 		if (header->tamanio == 0) {
@@ -784,4 +799,12 @@ void liberarRecursos(){
 	free(nombreEntrenador);
 	free(rutaMedallas);
 	free(rutaDirDeBill);
+}
+
+void finalizacionAbrupta(){
+	rm_de_pokemons();
+	rm_de_medallas();
+	finalizarEntrenador();
+	liberarRecursos();
+	exit(EXIT_FAILURE);
 }

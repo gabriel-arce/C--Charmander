@@ -122,5 +122,6 @@ void liberarRecursos();
 void rm_de_pokemons();
 t_mapa *  copiarMapa(t_mapa * mapaACopiar);
 void recibirDatosFinales();
+void finalizacionAbrupta();
 
 #endif /* ENTRENADOR_H_ */
