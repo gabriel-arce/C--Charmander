@@ -26,8 +26,8 @@ endif
 all: pokedexServidor
 
 dependents:
-	-cd /home/utnso/workspace/tp-2016-2c-MeQuedeSinPokebolas-/comunicacion/Debug && $(MAKE) clean all
-	-cd /home/utnso/workspace/tp-2016-2c-MeQuedeSinPokebolas-/osadaFS/Debug && $(MAKE) clean all
+	-cd /home/utnso/workspace/tp-2016-2c-MeQuedeSinPokebolas-/comunicacion/Debug && $(MAKE) all
+	-cd /home/utnso/workspace/tp-2016-2c-MeQuedeSinPokebolas-/osadaFS/Debug && $(MAKE) all
 
 # Tool invocations
 pokedexServidor: $(OBJS) $(USER_OBJS) /home/utnso/workspace/tp-2016-2c-MeQuedeSinPokebolas-/comunicacion/Debug/libcomunicacion.so /home/utnso/workspace/tp-2016-2c-MeQuedeSinPokebolas-/osadaFS/Debug/libosadaFS.so

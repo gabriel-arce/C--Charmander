@@ -131,8 +131,8 @@ int crearServer(char* puerto)
 	}
 	freeaddrinfo(servinfo);
 
-	if (listen(listenningSocket, 15))
-	{	//Backlog de 15, no creo que sea necesario mas
+	if (listen(listenningSocket, BACKLOG))
+	{
 		printf(RED "\t Fallo el listen\n" RESET);
 		return -1;
 	}
@@ -155,12 +155,16 @@ int crearSocket(char ip[], char puerto[])
 	int serverSocket;
 	if ((serverSocket = socket(serverInfo->ai_family, serverInfo->ai_socktype, serverInfo->ai_protocol)) == -1)
 	{
-		printf(RED "\n\t Error en la llamada a socket()\n" RESET);
+		free(serverInfo);
+		printf(RED2 "\n	Error en la llamada a socket() \n" RESET);
+
 		return -1;
 	}
 	if ((connect(serverSocket, serverInfo->ai_addr, serverInfo->ai_addrlen)) == -1)
 	{
-		printf(RED "\n\t Error en la llamada a connect()\n" RESET);
+		free(serverInfo);
+		printf(RED2 "\n	Error en la llamada a connect() \n" RESET);
+
 		return -2;
 	}
 	freeaddrinfo(serverInfo);	// No lo necesitamos mas
@@ -258,8 +262,10 @@ void* recibir(int socketEmisor, int* head)
 	// Deserializo el mensaje
 	void* buffer = serializar(*head, mensaje, *tamanioMensaje);
 
-	free(tamanioMensaje); tamanioMensaje = NULL;
-	free(mensaje); mensaje = NULL;
+	free(tamanioMensaje);
+	tamanioMensaje = NULL;
+	free(mensaje);
+	mensaje = NULL;
 
 	return buffer;
 }
@@ -292,7 +298,6 @@ int recibirPorSocket(int skServidor, void* buffer, int tamanioBytes)
 	return bytes_recibidos; // En caso de éxito, se retorna la cantidad de bytes realmente recibida
 }
 
-// SERIALIZAR: Del mensaje listo para enviar, al buffer
 void* serializar(int head, void* mensaje, int tamanio)
 {
 	void * buffer = NULL;
@@ -358,7 +363,6 @@ void* serializarPedidoGetatrr(t_stbuf* response, int tamanio)
 {
 	int desplazamiento = 0;
 
-	// Copio los campos enteros:
 	void* buffer = malloc(tamanio);
 	memset(buffer, 0, tamanio);
 
@@ -369,9 +373,12 @@ void* serializarPedidoGetatrr(t_stbuf* response, int tamanio)
 	desplazamiento += sizeof(nlink_t);
 
 	memcpy(buffer + desplazamiento, &(response->size), sizeof(off_t));
-//	desplazamiento += sizeof(off_t);
 
-//  memcpy(buffer + desplazamiento, &(response->mtime), sizeof(time_t));
+	desplazamiento += sizeof(off_t);
+
+	memcpy(buffer + desplazamiento, &(response->mtime), sizeof(time_t));
+
+	time_t tiempo = response->mtime;
 
 	return buffer;
 }
@@ -423,7 +430,8 @@ void* serializarPedidoRead(t_readbuf* response, char* path)
 
 	free(response);
 	free(path);
-
+	response = NULL;
+	path = NULL;
 	return buffer;
 }
 
@@ -470,6 +478,9 @@ int enviarRespuestaRead(int socket, int head, void* respuesta, uint32_t* tamanio
 	// Envío la totalidad del paquete de una:
 	int enviados = enviarPorSocket(socket, buffer, tamanioAEnviar);
     free(tamanioBuffer);
+    free(respuesta);
+    tamanioBuffer = NULL;
+    respuesta = NULL;
 	return enviados;
 }
 
@@ -483,7 +494,6 @@ void* recibirRespuestaRead(int socketEmisor, int* head, uint32_t* tamanio)
 		return NULL;
 	}
 
-	//uint32_t tamanio;
 	recibido = recibirPorSocket(socketEmisor, tamanio, sizeof(uint32_t));
 
 	if (recibido <= 0)
@@ -491,7 +501,6 @@ void* recibirRespuestaRead(int socketEmisor, int* head, uint32_t* tamanio)
 		return NULL;
 	}
 
-	//printf(YEL "\t En recibirRespuestaRead recibi tamanio :%d\n "RESET, *tamanio);
 	// Recibo  el buffer:
 	void* buffer = malloc(*tamanio);
 	recibido = recibirPorSocket(socketEmisor, buffer, *tamanio);
@@ -578,7 +587,6 @@ void* serializarPedidoWrite(t_writebuf* response, char* path, char* bufWrite)
 int enviarEstructuraWrite(int fdReceptor, int head, char* path, char* bufWrite, t_writebuf* mensaje)
 {
 	int desplazamiento = 0;
-	//int tamanioMensaje = sizeof(t_writebuf) + strlen(path) + strlen(bufWrite) + 2;
 	int tamanioMensaje = sizeof(t_writebuf) + strlen(path) + mensaje->bufLen + 1;
 	int tamanioTotalAEnviar = 0;
 

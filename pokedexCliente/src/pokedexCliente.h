@@ -18,13 +18,10 @@
 #define CUSTOM_FUSE_OPT_KEY(t, p, v) { t, offsetof(struct t_runtime_options, p), v }
 #define ERRNOSPC 48
 
-//Variables Globales
 int* socketServidor;
 t_log* logCliente;
 
 char* puntoDeMontaje;
-//char* ip;
-//char* puerto;
 
 char ip[10];
 char puerto[5];
@@ -42,8 +39,6 @@ enum {
 KEY_VERSION,
 KEY_HELP,
 };
-
-//struct tm *timeinfo;
 
 //Funciones
 static int osada_access(const char *filename, int how);
@@ -70,6 +65,7 @@ void printErrorConexion();
 void PrintFuse();
 void printMensajeInesperado(int head);
 void printServidorDesconectado();
+void printTerminar();
 
 void terminar();
 

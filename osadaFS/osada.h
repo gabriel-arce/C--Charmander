@@ -59,19 +59,6 @@ typedef enum {
 
 _Static_assert( sizeof(osada_file) == (sizeof(osada_block) / 2.0), "osada_file size does not half osada_block size");
 
-struct NodoArchivo{
-	char *nombre;						//Nombre del archivo
-//	char *path;							//Nombre real
-	int fd;								//descriptor de quien tiene prioridad
-//	struct stat info;					//Estructura stat del archivo
-	osada_uso enUso;					//Flag que determina si esta abie
-	struct NodoArchivo *siguiente;	//Siguiente nodo
-};
-
-static struct NodoArchivo *ListaArchivos;
-struct NodoArchivo *ultimo;
-
-//Variables Globales
 char* disco;
 off_t tamanioArchivo;
 int32_t descriptorArchivo;
@@ -88,11 +75,20 @@ uint32_t  bitmapSize, dataBlocks, bloques, maximoBit;
 t_bitarray* bitVector;
 struct stat fileStat;
 
+pthread_rwlock_t RWlock[2048];
+pthread_rwlock_t lockTablaArchivos;
+pthread_mutex_t mutexArchivo[2048];
+pthread_mutex_t mutexBitmap = PTHREAD_MUTEX_INITIALIZER;
+
+//nuevas
+void* attrRaiz();
+int existeArchivo(char* nombreArchivo, uint16_t parentDirectory, int posicion);
+int intentarOAgregar(int parentDir, char* nombreArchivo, osada_file* nuevo);
+
 //Funciones
 char abrirArchivo(char* path);
 void actualizarFCBArchivo(int posicionArchivo, osada_file* FCB, uint32_t size, uint32_t* posicionBloque);
-int agregarArchivo(char* path, int modo);
-void agregarArchivoEnLista(osada_file archivo);
+int agregarArchivo(char* path, int modo, char* nombreArchivo);
 void agregarBloques(uint32_t size, uint32_t newSize, uint32_t posicion);
 void asignarOffsets();
 char borrarArchivo(char* path);
@@ -125,7 +121,6 @@ int hayEspacioEnDisco(int cantidadBloques);
 void inicializarDisco();
 void leerArchivo(uint32_t posicion, osada_file* buf);
 void leerAsignacion(uint32_t posicion, uint32_t* buf);
-void leerBloque(uint32_t cantidadBloques, char* buf);
 void leerDato(uint32_t posicion, osada_block* buf);
 void leerHeader();
 void leerTablaArchivos();
@@ -135,8 +130,8 @@ void levantarDatosGenerales(osada_header oheader);
 void levantarBitmap();
 char liberarArchivo(char* path);
 void liberarBits(uint32_t posicion);
+void liberarRecursos();
 int mapearDisco(char* path);
-void mostrarLista();
 char* nombre(char* path);
 time_t obtenerFecha();
 int padre(char* path);

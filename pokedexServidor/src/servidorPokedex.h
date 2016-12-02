@@ -4,7 +4,7 @@
  *  Created on: 5/10/2016
  *      Author: utnso
  */
-
+#include <commons/collections/queue.h>
 #include <comunicacion.h>
 #include <osada.h>
 #include <signal.h>
@@ -16,6 +16,7 @@
 #define PUERTO "4969"
 #define BACKLOG 15	// Define cuantas conexiones vamos a mantener pendientes al mismo tiempo
 #define ERRNOSPC 48
+
 //colores para los prints en la consola
 #define RED   "\x1B[31m"
 #define GRN   "\x1B[32m"
@@ -35,15 +36,14 @@
 #define COR "\033[1;31m"
 
 #define BLOCK_SIZE	64
+#define MAX_THREADS 5
 
-//Variables Globales
 t_log logServidor;
 int	listenningSocket;
-pthread_mutex_t mutex_comunicacion  = PTHREAD_MUTEX_INITIALIZER;
 
-void atendercliente(int socket);
+void* atendercliente(void* socketCliente);
+void destruirMutex() ;
 void* hiloComunicacion(void* arg);
-void liberarRecursos();
 void printEncabezado();
 void printTerminar();
 
@@ -66,5 +66,6 @@ void* procesarPedidoUtimens(char *path);
 void* procesarPedidoWrite(void *buffer, int* codigo);
 
 void terminar();
+//void threadsDestroyer(pthread_t* thread);
 
 #endif /* SERVIDORPOKEDEX_H_ */

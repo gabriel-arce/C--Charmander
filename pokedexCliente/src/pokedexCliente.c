@@ -12,6 +12,7 @@ int main(int argc, char *argv[])
 {
 //	ip = getenv("SERVER_HOST");
 //	puerto = getenv("SERVER_PORT");
+
   struct fuse_args args = FUSE_ARGS_INIT(argc, argv);
   int ret;
   int head = 0;
@@ -43,11 +44,15 @@ int main(int argc, char *argv[])
   if (socket == -1)
   {
     printErrorConexion();
+    liberarRecursos();
+    free(mensaje);
     return -1;
   }
   else if (socket == -2)
   {
     printServidorDesconectado();
+    liberarRecursos();
+    free(mensaje);
     return -1;
   }
 
@@ -152,7 +157,7 @@ static int osada_create(const char *path, mode_t mode, struct fuse_file_info *fi
 static int osada_flush(const char *path, struct fuse_file_info *fi)
 {
 	log_info(logCliente, "FUSE: llamada a osada_flush(), path: %s", path);
-
+	log_info(logCliente, "fuse_file_info *fi en osada_flush(), flags: %d", fi->flags);
 	int head = 0;
 	void* paquete = NULL;
 	char* pathAux = malloc(strlen(path) +1);
@@ -181,7 +186,7 @@ static int osada_flush(const char *path, struct fuse_file_info *fi)
 	return 0;
 }
 
-static int osada_getattr(const char *path, struct stat *stbuf)
+static int osada_getattr(const char *path, struct stat* stbuf)
 {
 	log_info(logCliente, "FUSE: llamada a osada_getattr(), path: %s", path);
 
@@ -209,11 +214,31 @@ static int osada_getattr(const char *path, struct stat *stbuf)
 			stbuf->st_mode = paquete->mode;
 			stbuf->st_nlink = paquete->nlink;
 			stbuf->st_size = paquete->size;
-//			stbuf->st_mtim.tv_sec = paquete->mtime;
-//			stbuf->st_atim.tv_sec = paquete->mtime;
-//			stbuf->st_ctim.tv_sec = paquete->mtime;
 
+//		 	time_t tiempo = time(0);
+//		 	time(&tiempo);
+//		 	time_t timeinfo =  (time_t)localtime(&tiempo);
+//		 	//printf(YEL "\t Local Time: %s\r\n" RESET, asctime(timeinfo));
+//		 	return timeinfo;
+
+			time_t tiempo =(time_t)paquete->mtime;
+
+			stbuf->st_mtim.tv_sec = (time_t)(tiempo/1000);
+			stbuf->st_mtim.tv_nsec = (tiempo % 1000) * 1000000;
+			stbuf->st_atim.tv_sec = (time_t)(tiempo/1000);
+			stbuf->st_atim.tv_nsec = (tiempo % 1000) * 1000000;
+			stbuf->st_ctim.tv_sec = (time_t)(tiempo/1000);
+			stbuf->st_ctim.tv_nsec = (tiempo % 1000) * 1000000;
+
+//			stbuf->st_atim.tv_sec = tiempo;
+//			stbuf->st_ctim.tv_sec = tiempo;
+
+			//printf("\tctime: %s", ctime(&sb.st_ctim.tv_sec));
+//			log_info(logCliente, "	fecha last mod copiada: %s",ctime(&(stbuf->st_ctim.tv_sec)));
+//			log_info(logCliente, "	fecha last mod recibida en paquete: %s",ctime(&(paquete->mtime)));
+//			log_info(logCliente, "	fecha last mod uint32: %d",paquete->mtime);
 			log_info(logCliente, "	Recibi RESPUESTA_GETATTR");
+
 			free(paquete);
 
 			return 0;
@@ -325,6 +350,9 @@ static int osada_mknod(const char *path, mode_t mode, dev_t rdev)
 static int osada_open(const char *path, struct fuse_file_info *fi)
 {
 	log_info(logCliente, "FUSE: llamada a osada_open(), path: %s", path);
+	log_info(logCliente, "	flags: %d", fi->flags);
+	log_info(logCliente, "	fh:");// %f");, fi->fh);
+
 
 	int head = 0;
 	void *paquete = NULL;
@@ -383,7 +411,6 @@ static int osada_readdir(const char *path, void *buf, fuse_fill_dir_t filler, of
 			filler(buf, token, NULL, 0);
 			token = strtok(NULL, "/");
 		}
-
 
 		free(paquete);
 		return 0;
@@ -775,9 +802,15 @@ void printMensajeInesperado(int head)
 
 void printServidorDesconectado()
 {
-	printf(RED "\n\n\n****************** El servidor cerro la conexion *********************************\n" RESET);
-	printf("****************** Terminando el programa ****************************************\n");
-	printf("**********************************************************************************\n\n\n");
+	printf(RED "\n\n****************** El servidor cerro la conexion *********************************\n" RESET);
+	printf(NAR"**********************************************************************************\n");
+	printf(ORG"****************** El cliente aborta el programa *********************************\n");
+	printf(YEL"**********************************************************************************\n");
+	printf(YEL2"****************** " GRN "Terminar" YEL2 " ******************************************************\n");
+	printf(AMB"**********************************************************************************\n");
+	printf(GRN "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\n\n\n" RESET);
+
+
 	log_info(logCliente, "****************** No se pudo establecer la conexion con el servidor *************" );
 	log_info(logCliente, "****************** Terminando el programa ****************************************" );
 	log_info(logCliente, "**********************************************************************************" );

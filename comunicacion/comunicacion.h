@@ -33,7 +33,7 @@
 #include <signal.h>
 #include <stddef.h>
 
-
+#define BACKLOG 10
 #define HANDSHAKE 777
 #define ERROR -1
 
@@ -104,7 +104,7 @@ typedef struct{
 	mode_t  mode;
 	nlink_t  nlink;
 	off_t  size;
-	//time_t mtime;
+	time_t mtime;
 }__attribute__((packed)) t_stbuf;
 
 //para fuse en pedido write
@@ -132,7 +132,6 @@ typedef struct {
 	char tipo;
 	int tamanio;
 }__attribute__((packed)) t_header;
-
 
 void* recibirRespuestaRead(int socketEmisor, int* head, uint32_t* tamanio);
 int enviarRespuestaRead(int socket, int head, void* respuesta, uint32_t* tamanioBuffer);
