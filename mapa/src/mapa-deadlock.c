@@ -12,7 +12,7 @@ void run_deadlock_thread() {
 
 	factory = create_pkmn_factory();
 
-	while(true) {
+	while(!finalizacionDelPrograma) {
 		usleep(metadata->tiempoChequeoDeadlock);
 
 		if (run_deadlock_algorithm() == -1) {

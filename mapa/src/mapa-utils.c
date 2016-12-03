@@ -70,6 +70,7 @@ void inicializar_variables() {
 	items_mapa = list_create();
 	cola_de_bloqueados = list_create();
 	cambio_metadata = false;
+	finalizacionDelPrograma = false;
 }
 
 void destruir_variables() {
@@ -82,6 +83,7 @@ void destruir_variables() {
 
 	free(nombreMapa);
 	free(ruta_directorio);
+	log_destroy(logger);
 }
 
 void entrenador_destroyer(t_entrenador * e) {
@@ -90,13 +92,15 @@ void entrenador_destroyer(t_entrenador * e) {
 	free(e->pokemonesCapturados);
 }
 
-void pokenest_destroyer(t_pokenest * r) {
-	free(r->nombre);
-
-	void pkm_destroyer(t_pkm * p) {
+void pkm_destroyer(t_pkm * p) {
 		free(p->nombre);
 		free(p->nombreArchivo);
 	}
+
+
+void pokenest_destroyer(t_pokenest * r) {
+	free(r->nombre);
+
 	list_destroy_and_destroy_elements(r->pokemones, (void *) pkm_destroyer);
 	free(r->posicion);
 	free(r->tipo);

@@ -52,11 +52,11 @@ void leer_metadata_mapa(char * metadata_path) {
 	if (metadata->ip == NULL) log_error(logger, "IP no encontrada");
 
 	metadata->puerto = getIntProperty(conf_file, "Puerto");
-	if (metadata->puerto == NULL) log_error(logger, "Puerto no encontrado");
+	if (&metadata->puerto == NULL) log_error(logger, "Puerto no encontrado");
 
 	cargar_medalla();
 
-	free(conf_file);
+	config_destroy(conf_file);
 	free(ruta);
 }
 
@@ -168,7 +168,8 @@ void cargar_pokenests() {
 						free(_x_y[0]);
 						free(_x_y[1]);
 						free(_x_y);
-						free(m_pknst);
+						config_destroy(m_pknst);
+						free(path_f_pknst);  //asdasdasd
 
 						continue;
 					}
@@ -192,9 +193,10 @@ void cargar_pokenests() {
 					string_append_with_format(&path_f_pknst, "%s/%s", path, f_pknst->d_name);
 
 					// if its the metadata go on
-					if ( string_equals_ignore_case(f_pknst->d_name, "metadata") )
+					if ( string_equals_ignore_case(f_pknst->d_name, "metadata") ){
+						free(path_f_pknst);
 						continue;
-
+					}
 					// else its a pokemon
 					t_config * dat_pkm = config_create(path_f_pknst);
 
@@ -207,6 +209,7 @@ void cargar_pokenests() {
 
 					if (!config_has_property(dat_pkm, "Nivel")) {
 						free(dat_pkm);
+						free(path_f_pknst);
 						continue;
 					}
 
@@ -219,7 +222,7 @@ void cargar_pokenests() {
 
 					list_add(pknst->pokemones, pkm);
 
-					free(dat_pkm);
+					config_destroy(dat_pkm);
 					free(path_f_pknst);
 				}
 
@@ -324,7 +327,7 @@ void run_trainer_server() {
 	fdmax = listener;
 
 	/* loop for new entries */
-	while(1) {
+	while(!finalizacionDelPrograma) {
 
 		read_fds = master_fdset;
 
@@ -454,7 +457,7 @@ t_entrenador * recibir_datos_entrenador(int socket_entrenador, int data_buffer_s
 
 void run_scheduler_thread() {
 
-	while (true) {
+	while (!finalizacionDelPrograma) {
 		waitSemaforo(semaforo_de_listos);
 		loguear_cola_de_listos();
 		//corro el algoritmo
@@ -736,6 +739,7 @@ int desconexion_entrenador(t_entrenador * entrenador, int nbytes_recv) {
 	imprimir_lista(cola_de_listos, "Cola de listos");
 	imprimir_lista(entrenadores_conectados, "Entrenadores conectados");
 
+
 	return EXIT_FAILURE;
 }
 
@@ -928,14 +932,22 @@ int procesar_objetivo_cumplido(t_entrenador * entrenador) {
 
 void signal_handler(int signal) {
 
-	if (signal == SIGUSR2) {
+	switch (signal) {
 
+	case SIGUSR2:
 		if (entrenador_corriendo != NULL) {
 			cambio_metadata = true;
 		} else {
 			releer_metadada();
 		}
+		break;
 
+	case SIGINT:
+		//puts("Finalizando mapa");
+		finalizarPrograma();
+		break;
+
+	default: puts("Codigo de señal invalida");
 	}
 }
 
@@ -949,7 +961,7 @@ void atender_bloqueados() {
 	int cantidad_bloqueados = 0;
 	int i;
 
-	while (true) {
+	while (!finalizacionDelPrograma) {
 		waitSemaforo(semaforo_de_bloqueados);
 		loguear_cola_de_bloqueados();
 
@@ -975,6 +987,7 @@ void atender_bloqueados() {
 				list_remove(cola_de_bloqueados, i);
 				i--;
 				generar_captura(b->entrenador, b->pokenest, pkm);
+				free(b);
 			}
 		}
 
@@ -1059,6 +1072,7 @@ int generar_captura(t_entrenador * entrenador, t_pokenest * pokenest, t_pkm * po
 		default:
 			break;
 	}
+	free(header);
 
 	return EXIT_SUCCESS;
 }
@@ -1101,4 +1115,20 @@ int enviar_datos_finales_entrenador(t_entrenador * entrenador) {
 	free(datos);
 
 	return 0;
+}
+
+void finalizarPrograma(){
+
+	destruir_variables();
+	destruir_metadata();
+	destruir_semaforos();
+	finalizacionDelPrograma = true;
+
+
+	pthread_detach(hilo_planificador);
+	pthread_detach(hilo_servidor);
+	pthread_detach(hilo_bloqueados);
+	pthread_detach(hilo_deadlock);
+
+		exit(EXIT_SUCCESS);
 }

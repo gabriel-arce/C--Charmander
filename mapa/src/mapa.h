@@ -143,6 +143,8 @@ fd_set master_fdset;
 int quantum_actual;
 bool cambio_metadata;
 
+bool finalizacionDelPrograma;
+
 //variables de la GUI
 t_list * items_mapa;
 
@@ -195,6 +197,7 @@ void entrenador_destroyer(t_entrenador * e);
 void pokenest_destroyer(t_pokenest * r);
 void destruir_metadata();
 void item_destroyer(void * item);
+void pkm_destroyer(t_pkm * p);
 // ....
 void pokemon_remover(t_pkm * pkm, t_list * list);
 
@@ -217,6 +220,7 @@ int agregar_a_cola(t_entrenador * entrenador, t_list * cola, pthread_mutex_t mut
 t_entrenador * pop_entrenador();
 t_list * snapshot_list(t_list * source_list);
 void releer_metadada();
+void finalizarPrograma();
 
 //***Envios y serializaciones***
 int enviar_ruta_pkm(char * ruta, int socket);
