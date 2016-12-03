@@ -67,8 +67,10 @@ void* hiloComunicacion(void* arg)
 
 				pthread_attr_init(&attr);
 				pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_DETACHED);
+				cliente = queue_pop(threadQueue);
 				pthread_create(cliente, &attr, atendercliente, (void*)socketCliente);
 				pthread_attr_destroy(&attr);
+				free(cliente);
 			}
 		}
 		else
@@ -76,6 +78,7 @@ void* hiloComunicacion(void* arg)
 			//printf(YEL "\t Recibi un mensaje inesperado de: %d :%s \n" RESET, *socketCliente, mensajeHSK);
 		}
 	}
+	pthread_exit((void*) "Finaliza hilo comunicacion");
 	return NULL;
 }
 
@@ -488,6 +491,7 @@ void* atendercliente(void* socketCliente)
 	}//fin while
 	printf(YEL "\n******** Se desconecto el cliente %d, termina el hilo que lo atiendia ******\n" RESET, socket);
 	sem_post(&semThreads);
+	pthread_exit((void*) "Finaliza hilo cliente");
 	return NULL;
 }
 
