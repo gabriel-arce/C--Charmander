@@ -39,7 +39,7 @@
 #define MAX_THREADS 5
 
 int	listenningSocket;
-t_log* logServidor;
+//t_log* logServidor;
 
 void* atendercliente(void* socketCliente);
 void destruirMutex() ;
