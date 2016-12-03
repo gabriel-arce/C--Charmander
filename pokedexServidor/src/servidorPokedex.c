@@ -8,13 +8,13 @@
 #include "servidorPokedex.h"
 
 
-t_queue* threadQueue;
+//t_queue* threadQueue;
 pthread_t thread1;
 sem_t semThreads;
 
 int main(int argc, char ** argv)
 {
-    threadQueue = queue_create();
+   // threadQueue = queue_create();
 
 	printEncabezado();
 	inicializarDisco();
@@ -63,11 +63,11 @@ void* hiloComunicacion(void* arg)
 
 				pthread_attr_t attr;
 				pthread_t* cliente = malloc(sizeof(pthread_t));
-				queue_push(threadQueue, cliente);
+				//queue_push(threadQueue, cliente);
 
 				pthread_attr_init(&attr);
 				pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_DETACHED);
-				cliente = queue_pop(threadQueue);
+				//cliente = queue_pop(threadQueue);
 				pthread_create(cliente, &attr, atendercliente, (void*)socketCliente);
 				pthread_attr_destroy(&attr);
 				free(cliente);
@@ -818,7 +818,7 @@ void terminar()
 	destruirSemaforos();
 	sem_destroy(&semThreads);
 
-	queue_destroy_and_destroy_elements(threadQueue, free);//(void*)threadsDestroyer);
+	//queue_destroy_and_destroy_elements(threadQueue, free);//(void*)threadsDestroyer);
 
 	pthread_join(thread1, NULL);
 	pthread_detach(thread1);
