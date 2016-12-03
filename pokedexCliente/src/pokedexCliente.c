@@ -231,13 +231,9 @@ static int osada_getattr(const char *path, struct stat* stbuf)
 //			stbuf->st_ctim.tv_nsec = (tiempo % 1000) * 1000000;
 
 			stbuf->st_mtim.tv_sec = tiempo;
-			stbuf->st_atim.tv_sec = tiempo;
-			stbuf->st_ctim.tv_sec = tiempo;
+//			stbuf->st_atim.tv_sec = tiempo;
+//			stbuf->st_ctim.tv_sec = tiempo;
 
-			//printf("\tctime: %s", ctime(&sb.st_ctim.tv_sec));
-//			log_info(logCliente, "	fecha last mod copiada: %s",ctime(&(stbuf->st_ctim.tv_sec)));
-//			log_info(logCliente, "	fecha last mod recibida en paquete: %s",ctime(&(paquete->mtime)));
-//			log_info(logCliente, "	fecha last mod uint32: %d",paquete->mtime);
 			log_info(logCliente, "	Recibi RESPUESTA_GETATTR");
 
 			free(paquete);

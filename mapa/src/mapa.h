@@ -142,6 +142,7 @@ t_entrenador * entrenador_corriendo;
 fd_set master_fdset;
 int quantum_actual;
 bool cambio_metadata;
+bool quiere_atrapar;
 
 bool finalizacionDelPrograma;
 
@@ -198,6 +199,7 @@ void pokenest_destroyer(t_pokenest * r);
 void destruir_metadata();
 void item_destroyer(void * item);
 void pkm_destroyer(t_pkm * p);
+void bloqueado_destroyer(t_bloqueado * b);
 // ....
 void pokemon_remover(t_pkm * pkm, t_list * list);
 

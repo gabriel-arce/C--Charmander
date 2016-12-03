@@ -64,6 +64,6 @@ t_entrenador * let_the_battle_begins();
 t_entrenador * buscar_entrenador_del_pkm(t_pokemon * pkm, t_list * lista);
 t_pokemon * obtener_el_mas_poronga(t_entrenador * entrenador);
 int avisar_que_perdio_la_batalla(t_entrenador * entrenador);
-
+void loguear_entrenadores_en_dl(t_list * lista);
 
 #endif /* MAPA_DEADLOCK_H_ */

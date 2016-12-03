@@ -14,7 +14,13 @@ sem_t semThreads;
 
 int main(int argc, char ** argv)
 {
+
+	//logServidor = log_create("logPokedex", "Pokedex", false, LOG_LEVEL_DEBUG);
+    //log_info(logServidor, "------------LOG CREADO---------------");
+
+
    // threadQueue = queue_create();
+
 
 	printEncabezado();
 	inicializarDisco();
@@ -57,6 +63,7 @@ void* hiloComunicacion(void* arg)
 			if (enviado == -1)
 			{
 				printf(YEL "\t El cliente %d se desconecto \n " RESET, *socketCliente);
+			//	log_info(logServidor, "El cliente %d se desconecto", *socketCliente);
 			}
 			else
 			{
@@ -103,6 +110,7 @@ void* atendercliente(void* socketCliente)
 				case PEDIDO_CREATE:
 
 					printf(MAG "\t procesando PEDIDO_CREATE de %d\n" RESET, socket);
+				//	log_info(logServidor, "PEDIDO_CREATE");
 					codigo = RESPUESTA_CREATE;
 					respuesta = procesarCrearEntradaTablaDeArchivos((char*)pedido, &codigo, 1);
 
@@ -112,30 +120,35 @@ void* atendercliente(void* socketCliente)
 
 							enviar(socket, RESPUESTA_CREATE, respuesta);
 							printf(MAG "\t devolviendo RESPUESTA_CREATE a %d\n" RESET, socket);
+						//	log_info(logServidor, "RESPUESTA_CREATE");
 							break;
 
 						case ERRDQUOT:
 
 							enviar(socket, ERRDQUOT, respuesta);
 							printf(YEL "\t devolviendo ERRDQUOT a %d\n" RESET, socket);
+					//		log_info(logServidor, "ERRDQUOT");
 							break;
 
 						case ERRNAMETOOLONG:
 
 							enviar(socket, ERRNAMETOOLONG, respuesta);
 							printf(YEL "\t devolviendo ERRNAMETOOLONG a %d\n" RESET, socket);
+						//	log_info(logServidor, "ERRNAMETOOLONG");
 							break;
 
 						case RESPUESTA_ERROR:
 
 							enviar(socket, RESPUESTA_ERROR, respuesta);
 							printf(MAG "\t respondiendo  a %d\n" RESET, socket);
+						//	log_info(logServidor, "RESPUESTA_ERROR");
 							break;
 
 					    default:
 
 							enviar(socket, RESPUESTA_ERROR, respuesta);
 							printf(PINK2 "\t respondiendo  a %d\n" RESET, socket);
+							//log_info(logServidor, "RESPUESTA_ERROR");
 							break;
 					}
 
@@ -145,6 +158,7 @@ void* atendercliente(void* socketCliente)
 
 				case PEDIDO_GETATTR:
 					printf( "\t procesando PEDIDO_GETATTR de %d\n", socket);
+				//	log_info(logServidor, "PEDIDO_GETATTR");
 					respuesta = procesarPedidoGetatrr((char*)pedido);
 
 					free(pedido);
@@ -154,6 +168,7 @@ void* atendercliente(void* socketCliente)
 					{
 						enviar(socket, RESPUESTA_GETATTR, respuesta);
 						printf( "\t devolviendo RESPUESTA_GETATTR a %d\n" RESET, socket);
+					//	log_info(logServidor, "RESPUESTA_GETATTR");
 					}
 					else
 					{
@@ -161,11 +176,13 @@ void* atendercliente(void* socketCliente)
 						*retorno = ENOENTRY;
 						enviar(socket, ENOENTRY, retorno);
 						printf("\t devolviendo respuesta ENOENT a %d\n" RESET, socket);
+						//log_info(logServidor, "ENOENT");
 					}
 					break;
 
 				case PEDIDO_FLUSH:
 					printf(GRN "\t procesando PEDIDO_FLUSH de %d\n" RESET, socket);
+					//log_info(logServidor, "PEDIDO_FLUSH");
 					respuesta = procesarPedidoFlush((char*)pedido);
 
 					free(pedido);
@@ -174,6 +191,7 @@ void* atendercliente(void* socketCliente)
 					{
 						enviar(socket, RESPUESTA_FLUSH, respuesta);
 						printf(GRN "\t devolviendo RESPUESTA_FLUSH a %d\n" RESET, socket);
+						//log_info(logServidor, "RESPUESTA_FLUSH");
 					}
 					else
 					{
@@ -182,12 +200,13 @@ void* atendercliente(void* socketCliente)
 
 						enviar(socket, ENOENTRY, retorno);
 						printf(YEL "\t devolviendo respuesta ENOENT a %d\n" RESET, socket);
+						//log_info(logServidor, "ENOENT");
 					}
 					break;
 
 				case PEDIDO_MKDIR:
 					printf(MAG "\t procesando PEDIDO_MKDIR de %d\n" RESET, socket);
-
+					//log_info(logServidor, "PEDIDO_MKDIR");
 				    codigo = RESPUESTA_MKDIR;
 					respuesta = procesarCrearEntradaTablaDeArchivos((char*)pedido, &codigo, 2);
 
@@ -198,30 +217,35 @@ void* atendercliente(void* socketCliente)
 
 							enviar(socket, RESPUESTA_MKDIR, respuesta);
 							printf(MAG "\t devolviendo RESPUESTA_MKDIR a %d\n" RESET, socket);
+							//log_info(logServidor, "RESPUESTA_MKDIR");
 							break;
 
 						case ERRDQUOT:
 
 							enviar(socket, ERRDQUOT, respuesta);
 							printf(YEL "\t devolviendo ERRDQUOT a %d\n" RESET, socket);
+						//	log_info(logServidor, "ERRDQUOT");
 							break;
 
 						case ERRNAMETOOLONG:
 
 							enviar(socket, ERRNAMETOOLONG, respuesta);
 							printf(YEL "\t devolviendo ERRNAMETOOLONG a %d\n" RESET, socket);
+						//	log_info(logServidor, "ERRNAMETOOLONG");
 							break;
 
 						case RESPUESTA_ERROR:
 
 							enviar(socket, RESPUESTA_ERROR, respuesta);
 							printf(MAG "\t respondiendo  a %d\n" RESET, socket);
+							//log_info(logServidor, "RESPUESTA_ERROR");
 							break;
 
 					    default:
 
 							enviar(socket, RESPUESTA_ERROR, respuesta);
 							printf(MAG "\t respondiendo a %d\n" RESET, socket);
+						//	log_info(logServidor, "RESPUESTA_ERROR");
 							break;
 					}
 
@@ -231,6 +255,7 @@ void* atendercliente(void* socketCliente)
 
 				case PEDIDO_MKNOD:
 					printf(MAG "\t procesando PEDIDO_MKNOD de %d\n" RESET, socket);
+					//log_info(logServidor, "PEDIDO_MKNOD");
 					codigo = RESPUESTA_MKNOD;
 
 					respuesta = procesarCrearEntradaTablaDeArchivos((char*)pedido, &codigo, 1);
@@ -241,30 +266,35 @@ void* atendercliente(void* socketCliente)
 
 							enviar(socket, RESPUESTA_MKNOD, respuesta);
 							printf(MAG "\t devolviendo RESPUESTA_MKNOD a %d\n" RESET, socket);
+						//	log_info(logServidor, "RESPUESTA_MKNOD");
 							break;
 
 						case ERRDQUOT:
 
 							enviar(socket, ERRDQUOT, respuesta);
 							printf(YEL "\t devolviendo ERRDQUOT a %d\n" RESET, socket);
+						//	log_info(logServidor, "ERRDQUOT");
 							break;
 
 						case ERRNAMETOOLONG:
 
 							enviar(socket, ERRNAMETOOLONG, respuesta);
 							printf(YEL "\t devolviendo ERRNAMETOOLONG a %d\n" RESET, socket);
+					//		log_info(logServidor, "ERRNAMETOOLONG");
 							break;
 
 						case RESPUESTA_ERROR:
 
 							enviar(socket, RESPUESTA_ERROR, respuesta);
 							printf(MAG "\t respondiendo a %d\n" RESET, socket);
+						//	log_info(logServidor, "RESPUESTA_ERROR");
 							break;
 
 					    default:
 
 							enviar(socket, RESPUESTA_ERROR, respuesta);
 							printf(PINK2 "\t respondiendo a %d\n" RESET, socket);
+						//	log_info(logServidor, "RESPUESTA_ERROR");
 							break;
 					}
 
@@ -274,6 +304,7 @@ void* atendercliente(void* socketCliente)
 
 				case PEDIDO_OPEN:
 					printf(GRN "\t procesando PEDIDO_OPEN de %d\n" RESET, socket);
+					//log_info(logServidor, "PEDIDO_OPEN");
 					codigo = RESPUESTA_OPEN;
 
 					respuesta = procesarPedidoOpen((char*)pedido, &codigo);
@@ -281,6 +312,7 @@ void* atendercliente(void* socketCliente)
 					{
 						enviar(socket, RESPUESTA_OPEN, respuesta);
 						printf(GRN "\t devolviendo RESPUESTA_OPEN a %d\n" RESET, socket);
+						//log_info(logServidor, "RESPUESTA_OPEN");
 					}
 					else if(codigo == ENOENTRY)
 					{
@@ -289,21 +321,24 @@ void* atendercliente(void* socketCliente)
 
 						enviar(socket, ENOENTRY, retorno);
 						printf(YEL "\t devolviendo respuesta ENOENT a %d\n" RESET, socket);
+						//log_info(logServidor, "ENOENT");
 					}
 					else//devolver algun codigo que indique que el archivo esta bloqueado
 					{
-//						enviar(socket, BLOQUEADO, respuesta);//EBUSY?
-//						printf(RED "\t devolviendo respuesta BLOQUEADO \n" RESET);
-					int* retorno= malloc(sizeof(int));
-					*retorno = ENOENTRY;
+	//					enviar(socket, BLOQUEADO, respuesta);//EBUSY?
+	//					printf(RED "\t devolviendo respuesta BLOQUEADO \n" RESET);
+						int* retorno= malloc(sizeof(int));
+						*retorno = ENOENTRY;
 
-					enviar(socket, ENOENTRY, retorno);
-					printf(YEL "\t devolviendo respuesta ENOENT a %d\n" RESET, socket);
+						enviar(socket, ENOENTRY, retorno);
+						printf(YEL "\t devolviendo respuesta ENOENT a %d\n" RESET, socket);
+						//log_info(logServidor, "ENOENT");
 					}
 					break;
 
 				case PEDIDO_READ:
 					printf( BLU "\t procesando PEDIDO_READ de %d\n" RESET, socket);
+					//log_info(logServidor, "PEDIDO_READ");
 
 					void *buffer = NULL;
 					uint32_t* tamanioBuffer = malloc(sizeof(uint32_t));
@@ -319,6 +354,7 @@ void* atendercliente(void* socketCliente)
 					{
 						enviarRespuestaRead(socket, RESPUESTA_READ, respuesta, tamanioBuffer);
 						printf(BLU "\t devolviendo RESPUESTA_READ a %d\n" RESET, socket);
+						//log_info(logServidor, "RESPUESTA_READ");
 					}
 					else
 					{
@@ -329,12 +365,13 @@ void* atendercliente(void* socketCliente)
 
 						enviar(socket, ENOENTRY, retorno);
 						printf(YEL "\t devolviendo respuesta ENOENT a %d\n" RESET, socket);
+						//log_info(logServidor, "ENOENT");
 					}
 					break;
 
 				case PEDIDO_READDIR:
 					printf( "\t procesando PEDIDO_READDIR de %d\n", socket);
-
+					//log_info(logServidor, "PEDIDO_READDIR");
 					respuesta = procesarPedidoReaddir((char*)pedido);
 
 					free(pedido);
@@ -344,6 +381,7 @@ void* atendercliente(void* socketCliente)
 					{
 						enviar(socket, RESPUESTA_READDIR, respuesta);
 						printf( "\t devolviendo RESPUESTA_READDIR a %d\n" RESET, socket);
+						//log_info(logServidor, "RESPUESTA_READDIR");
 					}
 					else
 					{
@@ -352,47 +390,53 @@ void* atendercliente(void* socketCliente)
 
 						enviar(socket, ENOENTRY, retorno);
 						printf("\t devolviendo respuesta ENOENT a %d\n" RESET, socket);
+						//log_info(logServidor, "ENOENT");
 					}
 					break;
 
 				case PEDIDO_RELEASE:
 					printf(GRN "\t procesando PEDIDO_RELEASE de %d\n" RESET, socket);
+					//log_info(logServidor, "PEDIDO_RELEASE");
 
 					respuesta = procesarPedidoRelease((char*)pedido);
 					enviar(socket, RESPUESTA_RELEASE, respuesta);
 
 					printf(GRN "\t devolviendo RESPUESTA_RELEASE a %d\n" RESET, socket);
-
+					//log_info(logServidor, "RESPUESTA_RELEASE");
 					break;
 
 				case PEDIDO_RENAME:
 					printf(NAR "\t procesando PEDIDO_RENAME de %d\n" RESET, socket);
+					//log_info(logServidor, "PEDIDO_RENAME");
 
 					respuesta = procesarPedidoRename((char*)pedido);
 					if(respuesta != NULL)
 					{
 						enviar(socket, RESPUESTA_RENAME, respuesta);
 						printf(NAR "\t devolviendo RESPUESTA_RENAME a %d\n" RESET, socket);
+						//log_info(logServidor, "RESPUESTA_RENAME");
 					}
 					else
 					{
 						enviar(socket, ERRNAMETOOLONG, pedido);
 						printf(YEL "\t devolviendo respuesta ERRNAMETOOLONG a %d\n" RESET, socket);
+						//log_info(logServidor, "ERRNAMETOOLONG");
 					}
 					break;
 
 				case PEDIDO_RMDIR:
 					printf(PINK "\t procesando PEDIDO_RMDIR de %d\n" RESET, socket);
+					//log_info(logServidor, "PEDIDO_RMDIR");
 					respuesta = procesarPedidoRmdir((char*)pedido);
 
 					enviar(socket, RESPUESTA_RMDIR, respuesta);
 					printf(PINK "\t devolviendo RESPUESTA_RMDIR a %d\n" RESET, socket);
-
+					//log_info(logServidor, "RESPUESTA_RMDIR");
 					break;
 
 				case PEDIDO_TRUNCATE:
 					printf(NAR "\t procesando PEDIDO_TRUNCATE de %d\n" RESET, socket);
-
+					//log_info(logServidor, "PEDIDO_TRUNCATE");
 					off_t *newSize = NULL;
 					newSize = (off_t*)recibir(socket, &head);
 
@@ -407,11 +451,13 @@ void* atendercliente(void* socketCliente)
 
 						enviar(socket, RESPUESTA_TRUNCATE, respuesta);
 						printf(NAR "\t devolviendo RESPUESTA_TRUNCATE a %d\n" RESET, socket);
+						//log_info(logServidor, "RESPUESTA_TRUNCATE");
 					}
 					else
 					{
 						enviar(socket, RESPUESTA_ERROR, pedido);
 						printf(YEL "\t devolviendo RESPUESTA_ERROR a %d\n" RESET, socket);
+						//log_info(logServidor, "RESPUESTA_ERROR");
 					}
 
 					free(newSize);
@@ -420,24 +466,27 @@ void* atendercliente(void* socketCliente)
 
 				case PEDIDO_UNLINK:
 					printf(PINK "\t procesando PEDIDO_UNLINK de %d\n" RESET, socket);
-
+				//	log_info(logServidor, "PEDIDO_UNLINK");
 					respuesta = procesarPedidoUnlink((char*)pedido);
 					enviar(socket, RESPUESTA_UNLINK, respuesta);
 
 					printf(PINK "\t devolviendo RESPUESTA_UNLINK a %d\n" RESET, socket);
+					//log_info(logServidor, "RESPUESTA_UNLINK");
 					break;
 
 				case PEDIDO_UTIMENS:
 					printf(NAR "\t procesando UTIMENS de %d\n" RESET, socket);
-
+					//log_info(logServidor, "UTIMENS");
 					respuesta = procesarPedidoUtimens((char*)pedido);
 					enviar(socket, RESPUESTA_UTIMENS, respuesta);
 
 					printf(NAR "\t devolviendo RESPUESTA_UTIMENS a %d\n" RESET, socket);
+				//	log_info(logServidor, "RESPUESTA_UTIMENS");
 					break;
 
 				case PEDIDO_WRITE:
 					printf( PINK "\t procesando PEDIDO_WRITE de %d\n" RESET, socket);
+					//log_info(logServidor, "PEDIDO_WRITE");
 					codigo = RESPUESTA_WRITE;
 					void *bufWrite = NULL;
 					int* retorno = NULL;
@@ -452,12 +501,14 @@ void* atendercliente(void* socketCliente)
 
 							enviar(socket, RESPUESTA_WRITE, respuesta);
 							printf(PINK "\t devolviendo RESPUESTA_WRITE a %d\n" RESET, socket);
+						//	log_info(logServidor, "RESPUESTA_WRITE");
 							break;
 
 						case ERRFBIG:
 
 							enviar(socket, ERRFBIG, respuesta);
 							printf(YEL "\t devolviendo ERRFBIG a %d\n" RESET, socket);
+						//	log_info(logServidor, "ERRFBIG");
 							break;
 
 					    default:
@@ -469,6 +520,7 @@ void* atendercliente(void* socketCliente)
 
 							enviar(socket, ENOENTRY, retorno);
 							printf(PINK2 "\t respondiendo  a %d\n" RESET, socket);
+							//log_info(logServidor, "ENOENTRY");
 							break;
 					}
 					free(pedido);
@@ -477,7 +529,7 @@ void* atendercliente(void* socketCliente)
 
 				default:
 					printf(RED "\n¿Porqué entre en default???, ¿tenia que enviar un handshake por segunda vez??? \n\n" RESET);
-
+					//log_info(logServidor, "");
 					enviar(socket,HANDSHAKE, pedido);
 					break;
 			}
@@ -489,7 +541,10 @@ void* atendercliente(void* socketCliente)
 			continuar = 0;
 		}
 	}//fin while
+
 	printf(YEL "\n******** Se desconecto el cliente %d, termina el hilo que lo atiendia ******\n" RESET, socket);
+	//log_info(logServidor, "Se desconecto el cliente");
+
 	sem_post(&semThreads);
 	pthread_exit((void*) "Finaliza hilo cliente");
 	return NULL;
@@ -498,6 +553,7 @@ void* atendercliente(void* socketCliente)
 //funciones de servidor para atender pedidos de cliente--------------------------------------------
 void printTerminar()
 {
+	//log_info(logServidor, "Terminar");
 	printf(NAR"**********************************************************************************\n");
 	printf(ORG"****************** El servidor cierra la conexion ********************************\n");
 	printf(YEL"**********************************************************************************\n");
@@ -508,6 +564,7 @@ void printTerminar()
 
 void printEncabezado()
 {
+	//log_info(logServidor, "Iniciando servidor");
 	printf(GRN "\n\n\nxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\n" RESET);
 	printf("**********************************************************************************\n");
 	printf("**************** POKEDEX SERVIDOR ************************************************\n");
@@ -552,7 +609,7 @@ void* procesarCrearEntradaTablaDeArchivos(char *path, int* codigo, int modo)
 void* procesarPedidoGetatrr(char *path)
 {
 	printf("\t path: %s\n", path);
-
+//	log_info(logServidor, "%s", path);
     if (strcmp(path, "/") == 0)
 	{
     	return attrRaiz();
@@ -561,12 +618,12 @@ void* procesarPedidoGetatrr(char *path)
     void* res = getAttr(path);
 	pthread_rwlock_unlock(&lockTablaArchivos);
 	return res;
-
 }
 
 void* procesarPedidoFlush(char *path)
 {
 	printf("\t path: %s\n", path);
+//	log_info(logServidor, "%s", path);
 	char* respuesta = malloc(sizeof(char));
 
 	respuesta[0] = flushArchivo(path);
@@ -576,6 +633,8 @@ void* procesarPedidoFlush(char *path)
 void* procesarPedidoOpen(char* path, int* codigo)
 {
 	printf("\t path: %s\n", path);
+	//log_info(logServidor, "%s", path);
+
 	char* respuesta = malloc(sizeof(char));
 	respuesta[0] = abrirArchivo(path);
 
@@ -597,6 +656,7 @@ void mostrar_lista_archivos(){
 void* procesarPedidoRelease(char* path)
 {
 	printf("\t path: %s\n", path);
+	//log_info(logServidor, "%s", path);
 	char* respuesta = malloc(sizeof(char));
 	respuesta[0] = liberarArchivo(path);
 	free(path);
@@ -627,7 +687,9 @@ void* procesarPedidoRead(void* buffer, uint32_t* tamanioBuffer)
 	printf( "\t size: %d bytes\n", *size);
 	printf( "\t offset: %d bytes\n", (uint32_t)*offset);
 	printf(CYN "\t path: %s\n" RESET, path);
-
+	//log_info(logServidor, "size %d", size);
+	//log_info(logServidor, "offset %d", offset);
+	//log_info(logServidor, "path %s", path);
 	pthread_rwlock_rdlock(&lockTablaArchivos);
 	void* respuesta = readBuffer(path, size, offset, tamanioBuffer);
 	pthread_rwlock_unlock(&lockTablaArchivos);
@@ -646,7 +708,7 @@ void* procesarPedidoRead(void* buffer, uint32_t* tamanioBuffer)
 void* procesarPedidoReaddir(char *path)
 {
 	printf("\t path: %s\n", path);
-
+	//log_info(logServidor, "%s", path);
 	pthread_rwlock_rdlock(&lockTablaArchivos);
 	void* res = readdir(path);
 	pthread_rwlock_unlock(&lockTablaArchivos);
@@ -716,6 +778,7 @@ void* procesarPedidoUtimens(char *path)
 {
 	char* respuesta = malloc(sizeof(char));
 	printf(YEL "\t path: %s\n" RESET, path);
+	//log_info(logServidor, "%s", path);
 
 	pthread_rwlock_wrlock(&lockTablaArchivos);
 	respuesta[0] = cambiarUltimoAcceso(path);
@@ -752,6 +815,9 @@ void* procesarPedidoWrite(void *buffer, int* codigo)
 	printf( "\t size: %d bytes\n", *size);
 	printf( "\t offset: %d bytes\n", (uint32_t)*offset);
 	printf(FUC "\t path: %s\n" RESET, path);
+	//log_info(logServidor, "size: %d", *size);
+	//log_info(logServidor, "offset: %d", *offset);
+	//log_info(logServidor, "%s", path);
 
 	free(buffer);
 	buffer = NULL;
@@ -814,6 +880,7 @@ void terminar()
 {
 	printf(RED "\n\n****************** Señal SIGINT *************************************************\n" RESET);
 	printf(RED     "**********************************************************************************\n" RESET);
+	//log_info(logServidor, "SIGINT");
 
 	destruirSemaforos();
 	sem_destroy(&semThreads);
@@ -826,7 +893,7 @@ void terminar()
 	close(listenningSocket);
 	liberarRecursos();
 	descargar();
-
+	//log_destroy(logServidor);
 	printTerminar();
 	exit(0);
 }

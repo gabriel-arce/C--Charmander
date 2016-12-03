@@ -6,6 +6,7 @@
  */
 
 #include "mapa.h"
+#include "mapa-deadlock.h"
 
 void imprimir_metadata() {
 	printf("\n<<<METADA DEL MAPA>>>\n");
@@ -79,23 +80,33 @@ void destruir_variables() {
 	list_destroy_and_destroy_elements(lista_de_pokenests, (void *) pokenest_destroyer);
 	list_destroy_and_destroy_elements(items_mapa, (void *) item_destroyer);
 
-	list_destroy(cola_de_bloqueados);
+	list_destroy_and_destroy_elements(cola_de_bloqueados, (void *) bloqueado_destroyer);
+
+	destroy_pkmn_factory(factory);
 
 	free(nombreMapa);
 	free(ruta_directorio);
 	log_destroy(logger);
 }
 
+void bloqueado_destroyer(t_bloqueado * b) {
+	free(b);
+}
+
 void entrenador_destroyer(t_entrenador * e) {
 	free(e->nombre_entrenador);
 	free(e->posicion);
 	free(e->pokemonesCapturados);
+	free(e->posicionObjetivo);
+	pthread_mutex_destroy(&(e->mutex_entrenador));
+	free(e);
 }
 
 void pkm_destroyer(t_pkm * p) {
-		free(p->nombre);
-		free(p->nombreArchivo);
-	}
+	free(p->nombre);
+	free(p->nombreArchivo);
+	free(p);
+}
 
 
 void pokenest_destroyer(t_pokenest * r) {
@@ -399,10 +410,21 @@ t_entrenador * pop_entrenador() {
 
 t_list * snapshot_list(t_list * source_list) {
 
-	bool copy_this(void * elem) {
-		return true;
+//	bool copy_this(void * elem) {
+//		return true;
+//	}
+//	t_list * copy = list_filter(source_list, (void *) copy_this);
+
+	t_list * copy = list_create();
+
+	int i;
+	for (i = 0; i < source_list->elements_count; i++) {
+		void * elem = list_get(source_list, i);
+
+		list_add(copy, elem);
 	}
-	t_list * copy = list_filter(source_list, (void *) copy_this);
+
+//	list_add_all(copy, source_list);
 
 	return copy;
 }
