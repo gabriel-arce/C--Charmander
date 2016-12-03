@@ -78,11 +78,16 @@ int run_deadlock_algorithm() {
 	t_entrenador * loser = NULL;
 
 	if (cantidad_en_DL > 1) {
-
-		usleep(5000000);
-
 		if (metadata->batalla) {
 			loser = let_the_battle_begins();
+
+			if (loser == NULL) {
+				pthread_mutex_lock(&mutex_log);
+				log_error(logger, "El algoritmo de DL finalizo de forma abrupta.");
+				pthread_mutex_unlock(&mutex_log);
+				return EXIT_SUCCESS;
+			}
+
 			pthread_mutex_lock(&mutex_log);
 			log_trace(logger, "[DEADLOCK] El entrenador %c(%s) ha perdido la batalla.", loser->simbolo_entrenador, loser->nombre_entrenador);
 			pthread_mutex_unlock(&mutex_log);
@@ -101,6 +106,12 @@ void release_all() {
 	destroy_matriz(solicitudes);
 	destroy_vector(disponibles);
 	destroy_vector(marcados);
+//	free(temp_entrenadores);
+	list_destroy(temp_pokenests);
+	list_destroy(temp_entrenadores);
+//	free(temp_pokenests);
+//	list_destroy_and_destroy_elements(temp_entrenadores, (void *) entrenador_destroyer);
+//	list_destroy_and_destroy_elements(temp_pokenests, (void *) pokenest_destroyer);
 }
 
 void destroy_matriz(t_matriz * matriz) {
@@ -293,7 +304,6 @@ int * crear_vector(int elems) {
 	return vec;
 }
 
-
 int * crear_vector_Disponibles() {
 
 	disponibles = crear_vector(temp_pokenests->elements_count);
@@ -429,12 +439,37 @@ t_list * obtener_los_dls() {
 	return entrenadores_en_DL;
 }
 
+void loguear_entrenadores_en_dl(t_list * lista) {
+
+	char * mssg = string_new();
+	int i;
+
+	for (i = 0; i < lista->elements_count; i++) {
+		t_entrenador * e = list_get(lista, i);
+
+		string_append_with_format(&mssg, " %c(%s) ", e->simbolo_entrenador, e->nombre_entrenador);
+	}
+
+	pthread_mutex_lock(&mutex_log);
+	log_trace(logger, "LISTA DEADLOCK: [%s]", mssg);
+	pthread_mutex_unlock(&mutex_log);
+
+	free(mssg);
+}
+
 t_entrenador * let_the_battle_begins() {
 
 	t_list * dls = obtener_los_dls();
+	loguear_entrenadores_en_dl(dls);
 
 	t_entrenador * entrenador_que_perdio = list_get(dls, 0);
 	t_pokemon * pkm_del_que_perdio = obtener_el_mas_poronga(entrenador_que_perdio);
+
+	if (pkm_del_que_perdio == NULL) {
+		free(dls);
+		return NULL;
+	}
+
 	t_entrenador * entrenador_que_gano = NULL;
 
 	t_pokemon * loser = NULL;
@@ -444,24 +479,34 @@ t_entrenador * let_the_battle_begins() {
 		t_entrenador * entrenador_oponente = list_get(dls, i);
 		t_pokemon * opponent = obtener_el_mas_poronga(entrenador_oponente);
 
+		if (opponent == NULL) {
+			free(dls);
+			return NULL;
+		}
+
 		loser = pkmn_battle(pkm_del_que_perdio, opponent);
 
 		if (pkm_del_que_perdio == loser){
 			//sigue peleando
 			entrenador_que_gano = entrenador_oponente;
+			free(opponent->species);
+			free(opponent);
 		} else { //opponent == loser
+			free(pkm_del_que_perdio);
+			free(pkm_del_que_perdio->species);
 			pkm_del_que_perdio = opponent;
 			entrenador_que_gano = entrenador_que_perdio;
 			entrenador_que_perdio = entrenador_oponente;
 		}
 	}
 
-	void _on_error(char simb) {
+	void * _on_error(char simb) {
 		pthread_mutex_lock(&mutex_log);
 		log_error(logger,
 				"Error al enviar el resultado de la batalla al entrenador %c .",
 				simb);
 		pthread_mutex_unlock(&mutex_log);
+		return NULL;
 	}
 
 	for (i = 0; i < dls->elements_count; i++) {
@@ -473,11 +518,11 @@ t_entrenador * let_the_battle_begins() {
 			//como perdio le tengo que mandar los datos:
 			//deadlocks involucrados / tiempo bloqueado / tiempo de aventura
 			if (avisar_que_perdio_la_batalla(entrenador_que_perdio) == -1)
-				_on_error(e->simbolo_entrenador);
+				return _on_error(e->simbolo_entrenador);
 		} else {
 			//envio que gano
 			if (enviar_header(_RESULTADO_BATALLA, 1, e->socket) == -1)
-				_on_error(e->simbolo_entrenador);
+				return _on_error(e->simbolo_entrenador);
 		}
 	}
 
@@ -506,8 +551,8 @@ int avisar_que_perdio_la_batalla(t_entrenador * entrenador) {
 t_pokemon * obtener_el_mas_poronga(t_entrenador * entrenador) {
 
 	t_pokemon * _on_error() {
-		//devuelvo un pokemon igualmente, pero en error este entrenador pierde (o deberia...)
-		return create_pokemon(factory, "pikachu", 1);
+		desconexion_entrenador(entrenador, 0);
+		return NULL;
 	}
 
 	//Le avisa al entrenador que hay batalla
@@ -533,6 +578,7 @@ t_pokemon * obtener_el_mas_poronga(t_entrenador * entrenador) {
 		pthread_mutex_lock(&mutex_log);
 		log_error(logger, "Id_header incorrecto. Se esperaba: _PKM_MAS_FUERTE");
 		pthread_mutex_unlock(&mutex_log);
+		free(headerpkmMasFuerte);
 		return _on_error();
 	}
 
@@ -545,6 +591,7 @@ t_pokemon * obtener_el_mas_poronga(t_entrenador * entrenador) {
 				"Error en el recv del pokemon mas fuerte. Entrenador: %c",
 				entrenador->simbolo_entrenador);
 		pthread_mutex_unlock(&mutex_log);
+		free(headerpkmMasFuerte);
 		return _on_error();
 	}
 
