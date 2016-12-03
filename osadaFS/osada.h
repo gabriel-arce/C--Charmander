@@ -96,17 +96,20 @@ struct stat fileStat;
 
 pthread_rwlock_t RWlock[2048];
 pthread_rwlock_t lockTablaArchivos;
-pthread_mutex_t mutexArchivo[2048];
+pthread_rwlock_t mutexArchivo[2048];
 pthread_mutex_t mutexBitmap = PTHREAD_MUTEX_INITIALIZER;
+//pthread_mutex_t mutexFecha = PTHREAD_MUTEX_INITIALIZER;
 
 //nuevas
+int actualizarFirstBlockArchivo(osada_file* FCB);
 void* attrRaiz();
+void devolverBitFirstBlockArchivo(uint32_t posicionArchivo, osada_file* FCB);
 int existeArchivo(char* nombreArchivo, uint16_t parentDirectory, int posicion);
 int intentarOAgregar(int parentDir, char* nombreArchivo, osada_file* nuevo);
 
 //Funciones
 char abrirArchivo(char* path);
-void actualizarFCBArchivo(int posicionArchivo, osada_file* FCB, uint32_t size, uint32_t* posicionBloque);
+//void actualizarFCBArchivo(int posicionArchivo, osada_file* FCB, uint32_t size);//, uint32_t* posicionBloque);
 
 //int agregarArchivo(char* path, int modo, char* nombreArchivo);
 //
@@ -128,12 +131,12 @@ char crearArchivo(char* path, int modo);
 void descargar();
 void escribirArchivo(uint32_t posicion, osada_file* buf);
 void escribirAsignacion(uint32_t posicion, uint32_t* buf);
-int escribirArchivoAsignandoBloquesNuevos(void* bufWrite, int cantidadBloques, uint32_t* posicionBloque, uint32_t* proximoBloque);
+
 void escribrirArchivoConOffset(uint32_t size, void* bufWrite, uint32_t offset, uint32_t* posicion);
 void escribrirArchivoSinOffset(uint32_t size, void* bufWrite, uint32_t* posicion);
 void escribirBloque(uint32_t bloque, char* buf);
 int escribriBloquesEnteros(uint32_t size, void* bufWrite, uint32_t* posicion, int* desplazamiento);
-void escribirMenosQueUnBloqueAlFinal(void* bufWrite, uint32_t* posicion, int desplazamiento, int resto);
+//void escribirMenosQueUnBloqueAlFinal(void* bufWrite, uint32_t* posicion, int desplazamiento, int resto);
 int escribirMenosQueUnBloqueAlPrincipio(uint32_t* size, void* bufWrite, uint32_t offset, uint32_t* posicion);
 void escribirResto(int bytesResto, void* bufWrite, uint32_t* posicionBloque, int desplazamiento);
 int esDirectorioVacio(int posicion);
@@ -141,7 +144,7 @@ int existePath(char* path, int* pos);
 int existeDirectorio(char* token, uint16_t* padre, int* posicion);
 char flushArchivo(char* path);
 void* getAttr(char* path);
-int hayEspacioEnDisco(int cantidadBloques);
+int chequearYReservarEspacioEnDisco(osada_file* FCB, uint32_t size, uint32_t offset,int posicionArchivo, int cantidadBloques);
 void inicializarDisco();
 void leerArchivo(uint32_t posicion, osada_file* buf);
 void leerAsignacion(uint32_t posicion, uint32_t* buf);
@@ -168,8 +171,8 @@ void* readBuffer(char* path, size_t* size, off_t* offset, uint32_t* tamanioBuffe
 void sacarBloques(uint32_t size, uint32_t newSize, uint32_t posicion);
 char truncar(osada_file* FCB, uint32_t newSize, int posicion);
 int writeBuffer(uint32_t* size, uint32_t* offset, char* path, void* bufWrite);
-void* writeFile(uint32_t* size, void* bufWrite, int cantidadBloques, uint32_t offset, int posicionArchivo, osada_file* FCB);
-
+//void* writeFile(uint32_t* size, void* bufWrite, uint32_t offset, int posicionArchivo, osada_file* FCB);
+void* writeFile(uint32_t* size, void* bufWrite, uint32_t offset, osada_file* FCB);
 #pragma pack(pop)
 
 #endif // __OSADA_H__

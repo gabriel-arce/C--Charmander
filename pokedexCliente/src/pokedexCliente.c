@@ -223,15 +223,16 @@ static int osada_getattr(const char *path, struct stat* stbuf)
 
 			time_t tiempo =(time_t)paquete->mtime;
 
-			stbuf->st_mtim.tv_sec = (time_t)(tiempo/1000);
-			stbuf->st_mtim.tv_nsec = (tiempo % 1000) * 1000000;
-			stbuf->st_atim.tv_sec = (time_t)(tiempo/1000);
-			stbuf->st_atim.tv_nsec = (tiempo % 1000) * 1000000;
-			stbuf->st_ctim.tv_sec = (time_t)(tiempo/1000);
-			stbuf->st_ctim.tv_nsec = (tiempo % 1000) * 1000000;
+//			stbuf->st_mtim.tv_sec = (time_t)(tiempo/1000);
+//			stbuf->st_mtim.tv_nsec = (tiempo % 1000) * 1000000;
+//			stbuf->st_atim.tv_sec = (time_t)(tiempo/1000);
+//			stbuf->st_atim.tv_nsec = (tiempo % 1000) * 1000000;
+//			stbuf->st_ctim.tv_sec = (time_t)(tiempo/1000);
+//			stbuf->st_ctim.tv_nsec = (tiempo % 1000) * 1000000;
 
-//			stbuf->st_atim.tv_sec = tiempo;
-//			stbuf->st_ctim.tv_sec = tiempo;
+			stbuf->st_mtim.tv_sec = tiempo;
+			stbuf->st_atim.tv_sec = tiempo;
+			stbuf->st_ctim.tv_sec = tiempo;
 
 			//printf("\tctime: %s", ctime(&sb.st_ctim.tv_sec));
 //			log_info(logCliente, "	fecha last mod copiada: %s",ctime(&(stbuf->st_ctim.tv_sec)));

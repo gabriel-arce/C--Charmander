@@ -48,7 +48,7 @@ void* hiloComunicacion(void* arg)
 	void *mensaje = NULL;
 
 
-	printf( "****************** Inicia escuchar conexiones *******************\n\n" );
+	//printf( "****************** Inicia escuchar conexiones *******************\n\n" );
 
 	while(1)
 	{
@@ -60,7 +60,7 @@ void* hiloComunicacion(void* arg)
 		mensaje = recibir(*socketCliente,&head);
 
 		char* mensajeHSK = mensaje;
-		printf("\t Recibiendo pedido de un cliente:%s \n ", mensajeHSK);
+		//printf("\t Recibiendo pedido de un cliente:%s \n ", mensajeHSK);
 		if (mensajeHSK)
 		{
 			int enviado = enviar(*socketCliente, HANDSHAKE, mensajeHSK);
@@ -70,7 +70,7 @@ void* hiloComunicacion(void* arg)
 			}
 			else
 			{
-				printf("\t Devolviendo mensajeHSK %d \n", *socketCliente);
+			//	printf("\t Devolviendo mensajeHSK %d \n", *socketCliente);
 
 				pthread_attr_t attr;
 				pthread_t* cliente = malloc(sizeof(pthread_t));
@@ -84,7 +84,7 @@ void* hiloComunicacion(void* arg)
 		}
 		else
 		{
-			printf(YEL "\t Recibi un mensaje inesperado de: %d :%s \n" RESET, *socketCliente, mensajeHSK);
+			//printf(YEL "\t Recibi un mensaje inesperado de: %d :%s \n" RESET, *socketCliente, mensajeHSK);
 		}
 	}
 	return NULL;
@@ -300,7 +300,7 @@ void* atendercliente(void* socketCliente)
 					}
 					else//devolver algun codigo que indique que el archivo esta bloqueado
 					{
-//						enviar(socket, BLOQUEADO, respuesta);//EBUSY
+//						enviar(socket, BLOQUEADO, respuesta);//EBUSY?
 //						printf(RED "\t devolviendo respuesta BLOQUEADO \n" RESET);
 					int* retorno= malloc(sizeof(int));
 					*retorno = ENOENTRY;
@@ -525,7 +525,9 @@ void printEncabezado()
 
 void* procesarCrearEntradaTablaDeArchivos(char *path, int* codigo, int modo)
 {
+	pthread_rwlock_wrlock(&lockTablaArchivos);
 	char r = crearArchivo(path, modo);
+	pthread_rwlock_unlock(&lockTablaArchivos);
 
 	char* respuesta = malloc(sizeof(char));
 	memset(respuesta, 0, sizeof(char));
@@ -562,7 +564,10 @@ void* procesarPedidoGetatrr(char *path)
 	{
     	return attrRaiz();
 	}
-	return getAttr(path);
+    pthread_rwlock_rdlock(&lockTablaArchivos);
+    void* res = getAttr(path);
+	pthread_rwlock_unlock(&lockTablaArchivos);
+	return res;
 
 }
 
@@ -570,21 +575,6 @@ void* procesarPedidoFlush(char *path)
 {
 	printf("\t path: %s\n", path);
 	char* respuesta = malloc(sizeof(char));
-
-//	int i;
-//	char *aux = malloc(OSADA_FILENAME_LENGTH);
-//	t_nodoArchivo *nodo;
-//
-//	aux = nombre(path);
-//
-//	for(i = 0; i < list_size(ListaArchivos); i++){
-//		nodo = list_get(ListaArchivos, i);
-//		if(strcmp(nodo->nombre,aux) == 0){
-//			nodo->enUso = SinUso;
-//			list_replace(ListaArchivos, i, nodo);
-//			printf("Estado actual: Sin Uso");
-//		}
-//	}
 
 	respuesta[0] = flushArchivo(path);
 	return respuesta;
@@ -595,10 +585,6 @@ void* procesarPedidoOpen(char* path, int* codigo)
 	printf("\t path: %s\n", path);
 	char* respuesta = malloc(sizeof(char));
 	respuesta[0] = abrirArchivo(path);
-
-	//printf("Consultando fichero %s.. \n", path);
-
-	//respuesta[0] = verificar_permiso_archivo(path);
 
 	if(respuesta[0] == 's')
 		*codigo = RESPUESTA_OPEN;
@@ -612,56 +598,7 @@ void* procesarPedidoOpen(char* path, int* codigo)
 	return respuesta;
 }
 
-//char verificar_permiso_archivo(char *path){
-//	int i;
-//	char respuesta;
-//	char *aux = malloc(OSADA_FILENAME_LENGTH);
-//	t_nodoArchivo *nodo;
-//
-//	aux = nombre(path);
-//
-//	for(i = 0; i < list_size(ListaArchivos); i++){
-//		nodo = list_get(ListaArchivos, i);
-//		if(strcmp(nodo->nombre,aux) == 0){
-//			//Lo encontro..
-//			if (nodo->enUso == SinUso){
-//				respuesta 	= 's';	//Se puede utilizar
-//				nodo->enUso = EnUso;
-//				list_replace(ListaArchivos, i, nodo);
-//				printf(RED "Puede utilizar el fichero\n" RESET);
-//				}
-//			else {
-//				respuesta = 'n';
-//				printf(RED "No puede utilizar el fichero\n" RESET);
-//				}
-//			break;
-//		}
-//	}
-//
-//	if (strcmp(nodo->nombre,aux) != 0)	//No lo encontro, entonces no existe el fichero..
-//		respuesta = 'n';
-//
-//	return respuesta;
-//}
-
 void mostrar_lista_archivos(){
-//	int i;
-//	t_nodoArchivo *nodo;
-//
-//	nodo			= malloc(sizeof(t_nodoArchivo));
-//	nodo->nombre	= malloc(OSADA_FILENAME_LENGTH);
-//
-//	printf("Ficheros actualmente en el FS..\n");
-//	for(i = 0; i < list_size(ListaArchivos); i++){
-//		nodo = list_get(ListaArchivos, i);
-//		printf("Fichero: %s\n", nodo->nombre);
-//	}
-//
-//	if (i == 0)
-//		printf("No hay archivos en la lista..\n");
-
-	//free(nodo->nombre);
-	//free(nodo);
 }
 
 void* procesarPedidoRelease(char* path)
@@ -698,7 +635,9 @@ void* procesarPedidoRead(void* buffer, uint32_t* tamanioBuffer)
 	printf( "\t offset: %d bytes\n", (uint32_t)*offset);
 	printf(CYN "\t path: %s\n" RESET, path);
 
+	pthread_rwlock_rdlock(&lockTablaArchivos);
 	void* respuesta = readBuffer(path, size, offset, tamanioBuffer);
+	pthread_rwlock_unlock(&lockTablaArchivos);
 
 	free(buffer);
 	free(path);
@@ -714,13 +653,22 @@ void* procesarPedidoRead(void* buffer, uint32_t* tamanioBuffer)
 void* procesarPedidoReaddir(char *path)
 {
 	printf("\t path: %s\n", path);
-	return readdir(path);
+
+	pthread_rwlock_rdlock(&lockTablaArchivos);
+	void* res = readdir(path);
+	pthread_rwlock_unlock(&lockTablaArchivos);
+
+	return res;
 }
 
 void* procesarPedidoRename(char *paths)//path - newpath
 {
 	char* respuesta = malloc(sizeof(char));
+
+	pthread_rwlock_wrlock(&lockTablaArchivos);
 	respuesta[0] = renombrarArchivo(paths);
+	pthread_rwlock_unlock(&lockTablaArchivos);
+
 	free(paths);
 	paths = NULL;
 	if(respuesta[0] == 's')
@@ -736,7 +684,11 @@ void* procesarPedidoRename(char *paths)//path - newpath
 void* procesarPedidoRmdir(char *path)
 {
 	char* respuesta = malloc(sizeof(char));
+
+	pthread_rwlock_wrlock(&lockTablaArchivos);
 	respuesta[0] = borrarDirectorio(path);
+	pthread_rwlock_unlock(&lockTablaArchivos);
+
 	free(path);
 	path = NULL;
 	return respuesta;
@@ -744,16 +696,24 @@ void* procesarPedidoRmdir(char *path)
 
 void* procesarPedidoTruncate(off_t newSize, char* path)
 {
-	printf(CYN "\t En procesarPedidoTruncate el nuevo size es: %d\n", (uint32_t)newSize);
+	//printf(CYN "\t En procesarPedidoTruncate el nuevo size es: %d\n", (uint32_t)newSize);
 	char* respuesta = malloc(sizeof(char));
+
+	pthread_rwlock_wrlock(&lockTablaArchivos);
 	respuesta[0] = buscarYtruncar(path, (uint32_t)newSize);
+	pthread_rwlock_unlock(&lockTablaArchivos);
+
 	return respuesta;
 }
 
 void* procesarPedidoUnlink(char* path)
 {
 	char* respuesta = malloc(sizeof(char));
+
+	pthread_rwlock_wrlock(&lockTablaArchivos);
 	respuesta[0] = borrarArchivo(path);
+	pthread_rwlock_unlock(&lockTablaArchivos);
+
 	free(path);
 	path = NULL;
 	return respuesta;
@@ -763,7 +723,11 @@ void* procesarPedidoUtimens(char *path)
 {
 	char* respuesta = malloc(sizeof(char));
 	printf(YEL "\t path: %s\n" RESET, path);
+
+	pthread_rwlock_wrlock(&lockTablaArchivos);
 	respuesta[0] = cambiarUltimoAcceso(path);
+	pthread_rwlock_unlock(&lockTablaArchivos);
+
 	free(path);
 	path = NULL;
 	return respuesta;
@@ -792,18 +756,28 @@ void* procesarPedidoWrite(void *buffer, int* codigo)
 	void* bufWrite = malloc(*bufLen);
 	memcpy(bufWrite,  buffer + desplazamiento, *bufLen);
 
-	printf(CYN "\t path: %s\n" RESET, path);
+	printf( "\t size: %d bytes\n", *size);
+	printf( "\t offset: %d bytes\n", (uint32_t)*offset);
+	printf(FUC "\t path: %s\n" RESET, path);
+
 	free(buffer);
 	buffer = NULL;
 	int respuesta  = 0;
-	if(*bufLen > *size)
+	if (*size > 0)
 	{
-		respuesta = writeBuffer((uint32_t*)size,(uint32_t*) offset, path, bufWrite);
-	}
-	else
-	{
-		*bufLen -= 1;
-		respuesta =  writeBuffer((uint32_t*)bufLen, (uint32_t*)offset, path, bufWrite);
+		if(*bufLen > *size)
+		{
+			pthread_rwlock_wrlock(&lockTablaArchivos);
+			respuesta = writeBuffer((uint32_t*)size,(uint32_t*) offset, path, bufWrite);
+			pthread_rwlock_unlock(&lockTablaArchivos);
+		}
+		else
+		{
+			*bufLen -= 1;
+			pthread_rwlock_wrlock(&lockTablaArchivos);
+			respuesta =  writeBuffer((uint32_t*)bufLen, (uint32_t*)offset, path, bufWrite);
+			pthread_rwlock_unlock(&lockTablaArchivos);
+		}
 	}
 
 	free(offset);
@@ -848,13 +822,14 @@ void terminar()
 	printf(RED "\n\n****************** Señal SIGINT *************************************************\n" RESET);
 	printf(RED     "**********************************************************************************\n" RESET);
 
-	destruirSemaforos();
+	//destruirSemaforos();
 	sem_destroy(&semThreads);
 
-	queue_destroy_and_destroy_elements(threadQueue, free);//(void*)threadsDestroyer);
+
 	pthread_join(thread1, NULL);
 	pthread_detach(thread1);
 
+//	queue_destroy_and_destroy_elements(threadQueue, free);//(void*)threadsDestroyer);
 	close(listenningSocket);
 	liberarRecursos();
 	descargar();

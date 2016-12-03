@@ -26,14 +26,14 @@ endif
 all: pokedexServidor
 
 dependents:
-	-cd /home/utnso/workspace/tp-2016-2c-MeQuedeSinPokebolas-/comunicacion/Debug && $(MAKE) all
-	-cd /home/utnso/workspace/tp-2016-2c-MeQuedeSinPokebolas-/osadaFS/Debug && $(MAKE) all
+	-cd /home/utnso/workspace/tp-2016-2c-MeQuedeSinPokebolas/comunicacion/Debug && $(MAKE) all
+	-cd /home/utnso/workspace/tp-2016-2c-MeQuedeSinPokebolas/osadaFS/Debug && $(MAKE) all
 
 # Tool invocations
-pokedexServidor: $(OBJS) $(USER_OBJS) /home/utnso/workspace/tp-2016-2c-MeQuedeSinPokebolas-/comunicacion/Debug/libcomunicacion.so /home/utnso/workspace/tp-2016-2c-MeQuedeSinPokebolas-/osadaFS/Debug/libosadaFS.so
+pokedexServidor: $(OBJS) $(USER_OBJS) /home/utnso/workspace/tp-2016-2c-MeQuedeSinPokebolas/comunicacion/Debug/libcomunicacion.so /home/utnso/workspace/tp-2016-2c-MeQuedeSinPokebolas/osadaFS/Debug/libosadaFS.so
 	@echo 'Building target: $@'
 	@echo 'Invoking: GCC C Linker'
-	gcc -L"/home/utnso/workspace/tp-2016-2c-MeQuedeSinPokebolas-/osadaFS/Debug" -L"/home/utnso/workspace/tp-2016-2c-MeQuedeSinPokebolas-/comunicacion/Debug" -o "pokedexServidor" $(OBJS) $(USER_OBJS) $(LIBS)
+	gcc -L"/home/utnso/workspace/tp-2016-2c-MeQuedeSinPokebolas/osadaFS/Debug" -L"/home/utnso/workspace/tp-2016-2c-MeQuedeSinPokebolas/comunicacion/Debug" -o "pokedexServidor" $(OBJS) $(USER_OBJS) $(LIBS)
 	@echo 'Finished building target: $@'
 	@echo ' '
 
@@ -44,7 +44,7 @@ clean:
 
 .PHONY: all clean dependents
 .SECONDARY:
-/home/utnso/workspace/tp-2016-2c-MeQuedeSinPokebolas-/comunicacion/Debug/libcomunicacion.so:
-/home/utnso/workspace/tp-2016-2c-MeQuedeSinPokebolas-/osadaFS/Debug/libosadaFS.so:
+/home/utnso/workspace/tp-2016-2c-MeQuedeSinPokebolas/comunicacion/Debug/libcomunicacion.so:
+/home/utnso/workspace/tp-2016-2c-MeQuedeSinPokebolas/osadaFS/Debug/libosadaFS.so:
 
 -include ../makefile.targets

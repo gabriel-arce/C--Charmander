@@ -34,6 +34,7 @@
 #define YEL2 "\033[38;5;226m"//verde
 #define RED2 "\033[38;5;196m"//ROJO
 #define COR "\033[1;31m"
+#define FUC "\033[38;5;198m"//fucsia
 
 #define BLOCK_SIZE	64
 #define MAX_THREADS 5

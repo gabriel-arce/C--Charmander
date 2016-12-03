@@ -16,6 +16,7 @@
 #define PINK2 "\033[38;5;207m"//violeta
 #define YEL2 "\033[38;5;226m"//verde
 #define RED2 "\033[38;5;196m"//ROJO
+#define ORG "\033[38;5;214m"//naranja
 
 char* disco;
 off_t tamanioArchivo;
@@ -31,6 +32,8 @@ int offsetDatos;
 int baseDatosBitmap;
 int limiteDatosBitmap;
 
+//int ultimoBit;
+
 uint32_t  bitmapSize, dataBlocks, bloques;
 t_bitarray* bitVector;
 struct stat fileStat;
@@ -39,62 +42,29 @@ char abrirArchivo(char* path)
 {
 
 	return 's';
-
-//	struct NodoArchivo *archivoLista = (struct NodoArchivo *) malloc(sizeof(struct NodoArchivo));
-
-
-//	printf(RED "Consultando archivo %s ..\n" RESET, nombre(path));
-
-/*	if ((archivoLista = buscarArchivoEnLista(nombre(path))) == NULL){
-		printf("Error al abrir archivo: archivo %s inexistente\n", path);
-		return 'n';
-	}
-
-	else {
-		if (archivoLista->enUso == EnUso){
-			printf(RED "Error al abrir archivo: archivo en uso\n" RESET);
-			return 'n';
-		}
-	}*/
-
-	//Si llego hasta aca, entonces puede abrir el archivo
-//	archivoLista->enUso = EnUso;
-
-	//TODO: chequear que el archivo exista OK
-	//TODO: ver de tener una tabla con archivos abiertos OK
-	//TODO: ver el modo (lectura o escritura), KO
-	//return 's';
-
 }
 
-struct NodoArchivo *buscarArchivoEnLista(char *nombre){
-	struct NodoArchivo *aux = ListaArchivos;
-
-	mostrarLista();
-
-	while(aux != NULL && aux->nombre != nombre){
-		printf("archivo encontrado.. %s\n", aux->nombre);
-		aux = aux->siguiente;
-		}
-
-	return aux;
-}
-
-void actualizarFCBArchivo(int posicionArchivo, osada_file* FCB, uint32_t size, uint32_t* posicionBloque)
+void devolverBitFirstBlockArchivo(uint32_t posicionArchivo, osada_file* FCB)
 {
-	buscarBitLibre(posicionBloque);
-	FCB->file_size = (uint32_t) size;
-	FCB->first_block = *posicionBloque;
-	FCB->lastmod =(uint32_t) obtenerFecha();
-	escribirArchivo(posicionArchivo, FCB);
-	printf(CYN "\t actualizarFCBArchivo, FCB->first_block: %d \n" RESET, *posicionBloque);
-	printf(CYN "\t file_size: %d \n" RESET, FCB->file_size);
+		pthread_mutex_lock(&mutexBitmap);
+	bitarray_clean_bit(bitVector, baseDatosBitmap + FCB->first_block);
+		pthread_mutex_unlock(&mutexBitmap);
 }
 
-void agregarBloques(uint32_t size, uint32_t newSize, uint32_t posicion)
+int actualizarFirstBlockArchivo(osada_file* FCB)
+{
+	uint32_t posicionBloque;
+	buscarBitLibre(&posicionBloque);
+	FCB->first_block = posicionBloque;
+	//printf(CYN "\t FCB->first_block despues: %d, posicionArchivo: %d \n" RESET, FCB->first_block, posicionArchivo);
+	return posicionBloque;
+}
+
+void agregarBloques(uint32_t size, uint32_t newSize, uint32_t pos)
 {
 	int i;
 	uint32_t posicionAnterior;
+	uint32_t posicion = pos;
 	int cantidadBloquesActual = cantidadDeBloques(size);
 	int cantidadBloquesExtra = cantidadDeBloques(newSize) - cantidadBloquesActual;
 
@@ -121,7 +91,6 @@ void agregarBloques(uint32_t size, uint32_t newSize, uint32_t posicion)
 	free(bloque);//ver esto
 	bloque = NULL;
 	escribirAsignacion(posicionAnterior, &posicion);
-
 }
 
 void asignarOffsets()
@@ -137,7 +106,8 @@ void asignarOffsets()
 
 	baseDatosBitmap = offsetDatos / OSADA_BLOCK_SIZE;
 	limiteDatosBitmap = bloques -1;
-
+	//ultimoBit = baseDatosBitmap;//para guardar el ultimo bit libre que encontre y no tener que leer todo de nuevo
+	//printf( "\t\t %d-%d \n" RESET,ultimoBit, baseDatosBitmap);
     printf(GRN "\t\t OFFSETS \n" RESET);
     printf("\t\t OffsetBitmap: %d bytes\n", offsetBitmap);
 	printf("\t\t OffsetTablaArchivos: %d bytes\n", offsetTablaArchivos);
@@ -156,29 +126,31 @@ void* attrRaiz()
 	stbuf->mode = S_IFDIR | 0755;
 	stbuf->nlink = 2;
 	stbuf->size = 0;
-	stbuf->mtime = obtenerFecha();
+	stbuf->mtime = (uint32_t)obtenerFecha();
 	return stbuf;
 }
 
 char borrarArchivo(char* path)
 {
 	int posicion;
-		pthread_rwlock_wrlock(&lockTablaArchivos);
+	//	pthread_rwlock_wrlock(&lockTablaArchivos);
 	osada_file* FCB = buscarArchivo(path, &posicion);
 
 	if (FCB == NULL)
 	{
-			pthread_rwlock_unlock(&lockTablaArchivos);
-		printf(RED "\t No se encontro el archivo\n" RESET);
+			//pthread_rwlock_unlock(&lockTablaArchivos);
+			printf(RED "\t No se encontro el archivo\n" RESET);
 		return 'n';
 	}
-		pthread_rwlock_wrlock(&(RWlock[posicion]));
-		pthread_rwlock_wrlock(&lockTablaArchivos);
+		//pthread_rwlock_wrlock(&(RWlock[posicion]));
+	//	pthread_rwlock_wrlock(&lockTablaArchivos);
 	FCB->state = 0;
 	escribirArchivo(posicion, FCB);
-		pthread_rwlock_unlock(&(RWlock[posicion]));
+		//pthread_rwlock_unlock(&(RWlock[posicion]));
 
+		//pthread_mutex_lock(&mutexBitmap);
 	liberarBits(FCB->first_block);
+		//pthread_mutex_unlock(&mutexBitmap);
 
 	printf( "\t Se borro el archivo: %s\n", FCB->fname);
 	free(FCB);
@@ -189,31 +161,31 @@ char borrarArchivo(char* path)
 char borrarDirectorio(char* path)
 {
 	int posicion;
-		pthread_rwlock_wrlock(&lockTablaArchivos);
+		//pthread_rwlock_wrlock(&lockTablaArchivos);
 	osada_file* FCB = buscarArchivo(path, &posicion);
 
 	if (FCB == NULL)
 	{
-			pthread_rwlock_unlock(&lockTablaArchivos);
-		printf(RED "\t No se encontro el archivo\n" RESET);
+			//pthread_rwlock_unlock(&lockTablaArchivos);
+		//printf(RED "\t No se encontro el archivo\n" RESET);
 		return 'n';
 	}
 
 	if (!esDirectorioVacio(posicion))
 	{
-			pthread_rwlock_unlock(&lockTablaArchivos);
-		printf(RED "\t No se pudo borrar el directorio porque no esta vacio\n" RESET);
+			//pthread_rwlock_unlock(&lockTablaArchivos);
+		//printf(RED "\t No se pudo borrar el directorio porque no esta vacio\n" RESET);
 		free(FCB);
 		FCB = NULL;
 		return 'n';
 	}
 
-		pthread_rwlock_wrlock(&(RWlock[posicion]));
-		pthread_rwlock_unlock(&lockTablaArchivos);
+		//pthread_rwlock_wrlock(&(RWlock[posicion]));
+		//pthread_rwlock_unlock(&lockTablaArchivos);
 
 	FCB->state = 0;
 	escribirArchivo(posicion, FCB);
-		pthread_rwlock_unlock(&(RWlock[posicion]));
+	//	pthread_rwlock_unlock(&(RWlock[posicion]));
 
 	printf( "\t Se borro el archivo: %s\n", FCB->fname);
 
@@ -258,49 +230,47 @@ int buscarBitLibre(uint32_t* posicion)
 	uint32_t i;
 	uint32_t contador = 0;
 
-		pthread_mutex_lock(&mutexBitmap);
 	for (i = baseDatosBitmap; i<= limiteDatosBitmap; i++)
 	{
-
 		if(bitarray_test_bit(bitVector, i) == 0)//si un bit esta en 0 esta libre
 		{
 			bitarray_set_bit(bitVector, i);//pongo el bit en 1 (ocupado)
-				pthread_mutex_unlock(&mutexBitmap);
+
 			*posicion = contador;
 			return i;
 		}
 		contador++;
 	}
-		pthread_mutex_unlock(&mutexBitmap);
+
 	return -1;
 }
 
 char buscarYtruncar(char* path, uint32_t newSize)
 {
+	printf(YEL "\t Path: %s\n" RESET, path);
 	int posicion = -1;
-		pthread_rwlock_wrlock(&lockTablaArchivos);
-	int existe = existePath(path, &posicion);
-
-	if (!existe)
-	{
-		pthread_rwlock_unlock(&lockTablaArchivos);
-		printf(RED "\t En pedido truncate: No se encontro el path: " YEL "%s\n" RESET, path);
-		return 'n';
-	}
+	//	pthread_rwlock_wrlock(&lockTablaArchivos);
+		//printf(NAR "\t\t lockTablaArchivos\n" RESET);
 
 	osada_file* FCB = buscarArchivo(path, &posicion);
 
 	if (FCB == NULL)
 	{
-		pthread_rwlock_unlock(&lockTablaArchivos);
+	//	pthread_rwlock_unlock(&lockTablaArchivos);
+	//	printf(ORG "\t\t UNlockTablaArchivos\n" RESET);
 		printf(RED "\t En pedido truncate: No se encontro el archivo\n" RESET);
 		return 'n';
 	}
 
-		pthread_rwlock_wrlock(&(RWlock[posicion]));
-		pthread_rwlock_unlock(&lockTablaArchivos);
+//		pthread_rwlock_wrlock(&(RWlock[posicion]));
+	//	printf(NAR "\t\t RWlock\n" RESET);
+//		pthread_rwlock_unlock(&lockTablaArchivos);
+	//	printf(ORG "\t\t UNlockTablaArchivos\n" RESET);
+		//pthread_mutex_lock(&mutexBitmap);
 	char t = truncar(FCB, newSize, posicion);
-		pthread_rwlock_unlock(&(RWlock[posicion]));
+		//pthread_mutex_unlock(&mutexBitmap);
+	//	pthread_rwlock_unlock(&(RWlock[posicion]));
+		//printf(ORG "\t\t UNRWlock\n" RESET);
 
 	return t;
 }
@@ -309,31 +279,39 @@ char cambiarUltimoAcceso(char* path)
 {
 	int posicion;
 
-	pthread_rwlock_wrlock(&lockTablaArchivos);
+//	pthread_rwlock_wrlock(&lockTablaArchivos);
+
 	osada_file* FCB = buscarArchivo(path, &posicion);
 	if (FCB == NULL)
 	{
-		pthread_rwlock_unlock(&lockTablaArchivos);
-		printf(RED "\t No se encontro el archivo \n" RESET);
+//		pthread_rwlock_unlock(&lockTablaArchivos);
+
+//		printf(RED "\t No se encontro el archivo \n" RESET);
 		return 'n';
 	}
-		pthread_rwlock_wrlock(&(RWlock[posicion]));
-		pthread_rwlock_unlock(&lockTablaArchivos);
-		time_t timeinfo = obtenerFecha();
+		//pthread_rwlock_wrlock(&(RWlock[posicion]));
+//		printf(NAR "\t\t RWlock\n" RESET);
+	//	pthread_rwlock_unlock(&lockTablaArchivos);
+
+	time_t timeinfo = obtenerFecha();
 
 	FCB->lastmod = (uint32_t)timeinfo;
 	escribirArchivo(posicion, FCB);
-		pthread_rwlock_unlock(&(RWlock[posicion]));
+		//pthread_rwlock_unlock(&(RWlock[posicion]));
+//		printf(ORG "\t\t UNRWlock\n" RESET);
+
+//	time_t tiempo =  (time_t)localtime(&timeinfo);//probar estas dos lineas
+//	printf(FUC "\t Fecha last mod: %s\r\n" RESET, asctime(tiempo));
 
 	//	time_t tiempo =(time_t)FCB->lastmod;
 	//	time(&tiempo);
-	    printf(FUC"\t Fecha last mod archivo.lastmod %s" RESET, ctime(&timeinfo));
+	  //  printf(FUC"\t Fecha last mod archivo.lastmod %s" RESET, ctime(&timeinfo));
 
 	//printf("\t Fecha actualizada, %s", ctime(FCB->lastmod));// asctime(FCB->lastmod));
 //	printf(MAG "\t Fecha last mod uint32: %d\n" RESET,FCB->lastmod);
 	free(FCB);
 	FCB = NULL;
-	//printf("\t Fecha actualizada,  %s", asctime(timeinfo));
+	printf("\t Fecha actualizada\n");//,  %s", asctime(timeinfo));
 
 	return 's';
 }
@@ -388,7 +366,7 @@ char crearArchivo(char* path, int modo)
 	int retorno = intentarOAgregar(p, nombreArchivo, nuevo);
 	if (retorno == 1)
 	{
-		printf( "\t Se creó el archivo: %s\n" , nombreArchivo);
+		//printf( "\t Se creó el archivo: %s\n" , nombreArchivo);
 		free(nombreArchivo);
 		nombreArchivo = NULL;
 		free(nuevo);
@@ -434,7 +412,7 @@ void destruirSemaforos()
 	for(i=0; i<2048; i++)
 	{
 		pthread_rwlock_destroy(&(RWlock[i]));
-		pthread_mutex_destroy(&(mutexArchivo[i]));
+		pthread_rwlock_destroy(&(mutexArchivo[i]));
 	}
 
 	pthread_rwlock_destroy(&lockTablaArchivos);
@@ -442,40 +420,15 @@ void destruirSemaforos()
 
 void escribirArchivo(uint32_t posicion, osada_file* buf)
 {
-		pthread_mutex_lock(&(mutexArchivo[posicion]));
+		//pthread_rwlock_wrlock(&(mutexArchivo[posicion]));
 	memcpy(disco + offsetTablaArchivos + (posicion * sizeof(osada_file)), buf, sizeof(osada_file));
-		pthread_mutex_unlock(&(mutexArchivo[posicion]));
-}
-
-int escribirArchivoAsignandoBloquesNuevos(void* bufWrite, int cantidadBloques, uint32_t* posicionBloque, uint32_t* proximoBloque)
-{
-	int i;
-	int desplazamiento = 0;
-	   printf(YEL "\t escribirArchivoAsignandoBloquesNuevos, posicion recibida: %d\n" RESET, *posicionBloque);
-
-
-	void* bloque = malloc(OSADA_BLOCK_SIZE);
-	memset(bloque, 0, OSADA_BLOCK_SIZE);
-
-	for(i = 0; i< cantidadBloques; i++)
-	{
-	   memcpy(bloque, bufWrite + desplazamiento, OSADA_BLOCK_SIZE);
-	   desplazamiento += OSADA_BLOCK_SIZE;
-
-	   escribirBloque(*posicionBloque, bloque);
-	   buscarBitLibre(proximoBloque);
-	   escribirAsignacion(*posicionBloque, proximoBloque);
-	   printf(YEL "\t%d" RESET, *posicionBloque);
-	   memcpy(posicionBloque, proximoBloque, sizeof(uint32_t));
-	}
-
-	free(bloque);
-	bloque = NULL;
-	return desplazamiento;
+	//	pthread_rwlock_unlock(&(mutexArchivo[posicion]));
 }
 
 void escribrirArchivoConOffset(uint32_t size, void* bufWrite, uint32_t offset, uint32_t* posicion)//posicion llega con el first block del archivo
 {
+	printf(FUC "\t En escribrirArchivoConOffset() el offset recibido es: %d \n" RESET, offset);
+
 	posicionarme(&offset, posicion);//esta modifica el offset
 
 	int desplazamiento = 0;
@@ -489,20 +442,24 @@ void escribrirArchivoConOffset(uint32_t size, void* bufWrite, uint32_t offset, u
 
 	if(resto >0)
 	{
-		 escribirMenosQueUnBloqueAlFinal( bufWrite, posicion, desplazamiento, resto);
+		escribirResto(resto, bufWrite, posicion, desplazamiento);
+		// escribirMenosQueUnBloqueAlFinal( bufWrite, posicion, desplazamiento, resto);
 	}
 }
 
 void escribrirArchivoSinOffset(uint32_t size, void* bufWrite, uint32_t* posicion)//posicion llega con el first block del archivo
 {
-	int desplazamiento = 0;
+	printf(FUC "\t En escribrirArchivoSinOffset() \n" RESET);
+
 	if (size > OSADA_BLOCK_SIZE)
 	{
+		int desplazamiento = 0;
 		int resto = escribriBloquesEnteros(size, bufWrite, posicion, &desplazamiento);
 
 		if(resto > 0)
 		{
-			 escribirMenosQueUnBloqueAlFinal(bufWrite, posicion, desplazamiento, resto);
+			escribirResto(resto, bufWrite, posicion, desplazamiento);
+		   //escribirMenosQueUnBloqueAlFinal(bufWrite, posicion, desplazamiento, resto);
 		}
 	}
 	else
@@ -546,17 +503,17 @@ int escribriBloquesEnteros(uint32_t size, void* bufWrite, uint32_t* posicion, in
 	return resto;
 }
 
-void escribirMenosQueUnBloqueAlFinal(void* bufWrite, uint32_t* posicion, int desplazamiento, int resto)
-{
-	void* bloque = malloc(OSADA_BLOCK_SIZE);
-	memset(bloque, 0, OSADA_BLOCK_SIZE);
-	memcpy(bloque, bufWrite + desplazamiento, resto);
-
-	escribirBloque(*posicion, bloque);
-
-	free(bloque);
-	bloque = NULL;
-}
+//void escribirMenosQueUnBloqueAlFinal(void* bufWrite, uint32_t* posicion, int desplazamiento, int resto)
+//{
+//	void* bloque = malloc(OSADA_BLOCK_SIZE);
+//	memset(bloque, 0, OSADA_BLOCK_SIZE);
+//	memcpy(bloque, bufWrite + desplazamiento, resto);
+//
+//	escribirBloque(*posicion, bloque);
+//
+//	free(bloque);
+//	bloque = NULL;
+//}
 
 int escribirMenosQueUnBloqueAlPrincipio(uint32_t* size, void* bufWrite, uint32_t offset, uint32_t* posicion)
 {
@@ -590,7 +547,7 @@ void escribirResto(int bytesResto, void* bufWrite, uint32_t* posicionBloque, int
 
 	escribirBloque(*posicionBloque, bloque);
 	escribirAsignacion(*posicionBloque, flag);
-	printf(FUC "\t posicion ultimo bloque: %d\n" RESET, *posicionBloque);
+	//printf(FUC "\t posicion ultimo bloque: %d\n" RESET, *posicionBloque);
 
 	free(bloque);
 	bloque = NULL;
@@ -689,7 +646,7 @@ int existePath(char* path, int* pos)
 	{
 		return 0;
 	}
-
+	printf(CYN "\t Existe path: %s, posicion:%d\n" RESET, path, padre);
 	return 1;
 }
 
@@ -702,17 +659,17 @@ char flushArchivo(char* path)
 void* getAttr(char* path)
 {
     int pos;
-    pthread_rwlock_rdlock(&lockTablaArchivos);
+    	//pthread_rwlock_rdlock(&lockTablaArchivos);
     int existe = existePath(path, &pos);
     if (!existe)
 	{
-    	pthread_rwlock_unlock(&lockTablaArchivos);
+    	//	pthread_rwlock_unlock(&lockTablaArchivos);
 		printf(YEL "\t No existe path: %s\n" RESET, path);
 		return NULL;
 	}
-		pthread_rwlock_rdlock(&(RWlock[pos]));
-		pthread_rwlock_unlock(&lockTablaArchivos);
-	printf(CYN "\t Existe path: %s, posicion:%d\n" RESET, path, pos);
+		//pthread_rwlock_rdlock(&(RWlock[pos]));
+		//pthread_rwlock_unlock(&lockTablaArchivos);
+	//printf(CYN "\t Existe path: %s, posicion:%d\n" RESET, path, pos);
 
 	osada_file archivo;
     leerArchivo(pos, &archivo);
@@ -721,7 +678,7 @@ void* getAttr(char* path)
 	//time(&tiempo);
     //printf(FUC"\t Fecha last mod archivo.lastmod %s" RESET, ctime(&tiempo));
 
-    pthread_rwlock_unlock(&(RWlock[pos]));
+    //	pthread_rwlock_unlock(&(RWlock[pos]));
 
 	if (archivo.state != 0)
 	{
@@ -749,12 +706,19 @@ void* getAttr(char* path)
 	return NULL;
 }
 
-int hayEspacioEnDisco(int cantidadBloques) //busco espacio para una cantidad de bloques que quiero escribir leyendo los bits del sector de bloques de datos
+int chequearYReservarEspacioEnDisco(osada_file* FCB, uint32_t size, uint32_t offset,int posicionArchivo, int cantidadBloques)//posicion llega ya bloqueada para escritura
+//busco espacio para una cantidad de bloques que quiero escribir y si me alcanza lo reservo
 {
 	int contador = 0;
 	off_t i;
+	int actualizado = -1;
 
 		//pthread_mutex_lock(&mutexBitmap);
+	if(FCB->file_size == 0)//si era un archivo recien creado le tengo que cambiar el first block
+	{
+		actualizado = actualizarFirstBlockArchivo(FCB);
+	}
+
 	for (i = baseDatosBitmap; i<= limiteDatosBitmap; i++)
 	{
 		if(bitarray_test_bit(bitVector, i) == 0)
@@ -762,13 +726,19 @@ int hayEspacioEnDisco(int cantidadBloques) //busco espacio para una cantidad de 
 			contador++;
 			if(contador == cantidadBloques)
 			{
-					//pthread_mutex_unlock(&mutexBitmap);
+				truncar(FCB, (size + offset), posicionArchivo);//me aseguro que el archivo ya tenga asignados todos los bloques que necesita, si no los tiene se los agrego o se los saco si le sobran
+				//	pthread_mutex_unlock(&mutexBitmap);
 				return 1;
 			}
 		}
 	}
-		//pthread_mutex_unlock(&mutexBitmap);
+
+	//	pthread_mutex_unlock(&mutexBitmap);
 	printf(RED "\t No hay espacio suficiente en disco, hay %d bloque/s libre/s\n" RESET, contador);
+	if (actualizado != -1) //si habia cambiado el first block pero no me alcanzaron los bits libres
+	{
+		devolverBitFirstBlockArchivo(posicionArchivo, FCB);
+	}
 	return 0;
 }
 
@@ -783,14 +753,14 @@ void inicializarDisco()
 
 void inicializarSemaforos()
 {
-	int i;
-
-	for(i=0; i<2048; i++)
-	{
-	    pthread_rwlock_init(&(RWlock[i]), NULL);
-	    pthread_mutex_init(&(mutexArchivo[i]), NULL);
-	}
-	pthread_rwlock_init(&(lockTablaArchivos), NULL);
+//	int i;
+//
+//	for(i=0; i<2048; i++)
+//	{
+//	    pthread_rwlock_init(&(RWlock[i]), NULL);
+//	    pthread_rwlock_init(&(mutexArchivo[i]), NULL);
+//	}
+//	pthread_rwlock_init(&(lockTablaArchivos), NULL);
 }
 
 int intentarOAgregar(int parentDir, char* nombreArchivo, osada_file* nuevo)//busca el archivo en la tabla de archivos, si no existe, y puede, lo agrega
@@ -801,7 +771,8 @@ int intentarOAgregar(int parentDir, char* nombreArchivo, osada_file* nuevo)//bus
 	osada_file* archivo = malloc(sizeof(osada_file));
 	memset(archivo, 0, sizeof(osada_file));
 
-	pthread_rwlock_wrlock(&lockTablaArchivos);
+//	pthread_rwlock_wrlock(&lockTablaArchivos);
+
 	for (i = 0; i< 2048; i++)
 	{
 		leerArchivo(i, archivo);
@@ -810,7 +781,8 @@ int intentarOAgregar(int parentDir, char* nombreArchivo, osada_file* nuevo)//bus
     	{
     		if (archivo->parent_directory == parentDir)
     		{
-    			pthread_rwlock_unlock(&lockTablaArchivos);
+    			//pthread_rwlock_unlock(&lockTablaArchivos);
+
     			free(archivo);
     			archivo = NULL;
 
@@ -828,29 +800,32 @@ int intentarOAgregar(int parentDir, char* nombreArchivo, osada_file* nuevo)//bus
 
 	if (posicion != -1)
 	{
-			pthread_rwlock_wrlock(&(RWlock[posicion]));
+			//pthread_rwlock_wrlock(&(RWlock[posicion]));
+			//printf(NAR "\t\t RWlock\n" RESET);
+			//pthread_rwlock_unlock(&lockTablaArchivos);
+
 		escribirArchivo(posicion, nuevo);
-			pthread_rwlock_unlock(&(RWlock[posicion]));
-			pthread_rwlock_unlock(&lockTablaArchivos);
+		//	pthread_rwlock_unlock(&(RWlock[posicion]));
+			//printf(ORG "\t\t UNRWlock\n" RESET);
 
 		free(archivo);
 		archivo = NULL;
 		return 1;
 	}
 
-	pthread_rwlock_unlock(&lockTablaArchivos);
+//	pthread_rwlock_unlock(&lockTablaArchivos);
+
 	free(archivo);
 	archivo = NULL;
 
 	return -1;
-
 }
 
 void leerArchivo(uint32_t posicion, osada_file* buf)
 {
-		pthread_mutex_lock(&(mutexArchivo[posicion]));
+		//pthread_rwlock_rdlock(&(mutexArchivo[posicion]));
 	memcpy(buf, disco + offsetTablaArchivos + (posicion * sizeof(osada_file)), sizeof(osada_file));
-		pthread_mutex_unlock(&(mutexArchivo[posicion]));
+		//pthread_rwlock_unlock(&(mutexArchivo[posicion]));
 }
 
 void leerAsignacion(uint32_t posicion, uint32_t* buf)
@@ -918,13 +893,11 @@ char liberarArchivo(char* path)
 
 void liberarBits(uint32_t posicion)
 {
-		pthread_mutex_lock(&mutexBitmap);
 	while(posicion != -1)//ver porque la ultima asignacion es un -1 en vez de un ffff
 	{
 		bitarray_clean_bit(bitVector, baseDatosBitmap + posicion);
 		leerAsignacion(posicion, &posicion);
 	}
-		pthread_mutex_unlock(&mutexBitmap);
 }
 
 void liberarRecursos()
@@ -990,12 +963,14 @@ char* nombre(char* path)
 
 time_t obtenerFecha()
 {
+		//pthread_mutex_lock(&mutexFecha);
  	time_t tiempo = time(0);
  	time(&tiempo);
- 	time_t timeinfo =  (time_t)localtime(&tiempo);
+ 	//time_t timeinfo =  (time_t)localtime(&tiempo);
+ 		//pthread_mutex_unlock(&mutexFecha);
  	//printf(YEL "\t Local Time: %s\r\n" RESET, asctime(timeinfo));
- 	return timeinfo;
-
+ 	//return timeinfo;
+return tiempo;
  	//Para cada uno de los campos..
  	// anio ---> timeinof->tm_year + 1900
  	//mes ---> timeinfo->tm_mon + 1
@@ -1009,7 +984,7 @@ int padre(char* path)
 
 	if((posicion = posicionUltimoToken(path)) == -1)
 	{
-		printf(RED "\t No se encontro el archivo padre\n" RESET);
+		//printf(RED "\t No se encontro el archivo padre\n" RESET);
 		return -1;
 	}
 
@@ -1026,7 +1001,7 @@ int padre(char* path)
 
 	if (archivo == NULL)
 	{
-		printf(RED "\t No se encontro el archivo padre\n" RESET);
+		//printf(RED "\t No se encontro el archivo padre\n" RESET);
 		free(pathPadre);
 		pathPadre = NULL;
 		return -1;
@@ -1045,6 +1020,8 @@ void posicionarme(uint32_t* offset, uint32_t* posicion)
 	int nroBloque = 0;
 	nroBloque = *offset / OSADA_BLOCK_SIZE;
 	*offset = *offset % OSADA_BLOCK_SIZE;
+
+	//printf(PINK "\t en posicionarme() el nroBloque es: %d y el offset actualizado es: %d \n" RESET, nroBloque,(uint32_t) *offset);
 
 	for(i = 0; i< nroBloque; i++)
 	{
@@ -1077,7 +1054,7 @@ void* readdir(char* path)
     int existe = 1;
     int contadorArchivosEnPath = 0;
 
-    pthread_rwlock_rdlock(&lockTablaArchivos);
+    	//pthread_rwlock_rdlock(&lockTablaArchivos);
     if (strcmp(path, "/") == 0)
     {
     	pos = 65535;
@@ -1089,7 +1066,7 @@ void* readdir(char* path)
 
 	if (existe == 0)
 	{
-		pthread_rwlock_unlock(&lockTablaArchivos);
+	//	pthread_rwlock_unlock(&lockTablaArchivos);
 		return NULL;
 	}
 
@@ -1103,6 +1080,7 @@ void* readdir(char* path)
 			contadorArchivosEnPath++;
 		}
 	}
+	printf("\t Cantidad de archivos en path: %d\n", contadorArchivosEnPath);
 
 	if(contadorArchivosEnPath != 0)
 	{
@@ -1121,36 +1099,36 @@ void* readdir(char* path)
 		}
 		printf(CYN "\t Archivos en path: %s\n" RESET, buffer);
 	}
-	pthread_rwlock_unlock(&lockTablaArchivos);
+	//pthread_rwlock_unlock(&lockTablaArchivos);
 	return buffer;
 }
 
 void* readBuffer(char* path, size_t* size, off_t* offset, uint32_t* tamanioBuffer)
 {
 	int posicion = -1;
-	pthread_rwlock_rdlock(&lockTablaArchivos);
-	int existe = existePath(path, &posicion);
-	if(!existe)
-	{
-		pthread_rwlock_unlock(&lockTablaArchivos);
-		printf(RED "\t No existe el path\n" RESET);
-		return NULL;
-	}
+//	pthread_rwlock_rdlock(&lockTablaArchivos);
+//	int existe = existePath(path, &posicion);
+//	if(!existe)
+//	{
+//		pthread_rwlock_unlock(&lockTablaArchivos);
+//		printf(RED "\t No existe el path\n" RESET);
+//		return NULL;
+//	}
 	osada_file* archivo = buscarArchivo(path, &posicion);
 
 	if (archivo == NULL)
 	{
-		pthread_rwlock_unlock(&lockTablaArchivos);
-		printf(RED "\t\t\t No se encontro el archivo\n" RESET);
+		//pthread_rwlock_unlock(&lockTablaArchivos);
+		printf(RED "\t No se encontro el archivo\n" RESET);
 		return NULL;
 	}
-		pthread_rwlock_rdlock(&(RWlock[posicion]));
-		pthread_rwlock_unlock(&lockTablaArchivos);
+		//pthread_rwlock_rdlock(&(RWlock[posicion]));
+		//pthread_rwlock_unlock(&lockTablaArchivos);
 	void* archivoCompleto = readFile(archivo);
-		pthread_rwlock_unlock(&(RWlock[posicion]));
+	//	pthread_rwlock_unlock(&(RWlock[posicion]));
 
 	uint32_t bytes = archivo->file_size - (uint32_t)*offset;
-	printf(BLU "\n\t file_size: %d bytes\n", archivo->file_size);
+	printf(BLU "\t file_size: %d bytes\n", archivo->file_size);
 
 	if ((bytes <= *size) && (*offset == 0))
 	{
@@ -1206,16 +1184,13 @@ void* readFile(osada_file* archivo)
 
 	memset(buffer, 0, OSADA_BLOCK_SIZE * cantidadBloques);
 	memset(bufferAux, 0, OSADA_BLOCK_SIZE);
-	printf(CYN "\t %d-%d" RESET, next_block, bitarray_test_bit(bitVector, baseDatosBitmap + next_block));
+
 	for (i=0; i < cantidadBloques; i++)
 	{
-
-
 		leerDato(next_block, bufferAux);
 		memcpy(buffer + offset, bufferAux, OSADA_BLOCK_SIZE);
 		offset += OSADA_BLOCK_SIZE;
 		leerAsignacion(next_block, &next_block);
-		printf(CYN "\t%d-%d" RESET, next_block, bitarray_test_bit(bitVector, baseDatosBitmap + next_block));
 	}
 
 	memcpy(respuesta, buffer, fileSize);
@@ -1248,11 +1223,11 @@ char renombrarArchivo(char* paths)
 		return 'n';
 	}
 
-		pthread_rwlock_wrlock(&lockTablaArchivos);
+		//pthread_rwlock_wrlock(&lockTablaArchivos);
 	osada_file* archivo = buscarArchivo(viejo, &posicion);
 	if (archivo == NULL)
 	{
-		pthread_rwlock_unlock(&lockTablaArchivos);
+	//	pthread_rwlock_unlock(&lockTablaArchivos);
 		printf(RED "\t No se encontro el archivo: %s\n" RESET, viejo);
 		free(nombreNuevo);
 		free(nombreViejo);
@@ -1260,11 +1235,11 @@ char renombrarArchivo(char* paths)
 		nombreViejo = NULL;
 		return 'n';
 	}
-		pthread_rwlock_wrlock(&(RWlock[posicion]));
-		pthread_rwlock_unlock(&lockTablaArchivos);
+	//	pthread_rwlock_wrlock(&(RWlock[posicion]));
+	//	pthread_rwlock_unlock(&lockTablaArchivos);
 	strcpy((char*)archivo->fname, nombreNuevo);
 	escribirArchivo(posicion, archivo);
-		pthread_rwlock_unlock(&(RWlock[posicion]));
+	//	pthread_rwlock_unlock(&(RWlock[posicion]));
 	printf( "\t Se cambio el nombre del archivo: %s por: %s\n", nombreViejo, nombreNuevo);
 
 	free(nombreNuevo);
@@ -1294,258 +1269,87 @@ void sacarBloques(uint32_t size, uint32_t newSize, uint32_t posicion)
 	liberarBits(posicionAnterior);
 }
 
-char truncar(osada_file* FCB, uint32_t newSize, int posicion)
+char truncar(osada_file* FCB, uint32_t newSize, int posicion)//la posicion llega bloqueada para escritura
 {
 	if(newSize == 0)
 	{
-		printf(NAR "\t truncate %d bytes\n" RESET, FCB->file_size);
+		printf(NAR "\t truncate %d bytes\n" , FCB->file_size);
 		free(FCB);
 		FCB = NULL;
 		return 's';
 	}
 
-	if (existeArchivo((char*)FCB->fname, FCB->parent_directory, posicion) == 1)
+	if(FCB->file_size > newSize)
 	{
-		if(FCB->file_size > newSize)
-		{
-			sacarBloques(FCB->file_size, newSize, FCB->first_block);
-			FCB->file_size = newSize;//si viene de write este newSize es igual a size + offset
-		}
-		else
-		{
-			agregarBloques(FCB->file_size, newSize, FCB->first_block);
-			FCB->file_size = newSize;//si viene de write este newSize es igual a size + offset
-		}
-
-		FCB->lastmod =(uint32_t) obtenerFecha();
-		escribirArchivo((uint32_t)posicion, FCB);
-
-		printf(NAR "\t truncate %d bytes\n" RESET, FCB->file_size);
-		return 's';
+		sacarBloques(FCB->file_size, newSize, FCB->first_block);
+		FCB->file_size = newSize;//si viene de write este newSize es igual a size + offset
+	}
+	else
+	{
+		agregarBloques(FCB->file_size, newSize, FCB->first_block);
+		FCB->file_size = newSize;//si viene de write este newSize es igual a size + offset
 	}
 
-	//printf(NAR "\t no existe el archivo\n" RESET);
-	free(FCB);
-	FCB = NULL;
-	return 'n';
+	FCB->lastmod =(uint32_t) obtenerFecha();
+	escribirArchivo((uint32_t)posicion, FCB);
+
+	printf( NAR"\t truncate %d bytes\n " RESET, FCB->file_size);
+	return 's';
 }
 
 int writeBuffer(uint32_t* size, uint32_t* offset, char* path, void* bufWrite)
 {
 	int posicion = -1;
 
-		pthread_rwlock_wrlock(&lockTablaArchivos);
-	if(!existePath(path, &posicion))
-	{
-			pthread_rwlock_unlock(&lockTablaArchivos);
-		printf(RED "\n\t No existe el path\n" RESET);
-		return -1;
-	}
+	//	pthread_rwlock_wrlock(&lockTablaArchivos);
 
 	osada_file* FCB = buscarArchivo(path, &posicion);
 	if (FCB == NULL)
 	{
-			pthread_rwlock_unlock(&lockTablaArchivos);
-		char* nombreArchivo = nombre(path);
-		printf(RED "\t No se encontro el archivo: " YEL "%s\n" RESET, nombreArchivo);
-		free(nombreArchivo);
-		nombreArchivo = NULL;
+		//	pthread_rwlock_unlock(&lockTablaArchivos);
+
+		printf(RED "\t No se encontro el archivo \n" RESET);
 		return -1;
 	}
 
-	if (*size > 0)
+	//	pthread_rwlock_wrlock(&RWlock[posicion]);
+	//	printf(NAR "\t\t rwLOCK\n" RESET);
+	//	pthread_rwlock_unlock(&lockTablaArchivos);
+
+	uint32_t cantidadBloques = cantidadDeBloques(*size + *offset);//esta cantidad es la que va a ocupar el archivo total en disco
+
+	if (chequearYReservarEspacioEnDisco(FCB, *size, *offset, posicion, cantidadBloques) == 0) //este llama a truncar si hay espacio para reservarle o sacarle bloques
 	{
-		uint32_t cantidadBloques = cantidadDeBloques(*size);
-
-			pthread_mutex_lock(&mutexBitmap);
-		if (hayEspacioEnDisco(cantidadBloques) == 0)
-		{
-				pthread_mutex_unlock(&mutexBitmap);
-			printf(RED "\n\t No hay espacio suficiente para escribir el archivo\n" RESET);
-			free(FCB);
-			FCB = NULL;
-			return -2;
-		}
-
-		cantidadBloques = (uint32_t)(*size / OSADA_BLOCK_SIZE);
-		writeFile(size, bufWrite, cantidadBloques, *offset, posicion, FCB);
-			pthread_mutex_unlock(&mutexBitmap);
+		printf(RED "\n\t No hay espacio suficiente para escribir el archivo\n" RESET);
+	//	pthread_rwlock_unlock(&RWlock[posicion]);
+		//printf(YEL "\t\t UNRWlock\n" RESET);
+		free(FCB);
+		FCB = NULL;
+		return -2;
 	}
+
+	cantidadBloques = (uint32_t)(*size / OSADA_BLOCK_SIZE);//esta cantidad es la que va a escribir en disco
+	writeFile(size, bufWrite, *offset, FCB);
+		//pthread_rwlock_unlock(&RWlock[posicion]);
+		//printf(ORG "\t\t UNRWlock\n" RESET);
 
     free(FCB);
     FCB = NULL;
 	return 0;
 }
 
-void* writeFile(uint32_t* size, void* bufWrite, int cantidadBloques, uint32_t offset, int posicionArchivo, osada_file* FCB)
+void* writeFile(uint32_t* size, void* bufWrite, uint32_t offset, osada_file* FCB)
 {
-	uint32_t* posicionBloque = malloc(sizeof(uint32_t));
-	uint32_t* proximoBloque  = malloc(sizeof(uint32_t));
-
-	void* bloque = malloc(OSADA_BLOCK_SIZE);
-	memset(bloque, 0, OSADA_BLOCK_SIZE);
-
-    if(FCB->file_size == 0)//si es un archivo recien creado
-    {
-    	printf(YEL2 "\t archivo recien creado\n" RESET);
-    	actualizarFCBArchivo(posicionArchivo, FCB, *size, posicionBloque);
-
-    	int desplazamiento = escribirArchivoAsignandoBloquesNuevos(bufWrite, cantidadBloques, posicionBloque, proximoBloque);
-
-    	int bytesResto = *size % OSADA_BLOCK_SIZE;
-
-    	if(bytesResto > 0)
-    	{
-    		printf(NAR "\t posicionBloque para escribirResto(): %d\n" RESET, *posicionBloque);
-    		escribirResto(bytesResto, bufWrite, posicionBloque, desplazamiento);
-    	}
-
-		free(posicionBloque);
-		free(proximoBloque);
-		free(bloque);
-		posicionBloque = NULL;
-		proximoBloque = NULL;
-		bloque = NULL;
-		return size;
-    }
+	if (offset != 0)
+	{
+		escribrirArchivoConOffset(*size, bufWrite, offset, &(FCB->first_block));
+	}
 	else
 	{
-		osada_file* archivo = malloc(sizeof(osada_file));
-		memset(archivo, 0, sizeof(osada_file));
-		memcpy(archivo, FCB, sizeof(osada_file));
-
-		truncar(FCB, (*size + offset), posicionArchivo);//me aseguro que el archivo ya tenga asignados todos los bloques que necesita, si no los tiene se los agrego o se los saco si le sobran
-		if (offset != 0)
-		{
-			printf(YEL2 "\t escribrirArchivoConOffset\n" RESET);
-			escribrirArchivoConOffset(*size, bufWrite, offset, &(archivo->first_block));
-		}
-		else
-		{
-			printf(YEL2 "\t escribrirArchivoSinOffse\n" RESET);
-			escribrirArchivoSinOffset(*size, bufWrite, &(archivo->first_block));
-		}
-
-		free(posicionBloque);
-		free(proximoBloque);
-		free(bloque);
-		free(archivo);
-		posicionBloque = NULL;
-		proximoBloque = NULL;
-		bloque = NULL;
-		archivo = NULL;
-		return size;
+		escribrirArchivoSinOffset(*size, bufWrite, &(FCB->first_block));
 	}
+	//printf(FUC "\t Se guardo el archivo correctamente \n" RESET);
+	return size;
 }
 
-//funciones para probar la lectura correcta del disco----------------------------------------------------------------------
-t_list *leerTablaArchivos(){
-	t_list *lista = list_create();
-
-	osada_file archivo;
-	int i;
-	printf(GRN "\t\t TABLA DE ARCHIVOS\n" RESET);
-	printf("\t\t Archivo.fname  parent_directory  file_size  state\n");
-
-	for(i = 0; i < 2048; i++){
-
-		leerArchivo(i, &archivo);
-
-		if (archivo.state != DELETED){
-			//printf("%17s\t %8d\t %4d\t %4d\n\n", archivo.fname, archivo.parent_directory, archivo.file_size, archivo.state);
-
-			if (archivo.state == REGULAR)
-				printf("%25s\t %8d\t %4d\t Fichero\n", archivo.fname, archivo.parent_directory, archivo.file_size);
-			if (archivo.state == DIRECTORY)
-				printf("%25s\t %8d\t %4d\t Directorio\n", archivo.fname, archivo.parent_directory, archivo.file_size);
-
-			agregarArchivoEnLista(archivo, lista);
-
-		}
-	}
-
-	//mostrarLista();
-	return lista;
-}
-
-void agregarArchivoEnLista(osada_file archivo, t_list *lista){
-	struct NodoArchivo *nuevo;
-	struct NodoArchivo *aux;
-
-	t_nodoArchivo *nuevo2 = malloc(sizeof (t_nodoArchivo));
-	nuevo2->nombre = malloc(OSADA_FILENAME_LENGTH);
-
-	nuevo = (struct NodoArchivo *) malloc(sizeof(struct NodoArchivo));
-	nuevo2->nombre	= malloc(OSADA_FILENAME_LENGTH);
-
-	memset(nuevo2->nombre, '\0', sizeof(char) * OSADA_FILENAME_LENGTH);
-	memcpy(nuevo2->nombre, archivo.fname, strlen(archivo.fname));
-
-	nuevo2->fd			= descriptorArchivo;
-	nuevo2->enUso		= SinUso;
-	nuevo->siguiente	= NULL;
-
-	list_add(lista, nuevo2);
-
-/*
-	if(ListaArchivos == NULL){
-		ListaArchivos = nuevo;
-
-	} else {
-		aux = ListaArchivos;
-		while(aux->siguiente != NULL){
-			aux = aux->siguiente;
-		}
-
-		aux->siguiente = nuevo;
-	}
-*/
-}
-
-void mostrarLista(){
-//	struct t_listaArchivos *auxiliar;
-	int i = 0;
-
-//	auxiliar = primero;
-//	ListaArchivos = primero;
-	printf("\nMostrando la lista completa: \n");
-
-	while(ListaArchivos != NULL){
-		printf("Nombre: %s\n", ListaArchivos->nombre);
-		printf("Descriptor: %d\n", ListaArchivos->fd);
-		if (ListaArchivos->enUso == SinUso)
-			printf("Sin Uso\n");
-		else printf("En Uso\n");
-
-		ListaArchivos = ListaArchivos->siguiente;
-		i++;
-	}
-
-	if(i==0)
-		printf("\nLa lista se encuentra vacia..\n");
-}
-
-void leerTablaAsignaciones()
-{
-	uint32_t asignacion;
-		uint32_t i;
-		printf(GRN "Tabla de asignaciones\n" RESET);
-		for(i=0; i< 100; i++)
-		{
-			leerAsignacion(i, &asignacion);
-				printf("\t La posicion: %d esta linkeada con:%d \n",i, asignacion);
-		}
-}
-
-void leerTablaDatos()
-{
-	osada_block bloque;
-		int i;
-		printf("tabla de datos\n");
-		for(i=0; i< 100; i++)
-		{
-			leerDato(i, &bloque);
-			printf("%s \n", bloque);
-		}
-}
 
