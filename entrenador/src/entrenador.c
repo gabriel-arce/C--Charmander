@@ -62,6 +62,7 @@ int leer_metadata_entrenador(char * metada_path) {
 		list_add_in_index(metadata->viaje->elements, i, mapa_i);
 
 		free(property_name);
+
 	}
 
 	list_destroy_and_destroy_elements(hoja_de_viaje, (void *) free);
@@ -687,6 +688,7 @@ void muerteEntrenador() {
 void pokemon_destroyer(t_pkm * p) {
 	free(p->nombre);
 	free(p->nombreArchivo);
+	free(p);
 }
 
 void desconectarseDeMapa(){
@@ -757,7 +759,7 @@ void finalizarEntrenador(){
 		free(ubicacionActual);
 
 	if(metadata->viaje != NULL)
-		queue_destroy_and_destroy_elements(metadata->viaje, (void*) destruirHojaDeViaje);
+		queue_destroy_and_destroy_elements(metadata->viaje, (void*) liberarMapa);
 
 	if (ubicacionProximaPokenest != NULL)
 		free(ubicacionProximaPokenest);
@@ -775,7 +777,8 @@ void finalizarEntrenador(){
 
 void destruirHojaDeViaje(t_mapa * mapa){
 	free(mapa->nombre_mapa);
-	queue_destroy(mapa->objetivos);
+	queue_clean_and_destroy_elements(mapa->objetivos, (void *) free);
+	free(mapa);
 }
 
 void copiar_archivo(char * source, char * destination) {
@@ -838,6 +841,6 @@ void finalizacionAbrupta(){
 void liberarMapa(t_mapa* mapa){
 	free(mapa->ip);
 	free(mapa->nombre_mapa);
-	queue_destroy(mapa->objetivos);
+	queue_destroy_and_destroy_elements(mapa->objetivos, (void*) free);
 	free(mapa);
 }
