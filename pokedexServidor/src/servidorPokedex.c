@@ -8,16 +8,19 @@
 #include "servidorPokedex.h"
 
 
-t_queue* threadQueue;
+//t_queue* threadQueue;
 pthread_t thread1;
 sem_t semThreads;
 
 int main(int argc, char ** argv)
 {
+
 	logServidor = log_create("logPokedex", "Pokedex", false, LOG_LEVEL_DEBUG);
     log_info(logServidor, "------------LOG CREADO---------------");
 
-    threadQueue = queue_create();
+
+   // threadQueue = queue_create();
+
 
 	printEncabezado();
 	inicializarDisco();
@@ -67,12 +70,14 @@ void* hiloComunicacion(void* arg)
 
 				pthread_attr_t attr;
 				pthread_t* cliente = malloc(sizeof(pthread_t));
-				queue_push(threadQueue, cliente);
+				//queue_push(threadQueue, cliente);
 
 				pthread_attr_init(&attr);
 				pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_DETACHED);
+				//cliente = queue_pop(threadQueue);
 				pthread_create(cliente, &attr, atendercliente, (void*)socketCliente);
 				pthread_attr_destroy(&attr);
+				free(cliente);
 			}
 		}
 		else
@@ -80,6 +85,7 @@ void* hiloComunicacion(void* arg)
 			//printf(YEL "\t Recibi un mensaje inesperado de: %d :%s \n" RESET, *socketCliente, mensajeHSK);
 		}
 	}
+	pthread_exit((void*) "Finaliza hilo comunicacion");
 	return NULL;
 }
 
@@ -535,9 +541,12 @@ void* atendercliente(void* socketCliente)
 			continuar = 0;
 		}
 	}//fin while
+
 	printf(YEL "\n******** Se desconecto el cliente %d, termina el hilo que lo atiendia ******\n" RESET, socket);
 	log_info(logServidor, "Se desconecto el cliente");
+
 	sem_post(&semThreads);
+	pthread_exit((void*) "Finaliza hilo cliente");
 	return NULL;
 }
 
@@ -876,8 +885,8 @@ void terminar()
 	destruirSemaforos();
 	sem_destroy(&semThreads);
 
-	queue_destroy_and_destroy_elements(threadQueue, free);//(void*)threadsDestroyer);
-
+	//queue_destroy_and_destroy_elements(threadQueue, free);//(void*)threadsDestroyer);
+	log_destroy(logServidor);
 	pthread_join(thread1, NULL);
 	pthread_detach(thread1);
 
