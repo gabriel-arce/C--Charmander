@@ -24,9 +24,9 @@ int main(int argc, char ** argv) {
 	}
 
 //	Interfaz grafica
-//	nivel_gui_inicializar();
-//	int filas = __FILAS, columnas = __COLUMNAS;
-//	nivel_gui_get_area_nivel(&filas, &columnas);
+	nivel_gui_inicializar();
+	int filas = __FILAS, columnas = __COLUMNAS;
+	nivel_gui_get_area_nivel(&filas, &columnas);
 
 	ruta_directorio = string_duplicate(argv[2]);
 	leer_metadata_mapa(argv[2]);
@@ -35,7 +35,7 @@ int main(int argc, char ** argv) {
 	socket_servidor = -1;
 
 //	Interfaz grafica
-//	nivel_gui_dibujar(items_mapa, nombreMapa);
+	nivel_gui_dibujar(items_mapa, nombreMapa);
 
 	pthread_create(&hilo_planificador, NULL, (void *) run_scheduler_thread, NULL);
 	pthread_create(&hilo_servidor, NULL, (void *) run_trainer_server, NULL);
@@ -53,10 +53,10 @@ int main(int argc, char ** argv) {
 	pthread_detach(hilo_deadlock);
 
 	destruir_semaforos();
-	//destruir_variables();
+	destruir_variables();
 
 	//	Interfaz grafica
-	//nivel_gui_terminar();
+	nivel_gui_terminar();
 
 	return EXIT_SUCCESS;
 }

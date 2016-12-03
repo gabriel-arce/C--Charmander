@@ -244,7 +244,7 @@ int liberar_pokemons(t_entrenador * e) {
 	void free_pkm(t_pkm * p) {
 		p->capturado = false;
 		//Interfaz grafica
-		//incrementar_recurso(p->id_pokenest);
+		incrementar_recurso(p->id_pokenest);
 	}
 	list_iterate(e->pokemonesCapturados, (void *) free_pkm);
 
