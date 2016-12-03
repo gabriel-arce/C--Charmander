@@ -140,6 +140,7 @@ char borrarArchivo(char* path)
 	{
 			//pthread_rwlock_unlock(&lockTablaArchivos);
 			printf(RED "\t No se encontro el archivo\n" RESET);
+
 		return 'n';
 	}
 		//pthread_rwlock_wrlock(&(RWlock[posicion]));
@@ -744,7 +745,7 @@ int chequearYReservarEspacioEnDisco(osada_file* FCB, uint32_t size, uint32_t off
 
 void inicializarDisco()
 {
-	mapearDisco("basic.bin");
+	mapearDisco("pokedex.bin");
 	leerHeader();
 	levantarDatosGenerales(oheader);
 	asignarOffsets();
@@ -760,7 +761,7 @@ void inicializarSemaforos()
 //	    pthread_rwlock_init(&(RWlock[i]), NULL);
 //	    pthread_rwlock_init(&(mutexArchivo[i]), NULL);
 //	}
-//	pthread_rwlock_init(&(lockTablaArchivos), NULL);
+	pthread_rwlock_init(&(lockTablaArchivos), NULL);
 }
 
 int intentarOAgregar(int parentDir, char* nombreArchivo, osada_file* nuevo)//busca el archivo en la tabla de archivos, si no existe, y puede, lo agrega

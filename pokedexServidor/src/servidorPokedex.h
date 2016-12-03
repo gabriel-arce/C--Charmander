@@ -14,7 +14,6 @@
 #define SERVIDORPOKEDEX_H_
 
 #define PUERTO "4969"
-//#define BACKLOG 15	// Define cuantas conexiones vamos a mantener pendientes al mismo tiempo
 #define ERRNOSPC 48
 
 //colores para los prints en la consola
@@ -39,8 +38,8 @@
 #define BLOCK_SIZE	64
 #define MAX_THREADS 5
 
-t_log logServidor;
 int	listenningSocket;
+t_log* logServidor;
 
 void* atendercliente(void* socketCliente);
 void destruirMutex() ;
