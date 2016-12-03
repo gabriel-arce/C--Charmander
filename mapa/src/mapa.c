@@ -169,6 +169,7 @@ void cargar_pokenests() {
 						free(_x_y[1]);
 						free(_x_y);
 						config_destroy(m_pknst);
+						free(path_f_pknst);  //asdasdasd
 
 						continue;
 					}
@@ -192,9 +193,10 @@ void cargar_pokenests() {
 					string_append_with_format(&path_f_pknst, "%s/%s", path, f_pknst->d_name);
 
 					// if its the metadata go on
-					if ( string_equals_ignore_case(f_pknst->d_name, "metadata") )
+					if ( string_equals_ignore_case(f_pknst->d_name, "metadata") ){
+						free(path_f_pknst);
 						continue;
-
+					}
 					// else its a pokemon
 					t_config * dat_pkm = config_create(path_f_pknst);
 
@@ -207,6 +209,7 @@ void cargar_pokenests() {
 
 					if (!config_has_property(dat_pkm, "Nivel")) {
 						free(dat_pkm);
+						free(path_f_pknst);
 						continue;
 					}
 
@@ -447,7 +450,6 @@ t_entrenador * recibir_datos_entrenador(int socket_entrenador, int data_buffer_s
 //	nivel_gui_dibujar(items_mapa, nombreMapa);
 //	pthread_mutex_unlock(&mutex_gui);
 
-	free(data_buffer);
 	return trainer_sesion;
 }
 
