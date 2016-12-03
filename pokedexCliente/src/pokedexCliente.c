@@ -10,8 +10,8 @@
 
 int main(int argc, char *argv[])
 {
-//	ip = getenv("SERVER_HOST");
-//	puerto = getenv("SERVER_PORT");
+  ip = getenv("SERVER_HOST");
+  puerto = getenv("SERVER_PORT");
 
   struct fuse_args args = FUSE_ARGS_INIT(argc, argv);
   int ret;
@@ -23,12 +23,12 @@ int main(int argc, char *argv[])
   log_info(logCliente, "****************** Creando archivo Log *******************************************" );
 
   char* mensaje = malloc(sizeof(char)*4);
-  memset(ip,0,10);
-  memset(puerto,0,5);
+//  memset(ip,0,10);
+//  memset(puerto,0,5);
   memset(mensaje,0,sizeof(char)*4);
 
-  strcpy(ip,"127.0.0.1");
-  strcpy(puerto,"4969");
+//  strcpy(ip,"127.0.0.1");
+//  strcpy(puerto,"4969");
   strcpy(mensaje,"hsk");
 
   signal(SIGINT,terminar);

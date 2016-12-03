@@ -9,7 +9,6 @@
 
 
 t_queue* threadQueue;
-
 pthread_t thread1;
 sem_t semThreads;
 
@@ -17,14 +16,8 @@ int main(int argc, char ** argv)
 {
     threadQueue = queue_create();
 
-//    t_list *ListaArchivos;
-
 	printEncabezado();
 	inicializarDisco();
-
-//	ListaArchivos = list_create();
-//	ListaArchivos = leerTablaArchivos();
-	//mostrar_lista_archivos();
 
 	sem_init(&semThreads, 0, MAX_THREADS);
 	listenningSocket = crearServer(PUERTO);
@@ -47,9 +40,6 @@ void* hiloComunicacion(void* arg)
 	int head;
 	void *mensaje = NULL;
 
-
-	//printf( "****************** Inicia escuchar conexiones *******************\n\n" );
-
 	while(1)
 	{
 		sem_wait(&semThreads); //espera que se libere algun thread para conectar otro cliente, tiene un maximo
@@ -60,7 +50,7 @@ void* hiloComunicacion(void* arg)
 		mensaje = recibir(*socketCliente,&head);
 
 		char* mensajeHSK = mensaje;
-		//printf("\t Recibiendo pedido de un cliente:%s \n ", mensajeHSK);
+
 		if (mensajeHSK)
 		{
 			int enviado = enviar(*socketCliente, HANDSHAKE, mensajeHSK);
@@ -70,7 +60,6 @@ void* hiloComunicacion(void* arg)
 			}
 			else
 			{
-			//	printf("\t Devolviendo mensajeHSK %d \n", *socketCliente);
 
 				pthread_attr_t attr;
 				pthread_t* cliente = malloc(sizeof(pthread_t));
@@ -78,7 +67,7 @@ void* hiloComunicacion(void* arg)
 
 				pthread_attr_init(&attr);
 				pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_DETACHED);
-				pthread_create(cliente, &attr,atendercliente, (void*)socketCliente);
+				pthread_create(cliente, &attr, atendercliente, (void*)socketCliente);
 				pthread_attr_destroy(&attr);
 			}
 		}
@@ -822,14 +811,14 @@ void terminar()
 	printf(RED "\n\n****************** Señal SIGINT *************************************************\n" RESET);
 	printf(RED     "**********************************************************************************\n" RESET);
 
-	//destruirSemaforos();
+	destruirSemaforos();
 	sem_destroy(&semThreads);
 
+	queue_destroy_and_destroy_elements(threadQueue, free);//(void*)threadsDestroyer);
 
 	pthread_join(thread1, NULL);
 	pthread_detach(thread1);
 
-//	queue_destroy_and_destroy_elements(threadQueue, free);//(void*)threadsDestroyer);
 	close(listenningSocket);
 	liberarRecursos();
 	descargar();

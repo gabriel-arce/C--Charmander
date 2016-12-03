@@ -23,8 +23,10 @@ t_log* logCliente;
 
 char* puntoDeMontaje;
 
-char ip[10];
-char puerto[5];
+//char ip[10];
+//char puerto[5];
+char* ip;
+char* puerto;
 
 pthread_mutex_t mutex_comunicacion  = PTHREAD_MUTEX_INITIALIZER;
 

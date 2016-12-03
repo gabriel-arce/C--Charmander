@@ -46,9 +46,9 @@ char abrirArchivo(char* path)
 
 void devolverBitFirstBlockArchivo(uint32_t posicionArchivo, osada_file* FCB)
 {
-		pthread_mutex_lock(&mutexBitmap);
+	//	pthread_mutex_lock(&mutexBitmap);
 	bitarray_clean_bit(bitVector, baseDatosBitmap + FCB->first_block);
-		pthread_mutex_unlock(&mutexBitmap);
+		//pthread_mutex_unlock(&mutexBitmap);
 }
 
 int actualizarFirstBlockArchivo(osada_file* FCB)
@@ -407,13 +407,13 @@ void descargar()
 
 void destruirSemaforos()
 {
-	int i;
-
-	for(i=0; i<2048; i++)
-	{
-		pthread_rwlock_destroy(&(RWlock[i]));
-		pthread_rwlock_destroy(&(mutexArchivo[i]));
-	}
+//	int i;
+//
+//	for(i=0; i<2048; i++)
+//	{
+//		pthread_rwlock_destroy(&(RWlock[i]));
+//		pthread_rwlock_destroy(&(mutexArchivo[i]));
+//	}
 
 	pthread_rwlock_destroy(&lockTablaArchivos);
 }
@@ -874,20 +874,6 @@ void levantarDatosGenerales(osada_header oheader)
 
 char liberarArchivo(char* path)
 {
-
-	//TODO: chequear que el archivo exista en la tabla de archivos abiertos, OK
-/*	struct NodoArchivo *archivoLista;
-
-	printf("Consultando archivo %s ..", path);
-
-	if ((archivoLista = buscarArchivoEnLista(path)) == NULL){
-		printf(RED "Error al abrir archivo.. archivo %s inexistente\n" RESET, path);
-		return 'n';
-	}
-
-	//TODO: y marcarlo como cerrado OK
-	archivoLista->enUso = SinUso;*/
-
 	return 's';
 }
 

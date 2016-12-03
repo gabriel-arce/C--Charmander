@@ -94,15 +94,16 @@ uint32_t  bitmapSize, dataBlocks, bloques, maximoBit;
 t_bitarray* bitVector;
 struct stat fileStat;
 
-pthread_rwlock_t RWlock[2048];
+//pthread_rwlock_t RWlock[2048];
 pthread_rwlock_t lockTablaArchivos;
-pthread_rwlock_t mutexArchivo[2048];
-pthread_mutex_t mutexBitmap = PTHREAD_MUTEX_INITIALIZER;
+//pthread_rwlock_t mutexArchivo[2048];
+//pthread_mutex_t mutexBitmap = PTHREAD_MUTEX_INITIALIZER;
 //pthread_mutex_t mutexFecha = PTHREAD_MUTEX_INITIALIZER;
 
 //nuevas
 int actualizarFirstBlockArchivo(osada_file* FCB);
 void* attrRaiz();
+void destruirSemaforos();
 void devolverBitFirstBlockArchivo(uint32_t posicionArchivo, osada_file* FCB);
 int existeArchivo(char* nombreArchivo, uint16_t parentDirectory, int posicion);
 int intentarOAgregar(int parentDir, char* nombreArchivo, osada_file* nuevo);
