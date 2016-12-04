@@ -17,7 +17,7 @@ C_DEPS += \
 src/%.o: ../src/%.c
 	@echo 'Building file: $<'
 	@echo 'Invoking: GCC C Compiler'
-	gcc -D_FILE_OFFSET_BITS=64 -I"/home/utnso/workspace/tp-2016-2c-MeQuedeSinPokebolas/osadaFS" -I"/home/utnso/workspace/tp-2016-2c-MeQuedeSinPokebolas/comunicacion" -O0 -g3 -Wall -c -fmessage-length=0 -MMD -MP -MF"$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -o "$@" "$<"
+	gcc -D_FILE_OFFSET_BITS=64 -I"/home/utnso/git/tp-2016-2c-MeQuedeSinPokebolas-/osadaFS" -I"/home/utnso/git/tp-2016-2c-MeQuedeSinPokebolas-/comunicacion" -O0 -g3 -Wall -c -fmessage-length=0 -MMD -MP -MF"$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -o "$@" "$<"
 	@echo 'Finished building: $<'
 	@echo ' '
 

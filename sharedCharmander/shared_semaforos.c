@@ -19,6 +19,7 @@ sem_t *crearSemaforo(int cantidadInicial){
 
 void destruirSemaforo(sem_t *semaforo){
 	sem_destroy(semaforo);
+	free(semaforo);
 }
 
 void waitSemaforo(sem_t *semaforo){
