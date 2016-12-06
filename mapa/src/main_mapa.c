@@ -19,7 +19,9 @@ int main(int argc, char ** argv) {
 	signal(SIGINT, signal_handler);
 
 	if (chequear_argumentos(argc, TOTAL_ARGS) == -1) {
-		//TODO LOGEAR EL ERROR
+		pthread_mutex_lock(&mutex_log);
+		log_error(logger, "Numero incorrecto de argumentos ingresados. Deben ser ./mapa.so <nombre del mapa> <punto de montaje del pkdx cliente>");
+		pthread_mutex_unlock(&mutex_log);
 		return EXIT_FAILURE;
 	}
 

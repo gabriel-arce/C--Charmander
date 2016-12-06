@@ -70,9 +70,14 @@ void cargar_medalla() {
 }
 
 void crear_archivo_log() {
-	remove(LOG_FILE);
-	logger = log_create(LOG_FILE, "MAPA log file", false, LOG_LEVEL_TRACE);
+	char * log_name = string_new();
+	string_append_with_format(&log_name, "mapa-%s.log", nombreMapa);
+
+	remove((const char *) log_name);
+	logger = log_create(log_name, "MAPA log file", false, LOG_LEVEL_TRACE);
 	log_info(logger, "MAPA %s iniciado.", nombreMapa);
+
+	free(log_name);
 }
 
 void cargar_pokenests() {
@@ -100,8 +105,6 @@ void cargar_pokenests() {
 
 		d_name = entry->d_name;
 
-		if (entry->d_type & DT_DIR) {
-
 			if (strcmp(d_name, "..") != 0 && strcmp(d_name, ".") != 0) {
 
 				char * path = string_new();
@@ -109,7 +112,7 @@ void cargar_pokenests() {
 
 				//now create the logical pokenest
 				t_pokenest * pknst = malloc(sizeof(t_pokenest));
-				pknst->nombre = string_duplicate(d_name);
+				pknst->nombre = string_duplicate((char *)d_name);
 				pknst->pokemones = list_create();
 				pknst->posicion = malloc(sizeof(t_posicion));
 
@@ -130,7 +133,7 @@ void cargar_pokenests() {
 					if (!f_pknst)
 						break;
 
-					if ( (f_pknst->d_type & DT_DIR ) || (strcmp(f_pknst->d_name, "..") == 0) || (strcmp(f_pknst->d_name, ".") == 0) )
+					if ( (strcmp(f_pknst->d_name, "..") == 0) || (strcmp(f_pknst->d_name, ".") == 0) )
 						continue;
 
 					char * path_f_pknst = string_new();
@@ -169,7 +172,7 @@ void cargar_pokenests() {
 						free(_x_y[1]);
 						free(_x_y);
 						config_destroy(m_pknst);
-						free(path_f_pknst);  //asdasdasd
+						free(path_f_pknst);
 
 						continue;
 					}
@@ -186,7 +189,7 @@ void cargar_pokenests() {
 					if (!f_pknst)
 						break;
 
-					if ( (f_pknst->d_type & DT_DIR ) || (strcmp(f_pknst->d_name, "..") == 0) || (strcmp(f_pknst->d_name, ".") == 0) )
+					if ( (strcmp(f_pknst->d_name, "..") == 0) || (strcmp(f_pknst->d_name, ".") == 0) )
 						continue;
 
 					char * path_f_pknst = string_new();
@@ -214,7 +217,7 @@ void cargar_pokenests() {
 					}
 
 					t_pkm * pkm = malloc(sizeof(t_pkm));
-					pkm->nombre = string_duplicate(d_name);
+					pkm->nombre = string_duplicate((char *) d_name);
 					pkm->nombreArchivo = string_duplicate(f_pknst->d_name);
 					pkm->nivel = getIntProperty(dat_pkm, "Nivel");
 					pkm->capturado = false;
@@ -236,11 +239,10 @@ void cargar_pokenests() {
 				free(path);
 				closedir(d_pknst);
 			}
-		}
 	}
 
 	/* Release everything. */
-	if (closedir(d)) {
+	if ( closedir(d) == -1 ) {
 		pthread_mutex_lock(&mutex_log);
 		log_error(logger, "No se pudo cerrar el directorio: [ %s ]", dir_pokenests);
 		pthread_mutex_unlock(&mutex_log);

@@ -35,10 +35,7 @@ repoGUI="https://github.com/sisoputnfrba/so-nivel-gui-library.git"
 repoBatalla="https://github.com/sisoputnfrba/so-pkmn-utils.git"
 repoOSADA="https://github.com/sisoputnfrba/osada-utils.git"
 
-directorioBase="/home/utnso/workspace"
-
-mkdir $directorioBase
-cd $directorioBase
+cd /home/utnso/workspace/
 
 clonar $repoCommons
 clonar $repoGUI

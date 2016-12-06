@@ -32,10 +32,7 @@
 #include <tad_items.h>
 #include <curses.h>
 
-#define LOG_FILE "log_mapa.log"
 #define TOTAL_ARGS 3
-#define PORT 9000
-#define IP "127.0.0.1"
 
 //INTERFACES
 #define _ID_HANDSHAKE 1
@@ -51,8 +48,8 @@
 #define _DATOS_FINALES 11
 #define _RESULTADO_OPERACION 12
 
-#define __FILAS 100
-#define __COLUMNAS 100
+#define __FILAS 50
+#define __COLUMNAS 50
 
 typedef enum{
 	RR,
