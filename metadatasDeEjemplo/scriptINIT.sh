@@ -23,20 +23,6 @@ function instalarPKMNUTILS() {
     sudo make install
 }
 
-function instalarREPOTP() {
-    cd /home/utnso/workspace/tp-2016-2c-MeQuedeSinPokebolas-/sharedCharmander
-    make
-    sudo make install
-    cd /home/utnso/workspace/tp-2016-2c-MeQuedeSinPokebolas-/comunicacion
-    make
-    sudo make install
-    cd /home/utnso/workspace/tp-2016-2c-MeQuedeSinPokebolas-/mapa
-    make
-    cd /home/utnso/workspace/tp-2016-2c-MeQuedeSinPokebolas-/entrenador
-    make
-    #falta el de pokedexCliente y pokedexServidor
-}
-
 export INSTALL_DIR=/usr/lib
 export INSTALL_DIR_INCLUDE=/usr/include
 export MAPA_SO=mapa.so
@@ -48,7 +34,6 @@ repoCommons="https://github.com/sisoputnfrba/so-commons-library.git"
 repoGUI="https://github.com/sisoputnfrba/so-nivel-gui-library.git"
 repoBatalla="https://github.com/sisoputnfrba/so-pkmn-utils.git"
 repoOSADA="https://github.com/sisoputnfrba/osada-utils.git"
-repoTP="https://github.com/sisoputnfrba/tp-2016-2c-MeQuedeSinPokebolas-.git"
 
 directorioBase="/home/utnso/workspace"
 
@@ -59,11 +44,9 @@ clonar $repoCommons
 clonar $repoGUI
 clonar $repoBatalla
 clonar $repoOSADA
-clonar $repoTP
 
 instalarCOMMONS
 instalarGUI
 instalarPKMNUTILS
-isntalarREPOTP
 
 
