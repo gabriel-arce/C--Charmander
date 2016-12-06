@@ -1,3 +1,5 @@
+#bin/bash
+
 cd home/utnso/workspace/tp-2016-2c-MeQuedeSinPokebolas-/comunicacion/
 make
 sudo make install
