@@ -117,7 +117,7 @@ char abrirArchivo(char* path);
 //int agregarArchivo(char* path, int modo);
 void agregarArchivoEnLista(osada_file archivo, t_list *lista);
 
-void agregarBloques(uint32_t size, uint32_t newSize, uint32_t posicion);
+void agregarBloques(int size, int newSize, uint32_t posicion);
 void asignarOffsets();
 char borrarArchivo(char* path);
 char borrarDirectorio(char* path);
@@ -137,7 +137,6 @@ void escribrirArchivoConOffset(uint32_t size, void* bufWrite, uint32_t offset, u
 void escribrirArchivoSinOffset(uint32_t size, void* bufWrite, uint32_t* posicion);
 void escribirBloque(uint32_t bloque, char* buf);
 int escribriBloquesEnteros(uint32_t size, void* bufWrite, uint32_t* posicion, int* desplazamiento);
-//void escribirMenosQueUnBloqueAlFinal(void* bufWrite, uint32_t* posicion, int desplazamiento, int resto);
 int escribirMenosQueUnBloqueAlPrincipio(uint32_t* size, void* bufWrite, uint32_t offset, uint32_t* posicion);
 void escribirResto(int bytesResto, void* bufWrite, uint32_t* posicionBloque, int desplazamiento);
 int esDirectorioVacio(int posicion);
@@ -169,7 +168,7 @@ void* readdir(char* path);
 char renombrarArchivo(char* paths);
 void* readFile(osada_file* archivo);
 void* readBuffer(char* path, size_t* size, off_t* offset, uint32_t* tamanioBuffer);
-void sacarBloques(uint32_t size, uint32_t newSize, uint32_t posicion);
+void sacarBloques( int cantidadBloquesNueva, uint32_t posicion);
 char truncar(osada_file* FCB, uint32_t newSize, int posicion);
 int writeBuffer(uint32_t* size, uint32_t* offset, char* path, void* bufWrite);
 //void* writeFile(uint32_t* size, void* bufWrite, uint32_t offset, int posicionArchivo, osada_file* FCB);

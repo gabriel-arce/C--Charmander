@@ -39,7 +39,7 @@
 #define MAX_THREADS 5
 
 int	listenningSocket;
-//t_log* logServidor;
+t_log* logServidor;
 
 void* atendercliente(void* socketCliente);
 void destruirMutex() ;
@@ -58,7 +58,7 @@ void* procesarPedidoOpen(char* path, int* codigo);
 void* procesarPedidoRead(void* buffer, uint32_t* tamanioBuffer);
 void* procesarPedidoReaddir(char *path);
 void* procesarPedidoRelease(char* path);
-void* procesarPedidoRename(char *paths);
+void* procesarPedidoRename(char *paths, int* codigo);
 void* procesarPedidoRmdir(char *path);
 void* procesarPedidoTruncate(off_t newSize, char* path);
 void* procesarPedidoUnlink(char *path);

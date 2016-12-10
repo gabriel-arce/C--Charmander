@@ -64,6 +64,7 @@ void liberarRecursos();
 void printConectado();
 void printEncabezado();
 void printErrorConexion();
+void printErrorVariablesEntorno();
 void PrintFuse();
 void printMensajeInesperado(int head);
 void printServidorDesconectado();

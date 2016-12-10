@@ -10,8 +10,17 @@
 
 int main(int argc, char *argv[])
 {
-  ip = getenv("SERVER_HOST");
-  puerto = getenv("SERVER_PORT");
+  if ((ip = getenv("SERVER_HOST")) == NULL)
+  {
+	  printErrorVariablesEntorno();
+	  return -1;
+  }
+
+  if ((puerto = getenv("SERVER_PORT")) == NULL)
+  {
+	  printErrorVariablesEntorno();
+	  return -1;
+  }
 
   struct fuse_args args = FUSE_ARGS_INIT(argc, argv);
   int ret;
@@ -784,6 +793,19 @@ void printErrorConexion()
 	log_info(logCliente, "**********************************************************************************" );
 }
 
+
+void printErrorVariablesEntorno()
+{
+	printf(RED "\n\n****************** Variable/s de entorno (SERVER_HOST o SERVER_PORT) en NULL *****\n" RESET);
+		 printf(NAR"**********************************************************************************\n");
+	printf(ORG"****************** El cliente aborta el programa *********************************\n");
+	printf(YEL"**********************************************************************************\n");
+	printf(YEL2"****************** " GRN "Terminar" YEL2 " ******************************************************\n");
+	printf(AMB"**********************************************************************************\n");
+	printf(GRN "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\n\n\n" RESET);
+
+}
+
 void PrintFuse()
 {
 	printf( "****************** " GRN "Llamo a fuse main" RESET "  ********************************************\n");
@@ -806,7 +828,6 @@ void printServidorDesconectado()
 	printf(YEL2"****************** " GRN "Terminar" YEL2 " ******************************************************\n");
 	printf(AMB"**********************************************************************************\n");
 	printf(GRN "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\n\n\n" RESET);
-
 
 	log_info(logCliente, "****************** No se pudo establecer la conexion con el servidor *************" );
 	log_info(logCliente, "****************** Terminando el programa ****************************************" );
