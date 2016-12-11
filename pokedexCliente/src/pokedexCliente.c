@@ -224,24 +224,8 @@ static int osada_getattr(const char *path, struct stat* stbuf)
 			stbuf->st_nlink = paquete->nlink;
 			stbuf->st_size = paquete->size;
 
-//		 	time_t tiempo = time(0);
-//		 	time(&tiempo);
-//		 	time_t timeinfo =  (time_t)localtime(&tiempo);
-//		 	//printf(YEL "\t Local Time: %s\r\n" RESET, asctime(timeinfo));
-//		 	return timeinfo;
-
 			time_t tiempo =(time_t)paquete->mtime;
-
-//			stbuf->st_mtim.tv_sec = (time_t)(tiempo/1000);
-//			stbuf->st_mtim.tv_nsec = (tiempo % 1000) * 1000000;
-//			stbuf->st_atim.tv_sec = (time_t)(tiempo/1000);
-//			stbuf->st_atim.tv_nsec = (tiempo % 1000) * 1000000;
-//			stbuf->st_ctim.tv_sec = (time_t)(tiempo/1000);
-//			stbuf->st_ctim.tv_nsec = (tiempo % 1000) * 1000000;
-
 			stbuf->st_mtim.tv_sec = tiempo;
-//			stbuf->st_atim.tv_sec = tiempo;
-//			stbuf->st_ctim.tv_sec = tiempo;
 
 			log_info(logCliente, "	Recibi RESPUESTA_GETATTR");
 
@@ -300,10 +284,13 @@ static int osada_mkdir(const char *path, mode_t mode)
 			log_info(logCliente, "	Recibi respuesta ENAMETOOLONG en osada_mkdir");
 			return -ENAMETOOLONG;
 
-		case ENOENTRY:
-			log_info(logCliente, "	No recibi RESPUESTA_MKDIR en osada_mkdir");
+		case ERREXIST:
+			log_info(logCliente, "	Recibi respuesta EEXIST en osada_mkdir");
 			return 0;
+
 	}
+
+	log_info(logCliente, "	Recibi no se puede escribir en .Trash en osada_mkdir");
 	return 0;
 }
 
@@ -554,6 +541,7 @@ static int osada_rename(const char *path, const char *newpath)
 	else
 	{
 		log_info(logCliente, "	No recibi RESPUESTA_RENAME en osada_rename");
+	//	return -EEXIST;//ENOENT;
 	}
 	free(paquete);
 
@@ -615,19 +603,28 @@ static int osada_truncate(const char *path, off_t new_size)
 		paquete =  recibir(*socketServidor,&head);
 	pthread_mutex_unlock(&mutex_comunicacion);
 
+	free(paquete);
+
 	if (head == RESPUESTA_TRUNCATE)
 	{
 		log_info(logCliente, "	Recibi RESPUESTA_TRUNCATE");
+		return 0;
+	}
+	else if (head == ERRNOSPC)
+	{
+		log_info(logCliente, "	Recibi respuesta ENOSPC en osada_truncate");
+		return -ENOSPC;//no hay espacio en disco
+	}
+	else if (head == ERRFBIG)
+	{
+		log_info(logCliente, "	Recibi respuesta ERRFBIG en osada_truncate");
+		return -EFBIG;
 	}
 	else if (head == ENOENTRY)
 	{
-		log_info(logCliente, "	Recibi respuesta ENOENT en osada_truncate");
+		log_info(logCliente, "	Recibi respuesta ENOENTRY en osada_truncate");
+		return -ENOENT;
 	}
-	else
-	{
-		log_info(logCliente, "	No recibi RESPUESTA_TRUNCATE en osada_truncate");
-	}
-	free(paquete);
 
 	return 0;
 }

@@ -78,6 +78,7 @@
 #define PEDIDO_MKNOD 46
 #define RESPUESTA_MKNOD 47
 #define ERRNOSPC 48
+#define ERREXIST 49
 
 //colores para los prints en la consola
 #define RED   "\x1B[31m"

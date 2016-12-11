@@ -264,18 +264,35 @@ char buscarYtruncar(char* path, uint32_t newSize)
 
 		return 'n';
 	}
-	if((FCB->first_block == 65535) && (newSize !=0))//si era un archivo recien creado le tengo que cambiar el first block
+
+//	if((FCB->first_block == 65535) && (newSize !=0))//si era un archivo recien creado le tengo que cambiar el first block
+//	{
+//		uint32_t posicionBloque;
+//		buscarBitLibre(&posicionBloque);
+//		FCB->first_block = posicionBloque;
+//	}
+
+	if(newSize == 0)
 	{
-		uint32_t posicionBloque;
-		buscarBitLibre(&posicionBloque);
-		FCB->first_block = posicionBloque;
+		free(FCB);
+		FCB = NULL;
+		return 's';
 	}
 
-	char res = truncar(FCB, newSize, posicion);
+	uint32_t cantidadBloques = cantidadDeBloques(newSize);//esta cantidad es la que va a escribir en disco
+
+	if (chequearYReservarEspacioEnDisco(FCB, newSize, 0, posicion, cantidadBloques) == 0) //este llama a truncar si hay espacio para reservarle o sacarle bloques
+	{
+		free(FCB);
+		FCB = NULL;
+		return 'x';// no hay bloques libres ERRNOSPC;
+	}
+
+	printf( NAR "\t truncate %d bytes\n " RESET, FCB->file_size);
+	//char res = truncar(FCB, newSize, posicion);
 	free(FCB);
 	FCB = NULL;
-
-	return res;
+	return 's';
 }
 
 char cambiarUltimoAcceso(char* path)
@@ -318,9 +335,10 @@ char crearArchivo(char* path, int modo)
 //validaciones
 	if(strcmp(nombreArchivo, ".Trash-1000") == 0)
 	{
+		printf( YEL "\t .Trash-1000 \n" RESET);
 		free(nombreArchivo);
 		nombreArchivo = NULL;
-		return 'e';
+		return 't';
 	}
 	if(strlen(nombreArchivo) > 16)
 	{
@@ -334,7 +352,7 @@ char crearArchivo(char* path, int modo)
 	{
 		free(nombreArchivo);
 		nombreArchivo = NULL;
-		return 'e';
+		return 't';
 	}
 
 //si es valido intento agregar a la tabla
@@ -1144,6 +1162,19 @@ char renombrarArchivo(char* paths)
 		return 'n';
 	}
 
+	osada_file* archivoNuevo = buscarArchivo(nuevo, &posicion);
+	if (archivoNuevo != NULL)
+	{
+		printf(YEL "\t Ya existe el archivo: %s\n" RESET, nuevo);
+		free(nombreNuevo);
+		free(nombreViejo);
+		nombreNuevo = NULL;
+		nombreViejo = NULL;
+		free(archivoNuevo);
+		archivoNuevo = NULL;
+		return 'x';
+	}
+
 	osada_file* archivo = buscarArchivo(viejo, &posicion);
 	if (archivo == NULL)
 	{
@@ -1179,7 +1210,7 @@ void sacarBloques( int cantidadBloquesNueva, uint32_t posicion)//esta posicion e
 	for(i = 1; i< cantidadBloquesNueva; i++)
 	{
 		leerAsignacion(posicion, &posicion);
-		printf("\t %d", posicion);
+		//printf("\t %d", posicion);
 	}
 
 	leerAsignacion(posicion, &posicionAnterior);
@@ -1194,7 +1225,7 @@ char truncar(osada_file* FCB, uint32_t newSize, int posicionArchivo)
 {
 	if(newSize == 0)
 	{
-		printf(NAR "\t truncate %d bytes\n" , FCB->file_size);
+		//printf( "\t truncate %d bytes\n" , FCB->file_size);
 		return 's';
 	}
 
@@ -1203,19 +1234,19 @@ char truncar(osada_file* FCB, uint32_t newSize, int posicionArchivo)
 
 	if(cantidadBloquesActual == cantidadBloquesNueva)
 	{
-		printf(NAR "\t truncate %d bytes\n" , FCB->file_size);
+		//printf( "\t truncate %d bytes\n" , FCB->file_size);
 		return 's';
 	}
 	else if(cantidadBloquesActual > cantidadBloquesNueva)
 	{
 		//printf(NAR "\t llamo a sacarBloques() con: cantidadBloquesActual: %d, cantidadBloquesNueva: %d, FCB->first_block: %d\n", cantidadBloquesActual, cantidadBloquesNueva, FCB->first_block);
-		printf(NAR "\t cantidad bloques actual: %d, cantidad despues de truncar: %d, eliminando: %d bloques\n", cantidadBloquesActual, cantidadBloquesNueva, cantidadBloquesActual - cantidadBloquesNueva);
+		printf( "\t cantidad bloques actual: %d, cantidad despues de truncar: %d, eliminando: %d bloques\n", cantidadBloquesActual, cantidadBloquesNueva, cantidadBloquesActual - cantidadBloquesNueva);
 		sacarBloques(cantidadBloquesNueva, FCB->first_block);
 		FCB->file_size = newSize;//si viene de write este newSize es igual a size + offset
 	}
 	else
 	{
-		printf(FUC "\t cantidad bloques actual: %d, cantidad despues de truncar: %d, agregando: %d bloques\n", cantidadBloquesActual, cantidadBloquesNueva, cantidadBloquesNueva -cantidadBloquesActual );
+		printf( "\t cantidad bloques actual: %d, cantidad despues de truncar: %d, agregando: %d bloques\n", cantidadBloquesActual, cantidadBloquesNueva, cantidadBloquesNueva -cantidadBloquesActual );
 		//printf(FUC "\t Agregando bloques, cantidadBloquesNueva: %d\n",  cantidadBloquesNueva);
 		agregarBloques(cantidadBloquesActual, cantidadBloquesNueva, FCB->first_block);
 		FCB->file_size = newSize;//si viene de write este newSize es igual a size + offset
@@ -1224,7 +1255,7 @@ char truncar(osada_file* FCB, uint32_t newSize, int posicionArchivo)
 	FCB->lastmod =(uint32_t) obtenerFecha();
 	escribirArchivo((uint32_t)posicionArchivo, FCB);
 
-	printf( FUC "\t truncate %d bytes\n " RESET, FCB->file_size);
+	//printf(  "\t truncate %d bytes\n " , FCB->file_size);
 	return 's';
 }
 
@@ -1251,6 +1282,7 @@ int writeBuffer(uint32_t* size, uint32_t* offset, char* path, void* bufWrite)
 		return -2;
 	}
 
+	printf( FUC "\t truncate %d bytes\n " RESET, FCB->file_size);
 	//cantidadBloques = (uint32_t)(*size / OSADA_BLOCK_SIZE);//esta cantidad es la que va a escribir en disco
 	writeFile(size, bufWrite, *offset, FCB);
 

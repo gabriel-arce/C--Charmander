@@ -15,6 +15,7 @@
 
 #define PUERTO "4969"
 #define ERRNOSPC 48
+#define ERREXIST 49
 
 //colores para los prints en la consola
 #define RED   "\x1B[31m"
@@ -60,7 +61,7 @@ void* procesarPedidoReaddir(char *path);
 void* procesarPedidoRelease(char* path);
 void* procesarPedidoRename(char *paths, int* codigo);
 void* procesarPedidoRmdir(char *path);
-void* procesarPedidoTruncate(off_t newSize, char* path);
+void* procesarPedidoTruncate(off_t newSize, char* path, int* codigo);
 void* procesarPedidoUnlink(char *path);
 void* procesarPedidoUtimens(char *path);
 void* procesarPedidoWrite(void *buffer, int* codigo);

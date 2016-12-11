@@ -136,19 +136,19 @@ void* atendercliente(void* socketCliente)
 							log_info(logServidor, "ERRNAMETOOLONG");
 							break;
 
-						case RESPUESTA_ERROR:
+						case ERREXIST:
 
-							enviar(socket, RESPUESTA_ERROR, respuesta);
-							printf(MAG "\t respondiendo  a %d\n" RESET, socket);
-							log_info(logServidor, "RESPUESTA_ERROR");
-							break;
+								enviar(socket, ERREXIST, respuesta);
+								printf(YEL "\t respondiendo  ERREXIST a %d\n" RESET, socket);
+								log_info(logServidor, "ERREXIST");
+								break;
 
-					    default:
+						default: //si intenta escribir en trash
 
-							enviar(socket, RESPUESTA_ERROR, respuesta);
-							printf(PINK2 "\t respondiendo  a %d\n" RESET, socket);
-							log_info(logServidor, "RESPUESTA_ERROR");
-							break;
+								enviar(socket, RESPUESTA_ERROR, respuesta);
+								printf(MAG "\t respondiendo a %d\n" RESET, socket);
+								log_info(logServidor, "RESPUESTA_ERROR");
+								break;
 					}
 
 					free(pedido);
@@ -209,7 +209,7 @@ void* atendercliente(void* socketCliente)
 				    codigo = RESPUESTA_MKDIR;
 					respuesta = procesarCrearEntradaTablaDeArchivos((char*)pedido, &codigo, 2);
 
-					printf(MAG "\t codigo:%d\n" RESET, codigo);
+					//printf(MAG "\t codigo:%d\n" RESET, codigo);
 					switch(codigo)
 					{
 						case RESPUESTA_CREATE:
@@ -233,14 +233,14 @@ void* atendercliente(void* socketCliente)
 							log_info(logServidor, "ERRNAMETOOLONG");
 							break;
 
-						case RESPUESTA_ERROR:
+						case ERREXIST:
 
-							enviar(socket, RESPUESTA_ERROR, respuesta);
-							printf(MAG "\t respondiendo  a %d\n" RESET, socket);
-							log_info(logServidor, "RESPUESTA_ERROR");
+							enviar(socket, ERREXIST, respuesta);
+							printf(YEL "\t respondiendo  ERREXIST a %d\n" RESET, socket);
+							log_info(logServidor, "ERREXIST");
 							break;
 
-					    default:
+					    default: //si intenta escribir en trash
 
 							enviar(socket, RESPUESTA_ERROR, respuesta);
 							printf(MAG "\t respondiendo a %d\n" RESET, socket);
@@ -282,19 +282,19 @@ void* atendercliente(void* socketCliente)
 							log_info(logServidor, "ERRNAMETOOLONG");
 							break;
 
-						case RESPUESTA_ERROR:
+						case ERREXIST:
 
-							enviar(socket, RESPUESTA_ERROR, respuesta);
-							printf(MAG "\t respondiendo a %d\n" RESET, socket);
-							log_info(logServidor, "RESPUESTA_ERROR");
-							break;
+								enviar(socket, ERREXIST, respuesta);
+								printf(YEL "\t respondiendo  ERREXIST a %d\n" RESET, socket);
+								log_info(logServidor, "ERREXIST");
+								break;
 
-					    default:
+						default: //si intenta escribir en trash
 
-							enviar(socket, RESPUESTA_ERROR, respuesta);
-							printf(PINK2 "\t respondiendo a %d\n" RESET, socket);
-							log_info(logServidor, "RESPUESTA_ERROR");
-							break;
+								enviar(socket, RESPUESTA_ERROR, respuesta);
+								printf(MAG "\t respondiendo a %d\n" RESET, socket);
+								log_info(logServidor, "RESPUESTA_ERROR");
+								break;
 					}
 
 					free(pedido);
@@ -426,8 +426,8 @@ void* atendercliente(void* socketCliente)
 					else
 					{
 						enviar(socket, ERROR, respuesta);
-						printf(YEL "\t devolviendo respuesta ERROR a %d\n" RESET, socket);
-						log_info(logServidor, "ERRNAMETOOLONG");
+						printf(YEL "\t devolviendo respuesta EEXIST a %d\n" RESET, socket);
+						log_info(logServidor, "EEXIST");
 					}
 					break;
 
@@ -449,22 +449,44 @@ void* atendercliente(void* socketCliente)
 
 					if (head == PEDIDO_TRUNCATE_NEW_SIZE)
 					{
-						respuesta = procesarPedidoTruncate(*newSize, (char*)pedido);
+						respuesta = procesarPedidoTruncate(*newSize, (char*)pedido, &codigo);
 					}
-					if(respuesta != NULL)
-					{
-						free(pedido);
-						pedido = NULL;
 
-						enviar(socket, RESPUESTA_TRUNCATE, respuesta);
-						printf(NAR "\t devolviendo RESPUESTA_TRUNCATE a %d\n" RESET, socket);
-						log_info(logServidor, "RESPUESTA_TRUNCATE");
-					}
-					else
+					switch(codigo)
 					{
-						enviar(socket, RESPUESTA_ERROR, pedido);
-						printf(YEL "\t devolviendo RESPUESTA_ERROR a %d\n" RESET, socket);
-						log_info(logServidor, "RESPUESTA_ERROR");
+						case RESPUESTA_TRUNCATE:
+							free(pedido);
+							pedido = NULL;
+
+							enviar(socket, RESPUESTA_TRUNCATE, respuesta);
+							printf(NAR "\t devolviendo RESPUESTA_TRUNCATE a %d\n" RESET, socket);
+							log_info(logServidor, "RESPUESTA_TRUNCATE");
+							break;
+
+						case ERRFBIG://el tamaño excede los limites del file system
+							free(pedido);
+							pedido = NULL;
+
+							enviar(socket, ERRFBIG, respuesta);
+							printf(YEL "\t devolviendo ERRFBIG a %d\n" RESET, socket);
+							log_info(logServidor, "ERRFBIG");
+							break;
+
+						case ERRNOSPC:// no hay bloques libres suficientes
+							free(pedido);
+							pedido = NULL;
+
+							enviar(socket, ERRNOSPC, respuesta);
+							printf(YEL "\t devolviendo ERRNOSPC a %d\n" RESET, socket);
+							log_info(logServidor, "ERRNOSPC");
+							break;
+
+						default:
+							enviar(socket, RESPUESTA_ERROR, pedido);
+							printf(YEL "\t devolviendo RESPUESTA_ERROR a %d\n" RESET, socket);
+							log_info(logServidor, "RESPUESTA_ERROR");
+
+							break;
 					}
 
 					free(newSize);
@@ -627,6 +649,8 @@ void* procesarCrearEntradaTablaDeArchivos(char *path, int* codigo, int modo)
 	switch(respuesta[0])
 	{
 		case 's':
+
+			printf("\t path: %s\n", path);
 			*codigo = RESPUESTA_CREATE;//esta respuesta la hice funcionar como generica exitosa para create, mkdir, mknod
 			break;
 
@@ -638,7 +662,11 @@ void* procesarCrearEntradaTablaDeArchivos(char *path, int* codigo, int modo)
 			*codigo = ERRNAMETOOLONG;
 			break;
 
-		case 'e'://error
+		case 'e'://error EEXIST: ya existe un archivo con ese nombre
+			*codigo = ERREXIST;
+			break;
+
+		case 't'://error no se puede escribir en trash
 			*codigo = RESPUESTA_ERROR;
 			break;
 	}
@@ -798,14 +826,37 @@ void* procesarPedidoRmdir(char *path)
 	return respuesta;
 }
 
-void* procesarPedidoTruncate(off_t newSize, char* path)
+void* procesarPedidoTruncate(off_t newSize, char* path, int* codigo)
 {
 	//printf(CYN "\t En procesarPedidoTruncate el nuevo size es: %d\n", (uint32_t)newSize);
-	char* respuesta = malloc(sizeof(char));
+	//char* respuesta = malloc(sizeof(char));
 
 		pthread_rwlock_wrlock(&lockTablaArchivos);
-	respuesta[0] = buscarYtruncar(path, (uint32_t)newSize);
+	char r = buscarYtruncar(path, (uint32_t)newSize);
 		pthread_rwlock_unlock(&lockTablaArchivos);
+
+	char* respuesta = malloc(sizeof(char));
+	memset(respuesta, 0, sizeof(char));
+	memcpy(respuesta, &r, sizeof(char));
+
+	switch(respuesta[0])
+	{
+		case 's':
+			*codigo = RESPUESTA_TRUNCATE;
+			break;
+
+		case 'n'://no existe path
+			*codigo = ENOENTRY;
+			break;
+
+		case  'x':// no hay bloques libres
+			*codigo = ERRNOSPC;
+			break;
+
+		case 'b': //el tamaño a escribir excede los limites del file system
+			*codigo = ERRFBIG;
+			break;
+	}
 
 	return respuesta;
 }
