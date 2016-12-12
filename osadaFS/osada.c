@@ -114,7 +114,7 @@ void* attrRaiz()
 {
     //path == "/"
 	t_stbuf* stbuf = malloc(sizeof(t_stbuf));
-	stbuf->mode = S_IFDIR | 0755;
+	stbuf->mode = S_IFDIR | 0777;
 	stbuf->nlink = 2;
 	stbuf->size = 0;
 	stbuf->mtime = (uint32_t)obtenerFecha();
@@ -128,7 +128,7 @@ char borrarArchivo(char* path)
 
 	if (FCB == NULL)
 	{
-			printf(RED "\t No se encontro el archivo\n" RESET);
+			printf(YEL "\t No se encontro el archivo\n" RESET);
 
 		return 'n';
 	}
@@ -151,13 +151,13 @@ char borrarDirectorio(char* path)
 
 	if (FCB == NULL)
 	{
-		//printf(RED "\t No se encontro el archivo\n" RESET);
+		printf(YEL "\t No se encontro el archivo\n" RESET);
 		return 'n';
 	}
 
 	if (!esDirectorioVacio(posicion))
 	{
-		//printf(RED "\t No se pudo borrar el directorio porque no esta vacio\n" RESET);
+		printf(YEL "\t No se pudo borrar el directorio porque no esta vacio\n" RESET);
 		free(FCB);
 		FCB = NULL;
 		return 'n';
@@ -166,7 +166,7 @@ char borrarDirectorio(char* path)
 	FCB->state = 0;
 	escribirArchivo(posicion, FCB);
 
-	printf( "\t Se borro el archivo: %s\n", FCB->fname);
+	printf( "\t Se borro el directorio: %s\n", FCB->fname);
 
 	free(FCB);
 	FCB = NULL;
@@ -274,6 +274,7 @@ char buscarYtruncar(char* path, uint32_t newSize)
 
 	if(newSize == 0)
 	{
+		printf( NAR "\t new size: 0, no actualizo el file size \n " RESET);
 		free(FCB);
 		FCB = NULL;
 		return 's';
@@ -657,7 +658,7 @@ void* getAttr(char* path)
 		t_stbuf* stbuf = malloc(sizeof( t_stbuf));
 		if (archivo.state == 2)//si es un directorio
 		{
-			stbuf->mode = S_IFDIR | 0755;
+			stbuf->mode = S_IFDIR | 0777;//0755;
 			stbuf->nlink = 2;
 			stbuf->size = 0;
 			stbuf->mtime = tiempo;
@@ -665,7 +666,7 @@ void* getAttr(char* path)
 		}
 		else
 		{
-			stbuf->mode = S_IFREG | 0444;
+			stbuf->mode = S_IFREG | 0777;//0444;
 			stbuf->nlink = 1;
 			stbuf->size = archivo.file_size;
 			stbuf->mtime = tiempo;
@@ -1234,7 +1235,11 @@ char truncar(osada_file* FCB, uint32_t newSize, int posicionArchivo)
 
 	if(cantidadBloquesActual == cantidadBloquesNueva)
 	{
-		//printf( "\t truncate %d bytes\n" , FCB->file_size);
+		if(FCB->file_size != newSize)
+		{
+		printf( NAR"\t Agrego bytes pero no bloques\n");
+		FCB->file_size = newSize;//si viene de write este newSize es igual a size + offset
+		}
 		return 's';
 	}
 	else if(cantidadBloquesActual > cantidadBloquesNueva)

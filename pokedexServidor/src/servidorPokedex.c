@@ -426,8 +426,8 @@ void* atendercliente(void* socketCliente)
 					else
 					{
 						enviar(socket, ERROR, respuesta);
-						printf(YEL "\t devolviendo respuesta EEXIST a %d\n" RESET, socket);
-						log_info(logServidor, "EEXIST");
+						printf(YEL "\t devolviendo respuesta ERROR a %d\n" RESET, socket);
+						log_info(logServidor, "ERROR");
 					}
 					break;
 
@@ -650,6 +650,7 @@ void* procesarCrearEntradaTablaDeArchivos(char *path, int* codigo, int modo)
 	{
 		case 's':
 
+			//
 			printf("\t path: %s\n", path);
 			*codigo = RESPUESTA_CREATE;//esta respuesta la hice funcionar como generica exitosa para create, mkdir, mknod
 			break;
@@ -829,7 +830,6 @@ void* procesarPedidoRmdir(char *path)
 void* procesarPedidoTruncate(off_t newSize, char* path, int* codigo)
 {
 	//printf(CYN "\t En procesarPedidoTruncate el nuevo size es: %d\n", (uint32_t)newSize);
-	//char* respuesta = malloc(sizeof(char));
 
 		pthread_rwlock_wrlock(&lockTablaArchivos);
 	char r = buscarYtruncar(path, (uint32_t)newSize);
@@ -924,19 +924,19 @@ void* procesarPedidoWrite(void *buffer, int* codigo)
 	int respuesta  = 0;
 	if (*size > 0)
 	{
-		if(*bufLen > *size)
-		{
+//		if(*bufLen > *size)
+//		{
 				pthread_rwlock_wrlock(&lockTablaArchivos);
 			respuesta = writeBuffer((uint32_t*)size,(uint32_t*) offset, path, bufWrite);
 				pthread_rwlock_unlock(&lockTablaArchivos);
-		}
-		else
-		{
-			*bufLen -= 1;
-				pthread_rwlock_wrlock(&lockTablaArchivos);
-			respuesta =  writeBuffer((uint32_t*)bufLen, (uint32_t*)offset, path, bufWrite);
-				pthread_rwlock_unlock(&lockTablaArchivos);
-		}
+//		}
+//		else
+//		{
+//			*bufLen -= 1;
+//				pthread_rwlock_wrlock(&lockTablaArchivos);
+//			respuesta =  writeBuffer((uint32_t*)bufLen, (uint32_t*)offset, path, bufWrite);
+//				pthread_rwlock_unlock(&lockTablaArchivos);
+//		}
 	}
 
 	free(offset);
@@ -985,15 +985,14 @@ void terminar()
 	sem_destroy(&semThreads);
 
 	//queue_destroy_and_destroy_elements(threadQueue, free);//(void*)threadsDestroyer);
-
-	pthread_join(thread1, NULL);
-	pthread_detach(thread1);
-
 	close(listenningSocket);
 	liberarRecursos();
 	descargar();
 
 	log_destroy(logServidor);
+
+	pthread_join(thread1, NULL);
+	pthread_detach(thread1);
 
 	printTerminar();
 	exit(0);

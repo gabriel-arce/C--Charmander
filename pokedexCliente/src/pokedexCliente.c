@@ -32,12 +32,8 @@ int main(int argc, char *argv[])
   log_info(logCliente, "****************** Creando archivo Log *******************************************" );
 
   char* mensaje = malloc(sizeof(char)*4);
-//  memset(ip,0,10);
-//  memset(puerto,0,5);
   memset(mensaje,0,sizeof(char)*4);
 
-//  strcpy(ip,"127.0.0.1");
-//  strcpy(puerto,"4969");
   strcpy(mensaje,"hsk");
 
   signal(SIGINT,terminar);
@@ -284,8 +280,8 @@ static int osada_mkdir(const char *path, mode_t mode)
 			log_info(logCliente, "	Recibi respuesta ENAMETOOLONG en osada_mkdir");
 			return -ENAMETOOLONG;
 
-		case ERREXIST:
-			log_info(logCliente, "	Recibi respuesta EEXIST en osada_mkdir");
+		case ERROR:
+			log_info(logCliente, "	Recibi respuesta ERROR en osada_mkdir");
 			return 0;
 
 	}
