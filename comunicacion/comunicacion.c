@@ -57,6 +57,7 @@ int calcularTamanioMensaje(int head, void* mensaje)
 			tamanio = sizeof(t_writebuf);
 			break;
 
+		case ERREXIST:
 		case ERRDQUOT:
 		case ERRNAMETOOLONG:
 		case ERROR:
@@ -167,6 +168,7 @@ int crearSocket(char ip[], char puerto[])
 
 		return -2;
 	}
+
 	freeaddrinfo(serverInfo);	// No lo necesitamos mas
 	printf(MAG "\t Socket creado correctamente\n" RESET);
 	return serverSocket;
@@ -304,6 +306,7 @@ void* serializar(int head, void* mensaje, int tamanio)
 
 	switch(head)
 	{
+		case ERREXIST:
 		case ENOENTRY:
 		case ERRDQUOT:
 		case ERRFBIG:

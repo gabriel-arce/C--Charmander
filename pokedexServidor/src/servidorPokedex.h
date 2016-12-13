@@ -15,6 +15,7 @@
 
 #define PUERTO "4969"
 #define ERRNOSPC 48
+#define ERREXIST 49
 
 //colores para los prints en la consola
 #define RED   "\x1B[31m"
@@ -39,7 +40,7 @@
 #define MAX_THREADS 5
 
 int	listenningSocket;
-//t_log* logServidor;
+t_log* logServidor;
 
 void* atendercliente(void* socketCliente);
 void destruirMutex() ;
@@ -58,9 +59,9 @@ void* procesarPedidoOpen(char* path, int* codigo);
 void* procesarPedidoRead(void* buffer, uint32_t* tamanioBuffer);
 void* procesarPedidoReaddir(char *path);
 void* procesarPedidoRelease(char* path);
-void* procesarPedidoRename(char *paths);
+void* procesarPedidoRename(char *paths, int* codigo);
 void* procesarPedidoRmdir(char *path);
-void* procesarPedidoTruncate(off_t newSize, char* path);
+void* procesarPedidoTruncate(off_t newSize, char* path, int* codigo);
 void* procesarPedidoUnlink(char *path);
 void* procesarPedidoUtimens(char *path);
 void* procesarPedidoWrite(void *buffer, int* codigo);

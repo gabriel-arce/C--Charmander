@@ -10,8 +10,17 @@
 
 int main(int argc, char *argv[])
 {
-  ip = getenv("SERVER_HOST");
-  puerto = getenv("SERVER_PORT");
+  if ((ip = getenv("SERVER_HOST")) == NULL)
+  {
+	  printErrorVariablesEntorno();
+	  return -1;
+  }
+
+  if ((puerto = getenv("SERVER_PORT")) == NULL)
+  {
+	  printErrorVariablesEntorno();
+	  return -1;
+  }
 
   struct fuse_args args = FUSE_ARGS_INIT(argc, argv);
   int ret;
@@ -23,12 +32,8 @@ int main(int argc, char *argv[])
   log_info(logCliente, "****************** Creando archivo Log *******************************************" );
 
   char* mensaje = malloc(sizeof(char)*4);
-//  memset(ip,0,10);
-//  memset(puerto,0,5);
   memset(mensaje,0,sizeof(char)*4);
 
-//  strcpy(ip,"127.0.0.1");
-//  strcpy(puerto,"4969");
   strcpy(mensaje,"hsk");
 
   signal(SIGINT,terminar);
@@ -215,24 +220,8 @@ static int osada_getattr(const char *path, struct stat* stbuf)
 			stbuf->st_nlink = paquete->nlink;
 			stbuf->st_size = paquete->size;
 
-//		 	time_t tiempo = time(0);
-//		 	time(&tiempo);
-//		 	time_t timeinfo =  (time_t)localtime(&tiempo);
-//		 	//printf(YEL "\t Local Time: %s\r\n" RESET, asctime(timeinfo));
-//		 	return timeinfo;
-
 			time_t tiempo =(time_t)paquete->mtime;
-
-//			stbuf->st_mtim.tv_sec = (time_t)(tiempo/1000);
-//			stbuf->st_mtim.tv_nsec = (tiempo % 1000) * 1000000;
-//			stbuf->st_atim.tv_sec = (time_t)(tiempo/1000);
-//			stbuf->st_atim.tv_nsec = (tiempo % 1000) * 1000000;
-//			stbuf->st_ctim.tv_sec = (time_t)(tiempo/1000);
-//			stbuf->st_ctim.tv_nsec = (tiempo % 1000) * 1000000;
-
 			stbuf->st_mtim.tv_sec = tiempo;
-//			stbuf->st_atim.tv_sec = tiempo;
-//			stbuf->st_ctim.tv_sec = tiempo;
 
 			log_info(logCliente, "	Recibi RESPUESTA_GETATTR");
 
@@ -291,10 +280,13 @@ static int osada_mkdir(const char *path, mode_t mode)
 			log_info(logCliente, "	Recibi respuesta ENAMETOOLONG en osada_mkdir");
 			return -ENAMETOOLONG;
 
-		case ENOENTRY:
-			log_info(logCliente, "	No recibi RESPUESTA_MKDIR en osada_mkdir");
+		case ERROR:
+			log_info(logCliente, "	Recibi respuesta ERROR en osada_mkdir");
 			return 0;
+
 	}
+
+	log_info(logCliente, "	Recibi no se puede escribir en .Trash en osada_mkdir");
 	return 0;
 }
 
@@ -545,6 +537,7 @@ static int osada_rename(const char *path, const char *newpath)
 	else
 	{
 		log_info(logCliente, "	No recibi RESPUESTA_RENAME en osada_rename");
+	//	return -EEXIST;//ENOENT;
 	}
 	free(paquete);
 
@@ -606,19 +599,28 @@ static int osada_truncate(const char *path, off_t new_size)
 		paquete =  recibir(*socketServidor,&head);
 	pthread_mutex_unlock(&mutex_comunicacion);
 
+	free(paquete);
+
 	if (head == RESPUESTA_TRUNCATE)
 	{
 		log_info(logCliente, "	Recibi RESPUESTA_TRUNCATE");
+		return 0;
+	}
+	else if (head == ERRNOSPC)
+	{
+		log_info(logCliente, "	Recibi respuesta ENOSPC en osada_truncate");
+		return -ENOSPC;//no hay espacio en disco
+	}
+	else if (head == ERRFBIG)
+	{
+		log_info(logCliente, "	Recibi respuesta ERRFBIG en osada_truncate");
+		return -EFBIG;
 	}
 	else if (head == ENOENTRY)
 	{
-		log_info(logCliente, "	Recibi respuesta ENOENT en osada_truncate");
+		log_info(logCliente, "	Recibi respuesta ENOENTRY en osada_truncate");
+		return -ENOENT;
 	}
-	else
-	{
-		log_info(logCliente, "	No recibi RESPUESTA_TRUNCATE en osada_truncate");
-	}
-	free(paquete);
 
 	return 0;
 }
@@ -784,6 +786,19 @@ void printErrorConexion()
 	log_info(logCliente, "**********************************************************************************" );
 }
 
+
+void printErrorVariablesEntorno()
+{
+	printf(RED "\n\n****************** Variable/s de entorno (SERVER_HOST o SERVER_PORT) en NULL *****\n" RESET);
+		 printf(NAR"**********************************************************************************\n");
+	printf(ORG"****************** El cliente aborta el programa *********************************\n");
+	printf(YEL"**********************************************************************************\n");
+	printf(YEL2"****************** " GRN "Terminar" YEL2 " ******************************************************\n");
+	printf(AMB"**********************************************************************************\n");
+	printf(GRN "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\n\n\n" RESET);
+
+}
+
 void PrintFuse()
 {
 	printf( "****************** " GRN "Llamo a fuse main" RESET "  ********************************************\n");
@@ -806,7 +821,6 @@ void printServidorDesconectado()
 	printf(YEL2"****************** " GRN "Terminar" YEL2 " ******************************************************\n");
 	printf(AMB"**********************************************************************************\n");
 	printf(GRN "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\n\n\n" RESET);
-
 
 	log_info(logCliente, "****************** No se pudo establecer la conexion con el servidor *************" );
 	log_info(logCliente, "****************** Terminando el programa ****************************************" );

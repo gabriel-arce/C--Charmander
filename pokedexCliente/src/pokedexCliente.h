@@ -17,6 +17,7 @@
 
 #define CUSTOM_FUSE_OPT_KEY(t, p, v) { t, offsetof(struct t_runtime_options, p), v }
 #define ERRNOSPC 48
+#define ERREXIST 49
 
 int* socketServidor;
 t_log* logCliente;
@@ -64,6 +65,7 @@ void liberarRecursos();
 void printConectado();
 void printEncabezado();
 void printErrorConexion();
+void printErrorVariablesEntorno();
 void PrintFuse();
 void printMensajeInesperado(int head);
 void printServidorDesconectado();
