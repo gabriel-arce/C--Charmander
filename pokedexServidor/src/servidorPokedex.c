@@ -831,7 +831,7 @@ void* procesarPedidoTruncate(off_t newSize, char* path, int* codigo)
 {
 	//printf(CYN "\t En procesarPedidoTruncate el nuevo size es: %d\n", (uint32_t)newSize);
 
-	printf("Tamanio nuevo de off_t es %ld\n", newSize);
+	printf("Tamanio nuevo de off_t es %jd\n", newSize);
 	printf("Casteado a uint32_t es %d\n", (uint32_t)newSize);
 
 		pthread_rwlock_wrlock(&lockTablaArchivos);
