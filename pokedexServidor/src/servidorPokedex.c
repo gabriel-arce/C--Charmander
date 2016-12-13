@@ -446,6 +446,7 @@ void* atendercliente(void* socketCliente)
 					log_info(logServidor, "PEDIDO_TRUNCATE");
 					off_t *newSize = NULL;
 					newSize = (off_t*)recibir(socket, &head);
+					printf("Valor de newSize: %jd\n", newSize);
 
 					if (head == PEDIDO_TRUNCATE_NEW_SIZE)
 					{
