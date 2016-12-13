@@ -450,7 +450,7 @@ void* atendercliente(void* socketCliente)
 
 					if (head == PEDIDO_TRUNCATE_NEW_SIZE)
 					{
-						respuesta = procesarPedidoTruncate(*newSize, (char*)pedido, &codigo);
+						respuesta = procesarPedidoTruncate(&newSize, (char*)pedido, &codigo);
 					}
 
 					switch(codigo)
