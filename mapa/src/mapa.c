@@ -58,6 +58,7 @@ void leer_metadata_mapa(char * metadata_path) {
 
 	config_destroy(conf_file);
 	free(ruta);
+	free(algoritmo);
 }
 
 void cargar_medalla() {
@@ -91,7 +92,7 @@ void cargar_pokenests() {
 		pthread_mutex_lock(&mutex_log);
 		log_trace(logger, "No se pudo abrir el directorio: [ %s ]", dir_pokenests);
 		pthread_mutex_unlock(&mutex_log);
-		exit(EXIT_FAILURE);
+		finalizarPrograma();
 	}
 
 	// iterate the pokenest folders
@@ -123,7 +124,7 @@ void cargar_pokenests() {
 					pthread_mutex_lock(&mutex_log);
 					log_error(logger, "No se pudo abrir el directorio: %s", path);
 					pthread_mutex_unlock(&mutex_log);
-					exit(EXIT_FAILURE);
+					finalizarPrograma();
 				}
 
 				//primero cargo el metadata del pokenest
@@ -150,7 +151,7 @@ void cargar_pokenests() {
 									"Config NULL en cargar_pokenests() en la ruta %s",
 									path_f_pknst);
 							pthread_mutex_unlock(&mutex_log);
-							exit(EXIT_FAILURE);
+							finalizarPrograma();
 						}
 
 						char * id = getStringProperty(m_pknst, "Identificador");
@@ -207,7 +208,7 @@ void cargar_pokenests() {
 						pthread_mutex_lock(&mutex_log);
 						log_error(logger, "Config NULL en cargar_pokenests()");
 						pthread_mutex_unlock(&mutex_log);
-						exit(EXIT_FAILURE);
+						finalizarPrograma();
 					}
 
 					if (!config_has_property(dat_pkm, "Nivel")) {
@@ -246,7 +247,7 @@ void cargar_pokenests() {
 		pthread_mutex_lock(&mutex_log);
 		log_error(logger, "No se pudo cerrar el directorio: [ %s ]", dir_pokenests);
 		pthread_mutex_unlock(&mutex_log);
-		exit(EXIT_FAILURE);
+		finalizarPrograma();
 	}
 
 	free(dir_pokenests);
@@ -1020,6 +1021,7 @@ void atender_bloqueados() {
 				i--;
 				generar_captura(b->entrenador, b->pokenest, pkm);
 				free(b);
+				cantidad_bloqueados--;
 			}
 		}
 

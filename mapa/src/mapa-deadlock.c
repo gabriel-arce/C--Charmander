@@ -480,11 +480,21 @@ t_entrenador * let_the_battle_begins() {
 		t_pokemon * opponent = obtener_el_mas_poronga(entrenador_oponente);
 
 		if (opponent == NULL) {
+			//TODO VER BIEN ESTO!!!!!!!!
+			//HANDLEARLO DE LA FORMA MAS FELIZ POSIBLE
 			free(dls);
 			return NULL;
 		}
 
 		loser = pkmn_battle(pkm_del_que_perdio, opponent);
+
+		pthread_mutex_lock(&mutex_log);
+		log_trace(logger, "Batalla pkm: %s(%s) vs %s(%s)",
+				pkm_del_que_perdio->species,
+				entrenador_que_perdio->nombre_entrenador, opponent->species,
+				entrenador_oponente->nombre_entrenador);
+		log_trace(logger, "Perdedor: %s", loser->species);
+		pthread_mutex_unlock(&mutex_log);
 
 		if (pkm_del_que_perdio == loser){
 			//sigue peleando
@@ -492,8 +502,8 @@ t_entrenador * let_the_battle_begins() {
 			free(opponent->species);
 			free(opponent);
 		} else { //opponent == loser
-			free(pkm_del_que_perdio);
 			free(pkm_del_que_perdio->species);
+			free(pkm_del_que_perdio);
 			pkm_del_que_perdio = opponent;
 			entrenador_que_gano = entrenador_que_perdio;
 			entrenador_que_perdio = entrenador_oponente;
@@ -599,6 +609,7 @@ t_pokemon * obtener_el_mas_poronga(t_entrenador * entrenador) {
 	free(pokemonMasFuerte->nombre);
 	free(pokemonMasFuerte->nombreArchivo);
 	free(pokemonMasFuerte);
+	free(headerpkmMasFuerte);
 
 	return pkm_to_return;
 }
