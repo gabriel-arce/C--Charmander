@@ -1,9 +1,9 @@
-POKEDEXSERVIDOR_SO=pokedexServidor.so
+POKEDEXSERVIDOR_SO=pokedexServidor
 INSTALL_DIR=/usr/lib
 INSTALL_DIR_INCLUDE=/usr/include
 
-compile:
-	gcc servidorPokedex.c -D_FILE_OFFSET_BITS=64 -o $(POKEDEXSERVIDOR_SO) -l commons -l sharedCharmander -l pthread -l osadaFS -l comunicacion  
+ compile:
+	gcc servidorPokedex.c -D_FILE_OFFSET_BITS=64 -o $(POKEDEXSERVIDOR_SO) -l commons -l pthread -l osadaFS -l comunicacion  
 
  install: compile
 	cp -u $(POKEDEXSERVIDOR_SO) $(INSTALL_DIR)
