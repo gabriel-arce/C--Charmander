@@ -34,6 +34,14 @@ int leer_metadata_entrenador(char * metada_path) {
 
 	t_config * conf_file = config_create(metada_path);
 
+	if (conf_file == NULL) {
+		printf("No se pudo leer el metadata: Error en el nombre del entrenador o ruta incorrecta.\n");
+		free(metadata);
+		free(metada_path);
+		free(nombreEntrenador);
+		exit(EXIT_FAILURE);
+	}
+
 	metadata->nombre = getStringProperty(conf_file, "nombre");
 
 	metadata->simbolo = (char) getStringProperty(conf_file, "simbolo")[0];
@@ -145,19 +153,25 @@ void rutina(int signal){
 		case SIGUSR1:
 			metadata->vidas += 1;
 			puts("Se ha agregado una vida al entrenador");
+			printf("El entrenador tiene: %d vidas \n", metadata->vidas);
 			break;
 
 		case SIGTERM:
 			if(metadata->vidas > 0){
 				metadata->vidas --;
+				puts("Se ha quitado una vida al entrenador");
+				printf("El entrenador tiene: %d vidas \n", metadata->vidas);
+			} else {
+				puts("El entrenador no tiene mas vidas!");
+				muereEntrenador = true;
+				if (estoyBloqueado) {
+					muerteEntrenador();
+				}
 			}
-			else{
-			muereEntrenador = true;
-			}
-			puts("Se ha quitado una vida al entrenador");
 			break;
 
 		case SIGINT:
+			puts("\nMuerte forzosa. Bye...");
 			limpiar_pokemons_en_directorio();
 			rm_de_medallas();
 			finalizarEntrenador();
@@ -168,7 +182,6 @@ void rutina(int signal){
 		default: puts("Codigo de señal invalida");
 	}
 
-	printf("El entrenador tiene: %d vidas \n", metadata->vidas);
 }
 
 //-------------------Funciones
@@ -193,6 +206,7 @@ void inicializarSinmuertesNiReintentos(){
 	finDelJuego = false;
 	muereEntrenador = false;
 	ubicacionActual = malloc(sizeof(t_posicion));
+	estoyBloqueado = false;
 }
 
 void cargarMetadata(){
@@ -363,7 +377,9 @@ void atraparPokemon(){
 	if (enviar_header(_CAPTURAR_PKM,0,socket_entrenador) < 0){
 		puts("Error al enviar header de capturar pokemon");
 		finalizacionAbrupta();
-				}
+	}
+
+	estoyBloqueado = true;
 
 	//escuchar y hay dos posibilidades, (deadlock y vuelvo a escuchar) o (pokemon y sigo la rutina)
 
@@ -402,6 +418,7 @@ void atraparPokemon(){
 
 			copiarPokemon(pokemonAtrapado);
 
+			estoyBloqueado = false;
 			verificarNivelPokemon(pokemonAtrapado);
 			verificarSiQuedanObjetivosEnMapa();
 			pokenestLocalizada = false;

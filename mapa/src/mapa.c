@@ -374,6 +374,8 @@ void run_trainer_server() {
 						free(handshake);
 					}
 
+				} else {
+					//it's already an existing conection in system
 				}
 			}
 		}
@@ -691,7 +693,7 @@ int trainer_handler(t_entrenador * entrenador) {
 int desconexion_entrenador(t_entrenador * entrenador, int nbytes_recv) {
 	if (nbytes_recv == 0) {
 		pthread_mutex_lock(&mutex_log);
-		log_trace(logger, "Se desconecto el entrenador %c en el socket %d",
+		log_info(logger, "Se desconecto el entrenador %c en el socket %d",
 				entrenador->simbolo_entrenador, entrenador->socket);
 		pthread_mutex_unlock(&mutex_log);
 	}
@@ -704,13 +706,13 @@ int desconexion_entrenador(t_entrenador * entrenador, int nbytes_recv) {
 
 	if (nbytes_recv == -2) {
 		pthread_mutex_lock(&mutex_log);
-		log_error(logger, "Se desconecto el entrenador %c por haber finalizado en mapa", entrenador->simbolo_entrenador);
+		log_info(logger, "Se desconecto el entrenador %c por haber finalizado en mapa", entrenador->simbolo_entrenador);
 		pthread_mutex_unlock(&mutex_log);
 	}
 
 	if (nbytes_recv == 1) {
 		pthread_mutex_lock(&mutex_log);
-		log_trace(logger, "[DEADLOCK]: Se desconecto el entrenador %c por haber perdido la batalla", entrenador->simbolo_entrenador);
+		log_info(logger, "[DEADLOCK]: Se desconecto el entrenador %c por haber perdido la batalla", entrenador->simbolo_entrenador);
 		pthread_mutex_unlock(&mutex_log);
 	}
 //
@@ -990,6 +992,7 @@ void atender_bloqueados() {
 
 	while (!finalizacionDelPrograma) {
 		waitSemaforo(semaforo_de_bloqueados);
+
 		loguear_cola_de_bloqueados();
 
 		//TODO GUARDA CON ESTO!!!!
@@ -1026,6 +1029,7 @@ void atender_bloqueados() {
 		}
 
 		pthread_mutex_unlock(&mutex_cola_bloqueados);
+
 	}
 
 }

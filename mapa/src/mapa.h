@@ -146,7 +146,6 @@ bool finalizacionDelPrograma;
 //variables de la GUI
 t_list * items_mapa;
 
-
 //****Variables & stuff
 void leer_metadata_mapa(char * metadata_path);
 void imprimir_metadata();

@@ -449,7 +449,7 @@ int the_number_of_the_beast(t_pkm * beast) {
 	int length_number = i - length_name;
 
 	num_on_string = (char *) malloc(1 + (length_number * sizeof(char)));
-	num_on_string[length_number + 1] = '\0';
+	num_on_string[length_number] = '\0';
 	memcpy(num_on_string, beast->nombreArchivo + length_name, length_number);
 
 	int THE_number = atoi(num_on_string);

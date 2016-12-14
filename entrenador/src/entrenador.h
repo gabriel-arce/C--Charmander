@@ -75,6 +75,7 @@ char * rutaMedallas;
 char * rutaDirDeBill;
 bool muereEntrenador;
 int reintentos;
+bool estoyBloqueado;
 
 //------------------Funciones
 

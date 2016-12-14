@@ -489,11 +489,10 @@ t_entrenador * let_the_battle_begins() {
 		loser = pkmn_battle(pkm_del_que_perdio, opponent);
 
 		pthread_mutex_lock(&mutex_log);
-		log_trace(logger, "Batalla pkm: %s(%s) vs %s(%s)",
-				pkm_del_que_perdio->species,
-				entrenador_que_perdio->nombre_entrenador, opponent->species,
-				entrenador_oponente->nombre_entrenador);
-		log_trace(logger, "Perdedor: %s", loser->species);
+		log_trace(logger, "Batalla pkm: %s[%d](%s) vs %s[%d](%s)",
+				pkm_del_que_perdio->species, pkm_del_que_perdio->level, entrenador_que_perdio->nombre_entrenador,
+				opponent->species, opponent->level, entrenador_oponente->nombre_entrenador);
+		log_trace(logger, "Perdedor: %s [%d]", loser->species, loser->level);
 		pthread_mutex_unlock(&mutex_log);
 
 		if (pkm_del_que_perdio == loser){
@@ -605,7 +604,10 @@ t_pokemon * obtener_el_mas_poronga(t_entrenador * entrenador) {
 		return _on_error();
 	}
 
-	t_pokemon * pkm_to_return = create_pokemon(factory, pokemonMasFuerte->nombre, pokemonMasFuerte->nivel);
+	char * nombre = string_duplicate(pokemonMasFuerte->nombre);
+
+	t_pokemon * pkm_to_return = create_pokemon(factory, nombre, pokemonMasFuerte->nivel);
+
 	free(pokemonMasFuerte->nombre);
 	free(pokemonMasFuerte->nombreArchivo);
 	free(pokemonMasFuerte);
