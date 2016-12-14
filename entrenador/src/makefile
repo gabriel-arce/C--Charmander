@@ -1,6 +1,6 @@
 # Completar con sus paths
 
-ENTRENADOR_SO=entrenador.so
+ENTRENADOR_SO=entrenador
 INSTALL_DIR=/usr/lib
 INSTALL_DIR_INCLUDE=/usr/include
 
