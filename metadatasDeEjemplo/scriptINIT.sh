@@ -33,7 +33,7 @@ instalarCOMUNICACION() {
 }
 
 instalarOSADA() {
-    cd /home/utnso/workspace/TP-char*mander/tp-2016-2c-MeQuedeSinPokebolas-/osadaFS/
+    cd /home/utnso/workspace/tp-2016-2c-MeQuedeSinPokebolas-/osadaFS/
     sudo make install
 }
 
@@ -53,7 +53,7 @@ repoOSADA="https://github.com/sisoputnfrba/osada-utils.git"
 
 cd /home/utnso/
 mkdir workspace
-cd wokspace
+cd /home/utnso/workspace/
 
 
 clonar $repoTP
