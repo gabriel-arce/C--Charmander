@@ -37,6 +37,20 @@ instalarOSADA() {
     sudo make install
 }
 
+compilarTodo() {
+	cd /home/utnso/workspace/tp-2016-2c-MeQuedeSinPokebolas-/mapa/src/
+	sudo make
+	
+	cd /home/utnso/workspace/tp-2016-2c-MeQuedeSinPokebolas-/entrenador/src/
+	sudo make
+
+	cd /home/utnso/workspace/tp-2016-2c-MeQuedeSinPokebolas-/pokedexServidor/src/
+	sudo make
+
+	cd /home/utnso/workspace/tp-2016-2c-MeQuedeSinPokebolas-/pokedexCliente/src/
+	sudo make
+}
+
 export INSTALL_DIR=/usr/lib
 export INSTALL_DIR_INCLUDE=/usr/include
 export MAPA_SO=mapa.so
@@ -68,6 +82,9 @@ instalarPKMNUTILS
 instalarSHARED
 instalarCOMUNICACION
 instalarOSADA
+compilarTodo
+
+cd /home/utnso/workspace/
 
 
 
