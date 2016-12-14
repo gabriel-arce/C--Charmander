@@ -446,6 +446,7 @@ void* atendercliente(void* socketCliente)
 					log_info(logServidor, "PEDIDO_TRUNCATE");
 					off_t *newSize = NULL;
 					newSize = (off_t*)recibir(socket, &head);
+					printf("Valor de newSize: %jd\n", newSize);
 
 					if (head == PEDIDO_TRUNCATE_NEW_SIZE)
 					{
@@ -830,6 +831,9 @@ void* procesarPedidoRmdir(char *path)
 void* procesarPedidoTruncate(off_t newSize, char* path, int* codigo)
 {
 	//printf(CYN "\t En procesarPedidoTruncate el nuevo size es: %d\n", (uint32_t)newSize);
+
+	printf("Tamanio nuevo de off_t es %jd\n", newSize);
+	printf("Casteado a uint32_t es %d\n", (uint32_t)newSize);
 
 		pthread_rwlock_wrlock(&lockTablaArchivos);
 	char r = buscarYtruncar(path, (uint32_t)newSize);

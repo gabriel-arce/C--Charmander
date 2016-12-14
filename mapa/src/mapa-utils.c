@@ -122,7 +122,8 @@ void item_destroyer(void * item) {
 
 	ITEM_NIVEL * i = (ITEM_NIVEL *) item;
 
-	BorrarItem(items_mapa, i->id);
+	free(i);
+//	BorrarItem(items_mapa, i->id);
 }
 
 void pokemon_remover(t_pkm * pkm, t_list * list) {
