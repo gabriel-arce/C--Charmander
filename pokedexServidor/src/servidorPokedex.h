@@ -46,6 +46,7 @@ void* atendercliente(void* socketCliente);
 void destruirMutex() ;
 void* hiloComunicacion(void* arg);
 void printEncabezado();
+void printOperaciones();
 void printTerminar();
 
 void* procesarCrearEntradaTablaDeArchivos(char *path, int* codigo, int modo);
@@ -66,8 +67,8 @@ void* procesarPedidoUnlink(char *path);
 void* procesarPedidoUtimens(char *path);
 void* procesarPedidoWrite(void *buffer, int* codigo);
 
-void mostrar_lista_archivos();
-char verificar_permiso_archivo(char *path);
+//void mostrar_lista_archivos();
+//char verificar_permiso_archivo(char *path);
 
 void terminar();
 //void threadsDestroyer(pthread_t* thread);

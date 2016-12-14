@@ -446,7 +446,7 @@ void* atendercliente(void* socketCliente)
 					log_info(logServidor, "PEDIDO_TRUNCATE");
 					off_t *newSize = NULL;
 					newSize = (off_t*)recibir(socket, &head);
-					printf("Valor de newSize: %jd\n", newSize);
+					//printf("Valor de newSize: %jd\n", newSize);
 
 					if (head == PEDIDO_TRUNCATE_NEW_SIZE)
 					{
@@ -577,7 +577,7 @@ void* atendercliente(void* socketCliente)
 		}
 	}//fin while
 
-	printf(YEL "\n******** Se desconecto el cliente %d, termina el hilo que lo atiendia ******\n" RESET, socket);
+	printf(YEL "\n******** Se desconecto el cliente %d, termina el hilo que lo atendia ******\n" RESET, socket);
 	log_info(logServidor, "Se desconecto el cliente");
 
 	sem_post(&semThreads);
