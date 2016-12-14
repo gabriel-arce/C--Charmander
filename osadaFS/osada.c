@@ -22,8 +22,6 @@ char* disco;
 off_t tamanioArchivo;
 int32_t descriptorArchivo;
 osada_header oheader;
-struct NodoArchivo *ListaArchivos;
-struct NodoArchivo *ultimo;
 
 int offsetBitmap;
 int offsetTablaArchivos;
@@ -48,14 +46,14 @@ void devolverBitFirstBlockArchivo(uint32_t posicionArchivo, osada_file* FCB)
 	bitarray_clean_bit(bitVector, baseDatosBitmap + FCB->first_block);
 }
 
-int actualizarFirstBlockArchivo(osada_file* FCB)
-{
-	uint32_t posicionBloque;
-	buscarBitLibre(&posicionBloque);
-	FCB->first_block = posicionBloque;
-	//printf(CYN "\t FCB->first_block despues: %d, posicionArchivo: %d \n" RESET, FCB->first_block, posicionArchivo);
-	return posicionBloque;
-}
+//int actualizarFirstBlockArchivo(osada_file* FCB)
+//{
+//	uint32_t posicionBloque;
+//	buscarBitLibre(&posicionBloque);
+//	FCB->first_block = posicionBloque;
+//	//printf(CYN "\t FCB->first_block despues: %d, posicionArchivo: %d \n" RESET, FCB->first_block, posicionArchivo);
+//	return posicionBloque;
+//}
 
 void agregarBloques(int cantidadBloquesActual, int cantidadBloquesNueva, uint32_t pos)
 {
@@ -329,6 +327,68 @@ int cantidadDeBloques(uint32_t size)
 	return cantidadBloques;
 }
 
+int chequearYReservarEspacioEnDisco(osada_file* FCB, uint32_t size, uint32_t offset, int posicionArchivo, int cantidadBloques)
+//busco espacio para una cantidad de bloques que quiero escribir y si me alcanza lo reservo
+{
+	int contador = 0;
+	off_t i;
+	//int actualizado = -1;
+//
+//	if(FCB->file_size == 0)//si era un archivo recien creado le tengo que cambiar el first block
+//	{
+//		uint32_t posicionBloque;
+//		buscarBitLibre(&posicionBloque);
+//		FCB->first_block = posicionBloque;
+//		//printf(CYN "\t FCB->first_block despues: %d, posicionArchivo: %d \n" RESET, FCB->first_block, posicionArchivo);
+////		return posicionBloque;
+////		actualizado = actualizarFirstBlockArchivo(FCB);
+//	}
+
+	for (i = ultimoBit; i<= limiteDatosBitmap; i++)
+	{
+		if(bitarray_test_bit(bitVector, i) == 0)
+		{
+			contador++;
+			if(contador == cantidadBloques)
+			{
+				if ((FCB->first_block == 65535) && (FCB->file_size == 0)) //si era un archivo recien creado le tengo que cambiar el first block
+				{
+					uint32_t posicionBloque;
+					buscarBitLibre(&posicionBloque);
+					FCB->first_block = posicionBloque;
+				}
+				truncar(FCB, (size + offset), posicionArchivo);//me aseguro que el archivo ya tenga asignados todos los bloques que necesita, si no los tiene se los agrego o se los saco si le sobran
+				return 1;
+			}
+		}
+	}
+	for (i = baseDatosBitmap; i< ultimoBit; i++)
+	{
+		if(bitarray_test_bit(bitVector, i) == 0)
+		{
+			contador++;
+			if(contador == cantidadBloques)
+			{
+				if ((FCB->first_block == 65535) && (FCB->file_size == 0)) //si era un archivo recien creado le tengo que cambiar el first block
+				{
+					uint32_t posicionBloque;
+					buscarBitLibre(&posicionBloque);
+					FCB->first_block = posicionBloque;
+				}
+				truncar(FCB, (size + offset), posicionArchivo);//me aseguro que el archivo ya tenga asignados todos los bloques que necesita, si no los tiene se los agrego o se los saco si le sobran
+				return 1;
+			}
+		}
+	}
+
+	printf(YEL "\t No hay espacio suficiente en disco, necesito: %d bloque/s, hay %d bloque/s libre/s\n" RESET, cantidadBloques, contador);
+//	if (actualizado != -1) //si habia cambiado el first block pero no me alcanzaron los bits libres
+//	{
+//		devolverBitFirstBlockArchivo(posicionArchivo, FCB);
+//	}
+	return 0;
+}
+
 char crearArchivo(char* path, int modo)
 {
 	char* nombreArchivo = nombre(path);
@@ -336,7 +396,7 @@ char crearArchivo(char* path, int modo)
 //validaciones
 	if(strcmp(nombreArchivo, ".Trash-1000") == 0)
 	{
-		printf( YEL "\t .Trash-1000 \n" RESET);
+		printf( VIO "\t No agrego archivos en " PINK2 ".Trash-1000 \n" RESET );
 		free(nombreArchivo);
 		nombreArchivo = NULL;
 		return 't';
@@ -677,63 +737,6 @@ void* getAttr(char* path)
 	}
 	printf(YEL "\t No existe path: %s\n" RESET, path);
 	return NULL;
-}
-
-int chequearYReservarEspacioEnDisco(osada_file* FCB, uint32_t size, uint32_t offset, int posicionArchivo, int cantidadBloques)
-//busco espacio para una cantidad de bloques que quiero escribir y si me alcanza lo reservo
-{
-	int contador = 0;
-	off_t i;
-	int actualizado = -1;
-
-	if(FCB->file_size == 0)//si era un archivo recien creado le tengo que cambiar el first block
-	{
-		actualizado = actualizarFirstBlockArchivo(FCB);
-	}
-
-//	for (i = baseDatosBitmap; i<= limiteDatosBitmap; i++)
-//	{
-//		if(bitarray_test_bit(bitVector, i) == 0)
-//		{
-//			contador++;
-//			if(contador == cantidadBloques)
-//			{
-//				truncar(FCB, (size + offset), posicionArchivo);//me aseguro que el archivo ya tenga asignados todos los bloques que necesita, si no los tiene se los agrego o se los saco si le sobran
-//				return 1;
-//			}
-//		}
-//	}
-
-	for (i = ultimoBit; i<= limiteDatosBitmap; i++)
-	{
-		if(bitarray_test_bit(bitVector, i) == 0)
-		{
-			contador++;
-			if(contador == cantidadBloques)
-			{
-				truncar(FCB, (size + offset), posicionArchivo);//me aseguro que el archivo ya tenga asignados todos los bloques que necesita, si no los tiene se los agrego o se los saco si le sobran
-				return 1;
-			}
-		}
-	}
-	for (i = baseDatosBitmap; i< ultimoBit; i++)
-	{
-		if(bitarray_test_bit(bitVector, i) == 0)
-		{
-			contador++;
-			if(contador == cantidadBloques)
-			{
-				truncar(FCB, (size + offset), posicionArchivo);//me aseguro que el archivo ya tenga asignados todos los bloques que necesita, si no los tiene se los agrego o se los saco si le sobran
-				return 1;
-			}
-		}
-	}
-	printf(YEL "\t No hay espacio suficiente en disco, necesito: %d bloque/s, hay %d bloque/s libre/s\n" RESET, cantidadBloques, contador);
-	if (actualizado != -1) //si habia cambiado el first block pero no me alcanzaron los bits libres
-	{
-		devolverBitFirstBlockArchivo(posicionArchivo, FCB);
-	}
-	return 0;
 }
 
 void inicializarDisco()
@@ -1237,8 +1240,10 @@ char truncar(osada_file* FCB, uint32_t newSize, int posicionArchivo)
 	{
 		if(FCB->file_size != newSize)
 		{
-		printf( NAR"\t Agrego bytes pero no bloques\n");
-		FCB->file_size = newSize;//si viene de write este newSize es igual a size + offset
+			printf( NAR"\t Agrego bytes pero no bloques\n");
+			FCB->file_size = newSize;//si viene de write este newSize es igual a size + offset
+			FCB->lastmod =(uint32_t) obtenerFecha();
+			escribirArchivo((uint32_t)posicionArchivo, FCB);
 		}
 		return 's';
 	}

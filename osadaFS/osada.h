@@ -59,25 +59,6 @@ typedef enum {
 
 _Static_assert( sizeof(osada_file) == (sizeof(osada_block) / 2.0), "osada_file size does not half osada_block size");
 
-struct NodoArchivo{
-	char *nombre;						//Nombre del archivo
-//	char *path;							//Nombre real
-	int fd;								//descriptor de quien tiene prioridad
-//	struct stat info;					//Estructura stat del archivo
-	osada_uso enUso;					//Flag que determina si esta abie
-	struct NodoArchivo *siguiente;	//Siguiente nodo
-};
-
-typedef struct {
-	char *nombre;						//Nombre del archivo
-	uint32_t fd;						//descriptor de quien tiene prioridad
-	osada_uso enUso;					//Flag que determina si esta abie
-} t_nodoArchivo;
-
-//struct NodoArchivo *ListaArchivos;
-struct NodoArchivo *ultimo;
-
-
 char* disco;
 off_t tamanioArchivo;
 int32_t descriptorArchivo;
@@ -94,11 +75,7 @@ uint32_t  bitmapSize, dataBlocks, bloques, maximoBit;
 t_bitarray* bitVector;
 struct stat fileStat;
 
-//pthread_rwlock_t RWlock[2048];
 pthread_rwlock_t lockTablaArchivos;
-//pthread_rwlock_t mutexArchivo[2048];
-//pthread_mutex_t mutexBitmap = PTHREAD_MUTEX_INITIALIZER;
-//pthread_mutex_t mutexFecha = PTHREAD_MUTEX_INITIALIZER;
 
 //nuevas
 int actualizarFirstBlockArchivo(osada_file* FCB);
@@ -112,27 +89,21 @@ int intentarOAgregar(int parentDir, char* nombreArchivo, osada_file* nuevo);
 char abrirArchivo(char* path);
 //void actualizarFCBArchivo(int posicionArchivo, osada_file* FCB, uint32_t size);//, uint32_t* posicionBloque);
 
-//int agregarArchivo(char* path, int modo, char* nombreArchivo);
-//
-//int agregarArchivo(char* path, int modo);
-void agregarArchivoEnLista(osada_file archivo, t_list *lista);
-
 void agregarBloques(int size, int newSize, uint32_t posicion);
 void asignarOffsets();
 char borrarArchivo(char* path);
 char borrarDirectorio(char* path);
 osada_file* buscarArchivo(char* nombre, int* posicion);
-struct NodoArchivo *buscarArchivoEnLista(char *nombre);
 int buscarEspacioLibre();//esta busca un espacio en la tabla de archivos
 int buscarBitLibre(uint32_t* posicion);//esta la uso para buscar bloques libres en la tabla de datos
 char buscarYtruncar(char* path, uint32_t newSize);
 char cambiarUltimoAcceso(char* path);
 int cantidadDeBloques(uint32_t size);
+int chequearYReservarEspacioEnDisco(osada_file* FCB, uint32_t size, uint32_t offset,int posicionArchivo, int cantidadBloques);
 char crearArchivo(char* path, int modo);
 void descargar();
 void escribirArchivo(uint32_t posicion, osada_file* buf);
 void escribirAsignacion(uint32_t posicion, uint32_t* buf);
-
 void escribrirArchivoConOffset(uint32_t size, void* bufWrite, uint32_t offset, uint32_t* posicion);
 void escribrirArchivoSinOffset(uint32_t size, void* bufWrite, uint32_t* posicion);
 void escribirBloque(uint32_t bloque, char* buf);
@@ -144,13 +115,11 @@ int existePath(char* path, int* pos);
 int existeDirectorio(char* token, uint16_t* padre, int* posicion);
 char flushArchivo(char* path);
 void* getAttr(char* path);
-int chequearYReservarEspacioEnDisco(osada_file* FCB, uint32_t size, uint32_t offset,int posicionArchivo, int cantidadBloques);
 void inicializarDisco();
 void leerArchivo(uint32_t posicion, osada_file* buf);
 void leerAsignacion(uint32_t posicion, uint32_t* buf);
 void leerDato(uint32_t posicion, osada_block* buf);
 void leerHeader();
-t_list *leerTablaArchivos();
 void leerTablaAsignaciones();
 void leerTablaDatos();
 void levantarDatosGenerales(osada_header oheader);
