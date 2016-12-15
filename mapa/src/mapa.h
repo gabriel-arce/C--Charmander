@@ -47,6 +47,7 @@
 #define _RESULTADO_BATALLA 10
 #define _DATOS_FINALES 11
 #define _RESULTADO_OPERACION 12
+#define _DESCONEXION 13
 
 #define __FILAS 50
 #define __COLUMNAS 50
@@ -140,6 +141,7 @@ fd_set master_fdset;
 int quantum_actual;
 bool cambio_metadata;
 bool quiere_atrapar;
+t_planificador_algthm algoritmo_anterior;
 
 bool finalizacionDelPrograma;
 
@@ -219,9 +221,12 @@ t_entrenador * pop_entrenador();
 t_list * snapshot_list(t_list * source_list);
 void releer_metadada();
 void finalizarPrograma();
+void loguear_metadata();
 
 //***Envios y serializaciones***
 int enviar_ruta_pkm(char * ruta, int socket);
 int enviar_datos_finales_entrenador(t_entrenador * entrenador);
+
+void verificar_desconexion_por_starvation();
 
 #endif /* MAPA_H_ */

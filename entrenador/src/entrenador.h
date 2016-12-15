@@ -33,7 +33,7 @@
 #define _RESULTADO_BATALLA 10
 #define _DATOS_FINALES 11
 #define _RESULTADO_OPERACION 12
-
+#define _DESCONEXION 13
 
 typedef struct {
 	char * nombre;

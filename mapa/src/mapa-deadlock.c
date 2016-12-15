@@ -15,6 +15,8 @@ void run_deadlock_thread() {
 	while(!finalizacionDelPrograma) {
 		usleep(metadata->tiempoChequeoDeadlock);
 
+		verificar_desconexion_por_starvation();
+
 		if (run_deadlock_algorithm() == -1) {
 			pthread_mutex_lock(&mutex_log);
 			log_error(logger, "[DEADLOCK]: El algoritmo de deteccion de deadlock devolvio un resultado de error.");
@@ -22,6 +24,56 @@ void run_deadlock_thread() {
 			break;
 		}
 	}
+}
+
+void verificar_desconexion_por_starvation() {
+	int i;
+	int bytes = 0;
+	void * buffer = malloc(1);
+
+	pthread_mutex_lock(&mutex_cola_bloqueados);
+	for (i = 0; i < cola_de_bloqueados->elements_count; i++) {
+		t_bloqueado * b = list_get(cola_de_bloqueados, i);
+
+		if (b == NULL)
+			continue;
+
+		pthread_mutex_lock(&(b->entrenador->mutex_entrenador));
+
+		struct timeval tv;
+
+		tv.tv_sec = 2;  /* 2 Secs Timeout */
+		tv.tv_usec = 0;  // Not init'ing this can cause strange errors
+
+		setsockopt(b->entrenador->socket, SOL_SOCKET, SO_RCVTIMEO, (char *)&tv,sizeof(struct timeval));
+
+		//bytes = recv(b->entrenador->socket, buffer, 1, 0);
+		t_header * header = recibir_header(b->entrenador->socket);
+
+		int optval = 1;
+		setsockopt(b->entrenador->socket, SOL_SOCKET, SO_REUSEADDR, &optval, sizeof(int));
+
+		if (header == NULL) {
+			pthread_mutex_unlock(&(b->entrenador->mutex_entrenador));
+			continue;
+		}
+
+//		if (bytes == -1) {
+		if (header->identificador == _DESCONEXION) {
+			pthread_mutex_lock(&mutex_log);
+			log_trace(logger, "El entrenador %c estaba en STARVATION y se desconecto.", b->entrenador->simbolo_entrenador);
+			pthread_mutex_unlock(&mutex_log);
+			pthread_mutex_unlock(&(b->entrenador->mutex_entrenador));
+			desconexion_entrenador(b->entrenador, 0);
+			list_remove(cola_de_bloqueados, i);
+			i--;
+			free(b);
+		}
+
+		pthread_mutex_unlock(&(b->entrenador->mutex_entrenador));
+	}
+
+	pthread_mutex_unlock(&mutex_cola_bloqueados);
 }
 
 int run_deadlock_algorithm() {

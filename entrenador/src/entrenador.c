@@ -172,6 +172,8 @@ void rutina(int signal){
 
 		case SIGINT:
 			puts("\nMuerte forzosa. Bye...");
+			enviar_header(_DESCONEXION, 0, socket_entrenador);
+			close(socket_entrenador);
 			limpiar_pokemons_en_directorio();
 			rm_de_medallas();
 			finalizarEntrenador();

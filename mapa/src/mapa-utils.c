@@ -72,6 +72,7 @@ void inicializar_variables() {
 	cola_de_bloqueados = list_create();
 	cambio_metadata = false;
 	finalizacionDelPrograma = false;
+	algoritmo_anterior = RR; //Default
 }
 
 void destruir_variables() {
@@ -100,6 +101,7 @@ void entrenador_destroyer(t_entrenador * e) {
 	free(e->posicionObjetivo);
 	pthread_mutex_destroy(&(e->mutex_entrenador));
 	free(e);
+	e = NULL;
 }
 
 void pkm_destroyer(t_pkm * p) {
@@ -509,4 +511,34 @@ void loguear_cola_de_bloqueados() {
 	}
 
 	pthread_mutex_unlock(&mutex_cola_bloqueados);
+}
+
+void loguear_metadata() {
+	char * msg = string_duplicate("\n****** METADATA ******\n");
+	char * algoritmo = NULL;
+
+	switch (metadata->planificador->algth) {
+		case RR:
+			algoritmo = string_duplicate("Round Robin");
+			break;
+		case SRDF:
+			algoritmo = string_duplicate("SRDF");
+			break;
+		default:
+			algoritmo = string_duplicate("???????");
+			break;
+	}
+
+	string_append_with_format(&msg, "Algoritmo: %s\n", algoritmo);
+	string_append_with_format(&msg, "Quantum: %d\n", metadata->planificador->quantum);
+	string_append_with_format(&msg, "Retardo de turno: %d\n", metadata->planificador->retardo_turno);
+	string_append_with_format(&msg, "Retardo DL: %d\n", metadata->tiempoChequeoDeadlock);
+	string_append_with_format(&msg, "Batalla: %d", metadata->batalla);
+
+	pthread_mutex_lock(&mutex_log);
+	log_info(logger, msg);
+	pthread_mutex_unlock(&mutex_log);
+
+	free(algoritmo);
+	free(msg);
 }

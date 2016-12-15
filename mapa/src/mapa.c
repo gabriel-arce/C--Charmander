@@ -19,9 +19,10 @@ void leer_metadata_mapa(char * metadata_path) {
 
 	if (conf_file == NULL) {
 		pthread_mutex_lock(&mutex_log);
-		log_error(logger, "Config NULL en leer_metadata_mapa.");
+		log_error(logger, "Config NULL en leer_metadata_mapa. Finaliza el programa");
 		pthread_mutex_unlock(&mutex_log);
-		exit(EXIT_FAILURE);
+		finalizacionDelPrograma = true;
+		finalizarPrograma();
 	}
 
 	metadata = malloc(sizeof(t_metadata_mapa));
@@ -40,8 +41,11 @@ void leer_metadata_mapa(char * metadata_path) {
 			if (cola_de_prioridad_SRDF != NULL)
 				cola_de_prioridad_SRDF = list_create();
 		} else {
+			pthread_mutex_lock(&mutex_log);
 			log_error(logger, "Algoritmo no reconocido.");
-			exit(EXIT_FAILURE);
+			pthread_mutex_unlock(&mutex_log);
+			// se cargo mal el algoritmo -> vuelvo al anterior o default
+			metadata->planificador->algth = algoritmo_anterior;
 		}
 	}
 
@@ -59,6 +63,8 @@ void leer_metadata_mapa(char * metadata_path) {
 	config_destroy(conf_file);
 	free(ruta);
 	free(algoritmo);
+
+	loguear_metadata();
 }
 
 void cargar_medalla() {
@@ -290,7 +296,7 @@ void run_trainer_server() {
 		pthread_mutex_lock(&mutex_log);
 		log_error(logger, "Server-socket() error");
 		pthread_mutex_unlock(&mutex_log);
-		exit(1);
+		finalizarPrograma();
 	}
 
 	/*"address already in use" error message */
@@ -298,7 +304,7 @@ void run_trainer_server() {
 		pthread_mutex_lock(&mutex_log);
 		log_error(logger, "Server-setsockopt() error");
 		pthread_mutex_unlock(&mutex_log);
-		exit(1);
+		finalizarPrograma();
 	}
 
 	/* bind */
@@ -312,7 +318,7 @@ void run_trainer_server() {
 		pthread_mutex_lock(&mutex_log);
 		log_error(logger, "Server-bind() error");
 		pthread_mutex_unlock(&mutex_log);
-		exit(1);
+		finalizarPrograma();
 	}
 
 	/* listen */
@@ -320,7 +326,7 @@ void run_trainer_server() {
 		pthread_mutex_lock(&mutex_log);
 		log_error(logger, "Server-listen() error");
 		pthread_mutex_unlock(&mutex_log);
-		exit(1);
+		finalizarPrograma();
 	}
 
 	/* add the listener to the master set */
@@ -486,6 +492,9 @@ int run_algorithm() {
 		result = correr_srdf();
 		break;
 	default:
+		pthread_mutex_lock(&mutex_log);
+		log_error(logger, "Algoritmo desconocido en run_algorithm()");
+		pthread_mutex_unlock(&mutex_log);
 		break;
 	}
 
@@ -529,22 +538,6 @@ int correr_rr() {
 			pthread_mutex_unlock(&mutex_planificador_turno);
 			break;
 		}
-//
-//		if(entrenador_listo->bloqueado) {
-//			keep_running = false;
-//			quantum_actual = 0;
-//			entrenador_corriendo = NULL;
-//			pthread_mutex_lock(&mutex_planificador_turno);
-//			break;
-//		}
-//
-//		if (entrenador_listo->objetivo_cumplido) {
-//			keep_running = false;
-//			quantum_actual = 0;
-//			entrenador_corriendo = NULL;
-//			pthread_mutex_lock(&mutex_planificador_turno);
-//			break;
-//		}
 
 		quantum_actual--;
 
@@ -552,10 +545,13 @@ int correr_rr() {
 	}
 
 	// Verifico si el entrenador vuelve a la cola de listos
-	if ( (!quiere_atrapar) && (!(entrenador_listo->bloqueado)) && (!(entrenador_listo->objetivo_cumplido)) && (result != EXIT_FAILURE) ) {
-		if (agregar_a_cola(entrenador_listo, cola_de_listos, mutex_cola_listos) != -1)
-			signalSemaforo(semaforo_de_listos);
+	if (entrenador_listo != NULL) {
+		if ( (!quiere_atrapar) && (!(entrenador_listo->bloqueado)) && (!(entrenador_listo->objetivo_cumplido)) && (result != EXIT_FAILURE) ) {
+			if (agregar_a_cola(entrenador_listo, cola_de_listos, mutex_cola_listos) != -1)
+				signalSemaforo(semaforo_de_listos);
+		}
 	}
+
 
 	if (cambio_metadata) {
 		cambio_metadata = false;
@@ -572,6 +568,7 @@ int correr_srdf() {
 	int i;
 	int result = EXIT_SUCCESS;
 	keep_running = true;
+	//TODO VER EL TEMA DE "quiere_atrapar"
 
 	void una_operacion(t_entrenador * ent) {
 
@@ -596,6 +593,12 @@ int correr_srdf() {
 			agregar_a_cola(e, cola_de_listos, mutex_cola_listos);
 			i--;
 		}
+	}
+
+	if(cambio_metadata) {
+		cambio_metadata = false;
+		releer_metadada();
+		return EXIT_SUCCESS;
 	}
 
 	// Paso 2: Si ya no hay entrenador sin conocer su proxima ubicacion
@@ -656,6 +659,8 @@ int calcularDistanciaAPokenest(t_entrenador* entrenador){
 
 int trainer_handler(t_entrenador * entrenador) {
 
+	pthread_mutex_lock(&(entrenador->mutex_entrenador));
+
 	int buffer_size = sizeof(t_header);
 	void * buffer_in = malloc(buffer_size);
 
@@ -665,6 +670,7 @@ int trainer_handler(t_entrenador * entrenador) {
 
 	//DESCONEXION DE UN ENTRENADOR
 	if (nbytes_recv <= 0) {
+		pthread_mutex_unlock(&(entrenador->mutex_entrenador));
 		desconexion_entrenador(entrenador, nbytes_recv);
 		free(header);
 		return EXIT_FAILURE;
@@ -687,10 +693,18 @@ int trainer_handler(t_entrenador * entrenador) {
 
 	free(header);
 
+	pthread_mutex_unlock(&(entrenador->mutex_entrenador));
+
 	return EXIT_SUCCESS;
 }
 
 int desconexion_entrenador(t_entrenador * entrenador, int nbytes_recv) {
+
+	if (entrenador == NULL)
+		return -1;
+
+	pthread_mutex_lock(&(entrenador->mutex_entrenador));
+
 	if (nbytes_recv == 0) {
 		pthread_mutex_lock(&mutex_log);
 		log_info(logger, "Se desconecto el entrenador %c en el socket %d",
@@ -715,11 +729,6 @@ int desconexion_entrenador(t_entrenador * entrenador, int nbytes_recv) {
 		log_info(logger, "[DEADLOCK]: Se desconecto el entrenador %c por haber perdido la batalla", entrenador->simbolo_entrenador);
 		pthread_mutex_unlock(&mutex_log);
 	}
-//
-//	puts("<<<<<<<<<<<<<<<<<<<<  ANTES DE DESCONEXION  >>>>>>>>>>>>>>>>>>>>>>>>>>");
-//	imprimir_bloqueados();
-//	imprimir_lista(cola_de_listos, "Cola de listos");
-//	imprimir_lista(entrenadores_conectados, "Entrenadores conectados");
 
 	FD_CLR(entrenador->socket, &master_fdset);
 	shutdown(entrenador->socket, 2);
@@ -749,27 +758,20 @@ int desconexion_entrenador(t_entrenador * entrenador, int nbytes_recv) {
 	nivel_gui_dibujar(items_mapa, nombreMapa);
 	pthread_mutex_unlock(&mutex_gui);
 
+	if (entrenador_corriendo == entrenador) {
+		entrenador_corriendo = NULL;
+		keep_running = false;
+		quantum_actual = 0;
+	}
+
 	entrenador_destroyer(entrenador);
-//	entrenador->simbolo_entrenador = ' ';
-//	free(entrenador->nombre_entrenador);
-//	free(entrenador->posicion);
-//	free(entrenador->posicionObjetivo);
-//	//TODO VER BIEN ESTO!!!!
 
-//	puts("<<<<<<<<<<<<<<<<<<<<  DESPUES DE DESCONEXION  >>>>>>>>>>>>>>>>>>>>>>>>>>");
-//	imprimir_bloqueados();
-//	imprimir_lista(cola_de_listos, "Cola de listos");
-//	imprimir_lista(entrenadores_conectados, "Entrenadores conectados");
-//
-
-//	printf("Se desconecto el entrenador: %c\n", entrenador->simbolo_entrenador);
+	pthread_mutex_unlock(&(entrenador->mutex_entrenador));
 
 	return EXIT_FAILURE;
 }
 
 int enviar_ubicacion_pokenest(t_entrenador * entrenador, int id_pokenest) {
-
-//	printf("Enviar ubicacion, entrenador:	%c\n", entrenador->simbolo_entrenador);
 
 	int _on_error() {
 		t_posicion * pos_error = malloc(sizeof(t_posicion));
@@ -787,12 +789,8 @@ int enviar_ubicacion_pokenest(t_entrenador * entrenador, int id_pokenest) {
 		keep_running = false;
 		quantum_actual = 0;
 
-		pthread_mutex_unlock(&(entrenador->mutex_entrenador));
-
 		return EXIT_FAILURE;
 	}
-
-	pthread_mutex_lock(&(entrenador->mutex_entrenador));
 
 	t_pokenest * pokenest = buscar_pokenest_por_id(id_pokenest);
 
@@ -815,24 +813,17 @@ int enviar_ubicacion_pokenest(t_entrenador * entrenador, int id_pokenest) {
 
 	free(coordenadas);
 
-	pthread_mutex_unlock(&(entrenador->mutex_entrenador));
-
 	return EXIT_SUCCESS;
 }
 
 int avanzar_posicion_entrenador(t_entrenador * entrenador, int buffer_size) {
 
-//	printf("Avanzar:	%c\n", entrenador->simbolo_entrenador);
-
 	int _on_error() {
 		keep_running = false;
 		quantum_actual = 0;
 		enviar_header(_RESULTADO_OPERACION, 0, entrenador->socket);
-		pthread_mutex_unlock(&(entrenador->mutex_entrenador));
 		return EXIT_FAILURE;
 	}
-
-	pthread_mutex_lock(&(entrenador->mutex_entrenador));
 
 	void * buffer_in = malloc(buffer_size);
 	t_posicion * movimiento = malloc(sizeof(t_posicion));
@@ -858,7 +849,6 @@ int avanzar_posicion_entrenador(t_entrenador * entrenador, int buffer_size) {
 	free(movimiento);
 
 	enviar_header(_RESULTADO_OPERACION, 1, entrenador->socket);
-	pthread_mutex_unlock(&(entrenador->mutex_entrenador));
 
 	return EXIT_SUCCESS;
 }
@@ -936,7 +926,8 @@ void imprimir_bloqueados() {
 
 int procesar_objetivo_cumplido(t_entrenador * entrenador) {
 
-//	pthread_mutex_lock(&(entrenador->mutex_entrenador));
+	pthread_mutex_unlock(&(entrenador->mutex_entrenador));
+	pthread_mutex_lock(&(entrenador->mutex_entrenador));
 
 	pthread_mutex_lock(&(mutex_log));
 	log_trace(logger, "El entrenador %c ha logrado su objetivo.", entrenador->simbolo_entrenador);
@@ -947,9 +938,9 @@ int procesar_objetivo_cumplido(t_entrenador * entrenador) {
 	//calculo los tiempos y se los envio
 	enviar_datos_finales_entrenador(entrenador);
 
-	desconexion_entrenador(entrenador, -2);
+	pthread_mutex_unlock(&(entrenador->mutex_entrenador));
 
-//	pthread_mutex_lock(&(entrenador->mutex_entrenador));
+	desconexion_entrenador(entrenador, -2);
 
 	return EXIT_SUCCESS;
 }
@@ -961,6 +952,7 @@ void signal_handler(int signal) {
 	switch (signal) {
 
 	case SIGUSR2:
+		algoritmo_anterior = metadata->planificador->algth;
 		if (entrenador_corriendo != NULL) {
 			cambio_metadata = true;
 		} else {
@@ -981,14 +973,22 @@ void signal_handler(int signal) {
 }
 
 void releer_metadada() {
+	pthread_mutex_lock(&mutex_log);
+	log_info(logger, "Cambios en el metadata. Se vuelve a cargar.");
+	pthread_mutex_unlock(&mutex_log);
 	destruir_metadata();
 	leer_metadata_mapa(ruta_directorio);
+
+	if (cola_de_listos->elements_count > 0)
+		signalSemaforo(semaforo_de_listos);
 }
 
 void atender_bloqueados() {
 
 	int cantidad_bloqueados = 0;
 	int i;
+	int r;
+	t_entrenador * e = NULL;
 
 	while (!finalizacionDelPrograma) {
 		waitSemaforo(semaforo_de_bloqueados);
@@ -1008,24 +1008,37 @@ void atender_bloqueados() {
 		for (i = 0; i < cantidad_bloqueados; i++) {
 			t_bloqueado * b = list_get(cola_de_bloqueados, i);
 
-			if (b == NULL)
+			pthread_mutex_lock(&(b->entrenador->mutex_entrenador));
+
+			if (b == NULL) {
+				pthread_mutex_unlock(&(b->entrenador->mutex_entrenador));
 				continue;
+			}
 
 			if (b->entrenador == NULL) {
 				list_remove(cola_de_bloqueados, i);
 				i--;
+				pthread_mutex_unlock(&(b->entrenador->mutex_entrenador));
 				free(b);
+				continue;
 			}
 
 			t_pkm * pkm = obtener_primer_no_capturado(b->pokenest);
+			r = EXIT_SUCCESS;
+			e = b->entrenador;
 
 			if (pkm != NULL /*pudo capturar*/) {
 				list_remove(cola_de_bloqueados, i);
 				i--;
-				generar_captura(b->entrenador, b->pokenest, pkm);
+				r = generar_captura(b->entrenador, b->pokenest, pkm);
 				free(b);
 				cantidad_bloqueados--;
 			}
+
+			if (r != EXIT_FAILURE)
+				pthread_mutex_unlock(&(e->mutex_entrenador));
+
+			e = NULL;
 		}
 
 		pthread_mutex_unlock(&mutex_cola_bloqueados);
@@ -1049,6 +1062,7 @@ int generar_captura(t_entrenador * entrenador, t_pokenest * pokenest, t_pkm * po
 				"Error al tratar de enviar el pokemon al entrenador %c .",
 				entrenador->simbolo_entrenador);
 		pthread_mutex_unlock(&mutex_log);
+		pthread_mutex_unlock(&(entrenador->mutex_entrenador));
 		desconexion_entrenador(entrenador, -2);
 		//interfaz grafica
 		incrementar_recurso(pokenest->identificador);
@@ -1064,12 +1078,10 @@ int generar_captura(t_entrenador * entrenador, t_pokenest * pokenest, t_pkm * po
 	time_t tiempo_desbloqueo;
 	time(&tiempo_desbloqueo);
 
-	pthread_mutex_lock(&(entrenador->mutex_entrenador));
 	list_add(entrenador->pokemonesCapturados, pokemon);
 	entrenador->conoce_ubicacion = false;
 	entrenador->tiempoBloqueado += difftime(tiempo_desbloqueo, entrenador->momentoBloqueado);
 	entrenador->momentoBloqueado = 0;
-	pthread_mutex_unlock(&(entrenador->mutex_entrenador));
 
 	pthread_mutex_lock(&mutex_log);
 	log_trace(logger, "El entrenador %c atrapo a %s .", entrenador->simbolo_entrenador, pokemon->nombre);
