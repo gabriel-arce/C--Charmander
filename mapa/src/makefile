@@ -1,6 +1,6 @@
 # Completar con sus paths
 
-MAPA_SO=mapa.so
+MAPA_SO=mapa
 INSTALL_DIR=/usr/lib
 INSTALL_DIR_INCLUDE=/usr/include
 

@@ -1,26 +1,54 @@
 #bin/bash
 
-function clonar() {
+clonar() {
     git clone $1
 }
 
-function instalarCOMMONS() {
+instalarCOMMONS() {
     cd /home/utnso/workspace/so-commons-library
-    make
     sudo make install
 }
 
-function instalarGUI() {
+instalarGUI() {
     sudo apt-get install libncurses5-dev
     cd /home/utnso/workspace/so-nivel-gui-library
     make
     sudo make install
 }
 
-function instalarPKMNUTILS() {
+instalarPKMNUTILS() {
     cd /home/utnso/workspace/so-pkmn-utils/src
     make all
     sudo make install
+}
+
+instalarSHARED() {
+    cd /home/utnso/workspace/tp-2016-2c-MeQuedeSinPokebolas-/sharedCharmander/
+    sudo make install
+}
+
+instalarCOMUNICACION() {
+    cd /home/utnso/workspace/tp-2016-2c-MeQuedeSinPokebolas-/comunicacion/
+    sudo make install
+}
+
+instalarOSADA() {
+    cd /home/utnso/workspace/tp-2016-2c-MeQuedeSinPokebolas-/osadaFS/
+    sudo make install
+}
+
+compilarTodo() {
+	cd /home/utnso/workspace/tp-2016-2c-MeQuedeSinPokebolas-/mapa/src/
+	sudo make
+	
+	cd /home/utnso/workspace/tp-2016-2c-MeQuedeSinPokebolas-/entrenador/src/
+	sudo make
+
+	cd /home/utnso/workspace/tp-2016-2c-MeQuedeSinPokebolas-/pokedexServidor/src/
+	sudo make
+
+	cd /home/utnso/workspace/tp-2016-2c-MeQuedeSinPokebolas-/pokedexCliente/src/
+	sudo make
 }
 
 export INSTALL_DIR=/usr/lib
@@ -30,13 +58,19 @@ export CHARMANDER_SO=libsharedCharmander.so
 export ENTRENADOR_SO=entrenador.so
 export NIVEL_SO=libcomunicacion.so
 
+repoTP="https://github.com/sisoputnfrba/tp-2016-2c-MeQuedeSinPokebolas-.git"
 repoCommons="https://github.com/sisoputnfrba/so-commons-library.git"
 repoGUI="https://github.com/sisoputnfrba/so-nivel-gui-library.git"
 repoBatalla="https://github.com/sisoputnfrba/so-pkmn-utils.git"
 repoOSADA="https://github.com/sisoputnfrba/osada-utils.git"
 
+
+cd /home/utnso/
+mkdir workspace
 cd /home/utnso/workspace/
 
+
+clonar $repoTP
 clonar $repoCommons
 clonar $repoGUI
 clonar $repoBatalla
@@ -45,5 +79,12 @@ clonar $repoOSADA
 instalarCOMMONS
 instalarGUI
 instalarPKMNUTILS
+instalarSHARED
+instalarCOMUNICACION
+instalarOSADA
+compilarTodo
+
+cd /home/utnso/workspace/
+
 
 
