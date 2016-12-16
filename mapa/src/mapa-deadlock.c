@@ -15,9 +15,11 @@ void run_deadlock_thread() {
 	while(!finalizacionDelPrograma) {
 		usleep(metadata->tiempoChequeoDeadlock);
 
-		pthread_mutex_lock(&mutex_starvation);
+//		pthread_mutex_lock(&mutex_starvation);
+		pthread_mutex_lock(&mutex_global);
 		verificar_desconexion_por_starvation();
-		pthread_mutex_unlock(&mutex_starvation);
+//		pthread_mutex_unlock(&mutex_starvation);
+		pthread_mutex_unlock(&mutex_global);
 
 		if (run_deadlock_algorithm() == -1) {
 			pthread_mutex_lock(&mutex_log);
@@ -31,14 +33,14 @@ void run_deadlock_thread() {
 void verificar_desconexion_por_starvation() {
 	int i;
 
-	pthread_mutex_lock(&mutex_cola_bloqueados);
+//	pthread_mutex_lock(&mutex_cola_bloqueados);
 	for (i = 0; i < cola_de_bloqueados->elements_count; i++) {
 		t_bloqueado * b = list_get(cola_de_bloqueados, i);
 
 		if (b == NULL)
 			continue;
 
-		pthread_mutex_lock(&(b->entrenador->mutex_entrenador));
+//		pthread_mutex_lock(&(b->entrenador->mutex_entrenador));
 
 		struct timeval tv;
 
@@ -53,7 +55,7 @@ void verificar_desconexion_por_starvation() {
 		setsockopt(b->entrenador->socket, SOL_SOCKET, SO_REUSEADDR, &optval, sizeof(int));
 
 		if (header == NULL) {
-			pthread_mutex_unlock(&(b->entrenador->mutex_entrenador));
+//			pthread_mutex_unlock(&(b->entrenador->mutex_entrenador));
 			continue;
 		}
 
@@ -61,18 +63,18 @@ void verificar_desconexion_por_starvation() {
 			pthread_mutex_lock(&mutex_log);
 			log_trace(logger, "El entrenador %c finalizo por algun motivo, o se mato el proceso por estar en inanicion.", b->entrenador->simbolo_entrenador);
 			pthread_mutex_unlock(&mutex_log);
-			pthread_mutex_unlock(&(b->entrenador->mutex_entrenador));
+//			pthread_mutex_unlock(&(b->entrenador->mutex_entrenador));
 			sacar_de_bloqueados(b->entrenador);
 			desconexion_entrenador(b->entrenador, -3);
 			i--;
 			free(b);
 			b = NULL;
 		} else {
-			pthread_mutex_unlock(&(b->entrenador->mutex_entrenador));
+//			pthread_mutex_unlock(&(b->entrenador->mutex_entrenador));
 		}
 	}
 
-	pthread_mutex_unlock(&mutex_cola_bloqueados);
+//	pthread_mutex_unlock(&mutex_cola_bloqueados);
 }
 
 int run_deadlock_algorithm() {
@@ -81,7 +83,6 @@ int run_deadlock_algorithm() {
 		return 0;
 
 	int pos = 0;
-	//AUN NO SE SI LO VOY A NECESITAR
 	int * temp_disp = vector_copy(disponibles, temp_pokenests->elements_count);
 
 	//marcar aquellos que no tienen ningun pokemon asignado
@@ -130,6 +131,7 @@ int run_deadlock_algorithm() {
 
 	if (cantidad_en_DL > 1) {
 		if (metadata->batalla) {
+			pthread_mutex_lock(&mutex_global);
 			loser = let_the_battle_begins();
 
 			if (loser == NULL) {
@@ -143,6 +145,7 @@ int run_deadlock_algorithm() {
 			log_trace(logger, "[DEADLOCK] El entrenador %c(%s) ha perdido la batalla.", loser->simbolo_entrenador, loser->nombre_entrenador);
 			pthread_mutex_unlock(&mutex_log);
 			desconexion_entrenador(loser, 1);
+			pthread_mutex_unlock(&mutex_global);
 		}
 	}
 
@@ -182,25 +185,27 @@ void destroy_vector(int * vector) {
 
 int snapshot_del_sistema() {
 
-	pthread_mutex_lock(&mutex_planificador_turno);
+//	pthread_mutex_lock(&mutex_planificador_turno);
+	pthread_mutex_lock(&mutex_global);
 
 	if (entrenadores_conectados->elements_count <= 1) {
-		pthread_mutex_unlock(&mutex_planificador_turno);
+//		pthread_mutex_unlock(&mutex_planificador_turno);
+		pthread_mutex_unlock(&mutex_global);
 		return -1;
 	}
 
-	pthread_mutex_lock(&mutex_pokenests);
+//	pthread_mutex_lock(&mutex_pokenests);
 	temp_pokenests = snapshot_list(lista_de_pokenests);
 	disponibles = crear_vector_Disponibles();
-	pthread_mutex_unlock(&mutex_pokenests);
+//	pthread_mutex_unlock(&mutex_pokenests);
 
-	pthread_mutex_lock(&mutex_entrenadores);
+//	pthread_mutex_lock(&mutex_entrenadores);
 	temp_entrenadores = snapshot_list(entrenadores_conectados);
 	asignados = crear_matriz_Asignados();
 		pthread_mutex_lock(&mutex_cola_bloqueados);
 		solicitudes = crear_matriz_Solicitudes();
 		pthread_mutex_unlock(&mutex_cola_bloqueados);
-	pthread_mutex_unlock(&mutex_entrenadores);
+//	pthread_mutex_unlock(&mutex_entrenadores);
 
 	pthread_mutex_lock(&mutex_log);
 	imprimir_pokenests_en_log();
@@ -210,7 +215,8 @@ int snapshot_del_sistema() {
 	imprimir_matriz_en_log(solicitudes, "Matriz Solicitudes");
 	pthread_mutex_unlock(&mutex_log);
 
-	pthread_mutex_unlock(&mutex_planificador_turno);
+//	pthread_mutex_unlock(&mutex_planificador_turno);
+	pthread_mutex_unlock(&mutex_global);
 
 	marcados = crear_vector(temp_entrenadores->elements_count);
 

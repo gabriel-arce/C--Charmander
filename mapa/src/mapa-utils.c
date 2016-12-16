@@ -46,6 +46,7 @@ void inicializar_semaforos() {
 	semaforo_de_bloqueados = crearSemaforo(0);
 	on_error_sem(semaforo_de_bloqueados);
 	pthread_mutex_init(&mutex_starvation, 0);
+	pthread_mutex_init(&mutex_global, 0);
 }
 
 void destruir_semaforos() {
@@ -285,7 +286,7 @@ int incrementar_recurso(char id_pokenest) {
 
 void sacar_de_listos(t_entrenador * entrenador) {
 
-	pthread_mutex_lock(&mutex_cola_listos);
+//	pthread_mutex_lock(&mutex_cola_listos);
 
 	int listos = list_size(cola_de_listos);
 	int i;
@@ -298,12 +299,12 @@ void sacar_de_listos(t_entrenador * entrenador) {
 		}
 	}
 
-	pthread_mutex_unlock(&mutex_cola_listos);
+//	pthread_mutex_unlock(&mutex_cola_listos);
 }
 
 void sacar_de_conectados(t_entrenador * entrenador) {
 
-	pthread_mutex_lock(&(mutex_entrenadores));
+//	pthread_mutex_lock(&(mutex_entrenadores));
 
 	int totales = list_size(entrenadores_conectados);
 	int i;
@@ -324,7 +325,7 @@ void sacar_de_conectados(t_entrenador * entrenador) {
 		}
 	}
 
-	pthread_mutex_unlock(&(mutex_entrenadores));
+//	pthread_mutex_unlock(&(mutex_entrenadores));
 }
 
 void sacar_de_bloqueados(t_entrenador * e) {
@@ -389,7 +390,7 @@ int agregar_a_cola(t_entrenador * entrenador, t_list * cola, pthread_mutex_t mut
 
 	int result = 0;
 
-	pthread_mutex_lock(&mutex);
+//	pthread_mutex_lock(&mutex);
 	bool ya_esta_en_cola = false;
 
 	int i;
@@ -406,7 +407,7 @@ int agregar_a_cola(t_entrenador * entrenador, t_list * cola, pthread_mutex_t mut
 		list_add(cola, entrenador);
 	else
 		result = -1;
-	pthread_mutex_unlock(&mutex);
+//	pthread_mutex_unlock(&mutex);
 
 	return result;
 }
