@@ -45,6 +45,7 @@ void inicializar_semaforos() {
 	on_error_sem(semaforo_de_listos);
 	semaforo_de_bloqueados = crearSemaforo(0);
 	on_error_sem(semaforo_de_bloqueados);
+	pthread_mutex_init(&mutex_starvation, 0);
 }
 
 void destruir_semaforos() {

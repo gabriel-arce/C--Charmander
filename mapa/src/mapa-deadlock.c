@@ -15,7 +15,9 @@ void run_deadlock_thread() {
 	while(!finalizacionDelPrograma) {
 		usleep(metadata->tiempoChequeoDeadlock);
 
+		pthread_mutex_lock(&mutex_starvation);
 		verificar_desconexion_por_starvation();
+		pthread_mutex_unlock(&mutex_starvation);
 
 		if (run_deadlock_algorithm() == -1) {
 			pthread_mutex_lock(&mutex_log);
@@ -40,7 +42,7 @@ void verificar_desconexion_por_starvation() {
 
 		struct timeval tv;
 
-		tv.tv_sec = 2;  /* 2 Secs Timeout */
+		tv.tv_sec = 1;  /* 2 Secs Timeout */
 		tv.tv_usec = 0;  // Not init'ing this can cause strange errors
 
 		setsockopt(b->entrenador->socket, SOL_SOCKET, SO_RCVTIMEO, (char *)&tv,sizeof(struct timeval));
@@ -57,7 +59,7 @@ void verificar_desconexion_por_starvation() {
 
 		if (header->identificador == _DESCONEXION) {
 			pthread_mutex_lock(&mutex_log);
-			log_trace(logger, "El entrenador %c estaba en STARVATION y se desconecto.", b->entrenador->simbolo_entrenador);
+			log_trace(logger, "El entrenador %c finalizo por algun motivo, o se mato el proceso por estar en inanicion.", b->entrenador->simbolo_entrenador);
 			pthread_mutex_unlock(&mutex_log);
 			pthread_mutex_unlock(&(b->entrenador->mutex_entrenador));
 			sacar_de_bloqueados(b->entrenador);

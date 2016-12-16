@@ -49,8 +49,8 @@
 #define _RESULTADO_OPERACION 12
 #define _DESCONEXION 13
 
-#define __FILAS 50
-#define __COLUMNAS 50
+#define __FILAS 20
+#define __COLUMNAS 20
 
 typedef enum{
 	RR,
@@ -132,6 +132,8 @@ pthread_mutex_t mutex_entrenadores;
 pthread_mutex_t mutex_cola_prioridadSRDF;
 pthread_mutex_t mutex_log;
 pthread_mutex_t mutex_pokenests;
+
+pthread_mutex_t mutex_starvation;
 
 char * nombreMapa;   //se setea con argumento en consola
 char * ruta_directorio;

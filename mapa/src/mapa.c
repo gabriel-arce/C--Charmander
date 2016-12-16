@@ -999,6 +999,10 @@ void atender_bloqueados() {
 	while (!finalizacionDelPrograma) {
 		waitSemaforo(semaforo_de_bloqueados);
 
+		pthread_mutex_lock(&mutex_starvation);
+		verificar_desconexion_por_starvation();
+		pthread_mutex_unlock(&mutex_starvation);
+
 		loguear_cola_de_bloqueados();
 
 		//TODO GUARDA CON ESTO!!!!
