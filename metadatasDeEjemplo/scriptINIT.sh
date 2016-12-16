@@ -86,8 +86,8 @@ compilarTodo
 
 export SERVER_PORT=4969
 
-cd /home/utnso/workspace/
-chmod -R 777 workspace/ 
+cd /home/utnso/
+sudo chmod -R 777 workspace/ 
 
 cd /home/utnso/workspace/tp-2016-2c-MeQuedeSinPokebolas-/pokedexCliente/src/
 mkdir tmp
