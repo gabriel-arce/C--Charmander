@@ -168,6 +168,7 @@ void rutina(int signal){
 				if(estoyBloqueado){
 				estoyBloqueado = false;
 				close(socket_entrenador);
+				socket_entrenador = -1;
 				}
 			}
 			break;
@@ -718,8 +719,8 @@ void pokemon_destroyer(t_pkm * p) {
 }
 
 void desconectarseDeMapa(){
-
-	close(socket_entrenador);
+	if(socket_entrenador != -1)
+		close(socket_entrenador);
 	limpiar_pokemons_en_directorio();
 	list_clean_and_destroy_elements(pokemonesCapturados, (void *) pokemon_destroyer);
 	pokenestLocalizada = false;
