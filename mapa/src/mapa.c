@@ -519,15 +519,15 @@ int correr_rr() {
 	// Ejecuto al entrenador listo
 	while ( keep_running && !cambio_metadata ) {
 
-//		pthread_mutex_lock(&mutex_planificador_turno);
-		pthread_mutex_lock(&mutex_global);
+		pthread_mutex_lock(&mutex_planificador_turno);
+//		pthread_mutex_lock(&mutex_global);
 
 		if ( (quantum_actual <= 0) ^ (entrenador_listo->bloqueado) ^ (entrenador_listo->objetivo_cumplido) ) {
 			keep_running = false;
 			quantum_actual = 0;
 			entrenador_corriendo = NULL;
-//			pthread_mutex_unlock(&mutex_planificador_turno);
-			pthread_mutex_unlock(&mutex_global);
+			pthread_mutex_unlock(&mutex_planificador_turno);
+//			pthread_mutex_unlock(&mutex_global);
 			continue;
 		}
 
@@ -537,18 +537,18 @@ int correr_rr() {
 			keep_running = false;
 			quantum_actual = 0;
 			entrenador_corriendo = NULL;
-//			pthread_mutex_unlock(&mutex_planificador_turno);
+			pthread_mutex_unlock(&mutex_planificador_turno);
 			pthread_mutex_unlock(&mutex_global);
 			break;
 		}
 
 		quantum_actual--;
 
-//		pthread_mutex_unlock(&mutex_planificador_turno);
-		pthread_mutex_unlock(&mutex_global);
+		pthread_mutex_unlock(&mutex_planificador_turno);
+//		pthread_mutex_unlock(&mutex_global);
 	}
 
-	pthread_mutex_lock(&mutex_global);
+//	pthread_mutex_lock(&mutex_global);
 	// Verifico si el entrenador vuelve a la cola de listos
 	if ( (entrenador_listo != NULL) && (entrenador_listo->conectado) ) {
 		if ( (!quiere_atrapar) && (!(entrenador_listo->bloqueado)) && (!(entrenador_listo->objetivo_cumplido)) && (result != EXIT_FAILURE) ) {
@@ -556,7 +556,7 @@ int correr_rr() {
 				signalSemaforo(semaforo_de_listos);
 		}
 	}
-	pthread_mutex_unlock(&mutex_global);
+//	pthread_mutex_unlock(&mutex_global);
 
 	if (cambio_metadata) {
 		cambio_metadata = false;

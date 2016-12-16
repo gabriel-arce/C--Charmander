@@ -185,8 +185,8 @@ void destroy_vector(int * vector) {
 
 int snapshot_del_sistema() {
 
-//	pthread_mutex_lock(&mutex_planificador_turno);
 	pthread_mutex_lock(&mutex_global);
+//	pthread_mutex_lock(&mutex_planificador_turno);
 
 	if (entrenadores_conectados->elements_count <= 1) {
 //		pthread_mutex_unlock(&mutex_planificador_turno);
