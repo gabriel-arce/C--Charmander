@@ -38,7 +38,5 @@ int main(int argc, char ** argv) {
 	finalizarEntrenador();
 	liberarRecursos();
 
-	close(socket_entrenador);
-
 	return EXIT_SUCCESS;
 }

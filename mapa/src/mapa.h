@@ -92,6 +92,7 @@ typedef struct {
 	bool objetivo_cumplido;
 	bool conoce_ubicacion;
 	pthread_mutex_t mutex_entrenador;
+	bool conectado;
 } t_entrenador;
 
 typedef struct {

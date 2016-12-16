@@ -99,9 +99,8 @@ void entrenador_destroyer(t_entrenador * e) {
 	free(e->posicion);
 	free(e->pokemonesCapturados);
 	free(e->posicionObjetivo);
-	pthread_mutex_destroy(&(e->mutex_entrenador));
-	free(e);
-	e = NULL;
+//	free(e);
+//	e = NULL;
 }
 
 void pkm_destroyer(t_pkm * p) {
@@ -244,12 +243,21 @@ void ordenar_pokemons(t_list * pokemons) {
 
 int liberar_pokemons(t_entrenador * e) {
 
+	char * msg = string_duplicate("Pokemons liberados: [");
+
 	void free_pkm(t_pkm * p) {
 		p->capturado = false;
+		string_append_with_format(&msg, " %s(%d) ", p->nombre, p->nivel);
 		//Interfaz grafica
 		incrementar_recurso(p->id_pokenest);
 	}
 	list_iterate(e->pokemonesCapturados, (void *) free_pkm);
+
+	string_append(&msg, "]");
+	pthread_mutex_lock(&mutex_log);
+	log_trace(logger, msg);
+	pthread_mutex_unlock(&mutex_log);
+	free(msg);
 
 	list_clean(e->pokemonesCapturados);
 

@@ -454,12 +454,12 @@ t_entrenador * recibir_datos_entrenador(int socket_entrenador, int data_buffer_s
 	trainer_sesion->objetivo_cumplido = false;
 	trainer_sesion->conoce_ubicacion = false;
 	pthread_mutex_init(&(trainer_sesion->mutex_entrenador), 0);
+	trainer_sesion->conectado = true;
 
 	//Interfaz grafica
 	pthread_mutex_lock(&mutex_gui);
 	CrearPersonaje(items_mapa, trainer_sesion->simbolo_entrenador,
 			trainer_sesion->posicion->x, trainer_sesion->posicion->y);
-
 	nivel_gui_dibujar(items_mapa, nombreMapa);
 	pthread_mutex_unlock(&mutex_gui);
 
@@ -545,7 +545,7 @@ int correr_rr() {
 	}
 
 	// Verifico si el entrenador vuelve a la cola de listos
-	if (entrenador_listo != NULL) {
+	if ( (entrenador_listo != NULL) && (entrenador_listo->conectado) ) {
 		if ( (!quiere_atrapar) && (!(entrenador_listo->bloqueado)) && (!(entrenador_listo->objetivo_cumplido)) && (result != EXIT_FAILURE) ) {
 			if (agregar_a_cola(entrenador_listo, cola_de_listos, mutex_cola_listos) != -1)
 				signalSemaforo(semaforo_de_listos);
@@ -705,7 +705,9 @@ int desconexion_entrenador(t_entrenador * entrenador, int nbytes_recv) {
 
 	pthread_mutex_lock(&(entrenador->mutex_entrenador));
 
-	if (nbytes_recv == 0) {
+	entrenador->conectado = false;
+
+	if ( (nbytes_recv == 0) || (nbytes_recv == -3) ) {
 		pthread_mutex_lock(&mutex_log);
 		log_info(logger, "Se desconecto el entrenador %c en el socket %d",
 				entrenador->simbolo_entrenador, entrenador->socket);
@@ -742,11 +744,12 @@ int desconexion_entrenador(t_entrenador * entrenador, int nbytes_recv) {
 	sacar_de_conectados(entrenador);
 
 	//fijarse a nivel pokenest las colas de bloqueados
-	if (nbytes_recv != -2) {
-		pthread_mutex_lock(&mutex_cola_bloqueados);
+	//TODO VER BIEN EL RACE CONDITION DE ESTO
+	//if (nbytes_recv != -2) {
+		//pthread_mutex_lock(&mutex_cola_bloqueados);
 		sacar_de_bloqueados(entrenador);
-		pthread_mutex_unlock(&mutex_cola_bloqueados);
-	} //else (nbytes_recv == -2) -> el porque ya finalizo en el mapa y ya no está mas en bloqueados
+		//pthread_mutex_unlock(&mutex_cola_bloqueados);
+//	} //else (nbytes_recv == -2) -> el porque ya finalizo en el mapa y ya no está mas en bloqueados
 
 	//liberar pokemons capturados
 	liberar_pokemons(entrenador);
@@ -767,6 +770,9 @@ int desconexion_entrenador(t_entrenador * entrenador, int nbytes_recv) {
 	entrenador_destroyer(entrenador);
 
 	pthread_mutex_unlock(&(entrenador->mutex_entrenador));
+
+	free(entrenador);
+	entrenador = NULL;
 
 	return EXIT_FAILURE;
 }
@@ -1015,11 +1021,12 @@ void atender_bloqueados() {
 				continue;
 			}
 
-			if (b->entrenador == NULL) {
+			if (b->entrenador == NULL || !(b->entrenador->conectado)) {
 				list_remove(cola_de_bloqueados, i);
 				i--;
 				pthread_mutex_unlock(&(b->entrenador->mutex_entrenador));
 				free(b);
+				b = NULL;
 				continue;
 			}
 
@@ -1032,11 +1039,14 @@ void atender_bloqueados() {
 				i--;
 				r = generar_captura(b->entrenador, b->pokenest, pkm);
 				free(b);
+				b = NULL;
 				cantidad_bloqueados--;
 			}
 
-			if (r != EXIT_FAILURE)
-				pthread_mutex_unlock(&(e->mutex_entrenador));
+			if (r != EXIT_FAILURE) {
+				if (e != NULL && e->conectado)
+					pthread_mutex_unlock(&(e->mutex_entrenador));
+			}
 
 			e = NULL;
 		}

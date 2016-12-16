@@ -28,8 +28,6 @@ void run_deadlock_thread() {
 
 void verificar_desconexion_por_starvation() {
 	int i;
-	int bytes = 0;
-	void * buffer = malloc(1);
 
 	pthread_mutex_lock(&mutex_cola_bloqueados);
 	for (i = 0; i < cola_de_bloqueados->elements_count; i++) {
@@ -47,7 +45,6 @@ void verificar_desconexion_por_starvation() {
 
 		setsockopt(b->entrenador->socket, SOL_SOCKET, SO_RCVTIMEO, (char *)&tv,sizeof(struct timeval));
 
-		//bytes = recv(b->entrenador->socket, buffer, 1, 0);
 		t_header * header = recibir_header(b->entrenador->socket);
 
 		int optval = 1;
@@ -58,19 +55,19 @@ void verificar_desconexion_por_starvation() {
 			continue;
 		}
 
-//		if (bytes == -1) {
 		if (header->identificador == _DESCONEXION) {
 			pthread_mutex_lock(&mutex_log);
 			log_trace(logger, "El entrenador %c estaba en STARVATION y se desconecto.", b->entrenador->simbolo_entrenador);
 			pthread_mutex_unlock(&mutex_log);
 			pthread_mutex_unlock(&(b->entrenador->mutex_entrenador));
-			desconexion_entrenador(b->entrenador, 0);
-			list_remove(cola_de_bloqueados, i);
+			sacar_de_bloqueados(b->entrenador);
+			desconexion_entrenador(b->entrenador, -3);
 			i--;
 			free(b);
+			b = NULL;
+		} else {
+			pthread_mutex_unlock(&(b->entrenador->mutex_entrenador));
 		}
-
-		pthread_mutex_unlock(&(b->entrenador->mutex_entrenador));
 	}
 
 	pthread_mutex_unlock(&mutex_cola_bloqueados);

@@ -173,7 +173,6 @@ void rutina(int signal){
 		case SIGINT:
 			puts("\nMuerte forzosa. Bye...");
 			enviar_header(_DESCONEXION, 0, socket_entrenador);
-			close(socket_entrenador);
 			limpiar_pokemons_en_directorio();
 			rm_de_medallas();
 			finalizarEntrenador();
@@ -610,7 +609,7 @@ bool estoyEnPokenest() {
 void imprimirLogro(){
 
 	puts("***************************--------***************************");
-	puts("Te has convertido en un maestro pokemon!");
+	printf("%s: Te has convertido en un maestro pokemon!\n", nombreEntrenador);
 	printf("El tiempo total de tu aventura fue de: %f segundos \n ", tiempoDeJuego);
 	printf("Pasaste %f segundos bloqueado \n", tiempoBloqueado);
 	printf("Estuviste involucrado en %d deadlocks \n", deadlocksInvolucrados);
