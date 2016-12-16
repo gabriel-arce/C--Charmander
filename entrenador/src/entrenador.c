@@ -161,11 +161,13 @@ void rutina(int signal){
 				metadata->vidas --;
 				puts("Se ha quitado una vida al entrenador");
 				printf("El entrenador tiene: %d vidas \n", metadata->vidas);
-			} else {
+			}
+			else {
 				puts("El entrenador no tiene mas vidas!");
 				muereEntrenador = true;
-				if (estoyBloqueado) {
-					muerteEntrenador();
+				if(estoyBloqueado){
+				estoyBloqueado = false;
+				close(socket_entrenador);
 				}
 			}
 			break;
@@ -391,8 +393,14 @@ void atraparPokemon(){
 		header_in = recibir_header(socket_entrenador);
 
 		if (header_in == NULL) {
-			puts("Error al recibir header");
-			finalizacionAbrupta();
+			if(estoyBloqueado == false){
+				//retorna porque murio por consecuencia de la señal
+				return;
+			}
+			else{
+				puts("Error al recibir header");
+				finalizacionAbrupta();
+			}
 		}
 
 		switch (header_in->identificador) {
