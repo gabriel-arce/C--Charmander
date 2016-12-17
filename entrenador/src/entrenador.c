@@ -166,9 +166,10 @@ void rutina(int signal){
 				puts("El entrenador no tiene mas vidas!");
 				muereEntrenador = true;
 				if(estoyBloqueado){
-				estoyBloqueado = false;
-				close(socket_entrenador);
-				socket_entrenador = -1;
+					enviar_header(_DESCONEXION, 0, socket_entrenador);
+					estoyBloqueado = false;
+					close(socket_entrenador);
+					socket_entrenador = -1;
 				}
 			}
 			break;
@@ -664,6 +665,8 @@ void muerteEntrenador() {
 	muereEntrenador = false;
 	cantidadDeMuertes += 1;
 	puts("El entrenador a muerto");
+
+	enviar_header(_DESCONEXION, 0, socket_entrenador);
 
 	if(metadata->vidas > 0){
 		metadata->vidas -= 1;

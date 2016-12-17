@@ -17,6 +17,7 @@ int main(int argc, char ** argv) {
 
 	signal(SIGUSR2, signal_handler);
 	signal(SIGINT, signal_handler);
+	signal(SIGUSR1, signal_handler);
 
 	if (chequear_argumentos(argc, TOTAL_ARGS) == -1) {
 		pthread_mutex_lock(&mutex_log);

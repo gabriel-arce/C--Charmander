@@ -1018,6 +1018,16 @@ void signal_handler(int signal) {
 		finalizarPrograma();
 		break;
 
+	case SIGUSR1:
+		//Salvation signal
+		pthread_mutex_unlock(&mutex_cola_listos);
+		pthread_mutex_unlock(&mutex_cola_bloqueados);
+		signalSemaforo(semaforo_de_listos);
+		signalSemaforo(semaforo_de_bloqueados);
+		pthread_mutex_unlock(&mutex_global);
+		pthread_mutex_unlock(&mutex_planificador_turno);
+		break;
+
 	default:
 		pthread_mutex_lock(&mutex_log);
 		log_error(logger, "Signal sin definir");
