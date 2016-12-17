@@ -47,6 +47,7 @@ void inicializar_semaforos() {
 	on_error_sem(semaforo_de_bloqueados);
 	pthread_mutex_init(&mutex_starvation, 0);
 	pthread_mutex_init(&mutex_global, 0);
+	pthread_mutex_init(&mutex_metadata, 0);
 }
 
 void destruir_semaforos() {
@@ -101,8 +102,8 @@ void entrenador_destroyer(t_entrenador * e) {
 	free(e->posicion);
 	free(e->pokemonesCapturados);
 	free(e->posicionObjetivo);
-//	free(e);
-//	e = NULL;
+	free(e);
+	e = NULL;
 }
 
 void pkm_destroyer(t_pkm * p) {
@@ -110,7 +111,6 @@ void pkm_destroyer(t_pkm * p) {
 	free(p->nombreArchivo);
 	free(p);
 }
-
 
 void pokenest_destroyer(t_pokenest * r) {
 	free(r->nombre);
@@ -122,11 +122,9 @@ void pokenest_destroyer(t_pokenest * r) {
 }
 
 void item_destroyer(void * item) {
-
 	ITEM_NIVEL * i = (ITEM_NIVEL *) item;
-
-	free(i);
 //	BorrarItem(items_mapa, i->id);
+	free(i);
 }
 
 void pokemon_remover(t_pkm * pkm, t_list * list) {
@@ -332,7 +330,7 @@ void sacar_de_bloqueados(t_entrenador * e) {
 
 	int i;
 	int n = list_size(cola_de_bloqueados);
-	t_bloqueado * b;
+	t_bloqueado * b = NULL;
 	bool encontro = false;
 
 	for (i = 0; i < n; i++) {
@@ -344,9 +342,12 @@ void sacar_de_bloqueados(t_entrenador * e) {
 		}
 	}
 
-	if (encontro)
-		list_remove(cola_de_bloqueados, i);
+	if (encontro) {
+		t_bloqueado * bloq = list_remove(cola_de_bloqueados, i);
 
+		if (bloq != NULL)
+			free(bloq);
+	}
 }
 
 t_pkm * obtener_primer_no_capturado(t_pokenest * pokenest) {
@@ -544,6 +545,7 @@ void loguear_metadata() {
 	string_append_with_format(&msg, "Retardo de turno: %d\n", metadata->planificador->retardo_turno);
 	string_append_with_format(&msg, "Retardo DL: %d\n", metadata->tiempoChequeoDeadlock);
 	string_append_with_format(&msg, "Batalla: %d", metadata->batalla);
+	string_append(&msg, "\n**********************\n");
 
 	pthread_mutex_lock(&mutex_log);
 	log_info(logger, msg);

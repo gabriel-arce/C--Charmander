@@ -135,6 +135,7 @@ pthread_mutex_t mutex_pokenests;
 
 pthread_mutex_t mutex_starvation;
 pthread_mutex_t mutex_global;
+pthread_mutex_t mutex_metadata;
 
 char * nombreMapa;   //se setea con argumento en consola
 char * ruta_directorio;

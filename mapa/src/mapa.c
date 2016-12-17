@@ -410,8 +410,11 @@ int procesar_nuevo_entrenador(int socket_entrenador, int buffer_size) {
 //	pthread_mutex_unlock(&mutex_entrenadores);
 
 	//manda a listos al entrenador
+
+	pthread_mutex_lock(&mutex_cola_listos);
 	if (agregar_a_cola(nuevo_entrenador, cola_de_listos, mutex_cola_listos) != -1)
 		signalSemaforo(semaforo_de_listos);
+	pthread_mutex_unlock(&mutex_cola_listos);
 
 	return 0;
 }
@@ -503,7 +506,15 @@ int run_algorithm() {
 
 int correr_rr() {
 
+	if (cambio_metadata) {
+		cambio_metadata = false;
+		releer_metadada();
+		return EXIT_SUCCESS;
+	}
+
+	pthread_mutex_lock(&mutex_metadata);
 	quantum_actual = metadata->planificador->quantum;
+	pthread_mutex_unlock(&mutex_metadata);
 	keep_running = true;
 	int result;
 	quiere_atrapar = false;
@@ -548,20 +559,22 @@ int correr_rr() {
 //		pthread_mutex_unlock(&mutex_global);
 	}
 
-//	pthread_mutex_lock(&mutex_global);
-	// Verifico si el entrenador vuelve a la cola de listos
-	if ( (entrenador_listo != NULL) && (entrenador_listo->conectado) ) {
-		if ( (!quiere_atrapar) && (!(entrenador_listo->bloqueado)) && (!(entrenador_listo->objetivo_cumplido)) && (result != EXIT_FAILURE) ) {
-			if (agregar_a_cola(entrenador_listo, cola_de_listos, mutex_cola_listos) != -1)
-				signalSemaforo(semaforo_de_listos);
-		}
-	}
-//	pthread_mutex_unlock(&mutex_global);
-
 	if (cambio_metadata) {
 		cambio_metadata = false;
 		releer_metadada();
 	}
+
+//	pthread_mutex_lock(&mutex_global);
+	// Verifico si el entrenador vuelve a la cola de listos
+	if ( (entrenador_listo != NULL) && (entrenador_listo->conectado) ) {
+		if ( (!quiere_atrapar) && (!(entrenador_listo->bloqueado)) && (!(entrenador_listo->objetivo_cumplido)) && (result != EXIT_FAILURE) ) {
+			pthread_mutex_lock(&mutex_cola_listos);
+			if (agregar_a_cola(entrenador_listo, cola_de_listos, mutex_cola_listos) != -1)
+				signalSemaforo(semaforo_de_listos);
+			pthread_mutex_unlock(&mutex_cola_listos);
+		}
+	}
+//	pthread_mutex_unlock(&mutex_global);
 
 	entrenador_corriendo = NULL;
 
@@ -569,6 +582,13 @@ int correr_rr() {
 }
 
 int correr_srdf() {
+
+	if (cambio_metadata) {
+		cambio_metadata = false;
+		releer_metadada();
+		return EXIT_SUCCESS;
+	}
+
 	int cantidad_en_listos = list_size(cola_de_listos);
 	int i;
 	int result = EXIT_SUCCESS;
@@ -582,32 +602,34 @@ int correr_srdf() {
 			return;
 		}
 
-//		pthread_mutex_lock(&mutex_planificador_turno);
 		result = trainer_handler(ent);
 
 		if (result == EXIT_FAILURE) {
 			keep_running = false;
 		}
 
-//		pthread_mutex_unlock(&mutex_planificador_turno);
 	}
 
 	// Paso 1: Atiedo una sola operacion de a aquellos que no
 	// conozcan su distancia a la proxima pokenest
-	pthread_mutex_lock(&mutex_global);
+//	pthread_mutex_lock(&mutex_global);
+	pthread_mutex_lock(&mutex_planificador_turno);
 	for (i = 0; i < cantidad_en_listos; i++) {
 		t_entrenador * e = list_get(cola_de_listos, i);
 
 		if ( !(e->conoce_ubicacion) ) {
 			una_operacion(e);
-			list_remove(cola_de_listos, i);
-			agregar_a_cola(e, cola_de_listos, mutex_cola_listos);
-			i--;
+			if (e != NULL) {
+				list_remove(cola_de_listos, i);
+				agregar_a_cola(e, cola_de_listos, mutex_cola_listos);
+				i--;
+			}
 		}
 	}
-	pthread_mutex_unlock(&mutex_global);
+	pthread_mutex_unlock(&mutex_planificador_turno);
+//	pthread_mutex_unlock(&mutex_global);
 
-	if(cambio_metadata) {
+	if (cambio_metadata) {
 		cambio_metadata = false;
 		releer_metadada();
 		return EXIT_SUCCESS;
@@ -617,6 +639,9 @@ int correr_srdf() {
 	// ordeno la cola de listos segun el calculo de distancias y saco el primero
 	t_entrenador * entrenador = calcularSRDF();
 	entrenador_corriendo = entrenador;
+
+	if (entrenador == NULL)
+		return EXIT_FAILURE;
 
 	while (keep_running && !cambio_metadata) {
 		if ( (entrenador->bloqueado) || (entrenador->objetivo_cumplido) || (entrenador == NULL) ) {
@@ -633,10 +658,11 @@ int correr_srdf() {
 		cambio_metadata = false;
 		releer_metadada();
 
-		if ( (!(entrenador->bloqueado)) && (!(entrenador->objetivo_cumplido)) && (result != EXIT_FAILURE) && (entrenador != NULL) ) {
+		if ( (keep_running) && (!(entrenador->bloqueado)) && (!(entrenador->objetivo_cumplido)) && (result != EXIT_FAILURE) && (entrenador != NULL) ) {
 			pthread_mutex_lock(&mutex_cola_listos);
+			if (cola_de_listos->elements_count <= 0)
+				signalSemaforo(semaforo_de_listos);
 			list_add_in_index(cola_de_listos, 0, entrenador);
-			signalSemaforo(semaforo_de_listos);
 			pthread_mutex_unlock(&mutex_cola_listos);
 		}
 	}
@@ -650,7 +676,9 @@ t_entrenador * calcularSRDF(){
 
 	t_entrenador * entrenadorConMenorDistancia;
 
+	pthread_mutex_lock(&mutex_cola_listos);
 	list_sort(cola_de_listos, (void*) entrenadorMasCercaDePokenest);
+	pthread_mutex_unlock(&mutex_cola_listos);
 
 	entrenadorConMenorDistancia = pop_entrenador();
 
@@ -659,8 +687,13 @@ t_entrenador * calcularSRDF(){
 }
 
 bool entrenadorMasCercaDePokenest(t_entrenador * entrenador_cerca, t_entrenador * entrenador_mas_cerca){
-	return ( calcularDistanciaAPokenest(entrenador_cerca) < calcularDistanciaAPokenest(entrenador_mas_cerca));
+	if (entrenador_cerca == NULL)
+		return true;
 
+	if (entrenador_mas_cerca == NULL)
+		return false;
+
+	return ( calcularDistanciaAPokenest(entrenador_cerca) < calcularDistanciaAPokenest(entrenador_mas_cerca));
 }
 
 int calcularDistanciaAPokenest(t_entrenador* entrenador){
@@ -771,8 +804,11 @@ int desconexion_entrenador(t_entrenador * entrenador, int nbytes_recv) {
 	//lo saco de la lista de elementos de la gui y la actualizo
 	//Interfaz grafica
 	pthread_mutex_lock(&mutex_gui);
+	ITEM_NIVEL * item = buscar_item_por_id(entrenador->simbolo_entrenador);
 	BorrarItem(items_mapa, entrenador->simbolo_entrenador);
 	nivel_gui_dibujar(items_mapa, nombreMapa);
+	if (item != NULL)
+		free(item);
 	pthread_mutex_unlock(&mutex_gui);
 
 	if (entrenador_corriendo == entrenador) {
@@ -784,9 +820,6 @@ int desconexion_entrenador(t_entrenador * entrenador, int nbytes_recv) {
 	entrenador_destroyer(entrenador);
 
 //	pthread_mutex_unlock(&(entrenador->mutex_entrenador));
-
-	free(entrenador);
-	entrenador = NULL;
 
 	return EXIT_FAILURE;
 }
@@ -993,11 +1026,13 @@ void signal_handler(int signal) {
 }
 
 void releer_metadada() {
+	pthread_mutex_lock(&mutex_metadata);
 	pthread_mutex_lock(&mutex_log);
 	log_info(logger, "Cambios en el metadata. Se vuelve a cargar.");
 	pthread_mutex_unlock(&mutex_log);
 	destruir_metadata();
 	leer_metadata_mapa(ruta_directorio);
+	pthread_mutex_unlock(&mutex_metadata);
 
 	if (cola_de_listos->elements_count > 0)
 		signalSemaforo(semaforo_de_listos);
@@ -1007,8 +1042,6 @@ void atender_bloqueados() {
 
 	int cantidad_bloqueados = 0;
 	int i;
-	int r;
-	t_entrenador * e = NULL;
 
 	while (!finalizacionDelPrograma) {
 		waitSemaforo(semaforo_de_bloqueados);
@@ -1038,7 +1071,7 @@ void atender_bloqueados() {
 				continue;
 			}
 
-			if (b->entrenador == NULL || !(b->entrenador->conectado)) {
+			if ((b->entrenador == NULL) || !(b->entrenador->conectado)) {
 				list_remove(cola_de_bloqueados, i);
 				i--;
 				free(b);
@@ -1047,19 +1080,16 @@ void atender_bloqueados() {
 			}
 
 			t_pkm * pkm = obtener_primer_no_capturado(b->pokenest);
-			r = EXIT_SUCCESS;
-			e = b->entrenador;
 
 			if (pkm != NULL /*pudo capturar*/) {
 				list_remove(cola_de_bloqueados, i);
 				i--;
-				r = generar_captura(b->entrenador, b->pokenest, pkm);
+				generar_captura(b->entrenador, b->pokenest, pkm);
 				free(b);
 				b = NULL;
 				cantidad_bloqueados--;
 			}
 
-			e = NULL;
 		}
 
 		pthread_mutex_unlock(&mutex_global);

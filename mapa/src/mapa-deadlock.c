@@ -11,9 +11,17 @@
 void run_deadlock_thread() {
 
 	factory = create_pkmn_factory();
+	int retardoDL;
 
 	while(!finalizacionDelPrograma) {
-		usleep(metadata->tiempoChequeoDeadlock);
+		pthread_mutex_lock(&mutex_metadata);
+		retardoDL = metadata->tiempoChequeoDeadlock;
+		pthread_mutex_unlock(&mutex_metadata);
+		usleep(retardoDL);
+
+		pthread_mutex_lock(&mutex_log);
+		log_trace(logger, "Se activa el algoritmo de deteccion de DEADLOCK");
+		pthread_mutex_unlock(&mutex_log);
 
 //		pthread_mutex_lock(&mutex_starvation);
 		pthread_mutex_lock(&mutex_global);
@@ -32,6 +40,7 @@ void run_deadlock_thread() {
 
 void verificar_desconexion_por_starvation() {
 	int i;
+	t_header * header = NULL;
 
 //	pthread_mutex_lock(&mutex_cola_bloqueados);
 	for (i = 0; i < cola_de_bloqueados->elements_count; i++) {
@@ -44,12 +53,12 @@ void verificar_desconexion_por_starvation() {
 
 		struct timeval tv;
 
-		tv.tv_sec = 1;  /* 2 Secs Timeout */
+		tv.tv_sec = 1;  /* 1 Secs Timeout */
 		tv.tv_usec = 0;  // Not init'ing this can cause strange errors
 
 		setsockopt(b->entrenador->socket, SOL_SOCKET, SO_RCVTIMEO, (char *)&tv,sizeof(struct timeval));
 
-		t_header * header = recibir_header(b->entrenador->socket);
+		header = recibir_header(b->entrenador->socket);
 
 		int optval = 1;
 		setsockopt(b->entrenador->socket, SOL_SOCKET, SO_REUSEADDR, &optval, sizeof(int));
@@ -64,14 +73,17 @@ void verificar_desconexion_por_starvation() {
 			log_trace(logger, "El entrenador %c finalizo por algun motivo, o se mato el proceso por estar en inanicion.", b->entrenador->simbolo_entrenador);
 			pthread_mutex_unlock(&mutex_log);
 //			pthread_mutex_unlock(&(b->entrenador->mutex_entrenador));
-			sacar_de_bloqueados(b->entrenador);
+//			sacar_de_bloqueados(b->entrenador);
 			desconexion_entrenador(b->entrenador, -3);
 			i--;
-			free(b);
-			b = NULL;
+//			free(b);
+//			b = NULL;
 		} else {
 //			pthread_mutex_unlock(&(b->entrenador->mutex_entrenador));
 		}
+
+		free(header);
+		header = NULL;
 	}
 
 //	pthread_mutex_unlock(&mutex_cola_bloqueados);
@@ -190,6 +202,9 @@ int snapshot_del_sistema() {
 
 	if (entrenadores_conectados->elements_count <= 1) {
 //		pthread_mutex_unlock(&mutex_planificador_turno);
+		pthread_mutex_lock(&mutex_log);
+		log_trace(logger, "No se procede a ejecutar el algoritmo ya que se encontraron %d entrenadores en el sistema.", entrenadores_conectados->elements_count);
+		pthread_mutex_unlock(&mutex_log);
 		pthread_mutex_unlock(&mutex_global);
 		return -1;
 	}
@@ -527,14 +542,13 @@ t_entrenador * let_the_battle_begins() {
 		return NULL;
 	}
 
-	t_entrenador * entrenador_que_gano = NULL;
-
 	t_pokemon * loser = NULL;
+	t_pokemon * opponent = NULL;
 
 	int i;
 	for (i = 1; i < dls->elements_count; i++) {
 		t_entrenador * entrenador_oponente = list_get(dls, i);
-		t_pokemon * opponent = obtener_el_mas_poronga(entrenador_oponente);
+		opponent = obtener_el_mas_poronga(entrenador_oponente);
 
 		if (opponent == NULL) {
 			//TODO VER BIEN ESTO!!!!!!!!
@@ -554,17 +568,30 @@ t_entrenador * let_the_battle_begins() {
 
 		if (pkm_del_que_perdio == loser){
 			//sigue peleando
-			entrenador_que_gano = entrenador_oponente;
 			free(opponent->species);
 			free(opponent);
 		} else { //opponent == loser
 			free(pkm_del_que_perdio->species);
 			free(pkm_del_que_perdio);
 			pkm_del_que_perdio = opponent;
-			entrenador_que_gano = entrenador_que_perdio;
 			entrenador_que_perdio = entrenador_oponente;
 		}
+
+		opponent = NULL;
 	}
+
+	if (opponent != NULL) {
+		free(opponent->species);
+		free(opponent);
+		opponent = NULL;
+	}
+
+	if (pkm_del_que_perdio != NULL) {
+		free(pkm_del_que_perdio->species);
+		free(pkm_del_que_perdio);
+		pkm_del_que_perdio = NULL;
+	}
+
 
 	void * _on_error(char simb) {
 		pthread_mutex_lock(&mutex_log);
