@@ -545,6 +545,7 @@ int correr_rr() {
 		result = trainer_handler(entrenador_listo);
 
 		if (result == EXIT_FAILURE) {
+			desconexion_entrenador(entrenador_listo, 0);
 			keep_running = false;
 			quantum_actual = 0;
 			entrenador_corriendo = NULL;
@@ -605,6 +606,7 @@ int correr_srdf() {
 		result = trainer_handler(ent);
 
 		if (result == EXIT_FAILURE) {
+			desconexion_entrenador(ent, 0);
 			keep_running = false;
 		}
 
@@ -710,6 +712,7 @@ int trainer_handler(t_entrenador * entrenador) {
 
 	int buffer_size = sizeof(t_header);
 	void * buffer_in = malloc(buffer_size);
+	int result = EXIT_SUCCESS;
 
 	int nbytes_recv = recv(entrenador->socket, buffer_in, buffer_size, 0);
 
@@ -718,7 +721,7 @@ int trainer_handler(t_entrenador * entrenador) {
 	//DESCONEXION DE UN ENTRENADOR
 	if (nbytes_recv <= 0) {
 //		pthread_mutex_unlock(&(entrenador->mutex_entrenador));
-		desconexion_entrenador(entrenador, nbytes_recv);
+//		desconexion_entrenador(entrenador, nbytes_recv);
 		free(header);
 		return EXIT_FAILURE;
 	}
@@ -726,13 +729,13 @@ int trainer_handler(t_entrenador * entrenador) {
 	//OPERACIONES ENTRENADOR
 	switch (header->identificador) {
 		case _UBICACION_POKENEST:
-			enviar_ubicacion_pokenest(entrenador, header->tamanio);
+			result = enviar_ubicacion_pokenest(entrenador, header->tamanio);
 			break;
 		case _MOVER_XY:
-			avanzar_posicion_entrenador(entrenador, header->tamanio);
+			result = avanzar_posicion_entrenador(entrenador, header->tamanio);
 			break;
 		case _CAPTURAR_PKM:
-			atrapar_pokemon(entrenador);
+			result = atrapar_pokemon(entrenador);
 			break;
 		default:
 			break;
@@ -742,7 +745,7 @@ int trainer_handler(t_entrenador * entrenador) {
 
 //	pthread_mutex_unlock(&(entrenador->mutex_entrenador));
 
-	return EXIT_SUCCESS;
+	return result;
 }
 
 int desconexion_entrenador(t_entrenador * entrenador, int nbytes_recv) {
